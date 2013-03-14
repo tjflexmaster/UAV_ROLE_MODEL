@@ -1,0 +1,11 @@
+package NewModel.Utils;
+
+public enum DataType {
+	
+	SEARCH_AOI,
+	TARGET_DESCRIPTION,
+	TERMINATE_SEARCH,
+	TARGET_SIGHTING,
+	SEARCH_AOI_COMPLETE
+	
+}

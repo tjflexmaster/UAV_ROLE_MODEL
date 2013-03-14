@@ -1,14 +1,19 @@
 package NewModel.Simulation;
 
+import java.util.ArrayList;
+
 import NewModel.Roles.RoleState;
 import NewModel.Roles.RoleType;
+import NewModel.Utils.DataType;
 import NewModel.Utils.GlobalTimer;
+import NewModel.Utils.PostOffice;
 
 
 public class Simulator {
 	
 	public static final DefaultTeam team = new DefaultTeam();
 	public static final GlobalTimer timer = new GlobalTimer();
+	public static final PostOffice post_office = new PostOffice();
 	
 	private boolean _running = false;
 	
@@ -30,6 +35,16 @@ public class Simulator {
 	public static int getNextStateTime()
 	{
 		return team.getNextStateTime();
+	}
+	
+	public static ArrayList<DataType> removePosts(RoleState state)
+	{
+		return post_office.removePosts(state);
+	}
+	
+	public static void addPost(RoleState state, DataType data)
+	{
+		post_office.addPost(state, data);
 	}
 	
 	public Simulator()

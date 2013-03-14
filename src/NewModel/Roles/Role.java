@@ -17,12 +17,26 @@ public abstract class Role implements IRole {
 	
 
 	/**
-	 * IMPLEMENT THE LOGIC FOR THE STATE
+	 * This method contains the logic which the role executes
+	 * when it needs to move to the next state.
+	 * Everytime the simulator advances to the next time step it calls
+	 * this method first.  The role should only allow this method to be
+	 * processed if nextStateTime == Simulator.time().  If it is then 
+	 * this method is processed.  This implies that the role is immediately
+	 * placed into its new state.
 	 */
-	public abstract void updateState();
-
 	public abstract boolean processNextState();
 	
+	
+	/**
+	 * This method contains the logic which the role executes when global state
+	 * has changed and the role may need to do something.  This is executed after
+	 * processNextState.  If the role needs to respond to some global state it 
+	 * must do it inside this method.
+	 */
+	public abstract void updateState();
+	
+
 	public int nextStateTime()
 	{
 		return _next_state_time;
