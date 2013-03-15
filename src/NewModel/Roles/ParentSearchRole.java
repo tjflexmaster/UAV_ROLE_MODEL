@@ -26,52 +26,43 @@ public class ParentSearchRole extends Role {
 		state(nextState());
 		
 		//Now determine what our next state will be
-		RoleState new_next_state = null;
 		//Each state has a designated duration
-		int new_next_state_time = 0;
-		
+		int duration = 1;
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
 			case PS_POKE_MM:
-				new_next_state = RoleState.IDLE;
-				new_next_state_time = DurationGenerator.getRandDuration(5, 10);
+				duration = DurationGenerator.getRandDuration(5, 10);
+				nextState(RoleState.IDLE, duration);
 				break;
 			case PS_TX_MM:
-				new_next_state = RoleState.PS_END_MM;
-				new_next_state_time = DurationGenerator.getRandDuration(10, 30);
+				duration = DurationGenerator.getRandDuration(10, 30);
+				nextState(RoleState.PS_END_MM, duration);
 				break;
 			case PS_END_MM:
-				new_next_state = RoleState.IDLE;
-				new_next_state_time = 1;
+				nextState(RoleState.IDLE, duration);
 				break;
 			case PS_ACK_MM:
-				new_next_state = RoleState.PS_RX_MM;
-				new_next_state_time = 1;
+				nextState(RoleState.PS_RX_MM, duration);
 				break;
 			case PS_RX_MM:
 				//TODO Dont just receive forever
-				new_next_state = null;
-				new_next_state_time = 0;
+				nextState(null, duration);
 				break;
 			case STARTING:
 				//Schedule an event in the future, this gets things running
-				new_next_state = RoleState.PS_POKE_MM;
-				new_next_state_time = 30;
 				//Since I am going to bother the MM in 30 time units I need to give him some data
 				//I put this into the PostOffice so that when we communicate it can be transferred.
 				Simulator.addPost(RoleState.PS_TX_MM, DataType.SEARCH_AOI);
 				Simulator.addPost(RoleState.PS_TX_MM, DataType.TARGET_DESCRIPTION);
+				nextState(RoleState.PS_POKE_MM, 30);
 				break;
 			case IDLE:
 				//TODO Look at TODO LIST 
 				break;
 			default:
-				new_next_state = null;
-				new_next_state_time = 0;
+				nextState(null, duration);
 				break;
 		}
-		
-		nextState(new_next_state, new_next_state_time);
 		
 		return true;
 	}
@@ -101,7 +92,7 @@ public class ParentSearchRole extends Role {
 				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PS ) {
 					//Check the post office for data
 					ArrayList<DataType> data = Simulator.removePosts(RoleState.MM_TX_PS);
-					if ( data.contains( DataType.TARGET_SIGHTING ) ) {
+					if ( data.contains( DataType.SEARCH_AOI_SIGHTING ) ) {
 						//If there is a sighting then have them do nothing
 						nextState(RoleState.IDLE, 1);
 					} else if ( data.contains( DataType.SEARCH_AOI_COMPLETE) ) {

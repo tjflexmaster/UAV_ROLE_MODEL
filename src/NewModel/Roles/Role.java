@@ -70,6 +70,7 @@ public abstract class Role implements IRole {
 		if ( state == null ) {
 			_next_state = null;
 			_next_state_time = 0;
+			System.out.println(type().name() + " no next state!");
 		} else if ( time > 0 ) {
 			_next_state = state;
 			_next_state_time = Simulator.getTime() + time;

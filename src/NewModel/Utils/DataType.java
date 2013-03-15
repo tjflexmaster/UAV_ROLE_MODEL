@@ -12,8 +12,9 @@ public enum DataType {
 	/**
 	 * SEARCH Results
 	 */
-	TARGET_SIGHTING,
+	SEARCH_AOI_SIGHTING,
 	SEARCH_AOI_COMPLETE,
+	SEARCH_AOI_FAILED,
 	
 	/**
 	 * MM TX Pilot, VA
@@ -21,10 +22,10 @@ public enum DataType {
 	REQ_HEALTH_STATUS,
 	REQ_UAV_STATUS,
 	REQ_SEARCH_STATUS,
-	CMD_START,
-	CMD_STOP,
-	CMD_PAUSE,
-	CMD_RESUME,
+	MM_CMD_START,
+	MM_CMD_STOP,
+	MM_CMD_PAUSE,
+	MM_CMD_RESUME,
 	
 	/**
 	 * Health Responses
@@ -35,8 +36,9 @@ public enum DataType {
 	/**
 	 * UAV Status Responses
 	 */
-	UAV_SEARCHING,
 	UAV_GROUNDED,
+	UAV_FLYING,
+	UAV_LOITERING,
 	UAV_CRASHED,
 	
 	/**
@@ -45,7 +47,17 @@ public enum DataType {
 	SEARCH_ACTIVE,
 	SEARCH_IDLE,
 	SEARCH_COMPLETE,
-	NO_SEARCH
+	NO_SEARCH,
+	
+	/**
+	 * Pilot to UGUI
+	 */
+	LAND,
+	LOITER,
+	RESUME,
+	KILL,
+	FLIGHT_PLAN
+	
 	
 	
 }
