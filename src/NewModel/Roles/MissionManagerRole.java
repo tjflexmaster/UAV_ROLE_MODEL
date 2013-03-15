@@ -32,37 +32,35 @@ public class MissionManagerRole extends Role {
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
 			case MM_POKE_PS:
-				new_next_state = RoleState.IDLE;
-				new_next_state_time = DurationGenerator.getRandDuration(5, 10);
+			case MM_POKE_PILOT:
+				nextState(RoleState.IDLE, DurationGenerator.getRandDuration(5, 10));
 				break;
 			case MM_TX_PS:
-				new_next_state = RoleState.MM_END_PS;
+			case MM_TX_PILOT:
 				//TODO change this duration based on the data being transmitted
-				new_next_state_time = DurationGenerator.getRandDuration(10, 30);
+				nextState(RoleState.MM_END_PS, DurationGenerator.getRandDuration(10, 30));
 				break;
 			case MM_END_PS:
-				new_next_state = RoleState.IDLE;
-				new_next_state_time = 1;
+			case MM_END_PILOT:
+				nextState(RoleState.IDLE, 1);
 				break;
 			case MM_ACK_PS:
-				new_next_state = RoleState.MM_RX_PS;
-				new_next_state_time = 1;
+			case MM_ACK_PILOT:
+				nextState(RoleState.MM_RX_PS, 1);
 				break;
 			case MM_RX_PS:
+			case MM_RX_PILOT:
 				//TODO Dont just receive forever.
-				new_next_state = null;
-				new_next_state_time = 0;
+				nextState(null, 0);
 				break;
 			case STARTING:
-				new_next_state = RoleState.IDLE;
-				new_next_state_time = 1;
+				nextState(RoleState.IDLE, 1);
 				break;
 			case IDLE:
 				//TODO Look at my TODO List and see if I need to do something more
 			default:
 				//Stay as we are
-				new_next_state = null;
-				new_next_state_time = 0;
+				nextState(null, 0);
 				break;
 		}
 		
