@@ -1,5 +1,7 @@
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
@@ -151,21 +153,218 @@ public class UAVRole extends Role {
 	
 	@Override
 	public void updateState() {
+		ArrayList<DataType> data;
 		switch(nextState()) {
 			case UAV_TAKE_OFF:
-				
+				//If we are taking off accept commands from the UGUI
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					//Initialize our next state to the current next state
+					RoleState next_state = nextState();
+					int next_time = nextStateTime();
+					
+					//Loop through all commands sent by the GUI while landing
+					for(DataType info : data) {
+						switch(info) {
+							case LOITER:
+								//Go to Loitering after taking off
+								next_state = RoleState.UAV_LOITERING;
+								next_time = nextStateTime();
+								break;
+							case KILL:
+								//Crash the UAV on purpose
+								//Perform this immediately
+								nextState(RoleState.UAV_CRASH, 1);
+								return; //Don't do any more processing
+							case LAND:
+								next_state = RoleState.UAV_LANDING;
+								next_time = nextStateTime();
+								break;
+							case FLIGHT_PLAN:
+								next_state = RoleState.UAV_FLYING;
+								next_time = nextStateTime();
+								break;
+							case RESUME:
+							case TAKE_OFF:
+							default:
+								//Ignore
+								break;
+						}//end switch
+						
+					}//end for loop
+					
+					//After looking at all commands update our next state
+					nextState(next_state, next_time);
+				}
 				break;
 			case UAV_LANDING:
-				
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					//Initialize our next state to the current next state
+					RoleState next_state = nextState();
+					int next_time = nextStateTime();
+					
+					//Loop through all commands sent by the GUI while landing
+					for(DataType info : data) {
+						switch(info) {
+							case LOITER:
+								//Go to Loitering after taking off
+								next_state = RoleState.UAV_LOITERING;
+								next_time = 1;
+								break;
+							case KILL:
+								//Crash the UAV on purpose
+								//Perform this immediately
+								nextState(RoleState.UAV_CRASH, 1);
+								return; //Don't do any more processing
+							case RESUME:
+							case LAND:
+								next_state = nextState();
+								next_time = nextStateTime();
+								break;
+							case FLIGHT_PLAN:
+								next_state = RoleState.UAV_FLYING;
+								next_time = 1;
+								break;
+							case TAKE_OFF:
+							default:
+								//Ignore
+								break;
+						}//end switch
+						
+					}//end for loop
+					
+					//After looking at all commands update our next state
+					nextState(next_state, next_time);
+				}
 				break;
 			case UAV_FLYING:
-				
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					//Initialize our next state to the current next state
+					RoleState next_state = nextState();
+					int next_time = nextStateTime();
+					
+					//Loop through all commands sent by the GUI while landing
+					for(DataType info : data) {
+						switch(info) {
+							case LOITER:
+								//Go to Loitering after taking off
+								next_state = RoleState.UAV_LOITERING;
+								next_time = 1;
+								break;
+							case KILL:
+								//Crash the UAV on purpose
+								//Perform this immediately
+								nextState(RoleState.UAV_CRASH, 1);
+								return; //Don't do any more processing
+							case LAND:
+								next_state = RoleState.UAV_LANDING;
+								next_time = 1;
+								break;
+							case FLIGHT_PLAN:
+							case RESUME:
+								next_state = nextState();
+								next_time = nextStateTime();
+								break;
+							case TAKE_OFF:
+							default:
+								//Ignore
+								break;
+						}//end switch
+						
+					}//end for loop
+					
+					//After looking at all commands update our next state
+					nextState(next_state, next_time);
+				}
+				break;
+			case UAV_LOITERING:
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					//Initialize our next state to the current next state
+					RoleState next_state = nextState();
+					int next_time = nextStateTime();
+					
+					//Loop through all commands sent by the GUI while landing
+					for(DataType info : data) {
+						switch(info) {
+							case LOITER:
+								//Go to Loitering after taking off
+								next_state = nextState();
+								next_time = nextStateTime();
+								break;
+							case KILL:
+								//Crash the UAV on purpose
+								//Perform this immediately
+								nextState(RoleState.UAV_CRASH, 1);
+								return; //Don't do any more processing
+							case LAND:
+								next_state = RoleState.UAV_LANDING;
+								next_time = 1;
+								break;
+							
+							case RESUME:
+								next_state = RoleState.UAV_FLYING;
+								next_time = 1;
+								break;
+							case FLIGHT_PLAN:
+							case TAKE_OFF:
+							default:
+								//Ignore
+								break;
+						}//end switch
+						
+					}//end for loop
+					
+					//After looking at all commands update our next state
+					nextState(next_state, next_time);
+				}
 				break;
 			case UAV_CRASH:
-				
+				//Do Nothing we cannot communicate
 				break;
 			case UAV_GROUNDED:
-				
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					//Initialize our next state to the current next state
+					RoleState next_state = nextState();
+					int next_time = nextStateTime();
+					
+					//Loop through all commands sent by the GUI while landing
+					for(DataType info : data) {
+						switch(info) {
+							case LOITER:
+							case KILL:
+							case LAND:
+							case FLIGHT_PLAN:
+							case RESUME:
+								next_state = nextState();
+								next_time = nextStateTime();
+								break;
+							case TAKE_OFF:
+								next_state = RoleState.UAV_TAKE_OFF;
+								next_time = 1;
+							default:
+								//Ignore
+								break;
+						}//end switch
+						
+					}//end for loop
+					
+					//After looking at all commands update our next state
+					nextState(next_state, next_time);
+				}
 				break;
 			case STARTING:
 				nextState(RoleState.UAV_GROUNDED, 1);
