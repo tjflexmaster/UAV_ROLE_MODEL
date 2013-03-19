@@ -7,38 +7,52 @@ import NewModel.Roles.RoleState;
 
 public class PostOffice {
 	
-	private HashMap<RoleState, ArrayList<DataType> > _po_boxes = new HashMap<RoleState, ArrayList<DataType> >();
+	private HashMap<POBOX, ArrayList<DataType> > _po_boxes = new HashMap<POBOX, ArrayList<DataType> >();
+	
+	public enum POBOX {
+		PS_MM,
+		MM_PS,
+		MM_PILOT,
+		MM_VA,
+		VA_MM,
+		PILOT_MM,
+		PILOT_UGUI,
+		UGUI_PILOT,
+		UGUI_UAV,
+		UAV_UGUI,
+		UAV_PILOT
+	}
 	
 	public PostOffice() {
 		
 	}
 	
-	public void addPost(RoleState state, DataType data)
+	public void addPost(POBOX pobox, DataType data)
 	{
 		ArrayList<DataType> mail;
-		if ( _po_boxes.containsKey(state) ) {
-			mail = _po_boxes.get(state);
+		if ( _po_boxes.containsKey(pobox) ) {
+			mail = _po_boxes.get(pobox);
 			mail.add(data);
 		} else {
 			mail = new ArrayList<DataType>();
 			mail.add(data);
 		}
-		_po_boxes.put(state, mail);
+		_po_boxes.put(pobox, mail);
 	}
 	
-	public ArrayList<DataType> getPosts(RoleState state)
+	public ArrayList<DataType> getPosts(POBOX pobox)
 	{
-		return _po_boxes.get(state);
+		return _po_boxes.get(pobox);
 	}
 	
-	public ArrayList<DataType> removePosts(RoleState state)
+	public ArrayList<DataType> removePosts(POBOX pobox)
 	{
-		return _po_boxes.remove(state);
+		return _po_boxes.remove(pobox);
 	}
 	
-	public void clearPost(RoleState state)
+	public void clearPost(POBOX pobox)
 	{
-		_po_boxes.remove(state);
+		_po_boxes.remove(pobox);
 	}
 
 }

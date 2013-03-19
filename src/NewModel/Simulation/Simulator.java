@@ -7,6 +7,7 @@ import NewModel.Roles.RoleType;
 import NewModel.Utils.DataType;
 import NewModel.Utils.GlobalTimer;
 import NewModel.Utils.PostOffice;
+import NewModel.Utils.PostOffice.POBOX;
 
 
 public class Simulator {
@@ -37,14 +38,24 @@ public class Simulator {
 		return team.getNextStateTime();
 	}
 	
-	public static ArrayList<DataType> removePosts(RoleState state)
+	public static ArrayList<DataType> removePosts(POBOX pobox)
 	{
-		return post_office.removePosts(state);
+		return post_office.removePosts(pobox);
 	}
 	
-	public static void addPost(RoleState state, DataType data)
+	public static void addPost(POBOX pobox, DataType data)
 	{
-		post_office.addPost(state, data);
+		post_office.addPost(pobox, data);
+	}
+	
+	public static void getPosts(POBOX pobox)
+	{
+		post_office.getPosts(pobox);
+	}
+	
+	public static void clearPost(POBOX pobox)
+	{
+		post_office.clearPost(pobox);
 	}
 	
 	public Simulator()

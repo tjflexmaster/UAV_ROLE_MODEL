@@ -1,11 +1,11 @@
 package NewModel.Roles;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
+import NewModel.Utils.PostOffice.POBOX;
 
 public class ParentSearchRole extends Role {
 
@@ -52,8 +52,8 @@ public class ParentSearchRole extends Role {
 				//Schedule an event in the future, this gets things running
 				//Since I am going to bother the MM in 30 time units I need to give him some data
 				//I put this into the PostOffice so that when we communicate it can be transferred.
-				Simulator.addPost(RoleState.PS_TX_MM, DataType.SEARCH_AOI);
-				Simulator.addPost(RoleState.PS_TX_MM, DataType.TARGET_DESCRIPTION);
+				Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+				Simulator.addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
 				nextState(RoleState.PS_POKE_MM, 30);
 				break;
 			case IDLE:
@@ -91,7 +91,7 @@ public class ParentSearchRole extends Role {
 			case PS_RX_MM:
 				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PS ) {
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(RoleState.MM_TX_PS);
+					ArrayList<DataType> data = Simulator.removePosts(POBOX.MM_PS);
 					if ( data.contains( DataType.SEARCH_AOI_SIGHTING ) ) {
 						//If there is a sighting then have them do nothing
 						nextState(RoleState.IDLE, 1);
@@ -99,7 +99,7 @@ public class ParentSearchRole extends Role {
 						//If the MM reports that nothing was found then give him a new AOI in a few time steps
 						nextState(RoleState.PS_POKE_MM, 10);
 						//Add the new data to be given to the MM
-						Simulator.addPost(RoleState.PS_TX_MM, DataType.SEARCH_AOI);
+						Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 					} else {
 						nextState(RoleState.IDLE, 1);
 					}

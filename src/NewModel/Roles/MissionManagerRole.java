@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
+import NewModel.Utils.PostOffice.POBOX;
 
 public class MissionManagerRole extends Role {
 
@@ -122,27 +123,27 @@ public class MissionManagerRole extends Role {
 				if ( Simulator.team.getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_END_MM ) {
 					
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(RoleState.PS_TX_MM);
+					ArrayList<DataType> data = Simulator.removePosts(POBOX.PS_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.TERMINATE_SEARCH ) ) {
 							_search_state = SearchState.TERMINATED;
-							Simulator.addPost(RoleState.MM_TX_PILOT, DataType.TERMINATE_SEARCH);
-							Simulator.addPost(RoleState.MM_TX_VA, DataType.TERMINATE_SEARCH);
+							Simulator.addPost(POBOX.MM_PILOT, DataType.TERMINATE_SEARCH);
+							Simulator.addPost(POBOX.MM_VA, DataType.TERMINATE_SEARCH);
 							nextState(RoleState.MM_POKE_PILOT,1);
 							//TODO Also poke the VA
 						} else if ( data.contains( DataType.SEARCH_AOI) ) {
 							_search_state = SearchState.ACTIVE;
-							Simulator.addPost(RoleState.MM_TX_PILOT, DataType.SEARCH_AOI);
-							Simulator.addPost(RoleState.MM_TX_VA, DataType.SEARCH_AOI);
+							Simulator.addPost(POBOX.MM_PILOT, DataType.SEARCH_AOI);
+							Simulator.addPost(POBOX.MM_VA, DataType.SEARCH_AOI);
 							if ( data.contains( DataType.TARGET_DESCRIPTION) ) {
-								Simulator.addPost(RoleState.MM_TX_PILOT, DataType.TARGET_DESCRIPTION);
-								Simulator.addPost(RoleState.MM_TX_VA, DataType.TARGET_DESCRIPTION);
+								Simulator.addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
+								Simulator.addPost(POBOX.MM_VA, DataType.TARGET_DESCRIPTION);
 							}
 							nextState(RoleState.MM_POKE_PILOT,1);
 							//TODO Also poke the VA
 						} else if ( data.contains( DataType.TARGET_DESCRIPTION) ) {
 							
-							Simulator.addPost(RoleState.MM_TX_PILOT, DataType.TARGET_DESCRIPTION);
+							Simulator.addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
 							nextState(RoleState.MM_POKE_VA,1);
 							//TODO Also poke pilot
 						}else {
@@ -171,15 +172,15 @@ public class MissionManagerRole extends Role {
 				if ( Simulator.team.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_MM ) {
 					//What data was sent
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(RoleState.PILOT_TX_MM);
+					ArrayList<DataType> data = Simulator.removePosts(POBOX.PILOT_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.SEARCH_COMPLETE ) ) {
 							_search_state = SearchState.COMPLETE;
-							Simulator.addPost(RoleState.MM_TX_PS, DataType.SEARCH_AOI_COMPLETE);
+							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_COMPLETE);
 							nextState(RoleState.MM_POKE_PS,1);
 						} else if ( data.contains( DataType.UAV_CRASHED) ) {
 							_search_state = SearchState.TERMINATED;
-							Simulator.addPost(RoleState.MM_TX_PS, DataType.SEARCH_AOI_FAILED);
+							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_FAILED);
 							nextState(RoleState.MM_POKE_PS,1);
 							//TODO Also tell VA
 						}else {

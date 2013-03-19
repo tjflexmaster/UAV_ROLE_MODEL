@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
+import NewModel.Utils.PostOffice.POBOX;
 
 public class PilotRole extends Role {
 	
@@ -13,9 +14,12 @@ public class PilotRole extends Role {
 	 */
 	private enum UAVState {
 		GROUNDED,
+		TAKE_OFF,
 		FLYING,
 		LOITERING,
-		CRASHED
+		LANDING,
+		CRASHED,
+		NO_SIGNAL
 	}
 	private enum SearchState {
 		NONE,
@@ -91,11 +95,11 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_LAUNCH_UAV:
 //				duration = DurationGenerator.getRandDuration(30, 40);
-				_uav_state = UAVState.FLYING;
+				_uav_state = UAVState.TAKE_OFF;
 				nextState(RoleState.PILOT_OBSERVING_UAV, duration);
 				break;
 			case PILOT_POKE_UGUI:
-//				DurationGenerator.getRandDuration(5, 20);
+				duration = DurationGenerator.getRandDuration(5, 20);
 				nextState(RoleState.IDLE, duration);
 				break;
 			case PILOT_TX_UGUI:
@@ -165,14 +169,14 @@ public class PilotRole extends Role {
 				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PILOT ) {
 					
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(RoleState.MM_TX_PILOT);
+					ArrayList<DataType> data = Simulator.removePosts(POBOX.MM_PILOT);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.TERMINATE_SEARCH ) ) {
 							//Change our internal search state to TERMINATED
 							_search_state = SearchState.TERMINATED;
 							//Land the plane if flying, otherwise go idle
 							if ( _uav_state == UAVState.FLYING || _uav_state == UAVState.LOITERING ) {
-								Simulator.addPost(RoleState.PILOT_TX_UGUI, DataType.LAND);
+								Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							} else {
 								nextState(RoleState.IDLE, 1);
@@ -180,7 +184,7 @@ public class PilotRole extends Role {
 							
 						} else if ( data.contains( DataType.SEARCH_AOI) ) {
 							//Build a flight plan, and then launch if needed
-							Simulator.addPost(RoleState.PILOT_TX_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						} else if ( data.contains( DataType.MM_CMD_PAUSE) ) {
 						} else if ( data.contains( DataType.MM_CMD_RESUME) ) {
@@ -218,7 +222,7 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_POKE_UGUI:
 				//Look for Ack
-				if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_ACK_PILOT ) {
+				if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
 					nextState(RoleState.PILOT_TX_UGUI, 1);
 				}
 				break;

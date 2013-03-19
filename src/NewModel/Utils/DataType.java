@@ -34,12 +34,28 @@ public enum DataType {
 	HEALTH_BAD,
 	
 	/**
-	 * UAV Status Responses
+	 * UAV Responses
 	 */
-	UAV_GROUNDED,
-	UAV_FLYING,
-	UAV_LOITERING,
-	UAV_CRASHED,
+	//STATUS
+//	UAV_TAKE_OFF,
+//	UAV_GROUNDED,
+//	UAV_FLYING,
+//	UAV_LOITERING,
+//	UAV_CRASHED,
+//	UAV_LANDING,
+	//SIGNAL
+	UAV_SIGNAL_OK,
+	UAV_SIGNAL_LOST,
+	//BATTERY
+	UAV_BAT_OK,
+	UAV_BAT_LOW,
+	//HEIGHT ABOVE GROUND
+	UAV_HAG_OK,
+	UAV_HAG_LOW,
+	//PATH_FOLLOWING
+	UAV_PATH_OK,
+	UAV_PATH_BAD,
+	
 	
 	/**
 	 * Search Responses
@@ -50,8 +66,9 @@ public enum DataType {
 	NO_SEARCH,
 	
 	/**
-	 * Pilot to UGUI
+	 * Pilot to UGUI to UAV
 	 */
+	TAKE_OFF,
 	LAND,
 	LOITER,
 	RESUME,
