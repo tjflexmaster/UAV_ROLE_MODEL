@@ -1,40 +1,27 @@
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
 import NewModel.Simulation.Simulator;
-import NewModel.Utils.DurationGenerator;
+import NewModel.Utils.DataType;
+import NewModel.Utils.PostOffice.POBOX;
 
 public class UAVGUIRole extends Role {
 	
 	/**
 	 * UAV GUI INTERNAL STATES
 	 */
-	private enum UAVState {
-		GROUNDED,
-		TAKE_OFF,
-		FLYING,
-		LOITERING,
-		LANDING,
-		CRASHED,
-		NO_SIGNAL
-	}
-	private enum GUIState {
-		AVAILABLE,
-		UNAVAILABLE
-	}
-	private enum UAVBatteryState {
-		OK,
-		LOW
-	}
-	private enum UAVPathState {
-		OK,
-		BAD
-	}
 	
-	//Default Values
-	UAVState _uav_state = UAVState.GROUNDED;
-	GUIState _gui_state = GUIState.AVAILABLE;
-	UAVBatteryState _bat_state = UAVBatteryState.OK;
-	UAVPathState _path_state = UAVPathState.OK;
+	//UAV State
+	RoleState _uav_state = RoleState.UAV_GROUNDED;
+	DataType _bat_state = DataType.UAV_BAT_OK;
+	DataType _path_state = DataType.UAV_PATH_OK;
+	DataType _signal_state = DataType.UAV_SIGNAL_OK;
+	DataType _plan_state = DataType.UAV_FLIGHT_PLAN_NO;
+	
+	//INACCESSIBLE EVENT
+	int _inaccessible_start_time = 0;
+	int _inaccessible_duration = 0;
 	
 	
 	/**
@@ -62,56 +49,31 @@ public class UAVGUIRole extends Role {
 		
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
-			case UGUI_TAKE_OFF:
-			
+			case UGUI_NORMAL:
+				nextState(null, 0);
+				//Send UAV state to PILOT
 				break;
-			case UGUI_FLYING:
-				
-				break;
-			case UGUI_FLYING_BAT_LOW:
-				
-				break;
-			case UGUI_FLYING_PATH_BAD:
-				
-				break;
-			case UGUI_FLYING_BAT_LOW_PATH_BAD:
-				
-				break;
-			case UGUI_LOITERING:
-				
-				break;
-			case UGUI_LOITERING_BAT_LOW:
-				
-				break;
-			case UGUI_LOITERING_PATH_BAD:
-				
-				break;
-			case UGUI_LOITERING_BAT_LOW_PATH_BAD:
-				
-				break;
-			case UGUI_SIGNAL_LOST:
-				
+			case UGUI_ALARM:
+				//After some time go to an audible alarm
+				nextState(RoleState.UGUI_AUDIBLE_ALARM, 50);
 				break;
 			case UGUI_AUDIBLE_ALARM:
-				
-				break;
-			case UGUI_GROUNDED:
-				
-				break;
-			case UGUI_LANDING:
-				
+				//Return to regular alarm if no response
+				nextState(RoleState.UGUI_ALARM, 50);
 				break;
 			case UGUI_INACCESSIBLE:
 				//Determine how long the GUI will be inaccessible
-				duration = DurationGenerator.getRandDuration(30, 40);
-				nextState(findGUIState(), duration);
+				nextState(getUGUIState(), _inaccessible_duration);
 				break;
 			case STARTING:
-				nextState(RoleState.IDLE, 1);
+				nextState(RoleState.UGUI_NORMAL, 1);
 			default:
 				nextState(null, 0);
 				break;
 		}
+		
+		//Send State to the Pilot
+		sendUAVDataToPilot();
 		
 		
 		return true;
@@ -119,86 +81,200 @@ public class UAVGUIRole extends Role {
 	
 	@Override
 	public void updateState() {
-		// TODO Auto-generated method stub
-
+		
+		RoleState next_state;
+		
+		switch( state() ) {
+			case UGUI_NORMAL:
+			case UGUI_ALARM:
+				//First obtain state from the UAV
+				next_state = getUGUIState();
+				
+				//Send Pilot Commands
+				if ( sendPilotCommandsToUAV() || next_state != state() ) {
+					nextState(next_state, 1);
+				}
+				break;
+			case UGUI_AUDIBLE_ALARM:
+				//First obtain state from the UAV
+				next_state = getUGUIState();
+				
+				//Send Pilot Commands
+				//If the pilot has done an action then we should move back to the regular alarm
+				if ( sendPilotCommandsToUAV() ) {
+					nextState(next_state, 1);
+				} else if ( next_state == RoleState.UGUI_NORMAL ) {
+					nextState(next_state, 1);
+				}
+				break;
+			case UGUI_INACCESSIBLE:
+				//We accept no input from the Pilot or the UAV
+				break;
+				
+			default:
+				//Ignore
+				break;
+		}//end switch
 	}
 	
 	/**
-	 * This is a helper method that determines the state of the GUI by looking at the UAV state.
-	 * The assumption being that communication between the GUI and the UAV is near instantaneous, therefore, 
-	 * the GUI directly displays its state based on the UAV.
-	 * 
-	 * @return RoleState
+	 * Returns back the state the UGUI should become based on the UAV data
+	 * @return
 	 */
-	private RoleState findGUIState()
+	private RoleState getUGUIState()
 	{
-		RoleState result;
+		ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_UGUI);
 		
-		//Look at the UAV
-		switch( Simulator.team.getRoleState(RoleType.ROLE_UAV) ) {
-		case UAV_NO_SIGNAL:
-			_uav_state = UAVState.NO_SIGNAL;
-			result =  RoleState.UGUI_SIGNAL_LOST;
-			break;
-		case UAV_TAKE_OFF:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_LANDING:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_FLYING:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_FLYING_HAG_LOW:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_FLYING_BAT_LOW:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_FLYING_BAT_LOW_HAG_LOW:
-			_uav_state = UAVState.TAKE_OFF;
-			result = RoleState.UGUI_TAKE_OFF;
-			break;
-		case UAV_LOITERING_HAG_LOW:
-			_uav_state = UAVState.LOITERING;
-			_path_state = UAVPathState.OK;
-			_bat_state = UAVBatteryState.OK;
-			result = RoleState.UGUI_LOITERING;
-			break;
-		case UAV_LOITERING_BAT_LOW:
-		case UAV_LOITERING_BAT_LOW_HAG_LOW:
-			_uav_state = UAVState.LOITERING;
-			_path_state = UAVPathState.OK;
-			_bat_state = UAVBatteryState.LOW;
-			result = RoleState.UGUI_FLYING_PATH_BAD;
-			break;
-		case UAV_STRUGGLING:
-		case UAV_STRUGGLING_HAG_LOW:
-//			_uav_state = UAVState.FLYING; //Stay in the same state we were in before
-			_path_state = UAVPathState.BAD;
-			_bat_state = UAVBatteryState.OK;
-			if ( _uav_state = UAVState.FLYING )
-			result = RoleState.UGUI_FLYING_PATH_BAD;
-			break;
-		case UAV_STRUGGLING_BAT_LOW:
-		case UAV_STRUGGLING_BAT_LOW_HAG_LOW:
-//			_uav_state = UAVState.FLYING; //Stay in the same UAV state as before
-			_path_state = UAVPathState.BAD;
-			_bat_state = UAVBatteryState.LOW;
-			result = RoleState.UGUI_FLYING_BAT_LOW_PATH_BAD;
-			break;
-		case UAV_CRASH:
-			
-			break;
-		case UAV_GROUNDED:
-			
-			break;
+		if ( !data.isEmpty() ) {
+			if ( data.contains(DataType.UAV_SIGNAL_LOST) ) {
+				_signal_state = DataType.UAV_SIGNAL_LOST;
+				return RoleState.UGUI_ALARM;
+			} else {
+				//Update the UAV state
+				for( DataType info : data ) {
+					switch(info) {
+						case UAV_BAT_OK:
+						case UAV_BAT_LOW:
+							_bat_state = info;
+							break;
+						case UAV_PATH_OK:
+						case UAV_PATH_BAD:
+							_path_state = info;
+							break;
+						case UAV_SIGNAL_OK:
+						case UAV_SIGNAL_LOST:
+							_signal_state = info;
+							break;
+						case UAV_FLIGHT_PLAN_YES:
+						case UAV_FLIGHT_PLAN_NO:
+							_plan_state = info;
+							break;
+						default:
+							//Do nothing
+							break;
+					}
+				}//end for
+				//Get the UAV State
+				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+				
+				//Now determine the UGUI state based on the UAV state
+				if ( _bat_state == DataType.UAV_BAT_LOW || _path_state == DataType.UAV_PATH_BAD ) {
+					return RoleState.UGUI_ALARM;
+				} else {
+					return RoleState.UGUI_NORMAL;
+				}
+			}
+		} else {
+			return state();
 		}
 	}
-
+	
+	/**
+	 * This method sends the pilot commands onto the UAV
+	 * Return true if there are things that need to be sent
+	 */
+	private boolean sendPilotCommandsToUAV()
+	{
+		ArrayList<DataType> data = new ArrayList<DataType>();
+		//Don't bother communicating if we cannot connect to the UAV
+		if ( _signal_state == DataType.UAV_SIGNAL_OK ) {
+			data = Simulator.removePosts(POBOX.PILOT_UGUI);
+		}
+		
+		//If we have received pilot commands then we need to send them to the UAV
+		//to do this trigger a change in state on the next time step.
+		if ( !data.isEmpty() ) {
+			for( DataType info : data ) {
+				switch(info) {
+					case TAKE_OFF:
+						if ( _uav_state == RoleState.UAV_GROUNDED ) {
+							Simulator.addPost(POBOX.UGUI_UAV, DataType.TAKE_OFF);
+						}
+						break;
+					case LAND:
+						if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LOITERING || _uav_state == RoleState.UAV_TAKE_OFF ) {
+							Simulator.addPost(POBOX.UGUI_UAV, DataType.LAND);
+						}
+						break;
+					case LOITER:
+						if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LANDING || _uav_state == RoleState.UAV_TAKE_OFF ) {
+							Simulator.addPost(POBOX.UGUI_UAV, DataType.LOITER);
+						}
+						break;
+					case RESUME:
+						if ( _uav_state == RoleState.UAV_LOITERING ) {
+							Simulator.addPost(POBOX.UGUI_UAV, DataType.RESUME);
+						}
+						break;
+					case KILL:
+						Simulator.addPost(POBOX.UGUI_UAV, DataType.KILL);
+						break;
+					case FLIGHT_PLAN:
+						Simulator.addPost(POBOX.UGUI_UAV, DataType.FLIGHT_PLAN);
+						break;
+					default:
+						//Ignore
+						break;
+				}//end switch
+			}//end for loop
+			
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Look at the UAV state and send that to the Pilot,
+	 * this should refresh everytime the state changes
+	 */
+	private void sendUAVDataToPilot()
+	{
+		//Clear out previous data
+		Simulator.clearPost(POBOX.UGUI_PILOT);
+		
+		//Send the UAV state
+		switch(_uav_state) {
+			case UAV_GROUNDED:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_GROUNDED);
+				break;
+			case UAV_TAKE_OFF:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_TAKE_OFF);
+				break;
+			case UAV_FLYING:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_FLYING);
+				break;
+			case UAV_LOITERING:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_LOITERING);
+				break;
+			case UAV_LANDING:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_LANDING);
+				break;
+			case UAV_CRASH:
+				Simulator.addPost(POBOX.UGUI_PILOT, DataType.UAV_CRASHED);
+				break;
+			default:
+				//Do nothing
+				break;
+		}
+		
+		//Send UAV internal states
+		Simulator.addPost(POBOX.UGUI_PILOT, _bat_state);
+		Simulator.addPost(POBOX.UGUI_PILOT, _path_state);
+		Simulator.addPost(POBOX.UGUI_PILOT, _signal_state);
+		Simulator.addPost(POBOX.UGUI_PILOT, _plan_state);
+	}
+	
+	
+	/**
+	 * Event method which causes the UGUI to become inaccessible for some duration
+	 * @param duration
+	 */
+	public void createUGUIInAccessibleEvent(int duration)
+	{
+		_inaccessible_duration = duration;
+		nextState(RoleState.UGUI_INACCESSIBLE, 1);
+		
+	}
+	
 }
