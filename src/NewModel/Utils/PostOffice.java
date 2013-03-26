@@ -17,6 +17,7 @@ public class PostOffice {
 		VA_MM,
 		PILOT_MM,
 		PILOT_UGUI,
+		PILOT_UAV,
 		UGUI_PILOT,
 		UGUI_UAV,
 		UAV_UGUI,
@@ -47,7 +48,21 @@ public class PostOffice {
 	
 	public ArrayList<DataType> removePosts(POBOX pobox)
 	{
-		return _po_boxes.remove(pobox);
+		ArrayList<DataType> mail = new ArrayList<DataType>();
+		if ( _po_boxes.containsKey(pobox) )
+			mail = _po_boxes.remove(pobox);
+			
+		return mail;
+	}
+	
+	public boolean isPoboxEmpty(POBOX pobox)
+	{
+		if ( _po_boxes.containsKey(pobox) ) {
+			ArrayList<DataType> mail = _po_boxes.get(pobox);
+			return mail.isEmpty();
+		} else {
+			return false;
+		}
 	}
 	
 	public void clearPost(POBOX pobox)

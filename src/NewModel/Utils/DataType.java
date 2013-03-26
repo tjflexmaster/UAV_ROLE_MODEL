@@ -34,15 +34,23 @@ public enum DataType {
 	HEALTH_BAD,
 	
 	/**
+	 * Pilot Search Status
+	 */
+//	PILOT_SEARCH_ACTIVE,
+//	PILOT_SEARCH_NONE,
+//	PILOT_SEARCH_COMPLETE,
+	
+	/**
 	 * UAV Status
 	 */
 	//STATUS
 	UAV_TAKE_OFF,
-	UAV_GROUNDED,
+	UAV_READY,
 	UAV_FLYING,
 	UAV_LOITERING,
 	UAV_CRASHED,
 	UAV_LANDING,
+	UAV_LANDED,
 	
 	/**
 	 * UAV Data
@@ -65,12 +73,13 @@ public enum DataType {
 	
 	
 	/**
-	 * Search Responses
+	 * Search Status
 	 */
 	SEARCH_ACTIVE,
 	SEARCH_IDLE,
 	SEARCH_COMPLETE,
-	NO_SEARCH,
+	SEARCH_FAILED,
+	SEARCH_NONE,
 	
 	/**
 	 * Pilot to UGUI to UAV
@@ -80,7 +89,8 @@ public enum DataType {
 	LOITER,
 	RESUME,
 	KILL,
-	FLIGHT_PLAN
+	FLIGHT_PLAN,
+	POST_FLIGHT_COMPLETE
 	
 	
 	

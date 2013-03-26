@@ -1,6 +1,7 @@
 package NewModel.Simulation;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import NewModel.Roles.RoleState;
 import NewModel.Roles.RoleType;
@@ -48,9 +49,14 @@ public class Simulator {
 		post_office.addPost(pobox, data);
 	}
 	
-	public static void getPosts(POBOX pobox)
+	public static ArrayList<DataType> getPosts(POBOX pobox)
 	{
-		post_office.getPosts(pobox);
+		return post_office.getPosts(pobox);
+	}
+	
+	public static boolean isPoboxEmpty(POBOX pobox)
+	{
+		return post_office.isPoboxEmpty(pobox);
 	}
 	
 	public static void clearPost(POBOX pobox)
@@ -74,9 +80,16 @@ public class Simulator {
 	{
 		_running = true;
 		System.out.println("Started Simulation...");
+		Scanner readUserInput = new Scanner(System.in);
 		
 		//When is the next time something runs
 		while(_running) {
+			
+			//Get user input
+			System.out.println("Enter Command: ");
+			String input = readUserInput.nextLine();
+			//TODO Use user input to guide the system
+	
 		
 			int next_team_time = team.getNextStateTime();
 			int next_event_time = 0;

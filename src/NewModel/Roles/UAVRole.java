@@ -27,7 +27,7 @@ public class UAVRole extends Role {
 	int _hag_duration = 100;
 	int _hag_start_time = 0;
 	
-//	UAVState _uav_state = UAVState.GROUNDED;
+	DataType _uav_state = DataType.UAV_READY;
 	DataType _bat_state = DataType.UAV_BAT_OK;
 	DataType _path_state = DataType.UAV_PATH_OK;
 	DataType _hag_state = DataType.UAV_HAG_OK;
@@ -69,18 +69,14 @@ public class UAVRole extends Role {
 				
 				//Assume constant take off duration
 				duration = 50;
-				//UGUI Messages
-				Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_BAT_OK);
-				Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_PATH_OK);
-				Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_SIGNAL_OK);
-				//Pilot Messages
-				Simulator.addPost(POBOX.UAV_PILOT, DataType.UAV_HAG_OK);
 				
 				if ( _flight_plan ) {
 					nextState(RoleState.UAV_FLYING, duration);
 				} else {
 					nextState(RoleState.UAV_LOITERING, duration);
 				}
+				
+				_uav_state = DataType.UAV_TAKE_OFF;
 				break;
 			case UAV_LANDING:
 				//First clean up the flight plan
@@ -90,10 +86,11 @@ public class UAVRole extends Role {
 				//check to see if there is time to land.
 				duration = 50;
 				if ( duration > remaining ) {
-					nextState(RoleState.UAV_CRASH, remaining);
+					nextState(RoleState.UAV_CRASHED, remaining);
 				} else {
-					nextState(RoleState.UAV_GROUNDED, duration);
+					nextState(RoleState.UAV_LANDED, duration);
 				}
+				_uav_state = DataType.UAV_LANDING;
 				break;
 			case UAV_FLYING:
 				//When the UAV is flying it will try to follow a flight plan.  We assume all fligt plans are of length 100
@@ -111,11 +108,11 @@ public class UAVRole extends Role {
 					if ( _flight_plan_duration >= remaining && _flight_plan) {
 					
 						if ( _hag_state == DataType.UAV_HAG_LOW && _bat_state == DataType.UAV_BAT_LOW ) {
-							nextState(RoleState.UAV_CRASH, remaining);
+							nextState(RoleState.UAV_CRASHED, remaining);
 						} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
-							nextState(RoleState.UAV_CRASH, remaining);
+							nextState(RoleState.UAV_CRASHED, remaining);
 						} else if ( _bat_state == DataType.UAV_BAT_LOW ) {
-							nextState(RoleState.UAV_CRASH, remaining);
+							nextState(RoleState.UAV_CRASHED, remaining);
 						} else {
 							if ( remaining > _low_battery_threshold ) {
 								//Our next state is the same, except that we want to queue when the battery will become low
@@ -124,7 +121,7 @@ public class UAVRole extends Role {
 								//We are now low battery, we will crash unless something is changed.
 								//Place this in our global message box to the GUI
 								Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_BAT_LOW);
-								nextState(RoleState.UAV_CRASH, remaining);
+								nextState(RoleState.UAV_CRASHED, remaining);
 							}
 						}
 					} else {
@@ -134,7 +131,7 @@ public class UAVRole extends Role {
 					nextState(RoleState.UAV_LOITERING, 1);
 				}
 				
-				
+				_uav_state = DataType.UAV_FLYING;
 				break;
 			case UAV_LOITERING:
 				//When we are flying we will update our state when we have low battery
@@ -143,11 +140,11 @@ public class UAVRole extends Role {
 					
 				//Handle how long we will loiter
 				if ( _hag_state == DataType.UAV_HAG_LOW && _bat_state == DataType.UAV_BAT_LOW ) {
-					nextState(RoleState.UAV_CRASH, remaining);
+					nextState(RoleState.UAV_CRASHED, remaining);
 				} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
-					nextState(RoleState.UAV_CRASH, remaining);
+					nextState(RoleState.UAV_CRASHED, remaining);
 				} else if ( _bat_state == DataType.UAV_BAT_LOW ) {
-					nextState(RoleState.UAV_CRASH, remaining);
+					nextState(RoleState.UAV_CRASHED, remaining);
 				} else {
 					if ( remaining > _low_battery_threshold ) {
 						//Our next state is the same, except that we want to queue when the battery will become low
@@ -157,27 +154,34 @@ public class UAVRole extends Role {
 						//Place this in our global message box to the GUI
 						_bat_state = DataType.UAV_BAT_LOW;
 //						Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_BAT_LOW);
-						nextState(RoleState.UAV_CRASH, remaining);
+						nextState(RoleState.UAV_CRASHED, remaining);
 					}
 				}
+				_uav_state = DataType.UAV_LOITERING;
 				break;
-			case UAV_CRASH:
+			case UAV_CRASHED:
 				_signal_state = DataType.UAV_SIGNAL_LOST;
-//				Simulator.addPost(POBOX.UAV_UGUI, DataType.UAV_SIGNAL_LOST);
+				_uav_state = DataType.UAV_CRASHED;
 				nextState(null,0);
 				break;
-			case UAV_GROUNDED:
+			case UAV_LANDED:
+				_uav_state = DataType.UAV_LANDED;
+				nextState(null, 0);
+				break;
+			case UAV_READY:
 				//reset all of the internal state values
 				//Probably doesn't need to be done
+				_uav_state = DataType.UAV_READY;
 				_signal_state = DataType.UAV_SIGNAL_OK;
 				_hag_state = DataType.UAV_HAG_OK;
 				_bat_state = DataType.UAV_BAT_OK;
 				_path_state = DataType.UAV_PATH_OK;
-				_flight_plan = false;
-				nextState(null, 0);
+//				_flight_plan = false;
+//				nextState(null, 0);
 				break;
 			case STARTING:
-				nextState(RoleState.UAV_GROUNDED, 1);
+				_flight_plan = false;
+				nextState(RoleState.UAV_READY, 1);
 				break;
 			default:
 				nextState(null, 0);
@@ -219,7 +223,7 @@ public class UAVRole extends Role {
 							case KILL:
 								//Crash the UAV on purpose
 								//Perform this immediately
-								nextState(RoleState.UAV_CRASH, 1);
+								nextState(RoleState.UAV_CRASHED, 1);
 								return; //Don't do any more processing
 							case LAND:
 								//Land after finishing takeoff
@@ -267,7 +271,7 @@ public class UAVRole extends Role {
 							case KILL:
 								//Crash the UAV on purpose
 								//Perform this immediately
-								nextState(RoleState.UAV_CRASH, 1);
+								nextState(RoleState.UAV_CRASHED, 1);
 								return; //Don't do any more processing
 							case RESUME:
 							case LAND:
@@ -314,7 +318,7 @@ public class UAVRole extends Role {
 							case KILL:
 								//Crash the UAV on purpose
 								//Perform this immediately
-								nextState(RoleState.UAV_CRASH, 1);
+								nextState(RoleState.UAV_CRASHED, 1);
 								return; //Don't do any more processing
 							case LAND:
 								next_state = RoleState.UAV_LANDING;
@@ -369,7 +373,7 @@ public class UAVRole extends Role {
 							case KILL:
 								//Crash the UAV on purpose
 								//Perform this immediately
-								nextState(RoleState.UAV_CRASH, 1);
+								nextState(RoleState.UAV_CRASHED, 1);
 								return; //Don't do any more processing
 							case LAND:
 								next_state = RoleState.UAV_LANDING;
@@ -400,10 +404,30 @@ public class UAVRole extends Role {
 					nextState(next_state, next_time);
 				}
 				break;
-			case UAV_CRASH:
+			case UAV_CRASHED:
 				//Do Nothing we cannot communicate
 				break;
-			case UAV_GROUNDED:
+			case UAV_LANDED:
+				//Check the post office for data
+				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				if ( !data.isEmpty() ) {
+					
+					if ( data.contains(DataType.FLIGHT_PLAN) ) {
+						_flight_plan = true;
+						_flight_plan_duration = 100;
+						_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
+					}
+				}
+				
+				//Now get Pilot Data, this puts us back into the ready state
+				data = Simulator.removePosts(POBOX.PILOT_UAV);
+				if ( !data.isEmpty() ) {
+					if ( data.contains(DataType.POST_FLIGHT_COMPLETE) ) {
+						nextState(RoleState.UAV_READY, 1);
+					}
+				}
+				break;
+			case UAV_READY:
 				//Check the post office for data
 				data = Simulator.removePosts(POBOX.UGUI_UAV);
 				if ( !data.isEmpty() ) {
@@ -427,7 +451,7 @@ public class UAVRole extends Role {
 								_flight_plan_duration = 100;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
 								next_state = nextState();
-								next_time = nextStateTime();
+								next_time = 1;
 								break;
 							case TAKE_OFF:
 								next_state = RoleState.UAV_TAKE_OFF;
@@ -444,9 +468,8 @@ public class UAVRole extends Role {
 				}
 				break;
 			case STARTING:
-				nextState(RoleState.UAV_GROUNDED, 1);
 			default:
-				nextState(null, 0);
+				//Ignore
 				break;
 		}
 	}
@@ -557,11 +580,12 @@ public class UAVRole extends Role {
 			//Do this by changing the duration to that of the remaining.
 			_flight_plan_duration = getFlightPlanTime();
 			
-			//The flight plan is finished so we cannot go back to flying
+			//The flight plan is finished
 			if ( _flight_plan_duration == 0 ) {
 				_flight_plan = false;
 				_plan_state = DataType.UAV_FLIGHT_PLAN_NO;
-				
+				//Let the GUI know that the flight plan is finished
+//				Simulator.addPost(POBOX.UAV_UGUI, DataType.SEARCH_COMPLETE);
 			} else {
 			
 				//Set the pause time
@@ -582,6 +606,7 @@ public class UAVRole extends Role {
 		Simulator.clearPost(POBOX.UAV_UGUI);
 		
 		//Send data to the GUI that the flight plan is completed
+		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _bat_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _path_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _plan_state);
@@ -592,6 +617,7 @@ public class UAVRole extends Role {
 	{
 		Simulator.clearPost(POBOX.UAV_PILOT);
 		
+		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
 		Simulator.addPost(POBOX.UAV_PILOT, _hag_state);
 	}
 	
