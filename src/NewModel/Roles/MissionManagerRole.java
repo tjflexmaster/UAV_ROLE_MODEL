@@ -196,6 +196,8 @@ public class MissionManagerRole extends Role {
 				//First check for Parent Search Commands
 				if ( Simulator.team.getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_POKE_MM ) {
 					nextState(RoleState.MM_ACK_PS, 1);
+				} else if ( Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_POKE_MM ) {
+					nextState(RoleState.MM_ACK_PILOT, 1);
 				}
 				break;
 			default:

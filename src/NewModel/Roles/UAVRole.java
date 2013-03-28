@@ -27,7 +27,7 @@ public class UAVRole extends Role {
 	int _hag_duration = 100;
 	int _hag_start_time = 0;
 	
-	DataType _uav_state = DataType.UAV_READY;
+//	DataType _uav_state = DataType.UAV_READY;
 	DataType _bat_state = DataType.UAV_BAT_OK;
 	DataType _path_state = DataType.UAV_PATH_OK;
 	DataType _hag_state = DataType.UAV_HAG_OK;
@@ -76,7 +76,7 @@ public class UAVRole extends Role {
 					nextState(RoleState.UAV_LOITERING, duration);
 				}
 				
-				_uav_state = DataType.UAV_TAKE_OFF;
+				//_uav_state = DataType.UAV_TAKE_OFF;
 				break;
 			case UAV_LANDING:
 				//First clean up the flight plan
@@ -90,7 +90,7 @@ public class UAVRole extends Role {
 				} else {
 					nextState(RoleState.UAV_LANDED, duration);
 				}
-				_uav_state = DataType.UAV_LANDING;
+				//_uav_state = DataType.UAV_LANDING;
 				break;
 			case UAV_FLYING:
 				//When the UAV is flying it will try to follow a flight plan.  We assume all fligt plans are of length 100
@@ -131,7 +131,7 @@ public class UAVRole extends Role {
 					nextState(RoleState.UAV_LOITERING, 1);
 				}
 				
-				_uav_state = DataType.UAV_FLYING;
+				//_uav_state = DataType.UAV_FLYING;
 				break;
 			case UAV_LOITERING:
 				//When we are flying we will update our state when we have low battery
@@ -157,21 +157,21 @@ public class UAVRole extends Role {
 						nextState(RoleState.UAV_CRASHED, remaining);
 					}
 				}
-				_uav_state = DataType.UAV_LOITERING;
+				//_uav_state = DataType.UAV_LOITERING;
 				break;
 			case UAV_CRASHED:
 				_signal_state = DataType.UAV_SIGNAL_LOST;
-				_uav_state = DataType.UAV_CRASHED;
+				//_uav_state = DataType.UAV_CRASHED;
 				nextState(null,0);
 				break;
 			case UAV_LANDED:
-				_uav_state = DataType.UAV_LANDED;
+				//_uav_state = DataType.UAV_LANDED;
 				nextState(null, 0);
 				break;
 			case UAV_READY:
 				//reset all of the internal state values
 				//Probably doesn't need to be done
-				_uav_state = DataType.UAV_READY;
+				//_uav_state = DataType.UAV_READY;
 				_signal_state = DataType.UAV_SIGNAL_OK;
 				_hag_state = DataType.UAV_HAG_OK;
 				_bat_state = DataType.UAV_BAT_OK;
@@ -606,7 +606,7 @@ public class UAVRole extends Role {
 		Simulator.clearPost(POBOX.UAV_UGUI);
 		
 		//Send data to the GUI that the flight plan is completed
-		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
+//		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _bat_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _path_state);
 		Simulator.addPost(POBOX.UAV_UGUI, _plan_state);
@@ -617,7 +617,7 @@ public class UAVRole extends Role {
 	{
 		Simulator.clearPost(POBOX.UAV_PILOT);
 		
-		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
+//		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
 		Simulator.addPost(POBOX.UAV_PILOT, _hag_state);
 	}
 	
