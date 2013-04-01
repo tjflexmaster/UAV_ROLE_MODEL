@@ -2,6 +2,7 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
@@ -29,6 +30,8 @@ public class PilotRole extends Role {
 	int _bad_path_start_time = 0;
 	int _bad_path_allowance_threshold = 50; //How long to we allow for a bad path before landing the UAV?
 	
+	//Signal Lost Vars
+	boolean _reset_flight_plan = false;
 	
 	/**
 	 * END PILOT STATE VARS
@@ -150,6 +153,7 @@ public class PilotRole extends Role {
 					case UAV_LOITERING:
 					case UAV_TAKE_OFF:
 					case UAV_LANDING:
+					case UAV_NO_SIGNAL:
 						nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 						break;
 					case UAV_LANDED:
@@ -204,7 +208,10 @@ public class PilotRole extends Role {
 							//Change our internal search state to TERMINATED
 							_search_state = DataType.SEARCH_NONE;
 							//Land the plane if flying, otherwise go idle
-							if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LOITERING || _uav_state == RoleState.UAV_TAKE_OFF ) {
+							if ( _uav_state == RoleState.UAV_FLYING || 
+									_uav_state == RoleState.UAV_LOITERING || 
+									_uav_state == RoleState.UAV_TAKE_OFF ||
+									_uav_state == RoleState.UAV_NO_SIGNAL ) {
 								Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							} else {
@@ -256,7 +263,7 @@ public class PilotRole extends Role {
 					if ( _uav_state == RoleState.UAV_CRASHED || _uav_state == RoleState.UAV_LANDED ) {
 						//Go pickup the UAV
 						nextState(RoleState.PILOT_POST_FLIGHT, 1);
-					} else if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LOITERING ) {
+					} else if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LOITERING || _uav_state == RoleState.UAV_NO_SIGNAL ) {
 						//Now we watch what is going on
 						nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 					} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
@@ -339,10 +346,6 @@ public class PilotRole extends Role {
 									}
 									_path_state = info;
 									break;
-								case UAV_SIGNAL_OK:
-								case UAV_SIGNAL_LOST:
-									_signal_state = info;
-									break;
 								case UAV_FLIGHT_PLAN_YES:
 								case UAV_FLIGHT_PLAN_NO:
 									_plan_state = info;
@@ -355,15 +358,13 @@ public class PilotRole extends Role {
 					}
 					
 					//If the GUI is Accessible and the UAV is giving a signal then we should update the state of the UAV
-					if ( _signal_state == DataType.UAV_SIGNAL_OK && 
-							Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
-								_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
-						}
+					if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+						_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+					}
 					
 					//Based on the Pilot GUI observations what do we do next
 					
 					//INTERNAL STATE MACHINE
-					//TODO move this logic into methods
 					if ( _uav_state == RoleState.UAV_FLYING ) {
 						if ( _hag_state == DataType.UAV_HAG_LOW ) {
 							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
@@ -372,9 +373,13 @@ public class PilotRole extends Role {
 							//If battery is low then have it land
 							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
-						} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
-							nextState(RoleState.PILOT_POKE_UGUI, 1);
+//						} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
+//							//Wait until we have signal again, then change the flight plan
+//							_reset_flight_plan = true;
+//						} else if ( _signal_state == DataType.UAV_SIGNAL_OK && _reset_flight_plan ) {
+//							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+//							nextState(RoleState.PILOT_POKE_UGUI, 1);
+//							_reset_flight_plan = false;
 						} else if ( _path_state == DataType.UAV_PATH_BAD && !allowBadPath() ) {
 							//If the UAV cannot fly the path specified because of wind or hardware malfunction then land the plan
 							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
@@ -390,10 +395,15 @@ public class PilotRole extends Role {
 							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 							
-						} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
-							nextState(RoleState.PILOT_POKE_UGUI, 1);
-							
+//						} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
+//							//Wait until we have signal again, then change the flight plan
+//							_reset_flight_plan = true;
+//							
+//						} else if ( _signal_state == DataType.UAV_SIGNAL_OK && _reset_flight_plan ) {
+//							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+//							nextState(RoleState.PILOT_POKE_UGUI, 1);
+//							_reset_flight_plan = false;
+//							
 						} else if ( _path_state == DataType.UAV_PATH_BAD && !allowBadPath() ) {
 							//If the UAV cannot fly the path specified because of wind or hardware malfunction then land the plan
 							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
@@ -430,6 +440,13 @@ public class PilotRole extends Role {
 								Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							}
+						}
+					} else if ( _uav_state == RoleState.UAV_NO_SIGNAL ) {
+						//If the UAV has no signal then we want to send a new Flight Path
+						//After this we wait and see
+						if ( _search_state == DataType.SEARCH_ACTIVE ) {
+							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						}
 					}
 					
@@ -469,6 +486,18 @@ public class PilotRole extends Role {
 		}
 
 	}
+	
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
+	
+	
+	/**
+	 * Private HELPER METHODS
+	 */
+	
 	
 	/**
 	 * Return true or false based on whether or not the UAV has been unable

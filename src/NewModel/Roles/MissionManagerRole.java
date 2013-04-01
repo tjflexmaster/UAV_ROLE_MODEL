@@ -2,6 +2,7 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
@@ -12,20 +13,7 @@ public class MissionManagerRole extends Role {
 	/**
 	 * STATE VARS
 	 */
-	private enum SearchState {
-		NONE,
-		ACTIVE,
-		COMPLETE,
-		TERMINATED
-	}
-	private enum InteruptState {
-		BUSY,
-		AVAILABLE
-	}
-	
-	//Default Values
-	SearchState _search_state = SearchState.NONE;
-	InteruptState _interupt_state = InteruptState.AVAILABLE;
+	private int _search_aoi_count = 0;
 	
 	/**
 	 * END STATE VARS
@@ -34,8 +22,6 @@ public class MissionManagerRole extends Role {
 	public MissionManagerRole()
 	{
 		type(RoleType.ROLE_MISSION_MANAGER);
-		_search_state = SearchState.NONE;
-		_interupt_state = InteruptState.AVAILABLE;
 	}
 	
 	@Override
@@ -56,15 +42,15 @@ public class MissionManagerRole extends Role {
 		switch(nextState()) {
 			case MM_POKE_PS:
 			case MM_POKE_PILOT:
-				nextState(RoleState.IDLE, DurationGenerator.getRandDuration(5, 10));
+				nextState(RoleState.IDLE, 30);
 				break;
 			case MM_TX_PS:
 				//TODO change this duration based on the data being transmitted
-				nextState(RoleState.MM_END_PS, DurationGenerator.getRandDuration(10, 30));
+				nextState(RoleState.MM_END_PS,30);
 				break;
 			case MM_TX_PILOT:
 				//TODO change this duration based on the data being transmitted
-				nextState(RoleState.MM_END_PILOT, DurationGenerator.getRandDuration(10, 30));
+				nextState(RoleState.MM_END_PILOT, 30);
 				break;
 			case MM_END_PS:
 			case MM_END_PILOT:
@@ -78,8 +64,7 @@ public class MissionManagerRole extends Role {
 				break;
 			case MM_RX_PS:
 			case MM_RX_PILOT:
-				//TODO Dont just receive forever.
-				nextState(null, 0);
+				nextState(RoleState.IDLE, 1000);
 				break;
 			case STARTING:
 				nextState(RoleState.IDLE, 1);
@@ -126,13 +111,11 @@ public class MissionManagerRole extends Role {
 					ArrayList<DataType> data = Simulator.removePosts(POBOX.PS_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.TERMINATE_SEARCH ) ) {
-							_search_state = SearchState.TERMINATED;
 							Simulator.addPost(POBOX.MM_PILOT, DataType.TERMINATE_SEARCH);
 							Simulator.addPost(POBOX.MM_VA, DataType.TERMINATE_SEARCH);
 							nextState(RoleState.MM_POKE_PILOT,1);
 							//TODO Also poke the VA
 						} else if ( data.contains( DataType.SEARCH_AOI) ) {
-							_search_state = SearchState.ACTIVE;
 							Simulator.addPost(POBOX.MM_PILOT, DataType.SEARCH_AOI);
 							Simulator.addPost(POBOX.MM_VA, DataType.SEARCH_AOI);
 							if ( data.contains( DataType.TARGET_DESCRIPTION) ) {
@@ -175,11 +158,9 @@ public class MissionManagerRole extends Role {
 					ArrayList<DataType> data = Simulator.removePosts(POBOX.PILOT_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.SEARCH_COMPLETE ) ) {
-							_search_state = SearchState.COMPLETE;
 							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_COMPLETE);
 							nextState(RoleState.MM_POKE_PS,1);
 						} else if ( data.contains( DataType.UAV_CRASHED) ) {
-							_search_state = SearchState.TERMINATED;
 							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_FAILED);
 							nextState(RoleState.MM_POKE_PS,1);
 							//TODO Also tell VA
@@ -207,4 +188,9 @@ public class MissionManagerRole extends Role {
 
 	}//end udpateState
 
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
 }

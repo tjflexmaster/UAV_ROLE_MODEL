@@ -52,6 +52,9 @@ public class PostOffice {
 		if ( _po_boxes.containsKey(pobox) )
 			mail = _po_boxes.remove(pobox);
 			
+		for( DataType m : mail ) {
+			System.out.println("\t\t*****" + pobox.name() + " -- " + m.name());
+		}
 		return mail;
 	}
 	

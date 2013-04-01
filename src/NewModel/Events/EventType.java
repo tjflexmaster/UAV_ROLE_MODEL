@@ -1,0 +1,11 @@
+package NewModel.Events;
+
+public enum EventType {
+	ENV_HIGH_WIND,
+	UAV_LOST_SIGNAL,
+	UAV_LOW_BATTERY,
+	UAV_LOW_HAG,
+	PS_TERMINATE_SEARCH,
+	PS_NEW_AOI,
+	UGUI_INACCESSIBLE
+}

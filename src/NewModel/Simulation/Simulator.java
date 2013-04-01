@@ -3,6 +3,8 @@ package NewModel.Simulation;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import NewModel.Events.Event;
+import NewModel.Events.EventManager;
 import NewModel.Roles.RoleState;
 import NewModel.Roles.RoleType;
 import NewModel.Utils.DataType;
@@ -16,6 +18,7 @@ public class Simulator {
 	public static final DefaultTeam team = new DefaultTeam();
 	public static final GlobalTimer timer = new GlobalTimer();
 	public static final PostOffice post_office = new PostOffice();
+	public static final EventManager event_manager = new EventManager();
 	
 	private boolean _running = false;
 	
@@ -36,7 +39,7 @@ public class Simulator {
 	
 	public static int getNextStateTime()
 	{
-		return team.getNextStateTime();
+		return team.getNextStateTime(getTime());
 	}
 	
 	public static ArrayList<DataType> removePosts(POBOX pobox)
@@ -64,6 +67,11 @@ public class Simulator {
 		post_office.clearPost(pobox);
 	}
 	
+	public static void addExternalEvent(Event event, int time)
+	{
+		event_manager.addEvent(event, time);
+	}
+	
 	public Simulator()
 	{
 		//Initialize time to 1
@@ -86,13 +94,14 @@ public class Simulator {
 		while(_running) {
 			
 			//Get user input
-			System.out.println("Enter Command: ");
-			String input = readUserInput.nextLine();
+//			System.out.println("Enter Command: ");
+//			String input = readUserInput.nextLine();
 			//TODO Use user input to guide the system
+			assert Simulator.getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED;
 	
 		
-			int next_team_time = team.getNextStateTime();
-			int next_event_time = 0;
+			int next_team_time = team.getNextStateTime(getTime());
+			int next_event_time = event_manager.getNextEventTime(getTime());
 			
 			if ( next_event_time == 0 && next_team_time == 0 ) {
 				System.out.println("Nothing to process: " + getTime());
@@ -120,6 +129,7 @@ public class Simulator {
 				System.out.println("Processing Team Events: " + getTime());
 				processNextStates();
 			}
+			System.out.println("\n");
 		}//end while
 		
 		System.out.println("Ended Simulation");
@@ -131,17 +141,25 @@ public class Simulator {
 		//First Update each Role based on the current time
 		System.out.println("Processing Next States...");
 		team.processNextState();
-		System.out.println("Finished");
+		System.out.println("Processing Finished");
 		
 		//Now have each role determine what it's next action will be
 		System.out.println("Updating States...");
 		team.updateState();
-		System.out.println("Finished");
+		System.out.println("Updating Finished");
 	}
 
 	private void processExternalEvents()
 	{
-		//Do nothing for now
+		System.out.println("Events...");
+		ArrayList<Event> events = event_manager.getEvents(getTime());
+		
+		for(Event e : events) {
+			System.out.println("\tEvent: " + e.type().name());
+		}
+			
+		team.processExternalEvents(events);
+		System.out.println("Events Finished");
 	}
 	
 }

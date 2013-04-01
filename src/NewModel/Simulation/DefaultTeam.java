@@ -1,7 +1,9 @@
 package NewModel.Simulation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import NewModel.Events.Event;
 import NewModel.Roles.EnvironmentRole;
 import NewModel.Roles.IRole;
 import NewModel.Roles.MissionManagerRole;
@@ -36,13 +38,13 @@ public class DefaultTeam {
 		return _roles.get(type).state();
 	}
 	
-	public int getNextStateTime() 
+	public int getNextStateTime(int time) 
 	{
 		int min = 0;
 		for( IRole role : _roles.values() ) {
 			int next_time = role.nextStateTime();
 			
-			if ( next_time > Simulator.getTime() ) {
+			if ( next_time > time ) {
 				if ( min == 0 ) {
 					min = next_time;
 				} else if ( next_time < min ) {
@@ -79,6 +81,14 @@ public class DefaultTeam {
 		//Have each role look at the global state and update itself
 		for( IRole role : _roles.values() ) {
 			role.updateState();
+		}
+	}
+	
+	public void processExternalEvents(ArrayList<Event> events)
+	{
+		//Have each role look at the events and see how it is effected
+		for( IRole role : _roles.values() ) {
+			role.processEvents(events);
 		}
 	}
 }

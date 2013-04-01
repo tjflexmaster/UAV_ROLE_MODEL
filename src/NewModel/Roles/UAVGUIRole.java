@@ -2,6 +2,7 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
@@ -52,15 +53,20 @@ public class UAVGUIRole extends Role {
 		switch(nextState()) {
 			case UGUI_NORMAL:
 				nextState(null, 0);
-				//Send UAV state to PILOT
+				//Send State to the Pilot
+				sendUAVDataToPilot();
 				break;
 			case UGUI_ALARM:
 				//After some time go to an audible alarm
 				nextState(RoleState.UGUI_AUDIBLE_ALARM, 50);
+				//Send State to the Pilot
+				sendUAVDataToPilot();
 				break;
 			case UGUI_AUDIBLE_ALARM:
 				//Return to regular alarm if no response
 				nextState(RoleState.UGUI_ALARM, 50);
+				//Send State to the Pilot
+				sendUAVDataToPilot();
 				break;
 			case UGUI_INACCESSIBLE:
 				//Determine how long the GUI will be inaccessible
@@ -73,10 +79,6 @@ public class UAVGUIRole extends Role {
 				nextState(null, 0);
 				break;
 		}
-		
-		//Send State to the Pilot
-		sendUAVDataToPilot();
-		
 		
 		return true;
 	}
@@ -125,19 +127,28 @@ public class UAVGUIRole extends Role {
 		}//end switch
 	}
 	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
+	
+	/**
+	 * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
+	 */
+	
 	/**
 	 * Returns back the state the UGUI should become based on the UAV data
 	 * @return
 	 */
 	private RoleState getUGUIState()
 	{
-		ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_UGUI);
+		_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+		if ( _uav_state == RoleState.UAV_CRASHED || _uav_state == RoleState.UAV_NO_SIGNAL ) {
+			return RoleState.UGUI_ALARM;
+		} else {
+			ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_UGUI);
 		
-		if ( !data.isEmpty() ) {
-			if ( data.contains(DataType.UAV_SIGNAL_LOST) ) {
-				_signal_state = DataType.UAV_SIGNAL_LOST;
-				return RoleState.UGUI_ALARM;
-			} else {
+			if ( !data.isEmpty() ) {
 				//Update the UAV state
 				for( DataType info : data ) {
 					switch(info) {
@@ -153,10 +164,6 @@ public class UAVGUIRole extends Role {
 						case UAV_PATH_BAD:
 							_path_state = info;
 							break;
-						case UAV_SIGNAL_OK:
-						case UAV_SIGNAL_LOST:
-							_signal_state = info;
-							break;
 						case UAV_FLIGHT_PLAN_YES:
 						case UAV_FLIGHT_PLAN_NO:
 							_plan_state = info;
@@ -167,9 +174,6 @@ public class UAVGUIRole extends Role {
 					}
 				}//end for
 			}
-			
-			//Update the UAV state
-			_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 			
 			//Since we have a signal look at the other UAV status information to see what
 			//we should do
@@ -184,8 +188,6 @@ public class UAVGUIRole extends Role {
 			} else {
 				return RoleState.UGUI_NORMAL;
 			}
-		} else {
-			return state();
 		}
 	}
 	
@@ -196,10 +198,11 @@ public class UAVGUIRole extends Role {
 	private boolean sendPilotCommandsToUAV()
 	{
 		ArrayList<DataType> data = new ArrayList<DataType>();
-		//Don't bother communicating if we cannot connect to the UAV
+		 _uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+		 
+		//Assumption: The UAV will get our commands when it can finally connect
 		//Only pull pilot commands after the pilot has finished transmitting
-		if ( _signal_state == DataType.UAV_SIGNAL_OK && 
-				Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_UGUI ||
+		if ( Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_UGUI ||
 				Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_LAUNCH_UAV ) {
 			data = Simulator.removePosts(POBOX.PILOT_UGUI);
 		}
@@ -207,7 +210,6 @@ public class UAVGUIRole extends Role {
 		//If we have received pilot commands then we need to send them to the UAV
 		//to do this trigger a change in state on the next time step.
 		if ( !data.isEmpty() ) {
-			RoleState _uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 			for( DataType info : data ) {
 				switch(info) {
 					case TAKE_OFF:
@@ -262,7 +264,7 @@ public class UAVGUIRole extends Role {
 		Simulator.addPost(POBOX.UGUI_PILOT, _bat_state);
 		Simulator.addPost(POBOX.UGUI_PILOT, _hag_state);
 		Simulator.addPost(POBOX.UGUI_PILOT, _path_state);
-		Simulator.addPost(POBOX.UGUI_PILOT, _signal_state);
+//		Simulator.addPost(POBOX.UGUI_PILOT, _signal_state);
 		Simulator.addPost(POBOX.UGUI_PILOT, _plan_state);
 	}
 	
@@ -271,7 +273,7 @@ public class UAVGUIRole extends Role {
 	 * Event method which causes the UGUI to become inaccessible for some duration
 	 * @param duration
 	 */
-	public void createUGUIInAccessibleEvent(int duration)
+	private void createUGUIInAccessibleEvent(int duration)
 	{
 		_inaccessible_duration = duration;
 		nextState(RoleState.UGUI_INACCESSIBLE, 1);

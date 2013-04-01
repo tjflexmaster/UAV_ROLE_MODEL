@@ -2,12 +2,16 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
 import NewModel.Utils.PostOffice.POBOX;
 
 public class ParentSearchRole extends Role {
+	
+	//INTERNAL VARS
+	int _search_aoi_count = 0;
 
 	public ParentSearchRole()
 	{
@@ -31,11 +35,11 @@ public class ParentSearchRole extends Role {
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
 			case PS_POKE_MM:
-				duration = DurationGenerator.getRandDuration(5, 10);
+				duration = 1000;
 				nextState(RoleState.IDLE, duration);
 				break;
 			case PS_TX_MM:
-				duration = DurationGenerator.getRandDuration(10, 30);
+				duration = 50;
 				nextState(RoleState.PS_END_MM, duration);
 				break;
 			case PS_END_MM:
@@ -54,7 +58,8 @@ public class ParentSearchRole extends Role {
 				//I put this into the PostOffice so that when we communicate it can be transferred.
 				Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 				Simulator.addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
-				nextState(RoleState.PS_POKE_MM, 30);
+				nextState(RoleState.PS_POKE_MM, 1);
+				_search_aoi_count++; //Add a new AOI
 				break;
 			case IDLE:
 				//TODO Look at TODO LIST 
@@ -96,10 +101,14 @@ public class ParentSearchRole extends Role {
 						//If there is a sighting then have them do nothing
 						nextState(RoleState.IDLE, 1);
 					} else if ( data.contains( DataType.SEARCH_AOI_COMPLETE) ) {
-						//If the MM reports that nothing was found then give him a new AOI in a few time steps
-						nextState(RoleState.PS_POKE_MM, 10);
-						//Add the new data to be given to the MM
-						Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+						//If the MM reports that nothing was found then give him a new AOI if there is one
+						_search_aoi_count--;
+						if ( _search_aoi_count > 0 ) {
+							Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+							nextState(RoleState.PS_POKE_MM, 1);
+						}
+						
+						
 					} else {
 						nextState(RoleState.IDLE, 1);
 					}
@@ -119,6 +128,42 @@ public class ParentSearchRole extends Role {
 				break;
 		}
 
+	}
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
+	
+	
+	
+	/**
+	 * PRIVATE HELPER METHODS
+	 */
+	
+	
+	
+	private void createTerminateSearchEvent()
+	{
+		if ( state() == RoleState.IDLE ) {
+			Simulator.addPost(POBOX.PS_MM, DataType.TERMINATE_SEARCH);
+			nextState(RoleState.PS_POKE_MM, 1);
+			System.out.println("Created new Terminate Search Event");
+		} else {
+			System.out.println("Unable to create Terminate Search Event, Parent Search is busy");
+		}
+	}
+	
+	private void createNewSearchAOIEvent()
+	{
+		if ( state() == RoleState.IDLE ) {
+			_search_aoi_count++;
+			Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+			nextState(RoleState.PS_POKE_MM, 1);
+			System.out.println("Created new Search AOI Event");
+		} else {
+			System.out.println("Unable to create Search AOI Event, Parent Search is busy");
+		}
 	}
 
 }

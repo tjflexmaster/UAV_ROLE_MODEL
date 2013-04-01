@@ -43,6 +43,7 @@ public enum RoleState {
 	UAV_CRASHED,
 	UAV_READY,
 	UAV_LANDED,
+	UAV_NO_SIGNAL, //UAV is returning to home
 	
 	
 	/**

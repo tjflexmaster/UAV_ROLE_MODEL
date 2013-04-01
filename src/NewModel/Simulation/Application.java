@@ -8,6 +8,9 @@ public class Application {
 	public static void main(String[] args) {
 		Simulator simulator = new Simulator();
 		
+		//Load a Scenario
+		Scenario.scenario1();
+		
 		simulator.run();
 		
 		

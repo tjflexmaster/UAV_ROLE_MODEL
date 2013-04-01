@@ -3,6 +3,10 @@
  */
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
+import NewModel.Events.Event;
+
 
 
 
@@ -29,6 +33,13 @@ public interface IRole {
 	 * how it should act, setting its next event and possibly changing its current state.
 	 */
 	void updateState();
+	
+	/**
+	 * This is where the logic for handling events resides.  When events occur the role will look at
+	 * each event and decide how it should change its state.
+	 * @param events
+	 */
+	public abstract void processEvents(ArrayList<Event> events);
 	
 	/**
 	 * Helper methods for obtaining role specific information

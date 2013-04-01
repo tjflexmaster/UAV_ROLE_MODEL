@@ -1,10 +1,12 @@
 package NewModel.Roles;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.RoleEvent;
+import NewModel.Events.*;
 
 public abstract class Role implements IRole {
 
@@ -35,6 +37,15 @@ public abstract class Role implements IRole {
 	 * must do it inside this method.
 	 */
 	public abstract void updateState();
+	
+	
+	/**
+	 * This method contains the logic for handling external events.  A list of events
+	 * is given to the role and the role then decides how it is effected by each event.
+	 * Each event has an event type and a duration.
+	 * @param events
+	 */
+	public abstract void processEvents(ArrayList<Event> events);
 	
 
 	public int nextStateTime()

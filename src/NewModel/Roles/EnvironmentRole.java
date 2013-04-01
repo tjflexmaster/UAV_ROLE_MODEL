@@ -1,5 +1,8 @@
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 
 public class EnvironmentRole extends Role {
@@ -44,6 +47,11 @@ public class EnvironmentRole extends Role {
 		nextState(new_next_state, new_next_state_time);
 		
 		return true;
+	}
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
 	}
 
 }

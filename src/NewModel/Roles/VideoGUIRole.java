@@ -1,5 +1,8 @@
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 
 public class VideoGUIRole extends Role {
@@ -45,4 +48,13 @@ public class VideoGUIRole extends Role {
 		// TODO Auto-generated method stub
 
 	}
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
+	
+	/**
+	 * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
+	 */
 }

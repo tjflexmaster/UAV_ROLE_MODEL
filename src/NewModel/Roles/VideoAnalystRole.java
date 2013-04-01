@@ -1,5 +1,8 @@
 package NewModel.Roles;
 
+import java.util.ArrayList;
+
+import NewModel.Events.Event;
 import NewModel.Simulation.Simulator;
 
 public class VideoAnalystRole extends Role {
@@ -45,5 +48,14 @@ public class VideoAnalystRole extends Role {
 		
 		return true;
 	}
+	
+	@Override
+	public void processEvents(ArrayList<Event> events) {
+		//Do nothing
+	}
+	
+	/**
+	 * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
+	 */
 
 }
