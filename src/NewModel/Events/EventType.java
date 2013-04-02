@@ -2,6 +2,7 @@ package NewModel.Events;
 
 public enum EventType {
 	ENV_HIGH_WIND,
+	UAV_BAD_PATH,
 	UAV_LOST_SIGNAL,
 	UAV_LOW_BATTERY,
 	UAV_LOW_HAG,

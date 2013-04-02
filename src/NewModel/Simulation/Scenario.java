@@ -8,8 +8,10 @@ public class Scenario {
 	public static void scenario1()
 	{
 //		Simulator.addExternalEvent(new Event(EventType.ENV_HIGH_WIND, 500), 200);
-		Simulator.addExternalEvent(new Event(EventType.UAV_LOST_SIGNAL, 20), 120);
-//		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_HAG, 120), 280);
+//		Simulator.addExternalEvent(new Event(EventType.UAV_BAD_PATH, 80), 120);
+//		Simulator.addExternalEvent(new Event(EventType.UAV_LOST_SIGNAL, 20), 120);
+//		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_HAG, 120), 120);
+		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_BATTERY, 120), 120);
 //		Simulator.addExternalEvent(new Event(EventType.PS_TERMINATE_SEARCH, 1), 400);
 		
 	}

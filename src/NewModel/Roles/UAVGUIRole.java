@@ -58,7 +58,8 @@ public class UAVGUIRole extends Role {
 				break;
 			case UGUI_ALARM:
 				//After some time go to an audible alarm
-				nextState(RoleState.UGUI_AUDIBLE_ALARM, 50);
+//				nextState(RoleState.UGUI_AUDIBLE_ALARM, 50);
+				nextState(null, 0);
 				//Send State to the Pilot
 				sendUAVDataToPilot();
 				break;
