@@ -164,6 +164,9 @@ public class MissionManagerRole extends Role {
 							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_FAILED);
 							nextState(RoleState.MM_POKE_PS,1);
 							//TODO Also tell VA
+							
+							assert true : "Search Failed!";
+							
 						}else {
 							nextState(RoleState.IDLE, 1);
 						}

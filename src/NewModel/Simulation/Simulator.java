@@ -84,54 +84,59 @@ public class Simulator {
 	 * update them.  If there are no future updates that need to happen then the 
 	 * Simulator will notify that there are no more state changes to make.
 	 */
-	public void run()
+	public void run() throws AssertionError
 	{
 		_running = true;
 		System.out.println("Started Simulation...");
 		Scanner readUserInput = new Scanner(System.in);
 		
-		//When is the next time something runs
-		while(_running) {
-			
-			//Get user input
-//			System.out.println("Enter Command: ");
-//			String input = readUserInput.nextLine();
-			//TODO Use user input to guide the system
-			assert Simulator.getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED;
-	
+		try {
+			//When is the next time something runs
+			while(_running) {
+				
+				//Get user input
+//				System.out.println("Enter Command: ");
+//				String input = readUserInput.nextLine();
+				//TODO Use user input to guide the system
+				
+				assert Simulator.getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED : "UAV Crashed!";
 		
-			int next_team_time = team.getNextStateTime(getTime());
-			int next_event_time = event_manager.getNextEventTime(getTime());
 			
-			if ( next_event_time == 0 && next_team_time == 0 ) {
-				System.out.println("Nothing to process: " + getTime());
-				_running = false;
-			} else if ( next_event_time != 0 && next_team_time == 0 ) {
-				timer.time(next_event_time);
-				System.out.println("Processing External Events: " + getTime());
-				processExternalEvents();
-			} else if ( next_event_time == 0 && next_team_time != 0 ) {
-				timer.time(next_team_time);
-				System.out.println("Processing Team Events: " + getTime());
-				processNextStates();
-			} else if ( next_event_time < next_team_time) {
-				timer.time(next_event_time);
-				System.out.println("Processing External Events: " + getTime());
-				processExternalEvents();
-			} else if ( next_team_time < next_event_time ) {
-				timer.time(next_team_time);
-				System.out.println("Processing Team Events: " + getTime());
-				processNextStates();
-			} else if ( next_event_time == next_team_time ) {
-				timer.time(next_event_time);
-				System.out.println("Processing External Events: " + getTime());
-				processExternalEvents();
-				System.out.println("Processing Team Events: " + getTime());
-				processNextStates();
-			}
-			System.out.println("\n");
-		}//end while
-		
+				int next_team_time = team.getNextStateTime(getTime());
+				int next_event_time = event_manager.getNextEventTime(getTime());
+				
+				if ( next_event_time == 0 && next_team_time == 0 ) {
+					System.out.println("Nothing to process: " + getTime());
+					_running = false;
+				} else if ( next_event_time != 0 && next_team_time == 0 ) {
+					timer.time(next_event_time);
+					System.out.println("Processing External Events: " + getTime());
+					processExternalEvents();
+				} else if ( next_event_time == 0 && next_team_time != 0 ) {
+					timer.time(next_team_time);
+					System.out.println("Processing Team Events: " + getTime());
+					processNextStates();
+				} else if ( next_event_time < next_team_time) {
+					timer.time(next_event_time);
+					System.out.println("Processing External Events: " + getTime());
+					processExternalEvents();
+				} else if ( next_team_time < next_event_time ) {
+					timer.time(next_team_time);
+					System.out.println("Processing Team Events: " + getTime());
+					processNextStates();
+				} else if ( next_event_time == next_team_time ) {
+					timer.time(next_event_time);
+					System.out.println("Processing External Events: " + getTime());
+					processExternalEvents();
+					System.out.println("Processing Team Events: " + getTime());
+					processNextStates();
+				}
+				System.out.println("\n");
+			}//end while
+			System.out.println("Simulation Successful");
+		} catch(AssertionError e) {
+			System.out.println("Simulation Failed: " + e.getMessage());
+		}
 		System.out.println("Ended Simulation");
 		
 	}

@@ -88,6 +88,9 @@ public class PilotRole extends Role {
 //					_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 //				}
 				duration = 60;
+				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+					duration = 1;
+				}
 				nextState(RoleState.PILOT_OBSERVING_UAV, duration);
 				break;
 			case PILOT_LAUNCH_UAV:
@@ -130,19 +133,25 @@ public class PilotRole extends Role {
 				} else if ( _uav_state == RoleState.UAV_CRASHED ) {
 					//Recover the crashed UAV
 					duration = 100;
-					nextState(RoleState.IDLE, duration);
+					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, duration);
 					//TODO UAV is crashed so end the simulation
 				}
 				break;
 			case PILOT_POST_FLIGHT_COMPLETE:
 				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
-				if ( _search_state == DataType.SEARCH_ACTIVE ) {
-					//Relaunch to finish search
-					nextState(RoleState.PILOT_LAUNCH_UAV, 1);
+				if ( _uav_state == RoleState.UAV_CRASHED ) {
+					Simulator.addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_FAILED);
+					nextState(RoleState.PILOT_POKE_MM, 1);
 				} else {
-					//Nothing to do
-					nextState(RoleState.IDLE, 1);
+					if ( _search_state == DataType.SEARCH_ACTIVE ) {
+						//Relaunch to finish search
+						nextState(RoleState.PILOT_LAUNCH_UAV, 1);
+					} else {
+						//Nothing to do
+						nextState(RoleState.IDLE, 1);
+					}
 				}
+				nextState(null, 0);
 				break;
 			case STARTING:
 				nextState(RoleState.IDLE, duration);
@@ -456,7 +465,7 @@ public class PilotRole extends Role {
 				//Pilot is manually doing something with the plane, handle any interuptions here
 				break;
 			case PILOT_POST_FLIGHT_COMPLETE:
-				//Do nothing this is a helper state
+				//Helper Method
 				break;
 			case PILOT_POKE_UGUI:
 				//Look for Ack
@@ -477,6 +486,8 @@ public class PilotRole extends Role {
 					nextState(RoleState.PILOT_ACK_MM, 1);
 				} else if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI,1);
+				} else {
+					nextState(null, 0);
 				}
 				
 				break;

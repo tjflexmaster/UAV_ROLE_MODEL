@@ -132,7 +132,19 @@ public class ParentSearchRole extends Role {
 	
 	@Override
 	public void processEvents(ArrayList<Event> events) {
-		//Do nothing
+		for( Event e : events ) {
+			switch(e.type()) {
+				case PS_TERMINATE_SEARCH:
+					createTerminateSearchEvent();
+					break;
+				case PS_NEW_AOI:
+					createNewSearchAOIEvent();
+					break;
+				default:
+					//Do nothing with the event
+					break;
+			}
+		}
 	}
 	
 	
@@ -148,7 +160,7 @@ public class ParentSearchRole extends Role {
 		if ( state() == RoleState.IDLE ) {
 			Simulator.addPost(POBOX.PS_MM, DataType.TERMINATE_SEARCH);
 			nextState(RoleState.PS_POKE_MM, 1);
-			System.out.println("Created new Terminate Search Event");
+//			System.out.println("Created new Terminate Search Event");
 		} else {
 			System.out.println("Unable to create Terminate Search Event, Parent Search is busy");
 		}
@@ -157,7 +169,7 @@ public class ParentSearchRole extends Role {
 	private void createNewSearchAOIEvent()
 	{
 		if ( state() == RoleState.IDLE ) {
-			_search_aoi_count++;
+//			_search_aoi_count++;
 			Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 			nextState(RoleState.PS_POKE_MM, 1);
 			System.out.println("Created new Search AOI Event");

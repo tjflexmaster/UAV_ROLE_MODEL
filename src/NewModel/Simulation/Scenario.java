@@ -11,8 +11,10 @@ public class Scenario {
 //		Simulator.addExternalEvent(new Event(EventType.UAV_BAD_PATH, 80), 120);
 //		Simulator.addExternalEvent(new Event(EventType.UAV_LOST_SIGNAL, 20), 120);
 //		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_HAG, 120), 120);
-		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_BATTERY, 120), 120);
-//		Simulator.addExternalEvent(new Event(EventType.PS_TERMINATE_SEARCH, 1), 400);
+//		Simulator.addExternalEvent(new Event(EventType.UAV_LOW_BATTERY, 120), 120);
+//		Simulator.addExternalEvent(new Event(EventType.UGUI_INACCESSIBLE, 500), 120);
+//		Simulator.addExternalEvent(new Event(EventType.PS_TERMINATE_SEARCH, 1), 120);
+		Simulator.addExternalEvent(new Event(EventType.PS_NEW_AOI, 1), 300);
 		
 	}
 }

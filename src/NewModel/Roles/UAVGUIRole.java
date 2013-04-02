@@ -130,7 +130,17 @@ public class UAVGUIRole extends Role {
 	
 	@Override
 	public void processEvents(ArrayList<Event> events) {
-		//Do nothing
+		
+		for( Event e : events ) {
+			switch(e.type()) {
+				case UGUI_INACCESSIBLE:
+					createUGUIInAccessibleEvent(e.duration());
+					break;
+				default:
+					//Do nothing with the event
+					break;
+			}
+		}
 	}
 	
 	/**
