@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import NewModel.Events.Event;
 import NewModel.Events.EventType;
+import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
@@ -14,33 +15,33 @@ public class UAVRole extends Role {
 	 * UAV INTERNAL STATES
 	 */
 	//Takeoff and Landing vars
-	int _take_off_duration = 50;
+	int _take_off_duration = Assumptions.UAV_TAKE_OFF_DUR;
 	int _take_off_start_time = 0;
 	int _landing_duration = 50;
 	int _landing_start_time = 0;
 	
 	//Battery Internal Vars
 	boolean _battery_active = false;
-	int _battery_duration = 500;
+	int _battery_duration = Assumptions.UAV_BATTERY_DUR;
 	int _battery_start_time = 0;
-	int _low_battery_threshold = 70;
+	int _low_battery_threshold = Assumptions.UAV_LOW_BATTERY_THRESHOLD;
 	
 	//Flight Plan Internal Vars
 	boolean _flight_plan = false;
 	int _flight_plan_start_time = 0;
-	int _flight_plan_duration = 100;
+	int _flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 	int _flight_plan_pause_time = 0;
 	
 	//HAG Internal Vars
-	int _hag_duration = 100;
+	int _hag_duration = 1;
 	int _hag_start_time = 0;
 	
 	//SIGNAL Internal Vars
-	int _signal_duration = 100;
+	int _signal_duration = 1;
 	int _signal_start_time = 0;
 	
 	//FLIGHT Path internal vars
-	int _bad_flight_duration = 100;
+	int _bad_flight_duration = 1;
 	int _bad_flight_start_time = 0;
 	
 //	DataType _uav_state = DataType.UAV_READY;
@@ -75,7 +76,7 @@ public class UAVRole extends Role {
 		//Each state has a designated duration
 		int duration = 1;
 		int remaining_bat = getRemainingBatteryTime(); //Find this out everytime
-		int remaining_bad_path = getRemainingBadFlightTime();
+//		int remaining_bad_path = getRemainingBadFlightTime();
 		
 		//Update the internal states
 		//If we have reached low battery
@@ -100,7 +101,6 @@ public class UAVRole extends Role {
 				
 				if ( !_battery_active ) {
 					//Assume battery duration is the same every time
-					_battery_duration = 500;
 					_battery_start_time = Simulator.getTime();
 					_battery_active = true;
 				}
@@ -154,35 +154,7 @@ public class UAVRole extends Role {
 					
 					//Logic for what state should come next while airborne
 					setNextAirborneState();
-//					//The duration is set when the flight plan is received or when we enter another state besides flying.
-//					//We will fly until the uav crashes or the flight plan is done
-//					//This works because if an event occurs which changes the hag or bat state then the
-//					//remaining flight time will be shortened
-//					if ( _flight_plan_duration >= remaining ) {
-//					
-//						if ( _hag_state == DataType.UAV_HAG_LOW || _bat_state == DataType.UAV_BAT_LOW ) {
-//							if ( _path_state == DataType.UAV_PATH_BAD && remaining_bad_path < remaining ) {
-//								nextState(state(), remaining_bad_path);
-//							} else {
-//								nextState(RoleState.UAV_CRASHED, remaining);
-//							}
-//						} else {
-//							if ( remaining > _low_battery_threshold ) {
-//								//Our next state is the same, except that we want to queue when the battery will become low
-//								if ( _path_state == DataType.UAV_PATH_BAD && remaining_bad_path < (remaining - _low_battery_threshold) ) {
-//									nextState(state(), remaining_bad_path);
-//								} else {
-//									nextState(state(), remaining - _low_battery_threshold);
-//								}
-//							} else {
-//								//UAV now has low battery
-//								_bat_state = DataType.UAV_BAT_LOW;
-//								nextState(state(), 1);
-//							}
-//						}
-//					} else {
-//						nextState(RoleState.UAV_LOITERING, _flight_plan_duration);
-//					}
+
 					
 				} else {
 					nextState(RoleState.UAV_LOITERING, 1);
@@ -202,32 +174,7 @@ public class UAVRole extends Role {
 				
 				//Logic for what state should come next while airborne
 				setNextAirborneState();
-				
-//				//Handle how long we will loiter
-//				if ( _hag_state == DataType.UAV_HAG_LOW || _bat_state == DataType.UAV_BAT_LOW ) {
-//					if ( _path_state == DataType.UAV_PATH_BAD && remaining_bad_path < remaining ) {
-//						nextState(state(), remaining_bad_path);
-//					} else {
-//						nextState(RoleState.UAV_CRASHED, remaining);
-//					}
-//				} else {
-//					if ( remaining > _low_battery_threshold ) {
-//						//Our next state is the same, except that we want to queue when the battery will become low
-//						if ( _path_state == DataType.UAV_PATH_BAD && remaining_bad_path < (remaining - _low_battery_threshold) ) {
-//							nextState(state(), remaining_bad_path);
-//						} else {
-//							nextState(state(), remaining - _low_battery_threshold);
-//						}
-//						
-//					} else {
-//						//UAV now has a low battery
-//						_bat_state = DataType.UAV_BAT_LOW;
-//						nextState(state(), 1);
-//					}
-//				}
-				
-				//If we have a bad path which is shorter than the remaining then use that time as
-				//_uav_state = DataType.UAV_LOITERING;
+		
 				break;
 			case UAV_CRASHED:
 //				_signal_state = DataType.UAV_SIGNAL_LOST;
@@ -325,7 +272,7 @@ public class UAVRole extends Role {
 							case FLIGHT_PLAN:
 								//Change our flight plan
 								_flight_plan = true;
-								_flight_plan_duration = 100;
+								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -375,7 +322,7 @@ public class UAVRole extends Role {
 							case FLIGHT_PLAN:
 								//Immediately begin flying the new flight plan
 								_flight_plan = true;
-								_flight_plan_duration = 100;
+								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -428,7 +375,7 @@ public class UAVRole extends Role {
 								case FLIGHT_PLAN:
 									//set new flight plan
 									_flight_plan = true;
-									_flight_plan_duration = 100;
+									_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 									_flight_plan_start_time = 0;
 									_flight_plan_pause_time = 0;
 									_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -494,7 +441,7 @@ public class UAVRole extends Role {
 									break;
 								case FLIGHT_PLAN:
 									_flight_plan = true;
-									_flight_plan_duration = 100;
+									_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 									_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
 									
 									//Assume HAG was corrected
@@ -527,7 +474,7 @@ public class UAVRole extends Role {
 					
 					if ( data.contains(DataType.FLIGHT_PLAN) ) {
 						_flight_plan = true;
-						_flight_plan_duration = 100;
+						_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 						_flight_plan_start_time = 0;
 						_flight_plan_pause_time = 0;
 						_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -563,7 +510,7 @@ public class UAVRole extends Role {
 								break;
 							case FLIGHT_PLAN:
 								_flight_plan = true;
-								_flight_plan_duration = 100;
+								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -749,23 +696,6 @@ public class UAVRole extends Role {
 	
 	
 	
-//	/**
-//	 * Looks are HAG and Battery to determine how much longer the UAV can fly before crashing
-//	 * @return
-//	 */
-//	private int getRemainingFlightTime()
-//	{
-//		int remaining_bat = getRemainingBatteryTime(false);
-//		int remaining_hag = getRemainingHAGTime();
-//		if ( _hag_state == DataType.UAV_HAG_LOW && _bat_state == DataType.UAV_BAT_LOW ) {
-//			return Math.min(remaining_bat, remaining_hag);
-//		} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
-//			return remaining_hag;
-//		} else {
-//			return remaining_bat;
-//		}
-//	}
-	
 	/**
 	 * This method contains the logic for determining the next state once the UAV enters
 	 * an airborne state
@@ -814,24 +744,6 @@ public class UAVRole extends Role {
 		
 		nextState(result_state, result_time);
 	}
-	
-	/**
-	 * Lets us know if the signal is still lost
-	 * @return
-	 */
-//	private boolean isSignalLost()
-//	{
-//		if ( _signal_state == DataType.UAV_SIGNAL_LOST )
-//			if ( Simulator.getTime() - _signal_start_time > _signal_duration ) {
-//				//Signal is back, update my state
-//				_signal_state = DataType.UAV_SIGNAL_OK;
-//				return false;
-//			} else {
-//				return true;
-//		} else {
-//			return false;
-//		}
-//	}
 	
 	private int getRemainingLowBatteryTime()
 	{
@@ -929,8 +841,7 @@ public class UAVRole extends Role {
 				_flight_plan = false;
 				_plan_state = DataType.UAV_FLIGHT_PLAN_NO;
 				_flight_plan_start_time = 0;
-				//Let the GUI know that the flight plan is finished
-//				Simulator.addPost(POBOX.UAV_UGUI, DataType.SEARCH_COMPLETE);
+				
 			} else {
 			
 				//Set the pause time
@@ -953,14 +864,10 @@ public class UAVRole extends Role {
 			Simulator.clearPost(POBOX.UAV_UGUI);
 		
 		//Send data to the GUI that the flight plan is completed
-//		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
-//		if ( !isSignalLost() ) {
-				Simulator.addPost(POBOX.UAV_UGUI, _hag_state);
-				Simulator.addPost(POBOX.UAV_UGUI, _bat_state);
-				Simulator.addPost(POBOX.UAV_UGUI, _path_state);
-				Simulator.addPost(POBOX.UAV_UGUI, _plan_state);
-//		}
-//		Simulator.addPost(POBOX.UAV_UGUI, _signal_state);
+		Simulator.addPost(POBOX.UAV_UGUI, _hag_state);
+		Simulator.addPost(POBOX.UAV_UGUI, _bat_state);
+		Simulator.addPost(POBOX.UAV_UGUI, _path_state);
+		Simulator.addPost(POBOX.UAV_UGUI, _plan_state);
 		}
 	}
 	
@@ -968,7 +875,6 @@ public class UAVRole extends Role {
 	{
 		Simulator.clearPost(POBOX.UAV_PILOT);
 		
-//		Simulator.addPost(POBOX.UAV_PILOT, _uav_state);
 		Simulator.addPost(POBOX.UAV_PILOT, _hag_state);
 	}
 	

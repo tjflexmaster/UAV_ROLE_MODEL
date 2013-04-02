@@ -3,6 +3,7 @@ package NewModel.Roles;
 import java.util.ArrayList;
 
 import NewModel.Events.Event;
+import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
@@ -42,15 +43,15 @@ public class MissionManagerRole extends Role {
 		switch(nextState()) {
 			case MM_POKE_PS:
 			case MM_POKE_PILOT:
-				nextState(RoleState.IDLE, 30);
+				nextState(RoleState.IDLE, Assumptions.MM_POKE_DUR);
 				break;
 			case MM_TX_PS:
 				//TODO change this duration based on the data being transmitted
-				nextState(RoleState.MM_END_PS,30);
+				nextState(RoleState.MM_END_PS, Assumptions.MM_TX_PS_DUR);
 				break;
 			case MM_TX_PILOT:
 				//TODO change this duration based on the data being transmitted
-				nextState(RoleState.MM_END_PILOT, 30);
+				nextState(RoleState.MM_END_PILOT, Assumptions.MM_TX_PILOT_DUR);
 				break;
 			case MM_END_PS:
 			case MM_END_PILOT:
@@ -64,7 +65,7 @@ public class MissionManagerRole extends Role {
 				break;
 			case MM_RX_PS:
 			case MM_RX_PILOT:
-				nextState(RoleState.IDLE, 1000);
+				nextState(RoleState.IDLE, Assumptions.MM_RX_DUR);
 				break;
 			case STARTING:
 				nextState(RoleState.IDLE, 1);

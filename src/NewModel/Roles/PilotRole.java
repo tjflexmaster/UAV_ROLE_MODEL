@@ -3,6 +3,7 @@ package NewModel.Roles;
 import java.util.ArrayList;
 
 import NewModel.Events.Event;
+import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.DurationGenerator;
@@ -55,17 +56,17 @@ public class PilotRole extends Role {
 		
 		//Now determine what our next state will be
 		//Each state has a designated duration
-		int duration = 1;
+//		int duration = 1;
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
 			case PILOT_POKE_MM:
-				duration = 30;
-				nextState(RoleState.IDLE, duration);
+//				duration = 30;
+				nextState(RoleState.IDLE, Assumptions.PILOT_POKE_MM_DUR);
 				break;
 			case PILOT_TX_MM:
 				//TODO change this duration based on the data being transmitted
-				duration = 20;
-				nextState(RoleState.PILOT_END_MM, duration);
+//				duration = 20;
+				nextState(RoleState.PILOT_END_MM, Assumptions.PILOT_TX_MM_DUR);
 				break;
 			case PILOT_END_MM:
 				nextState(RoleState.IDLE, 1);
@@ -80,18 +81,20 @@ public class PilotRole extends Role {
 			case PILOT_OBSERVING_UAV:
 				//We should only get here if the UAV is flying
 //				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
-				duration = 10;
-				nextState(RoleState.PILOT_OBSERVING_GUI, duration);
+//				duration = 10;
+				nextState(RoleState.PILOT_OBSERVING_GUI, Assumptions.PILOT_OBSERVE_UAV_DUR);
 				break;
 			case PILOT_OBSERVING_GUI:
 //				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
 //					_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 //				}
-				duration = 60;
-				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
-					duration = 1;
+//				duration = 60;
+				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
+					nextState(RoleState.PILOT_OBSERVING_UAV, 1);
+				} else {
+					nextState(RoleState.PILOT_OBSERVING_UAV, Assumptions.PILOT_OBSERVE_UGUI_DUR);
 				}
-				nextState(RoleState.PILOT_OBSERVING_UAV, duration);
+				
 				break;
 			case PILOT_LAUNCH_UAV:
 				//Give command to the GUI to take off
@@ -100,41 +103,40 @@ public class PilotRole extends Role {
 //				duration = 100;
 //				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 				Simulator.addPost(POBOX.PILOT_UGUI, DataType.TAKE_OFF);
-				nextState(null, duration);
+				nextState(null, 0);
 				break;
 			case PILOT_POKE_UGUI:
-				duration = 30;
-				nextState(RoleState.IDLE, duration);
+//				duration = 30;
+				nextState(RoleState.IDLE, Assumptions.PILOT_POKE_UGUI_DUR);
 				break;
 			case PILOT_TX_UGUI:
 				//TODO base this duration on the items being transmitted
-				duration = 15;
-				nextState(RoleState.PILOT_END_UGUI, duration);
+//				duration = 15;
+				nextState(RoleState.PILOT_END_UGUI, Assumptions.PILOT_TX_UGUI_DUR);
 				break;
 			case PILOT_END_UGUI:
 				//After we do something on the GUI we click a "save button" signaling completion
-				duration = 1;
-				nextState(RoleState.PILOT_WAIT_UGUI, duration);
+//				duration = 1;
+				nextState(RoleState.PILOT_WAIT_UGUI, 1);
 				break;
 			case PILOT_WAIT_UGUI:
 				//Helper State, in 1 time steps the UGUI passes data to the UAV
 				// in the next time step it updates itself.  After this the Pilot can then
 				// read the latest data on the gui.
-				duration = 1;
-				nextState(RoleState.PILOT_OBSERVING_GUI, duration);
+//				duration = 1;
+				nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 				break;
 			case PILOT_POST_FLIGHT:
 				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
 				if ( _uav_state == RoleState.UAV_LANDED ) {
 					//Plane is on the ground
-					duration = 30;
+//					duration = 30;
 					Simulator.addPost(POBOX.PILOT_UAV, DataType.POST_FLIGHT_COMPLETE);
-					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, 30);
+					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Assumptions.PILOT_POST_FLIGHT_LAND_DUR);
 				} else if ( _uav_state == RoleState.UAV_CRASHED ) {
 					//Recover the crashed UAV
-					duration = 100;
-					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, duration);
-					//TODO UAV is crashed so end the simulation
+//					duration = 100;
+					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Assumptions.PILOT_POST_FLIGHT_CRASH_DUR);
 				}
 				break;
 			case PILOT_POST_FLIGHT_COMPLETE:
@@ -154,7 +156,7 @@ public class PilotRole extends Role {
 				nextState(null, 0);
 				break;
 			case STARTING:
-				nextState(RoleState.IDLE, duration);
+				nextState(RoleState.IDLE, 1);
 				break;
 			case IDLE:
 				switch(_uav_state) {
@@ -174,10 +176,9 @@ public class PilotRole extends Role {
 						nextState(null, 0);
 						break;
 				}
-				//TODO Look at todo list to see what needs to be done, add to this
 				break;
 			default:
-				nextState(null, duration);
+				nextState(null, 0);
 				break;
 		}
 		
@@ -462,7 +463,7 @@ public class PilotRole extends Role {
 				}
 				break;
 			case PILOT_POST_FLIGHT:
-				//Pilot is manually doing something with the plane, handle any interuptions here
+				//Pilot is manually doing something with the plane, handle any interruptions here
 				break;
 			case PILOT_POST_FLIGHT_COMPLETE:
 				//Helper Method
@@ -486,8 +487,6 @@ public class PilotRole extends Role {
 					nextState(RoleState.PILOT_ACK_MM, 1);
 				} else if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI,1);
-				} else {
-					nextState(null, 0);
 				}
 				
 				break;

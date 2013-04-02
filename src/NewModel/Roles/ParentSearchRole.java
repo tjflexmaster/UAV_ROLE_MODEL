@@ -3,9 +3,9 @@ package NewModel.Roles;
 import java.util.ArrayList;
 
 import NewModel.Events.Event;
+import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
-import NewModel.Utils.DurationGenerator;
 import NewModel.Utils.PostOffice.POBOX;
 
 public class ParentSearchRole extends Role {
@@ -31,26 +31,26 @@ public class ParentSearchRole extends Role {
 		
 		//Now determine what our next state will be
 		//Each state has a designated duration
-		int duration = 1;
+//		int duration = 1;
 		//If a state isn't included then it doesn't deviate from the default
 		switch(nextState()) {
 			case PS_POKE_MM:
-				duration = 1000;
-				nextState(RoleState.IDLE, duration);
+//				duration = 1000;
+				nextState(RoleState.IDLE, Assumptions.PS_POKE_MM_DUR);
 				break;
 			case PS_TX_MM:
-				duration = 50;
-				nextState(RoleState.PS_END_MM, duration);
+//				duration = 50;
+				nextState(RoleState.PS_END_MM, Assumptions.PS_TX_MM_DUR);
 				break;
 			case PS_END_MM:
-				nextState(RoleState.IDLE, duration);
+				nextState(RoleState.IDLE, 1);
 				break;
 			case PS_ACK_MM:
-				nextState(RoleState.PS_RX_MM, duration);
+				nextState(RoleState.PS_RX_MM, 1);
 				break;
 			case PS_RX_MM:
 				//TODO Dont just receive forever
-				nextState(null, duration);
+				nextState(RoleState.IDLE, Assumptions.PS_RX_MM_DUR);
 				break;
 			case STARTING:
 				//Schedule an event in the future, this gets things running
@@ -65,7 +65,7 @@ public class ParentSearchRole extends Role {
 				//TODO Look at TODO LIST 
 				break;
 			default:
-				nextState(null, duration);
+				nextState(null, 1);
 				break;
 		}
 		
