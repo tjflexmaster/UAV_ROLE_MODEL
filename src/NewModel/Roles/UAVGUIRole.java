@@ -59,6 +59,7 @@ public class UAVGUIRole extends Role {
 			case UGUI_ALARM:
 				//After some time go to an audible alarm
 //				nextState(RoleState.UGUI_AUDIBLE_ALARM, 50);
+				//TODO Add Audible alarm state based on if the User has acknowledged the warnings
 				nextState(null, 0);
 				//Send State to the Pilot
 				sendUAVDataToPilot();

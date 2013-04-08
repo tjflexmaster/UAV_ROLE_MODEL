@@ -17,7 +17,7 @@ public class UAVRole extends Role {
 	//Takeoff and Landing vars
 	int _take_off_duration = Assumptions.UAV_TAKE_OFF_DUR;
 	int _take_off_start_time = 0;
-	int _landing_duration = 50;
+	int _landing_duration = Assumptions.UAV_LANDING_DUR;
 	int _landing_start_time = 0;
 	
 	//Battery Internal Vars
