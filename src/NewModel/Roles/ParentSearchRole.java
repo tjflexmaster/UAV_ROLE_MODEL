@@ -56,10 +56,11 @@ public class ParentSearchRole extends Role {
 				//Schedule an event in the future, this gets things running
 				//Since I am going to bother the MM in 30 time units I need to give him some data
 				//I put this into the PostOffice so that when we communicate it can be transferred.
-				Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
-				Simulator.addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
-				nextState(RoleState.PS_POKE_MM, 1);
-				_search_aoi_count++; //Add a new AOI
+//				Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+//				Simulator.addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
+//				nextState(RoleState.PS_POKE_MM, 1);
+//				_search_aoi_count++; //Add a new AOI
+				nextState(RoleState.IDLE, 1);
 				break;
 			case IDLE:
 				//TODO Look at TODO LIST 
@@ -162,7 +163,8 @@ public class ParentSearchRole extends Role {
 			nextState(RoleState.PS_POKE_MM, 1);
 //			System.out.println("Created new Terminate Search Event");
 		} else {
-			System.out.println("Unable to create Terminate Search Event, Parent Search is busy");
+			assert false : "Unable to create Terminate Search Event, Parent Search is busy";
+//			System.out.println("Unable to create Terminate Search Event, Parent Search is busy");
 		}
 	}
 	
@@ -172,9 +174,10 @@ public class ParentSearchRole extends Role {
 //			_search_aoi_count++;
 			Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 			nextState(RoleState.PS_POKE_MM, 1);
-			System.out.println("Created new Search AOI Event");
+//			System.out.println("Created new Search AOI Event");
 		} else {
-			System.out.println("Unable to create Search AOI Event, Parent Search is busy");
+			assert false : "Unable to create Search AOI Event, Parent Search is busy";
+//			System.out.println("Unable to create Search AOI Event, Parent Search is busy");
 		}
 	}
 

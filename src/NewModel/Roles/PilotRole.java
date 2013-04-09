@@ -131,7 +131,7 @@ public class PilotRole extends Role {
 				if ( _uav_state == RoleState.UAV_LANDED ) {
 					//Plane is on the ground
 //					duration = 30;
-					Simulator.addPost(POBOX.PILOT_UAV, DataType.POST_FLIGHT_COMPLETE);
+					Simulator.addPost(POBOX.PILOT_UAV, DataType.POST_FLIGHT_COMPLETE); // Do this immediately to avoid looping
 					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Assumptions.PILOT_POST_FLIGHT_LAND_DUR);
 				} else if ( _uav_state == RoleState.UAV_CRASHED ) {
 					//Recover the crashed UAV
@@ -153,7 +153,6 @@ public class PilotRole extends Role {
 						nextState(RoleState.IDLE, 1);
 					}
 				}
-				nextState(null, 0);
 				break;
 			case STARTING:
 				nextState(RoleState.IDLE, 1);

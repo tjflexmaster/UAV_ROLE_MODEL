@@ -200,7 +200,14 @@ public class UAVRole extends Role {
 				//Probably doesn't need to be done
 //				_signal_state = DataType.UAV_SIGNAL_OK;
 				_hag_state = DataType.UAV_HAG_OK;
+				_hag_start_time = 0;
+				
 				_bat_state = DataType.UAV_BAT_OK;
+				_battery_start_time = 0;
+				_low_battery_threshold = Assumptions.UAV_LOW_BATTERY_THRESHOLD;
+				_battery_duration = Assumptions.UAV_BATTERY_DUR;
+				_battery_active = false;
+				
 				_path_state = DataType.UAV_PATH_OK;
 				break;
 			case UAV_NO_SIGNAL:
@@ -641,14 +648,15 @@ public class UAVRole extends Role {
 				_bad_flight_duration = duration;
 				_bad_flight_start_time = Simulator.getTime();
 				_path_state = DataType.UAV_PATH_BAD;
+				//Stay in the same state but trigger a state change so those watching the
+				//UAV will see the change in state
 				nextState(state(), 1);
 				break;
 			default:
-				System.out.println("Unable to Create Bad Flight, UAV is not Flying or Loitering");
+				assert false : "Unable to Create Bad Flight Event, UAV is not Airborne";
+//				System.out.println("Unable to Create Bad Flight, UAV is not Flying or Loitering");
 				break;
 		}
-		//Stay in the same state but trigger a state change so those watching the
-		//UAV will see the change in state
 		
 	}
 	
@@ -682,9 +690,10 @@ public class UAVRole extends Role {
 				_low_battery_threshold = duration;
 				_bat_state = DataType.UAV_BAT_LOW;
 				nextState(state(), 1);
-				System.out.println("Created Low Battery Event of duration: " + duration);
+//				System.out.println("Created Low Battery Event of duration: " + duration);
 				break;
 			default:
+				assert false : "Unable to Create Low Battery Event, UAV is not Airborne";
 				System.out.println("Unable to Create Low Battery Event, UAV is not Airborne");
 				break;
 		}
@@ -745,11 +754,18 @@ public class UAVRole extends Role {
 		nextState(result_state, result_time);
 	}
 	
+	/**
+	 * Returns the amount of time remaining until the UAV enters a low battery state
+	 * @return
+	 */
 	private int getRemainingLowBatteryTime()
 	{
 		//If we already have low bat then this method should not be used
 		if ( _bat_state == DataType.UAV_BAT_LOW ) {
 			return -1;
+		} else if ( _battery_start_time == 0 ) {
+			//If the UAV isn't active then it has full battery duration remaining
+			return _battery_duration;
 		} else {
 			return Math.max(0, _battery_start_time + _battery_duration - _low_battery_threshold - Simulator.getTime());
 		}
