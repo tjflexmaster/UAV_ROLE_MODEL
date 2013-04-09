@@ -38,6 +38,7 @@ public class PostOffice {
 			mail = new ArrayList<DataType>();
 			mail.add(data);
 		}
+		System.out.println("\t\t>>>>>" + pobox.name() + " -- " + data.name());
 		_po_boxes.put(pobox, mail);
 	}
 	
@@ -53,7 +54,7 @@ public class PostOffice {
 			mail = _po_boxes.remove(pobox);
 			
 		for( DataType m : mail ) {
-			System.out.println("\t\t*****" + pobox.name() + " -- " + m.name());
+			System.out.println("\t\t<<<<<" + pobox.name() + " -- " + m.name());
 		}
 		return mail;
 	}

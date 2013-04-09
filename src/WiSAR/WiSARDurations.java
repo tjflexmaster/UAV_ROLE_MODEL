@@ -86,7 +86,7 @@ public class WiSARDurations {
 		_ranges.put(Duration.UAV_FLIGHT_PLAN_DUR.name(), new Range(900, 7200));
 		_ranges.put(Duration.UAV_LANDING_DUR.name(), new Range(300, 600));
 		_ranges.put(Duration.UAV_TAKE_OFF_DUR.name(), new Range(120, 300));
-		_ranges.put(Duration.UAV_LOW_BATTERY_THRESHOLD_DUR.name(), new Range(480, 600));
+		_ranges.put(Duration.UAV_LOW_BATTERY_THRESHOLD_DUR.name(), new Range(480, 720));
 		
 	}
 	

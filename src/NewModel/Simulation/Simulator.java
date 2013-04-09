@@ -176,8 +176,8 @@ public class Simulator {
 			while(_running) {
 				
 				//Get user input
-				System.out.println("Enter Command: ");
-				String input = readUserInput.nextLine();
+//				System.out.println("Enter Command: ");
+//				String input = readUserInput.nextLine();
 				//TODO Use user input to guide the system
 				
 				assert Simulator.getInstance().getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED : "UAV Crashed!";

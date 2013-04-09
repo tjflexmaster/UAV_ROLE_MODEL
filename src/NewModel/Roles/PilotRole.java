@@ -112,7 +112,14 @@ public class PilotRole extends Role {
 			case PILOT_TX_UGUI:
 				//TODO base this duration on the items being transmitted
 //				duration = 15;
-				nextState(RoleState.PILOT_END_UGUI, Simulator.getInstance().duration(Duration.PILOT_TX_UGUI_DUR.name()));
+				int duration;
+				if ( Simulator.getInstance().getPosts(POBOX.PILOT_UGUI).contains(DataType.FLIGHT_PLAN) ) {
+					duration = Simulator.getInstance().duration(Duration.PILOT_TX_UGUI_FLIGHT_PLAN_DUR.name());
+				} else {
+					duration = Simulator.getInstance().duration(Duration.PILOT_TX_UGUI_DUR.name());
+				}
+				
+				nextState(RoleState.PILOT_END_UGUI, duration);
 				break;
 			case PILOT_END_UGUI:
 				//After we do something on the GUI we click a "save button" signaling completion
