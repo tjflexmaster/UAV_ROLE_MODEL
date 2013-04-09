@@ -3,11 +3,10 @@ package NewModel.Roles;
 import java.util.ArrayList;
 
 import NewModel.Events.Event;
-import NewModel.Events.EventType;
-import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
+import WiSAR.WiSARDurations.Duration;
 
 public class UAVRole extends Role {
 	
@@ -15,21 +14,21 @@ public class UAVRole extends Role {
 	 * UAV INTERNAL STATES
 	 */
 	//Takeoff and Landing vars
-	int _take_off_duration = Assumptions.UAV_TAKE_OFF_DUR;
+//	int _take_off_duration = Assumptions.UAV_TAKE_OFF_DUR;
 	int _take_off_start_time = 0;
-	int _landing_duration = Assumptions.UAV_LANDING_DUR;
+//	int _landing_duration = Assumptions.UAV_LANDING_DUR;
 	int _landing_start_time = 0;
 	
 	//Battery Internal Vars
 	boolean _battery_active = false;
-	int _battery_duration = Assumptions.UAV_BATTERY_DUR;
+	int _battery_duration = 0;
 	int _battery_start_time = 0;
-	int _low_battery_threshold = Assumptions.UAV_LOW_BATTERY_THRESHOLD;
+	int _low_battery_threshold = 1;
 	
 	//Flight Plan Internal Vars
 	boolean _flight_plan = false;
 	int _flight_plan_start_time = 0;
-	int _flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+	int _flight_plan_duration = 1;
 	int _flight_plan_pause_time = 0;
 	
 	//HAG Internal Vars
@@ -64,7 +63,7 @@ public class UAVRole extends Role {
 	@Override
 	public boolean processNextState() {
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		
@@ -92,16 +91,16 @@ public class UAVRole extends Role {
 			case UAV_TAKE_OFF:
 				//Assume constant take off duration
 				if ( _take_off_start_time != 0 ) {
-					duration = Math.max(1, _take_off_start_time + _take_off_duration - Simulator.getTime());
+					duration = Math.max(1, _take_off_start_time + Simulator.getInstance().duration(Duration.UAV_TAKE_OFF_DUR.name()) - Simulator.getInstance().getTime());
 				} else {
-					duration = _take_off_duration;
-					_take_off_start_time = Simulator.getTime();
+					duration = Simulator.getInstance().duration(Duration.UAV_TAKE_OFF_DUR.name());
+					_take_off_start_time = Simulator.getInstance().getTime();
 				}
 				
 				
 				if ( !_battery_active ) {
 					//Assume battery duration is the same every time
-					_battery_start_time = Simulator.getTime();
+					_battery_start_time = Simulator.getInstance().getTime();
 					_battery_active = true;
 				}
 				
@@ -116,10 +115,10 @@ public class UAVRole extends Role {
 			case UAV_LANDING:
 				//Assume constant take off duration
 				if ( _landing_start_time != 0 ) {
-					duration = Math.max(1, _landing_start_time + _landing_duration - Simulator.getTime());
+					duration = Math.max(1, _landing_start_time + Simulator.getInstance().duration(Duration.UAV_LANDING_DUR.name()) - Simulator.getInstance().getTime());
 				} else {
-					duration = _landing_duration;
-					_landing_start_time = Simulator.getTime();
+					duration = Simulator.getInstance().duration(Duration.UAV_LANDING_DUR.name());
+					_landing_start_time = Simulator.getInstance().getTime();
 					//First clean up the flight plan
 					pauseFlightPlan();
 				}
@@ -149,7 +148,7 @@ public class UAVRole extends Role {
 					//If no flight plan start time exists then set it to now
 					if ( _flight_plan_start_time == 0 || _flight_plan_start_time == _flight_plan_pause_time ) {
 						//Update the flight plan start time to now
-						_flight_plan_start_time = Simulator.getTime();
+						_flight_plan_start_time = Simulator.getInstance().getTime();
 					}
 					
 					//Logic for what state should come next while airborne
@@ -204,8 +203,8 @@ public class UAVRole extends Role {
 				
 				_bat_state = DataType.UAV_BAT_OK;
 				_battery_start_time = 0;
-				_low_battery_threshold = Assumptions.UAV_LOW_BATTERY_THRESHOLD;
-				_battery_duration = Assumptions.UAV_BATTERY_DUR;
+				_low_battery_threshold = Simulator.getInstance().duration(Duration.UAV_LOW_BATTERY_THRESHOLD_DUR.name());
+				_battery_duration = Simulator.getInstance().duration(Duration.UAV_BATTERY_DUR.name());
 				_battery_active = false;
 				
 				_path_state = DataType.UAV_PATH_OK;
@@ -251,7 +250,7 @@ public class UAVRole extends Role {
 			case UAV_TAKE_OFF:
 				//If we are taking off accept commands from the UGUI
 				//Check the post office for data
-				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 				if ( !data.isEmpty() ) {
 					
 					//Initialize our next state to the current next state
@@ -279,7 +278,7 @@ public class UAVRole extends Role {
 							case FLIGHT_PLAN:
 								//Change our flight plan
 								_flight_plan = true;
-								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+								_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -301,7 +300,7 @@ public class UAVRole extends Role {
 				break;
 			case UAV_LANDING:
 				//Check the post office for data
-				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 				if ( !data.isEmpty() ) {
 					
 					//Initialize our next state to the current next state
@@ -329,7 +328,7 @@ public class UAVRole extends Role {
 							case FLIGHT_PLAN:
 								//Immediately begin flying the new flight plan
 								_flight_plan = true;
-								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+								_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -351,11 +350,11 @@ public class UAVRole extends Role {
 				break;
 			case UAV_FLYING:
 				//If the GUI goes down then the UAV moves into NO_SIGNAL mode
-				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
 					nextState(RoleState.UAV_NO_SIGNAL, 1);
 				} else {
 					//Check the post office for data
-					data = Simulator.removePosts(POBOX.UGUI_UAV);
+					data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 					if ( !data.isEmpty() ) {
 						
 						//Initialize our next state to the current next state
@@ -382,7 +381,7 @@ public class UAVRole extends Role {
 								case FLIGHT_PLAN:
 									//set new flight plan
 									_flight_plan = true;
-									_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+									_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 									_flight_plan_start_time = 0;
 									_flight_plan_pause_time = 0;
 									_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -413,11 +412,11 @@ public class UAVRole extends Role {
 				break;
 			case UAV_LOITERING:
 				//If the GUI goes down then the UAV moves into NO_SIGNAL mode
-				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
 					nextState(RoleState.UAV_NO_SIGNAL, 1);
 				} else {
 					//Check the post office for data
-					data = Simulator.removePosts(POBOX.UGUI_UAV);
+					data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 					if ( !data.isEmpty() ) {
 						
 						//Initialize our next state to the current next state
@@ -448,7 +447,7 @@ public class UAVRole extends Role {
 									break;
 								case FLIGHT_PLAN:
 									_flight_plan = true;
-									_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+									_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 									_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
 									
 									//Assume HAG was corrected
@@ -476,12 +475,12 @@ public class UAVRole extends Role {
 				break;
 			case UAV_LANDED:
 				//Check the post office for data
-				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 				if ( !data.isEmpty() ) {
 					
 					if ( data.contains(DataType.FLIGHT_PLAN) ) {
 						_flight_plan = true;
-						_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+						_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 						_flight_plan_start_time = 0;
 						_flight_plan_pause_time = 0;
 						_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
@@ -489,7 +488,7 @@ public class UAVRole extends Role {
 				}
 				
 				//Now get Pilot Data, this puts us back into the ready state
-				data = Simulator.removePosts(POBOX.PILOT_UAV);
+				data = Simulator.getInstance().removePosts(POBOX.PILOT_UAV);
 				if ( !data.isEmpty() ) {
 					if ( data.contains(DataType.POST_FLIGHT_COMPLETE) ) {
 						nextState(RoleState.UAV_READY, 1);
@@ -498,7 +497,7 @@ public class UAVRole extends Role {
 				break;
 			case UAV_READY:
 				//Check the post office for data
-				data = Simulator.removePosts(POBOX.UGUI_UAV);
+				data = Simulator.getInstance().removePosts(POBOX.UGUI_UAV);
 				if ( !data.isEmpty() ) {
 					
 					//Initialize our next state to the current next state
@@ -517,11 +516,11 @@ public class UAVRole extends Role {
 								break;
 							case FLIGHT_PLAN:
 								_flight_plan = true;
-								_flight_plan_duration = Assumptions.UAV_FLIGHT_PLAN_DUR;
+								_flight_plan_duration = Simulator.getInstance().duration(Duration.UAV_FLIGHT_PLAN_DUR.name());
 								_flight_plan_start_time = 0;
 								_flight_plan_pause_time = 0;
 								_plan_state = DataType.UAV_FLIGHT_PLAN_YES;
-								next_state = RoleState.UAV_FLYING;
+								next_state = RoleState.UAV_READY;
 								next_time = 1;
 								break;
 							case TAKE_OFF:
@@ -540,7 +539,7 @@ public class UAVRole extends Role {
 				break;
 			case UAV_NO_SIGNAL:
 				//This scenario is when the GUI goes down, the UAV enters a NO SIGNAL mode which will have it fly back to base and loiter.
-				if ( getRemainingLostSignalTime() <= 0 && Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+				if ( getRemainingLostSignalTime() <= 0 && Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
 					if ( _flight_plan && getRemainingFlightPlanTime() > 0 ) {
 						nextState(RoleState.UAV_FLYING, 1);
 					} else {
@@ -622,7 +621,7 @@ public class UAVRole extends Role {
 		//Only create this event if the UAV is FLYING
 		if ( state() == RoleState.UAV_FLYING ) {
 			_hag_duration = duration;
-			_hag_start_time = Simulator.getTime();
+			_hag_start_time = Simulator.getInstance().getTime();
 			_hag_state = DataType.UAV_HAG_LOW;
 			//Stay in the same state but trigger a state change so those watching the
 			//UAV will see the change in state
@@ -646,7 +645,7 @@ public class UAVRole extends Role {
 			case UAV_LOITERING:
 			case UAV_NO_SIGNAL:
 				_bad_flight_duration = duration;
-				_bad_flight_start_time = Simulator.getTime();
+				_bad_flight_start_time = Simulator.getInstance().getTime();
 				_path_state = DataType.UAV_PATH_BAD;
 				//Stay in the same state but trigger a state change so those watching the
 				//UAV will see the change in state
@@ -667,7 +666,7 @@ public class UAVRole extends Role {
 	private void createLostSignalEvent(int duration)
 	{
 //		_signal_state = DataType.UAV_SIGNAL_LOST;
-		_signal_start_time = Simulator.getTime();
+		_signal_start_time = Simulator.getInstance().getTime();
 		_signal_duration = duration;
 		nextState(RoleState.UAV_NO_SIGNAL, 1);
 		
@@ -685,7 +684,7 @@ public class UAVRole extends Role {
 			case UAV_LOITERING:
 			case UAV_LANDING:
 			case UAV_TAKE_OFF:
-				int battery_dead = Simulator.getTime() + duration;
+				int battery_dead = Simulator.getInstance().getTime() + duration;
 				_battery_duration = battery_dead - _battery_start_time;
 				_low_battery_threshold = duration;
 				_bat_state = DataType.UAV_BAT_LOW;
@@ -767,19 +766,19 @@ public class UAVRole extends Role {
 			//If the UAV isn't active then it has full battery duration remaining
 			return _battery_duration;
 		} else {
-			return Math.max(0, _battery_start_time + _battery_duration - _low_battery_threshold - Simulator.getTime());
+			return Math.max(0, _battery_start_time + _battery_duration - _low_battery_threshold - Simulator.getInstance().getTime());
 		}
 	}
 	
 	private int getRemainingBatteryTime()
 	{
-		return Math.max(0, _battery_start_time + _battery_duration - Simulator.getTime());
+		return Math.max(0, _battery_start_time + _battery_duration - Simulator.getInstance().getTime());
 	}
 	
 	private int getRemainingHAGTime()
 	{
 		if ( _hag_state == DataType.UAV_HAG_LOW ) {
-			return Math.max(0, _hag_start_time + _hag_duration - Simulator.getTime() );
+			return Math.max(0, _hag_start_time + _hag_duration - Simulator.getInstance().getTime() );
 		} else {
 			return -1;
 		}
@@ -788,7 +787,7 @@ public class UAVRole extends Role {
 	private int getRemainingLostSignalTime()
 	{
 		if ( state() == RoleState.UAV_NO_SIGNAL ) {
-			int remaining_time = _signal_start_time + _signal_duration - Simulator.getTime();
+			int remaining_time = _signal_start_time + _signal_duration - Simulator.getInstance().getTime();
 			return Math.max(0, remaining_time);
 		} else {
 			return -1;
@@ -816,7 +815,7 @@ public class UAVRole extends Role {
 	private int getRemainingBadFlightTime()
 	{
 		if ( _path_state == DataType.UAV_PATH_BAD ) {
-			int remaining_time = _bad_flight_start_time + _bad_flight_duration - Simulator.getTime();
+			int remaining_time = _bad_flight_start_time + _bad_flight_duration - Simulator.getInstance().getTime();
 			return Math.max(0, remaining_time);
 		} else {
 			return -1;
@@ -831,9 +830,9 @@ public class UAVRole extends Role {
 	{
 		//Make sure to take pauses into account
 		if ( _flight_plan ) {
-			int remaining_plan = _flight_plan_start_time + _flight_plan_duration - Simulator.getTime();
+			int remaining_plan = _flight_plan_start_time + _flight_plan_duration - Simulator.getInstance().getTime();
 			if ( _flight_plan_pause_time >= _flight_plan_start_time ) {
-				remaining_plan += Simulator.getTime() - _flight_plan_pause_time;
+				remaining_plan += Simulator.getInstance().getTime() - _flight_plan_pause_time;
 			}
 			return Math.max(0, remaining_plan);
 		} else {
@@ -863,8 +862,8 @@ public class UAVRole extends Role {
 				//Set the pause time
 				//Only set the pause time if not already paused
 				if ( _flight_plan_pause_time < _flight_plan_start_time ) {
-					_flight_plan_pause_time = Simulator.getTime();
-					_flight_plan_start_time = Simulator.getTime();
+					_flight_plan_pause_time = Simulator.getInstance().getTime();
+					_flight_plan_start_time = Simulator.getInstance().getTime();
 				}
 			}
 		}
@@ -877,21 +876,21 @@ public class UAVRole extends Role {
 	private void sendUAVDataToUGUI()
 	{
 		if ( state() != RoleState.UAV_CRASHED || state() != RoleState.UAV_NO_SIGNAL ) {
-			Simulator.clearPost(POBOX.UAV_UGUI);
+			Simulator.getInstance().clearPost(POBOX.UAV_UGUI);
 		
 		//Send data to the GUI that the flight plan is completed
-		Simulator.addPost(POBOX.UAV_UGUI, _hag_state);
-		Simulator.addPost(POBOX.UAV_UGUI, _bat_state);
-		Simulator.addPost(POBOX.UAV_UGUI, _path_state);
-		Simulator.addPost(POBOX.UAV_UGUI, _plan_state);
+		Simulator.getInstance().addPost(POBOX.UAV_UGUI, _hag_state);
+		Simulator.getInstance().addPost(POBOX.UAV_UGUI, _bat_state);
+		Simulator.getInstance().addPost(POBOX.UAV_UGUI, _path_state);
+		Simulator.getInstance().addPost(POBOX.UAV_UGUI, _plan_state);
 		}
 	}
 	
 	private void sendUAVDataToPilot()
 	{
-		Simulator.clearPost(POBOX.UAV_PILOT);
+		Simulator.getInstance().clearPost(POBOX.UAV_PILOT);
 		
-		Simulator.addPost(POBOX.UAV_PILOT, _hag_state);
+		Simulator.getInstance().addPost(POBOX.UAV_PILOT, _hag_state);
 	}
 	
 }

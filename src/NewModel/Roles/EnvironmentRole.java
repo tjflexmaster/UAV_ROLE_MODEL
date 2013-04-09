@@ -21,7 +21,7 @@ public class EnvironmentRole extends Role {
 	@Override
 	public boolean processNextState() {
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		

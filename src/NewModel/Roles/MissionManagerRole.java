@@ -29,7 +29,7 @@ public class MissionManagerRole extends Role {
 	public boolean processNextState()
 	{
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		
@@ -87,7 +87,7 @@ public class MissionManagerRole extends Role {
 		switch( state() ) {
 			case MM_POKE_PS:
 				//Look for Ack
-				if ( Simulator.getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_ACK_MM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_ACK_MM ) {
 					nextState(RoleState.MM_TX_PS, 1);
 				}
 				break;
@@ -106,28 +106,28 @@ public class MissionManagerRole extends Role {
 				//Look for end of TX
 				//Whatever the MM does next it should be on the next time step so that it does not
 				//appear that he is receiving after the PS stopped transmitting.
-				if ( Simulator.getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_END_MM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_END_MM ) {
 					
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.PS_MM);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.PS_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.TERMINATE_SEARCH ) ) {
-							Simulator.addPost(POBOX.MM_PILOT, DataType.TERMINATE_SEARCH);
-							Simulator.addPost(POBOX.MM_VA, DataType.TERMINATE_SEARCH);
+							Simulator.getInstance().addPost(POBOX.MM_PILOT, DataType.TERMINATE_SEARCH);
+							Simulator.getInstance().addPost(POBOX.MM_VA, DataType.TERMINATE_SEARCH);
 							nextState(RoleState.MM_POKE_PILOT,1);
 							//TODO Also poke the VA
 						} else if ( data.contains( DataType.SEARCH_AOI) ) {
-							Simulator.addPost(POBOX.MM_PILOT, DataType.SEARCH_AOI);
-							Simulator.addPost(POBOX.MM_VA, DataType.SEARCH_AOI);
+							Simulator.getInstance().addPost(POBOX.MM_PILOT, DataType.SEARCH_AOI);
+							Simulator.getInstance().addPost(POBOX.MM_VA, DataType.SEARCH_AOI);
 							if ( data.contains( DataType.TARGET_DESCRIPTION) ) {
-								Simulator.addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
-								Simulator.addPost(POBOX.MM_VA, DataType.TARGET_DESCRIPTION);
+								Simulator.getInstance().addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
+								Simulator.getInstance().addPost(POBOX.MM_VA, DataType.TARGET_DESCRIPTION);
 							}
 							nextState(RoleState.MM_POKE_PILOT,1);
 							//TODO Also poke the VA
 						} else if ( data.contains( DataType.TARGET_DESCRIPTION) ) {
 							
-//							Simulator.addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
+//							Simulator.getInstance().addPost(POBOX.MM_PILOT, DataType.TARGET_DESCRIPTION);
 //							nextState(RoleState.MM_POKE_VA,1);
 							//TODO Also poke pilot
 						}else {
@@ -138,7 +138,7 @@ public class MissionManagerRole extends Role {
 				break;
 			case MM_POKE_PILOT:
 				//Look for Ack
-				if ( Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_ACK_MM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_ACK_MM ) {
 					nextState(RoleState.MM_TX_PILOT, 1);
 				}
 				//TODO Handle interruptions from PS or VA
@@ -154,13 +154,13 @@ public class MissionManagerRole extends Role {
 				break;
 			case MM_RX_PILOT:
 				//Watch for the end of the TX
-				if ( Simulator.team.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_MM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_MM ) {
 					//What data was sent
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.PILOT_MM);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.PILOT_MM);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.SEARCH_COMPLETE ) ) {
-							Simulator.addPost(POBOX.MM_PS, DataType.SEARCH_AOI_COMPLETE);
+							Simulator.getInstance().addPost(POBOX.MM_PS, DataType.SEARCH_AOI_COMPLETE);
 							nextState(RoleState.MM_POKE_PS,1);
 						} else if ( data.contains( DataType.SEARCH_AOI_FAILED) ) {
 							//TODO Also tell VA
@@ -180,9 +180,9 @@ public class MissionManagerRole extends Role {
 			case IDLE:
 				//If the MM is idle then do the following things in sequence
 				//First check for Parent Search Commands
-				if ( Simulator.team.getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_POKE_MM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PARENT_SEARCH) == RoleState.PS_POKE_MM ) {
 					nextState(RoleState.MM_ACK_PS, 1);
-				} else if ( Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_POKE_MM ) {
+				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_POKE_MM ) {
 					nextState(RoleState.MM_ACK_PILOT, 1);
 				}
 				//TODO Handle interruptions from VA

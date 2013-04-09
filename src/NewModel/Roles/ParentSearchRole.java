@@ -22,7 +22,7 @@ public class ParentSearchRole extends Role {
 	public boolean processNextState()
 	{
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		
@@ -56,8 +56,8 @@ public class ParentSearchRole extends Role {
 				//Schedule an event in the future, this gets things running
 				//Since I am going to bother the MM in 30 time units I need to give him some data
 				//I put this into the PostOffice so that when we communicate it can be transferred.
-//				Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
-//				Simulator.addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
+//				Simulator.getInstance()addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+//				Simulator.getInstance()addPost(POBOX.PS_MM, DataType.TARGET_DESCRIPTION);
 //				nextState(RoleState.PS_POKE_MM, 1);
 //				_search_aoi_count++; //Add a new AOI
 				nextState(RoleState.IDLE, 1);
@@ -79,7 +79,7 @@ public class ParentSearchRole extends Role {
 			case PS_POKE_MM:
 				//If the Parent Search is in this state then it wants to communicate with the MM
 				//First Look at the MM State, if it has a listen state then begin to communicate
-				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_ACK_PS ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_ACK_PS ) {
 					//IF the MM Acknowledged our request then begin transmitting on the next time step
 					nextState(RoleState.PS_TX_MM, 1);
 				}
@@ -95,9 +95,9 @@ public class ParentSearchRole extends Role {
 				//Nothing Interrupts the PS here
 				break;
 			case PS_RX_MM:
-				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PS ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PS ) {
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.MM_PS);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.MM_PS);
 					if ( data.contains( DataType.SEARCH_AOI_SIGHTING ) ) {
 						//If there is a sighting then have them do nothing
 						nextState(RoleState.IDLE, 1);
@@ -105,7 +105,7 @@ public class ParentSearchRole extends Role {
 						//If the MM reports that nothing was found then give him a new AOI if there is one
 						_search_aoi_count--;
 						if ( _search_aoi_count > 0 ) {
-							Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+							Simulator.getInstance().addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 							nextState(RoleState.PS_POKE_MM, 1);
 						}
 						
@@ -119,7 +119,7 @@ public class ParentSearchRole extends Role {
 			case STARTING:
 			case IDLE:
 				//Look to see if MM is communicating
-				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PS ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PS ) {
 					nextState(RoleState.PS_ACK_MM, 1);
 				}
 				
@@ -159,7 +159,7 @@ public class ParentSearchRole extends Role {
 	private void createTerminateSearchEvent()
 	{
 		if ( state() == RoleState.IDLE ) {
-			Simulator.addPost(POBOX.PS_MM, DataType.TERMINATE_SEARCH);
+			Simulator.getInstance().addPost(POBOX.PS_MM, DataType.TERMINATE_SEARCH);
 			nextState(RoleState.PS_POKE_MM, 1);
 //			System.out.println("Created new Terminate Search Event");
 		} else {
@@ -172,7 +172,7 @@ public class ParentSearchRole extends Role {
 	{
 		if ( state() == RoleState.IDLE ) {
 //			_search_aoi_count++;
-			Simulator.addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
+			Simulator.getInstance().addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
 			nextState(RoleState.PS_POKE_MM, 1);
 //			System.out.println("Created new Search AOI Event");
 		} else {

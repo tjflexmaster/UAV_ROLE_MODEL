@@ -1,56 +1,97 @@
 package NewModel.Utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
-import NewModel.Roles.RoleState;
+import NewModel.Utils.Duration;
 
 public class DurationGenerator {
 	
-//	public static int getDuration(RoleState state)
-//	{
-//		int min,max;
-//		Random rand = new Random();
-//		
-//		switch(state) {
-//			//Add cases for specific RoleStates
-//			case PS_SEARCH_POKE_MM:
-//			case PS_TERMINATE_SEARCH_POKE_MM:
-//				min = 1;
-//				max = 30;
-//				break;
-//			case PS_SEARCH_TX_MM:
-//			case PS_TERMINATE_SEARCH_TX_MM:
-//				min = 10;
-//				max = 30;
-//				break;
-//			case PS_SEARCH_COMPLETE_ACK_MM:
-//			case PS_SEARCH_END_MM:
-//			case PS_TARGET_SIGNTING_ACK_MM:
-//			case PS_TERMINATE_SEARCH_END_MM:
-//			case MM_SEARCH_ACK_PS:
-//			case MM_TERMINATE_SEARCH_ACK_PS:
-//			case MM_SEARCH_COMPLETE_END_PS:
-//			case MM_TARGET_SIGHTING_END_PS:
-//				min = 1;
-//				max = 1;
-//				break;
-//			default:
-//				min = 2;
-//				max = 10;
-//				break;
-//		}
-//		
-//		return rand.nextInt(max - min + 1) + min;
-//	}
+	private HashMap<String, Range> _ranges;
+	private Mode _mode = Mode.MIN;
 	
-	
-	public static int getRandDuration(int min, int max)
+	public enum Mode
 	{
-		if ( min > max ) {
-			return 0;
+		MIN,
+		MAX,
+		MIN_OR_MAX,
+		MIN_MEAN_OR_MAX,
+		RANDOM
+	}
+	
+	public DurationGenerator()
+	{
+		initializeDefaults();
+	}
+	
+	public DurationGenerator(Mode mode, Map<String, Range> ranges)
+	{
+		_ranges = new HashMap<String, Range>();
+		_ranges.putAll(ranges);
+		_mode = mode;
+	}
+	
+	public int duration(String key)
+	{
+		if ( _ranges.containsKey(key) ) {
+			switch(_mode) {
+				case MIN:
+					return _ranges.get(key).min();
+				case MAX:
+					return _ranges.get(key).max();
+				case MIN_OR_MAX:
+					if ( random(1) == 0 )
+						return _ranges.get(key).min();
+					else
+						return _ranges.get(key).max();
+				case MIN_MEAN_OR_MAX:
+					int val = random(2);
+					if ( val == 0 )
+						return _ranges.get(key).min();
+					else if (val == 2)
+						return _ranges.get(key).max();
+					else 
+						return _ranges.get(key).mean();
+				case RANDOM:
+					return random(_ranges.get(key));
+				default:
+					return 1;
+			}
+		} else {
+			//By default return 1
+			return 1;
 		}
+	}
+	
+	public int random(Range range)
+	{
+		return random(range.min(), range.max());
+	}
+	
+	public int random(int val)
+	{
+		return random(0, val);
+	}
+	
+	public int random(int min, int max)
+	{
+//		if ( min > max ) {
+//			return 0;
+//		}
 		Random rand = new Random();
 		return rand.nextInt(max - min + 1) + min;
+	}
+	
+	private void initializeDefaults()
+	{
+		_mode = Mode.MIN;
+		_ranges = new HashMap<String, Range>();
+		_ranges.put(Duration.DUR_30.name(), new Range(30, 30));
+		_ranges.put(Duration.DUR_60.name(), new Range(60, 60));
+		_ranges.put(Duration.DUR_5MIN.name(), new Range(300, 300));
+		_ranges.put(Duration.DUR_10MIN.name(), new Range(600, 600));
+		_ranges.put(Duration.DUR_30MIN.name(), new Range(1800, 1800));
 	}
 
 }

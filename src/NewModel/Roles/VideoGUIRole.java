@@ -15,7 +15,7 @@ public class VideoGUIRole extends Role {
 	@Override
 	public boolean processNextState() {
 		//Is our next state now? Is it a valid state?
-		if ( nextStateTime() != Simulator.getTime() || nextState() == null ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() || nextState() == null ) {
 			return false;
 		}
 		

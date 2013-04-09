@@ -38,7 +38,7 @@ public class UAVGUIRole extends Role {
 	@Override
 	public boolean processNextState() {
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		
@@ -154,11 +154,11 @@ public class UAVGUIRole extends Role {
 	 */
 	private RoleState getUGUIState()
 	{
-		_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+		_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 		if ( _uav_state == RoleState.UAV_CRASHED || _uav_state == RoleState.UAV_NO_SIGNAL ) {
 			return RoleState.UGUI_ALARM;
 		} else {
-			ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_UGUI);
+			ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.UAV_UGUI);
 		
 			if ( !data.isEmpty() ) {
 				//Update the UAV state
@@ -210,13 +210,13 @@ public class UAVGUIRole extends Role {
 	private boolean sendPilotCommandsToUAV()
 	{
 		ArrayList<DataType> data = new ArrayList<DataType>();
-		 _uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+		 _uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 		 
 		//Assumption: The UAV will get our commands when it can finally connect
 		//Only pull pilot commands after the pilot has finished transmitting
-		if ( Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_UGUI ||
-				Simulator.getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_LAUNCH_UAV ) {
-			data = Simulator.removePosts(POBOX.PILOT_UGUI);
+		if ( Simulator.getInstance().getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_END_UGUI ||
+				Simulator.getInstance().getRoleState(RoleType.ROLE_PILOT) == RoleState.PILOT_LAUNCH_UAV ) {
+			data = Simulator.getInstance().removePosts(POBOX.PILOT_UGUI);
 		}
 		
 		//If we have received pilot commands then we need to send them to the UAV
@@ -226,29 +226,29 @@ public class UAVGUIRole extends Role {
 				switch(info) {
 					case TAKE_OFF:
 						if ( _uav_state == RoleState.UAV_READY ) {
-							Simulator.addPost(POBOX.UGUI_UAV, DataType.TAKE_OFF);
+							Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.TAKE_OFF);
 						}
 						break;
 					case LAND:
 						if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LOITERING || _uav_state == RoleState.UAV_TAKE_OFF ) {
-							Simulator.addPost(POBOX.UGUI_UAV, DataType.LAND);
+							Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.LAND);
 						}
 						break;
 					case LOITER:
 						if ( _uav_state == RoleState.UAV_FLYING || _uav_state == RoleState.UAV_LANDING || _uav_state == RoleState.UAV_TAKE_OFF ) {
-							Simulator.addPost(POBOX.UGUI_UAV, DataType.LOITER);
+							Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.LOITER);
 						}
 						break;
 					case RESUME:
 						if ( _uav_state == RoleState.UAV_LOITERING ) {
-							Simulator.addPost(POBOX.UGUI_UAV, DataType.RESUME);
+							Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.RESUME);
 						}
 						break;
 					case KILL:
-						Simulator.addPost(POBOX.UGUI_UAV, DataType.KILL);
+						Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.KILL);
 						break;
 					case FLIGHT_PLAN:
-						Simulator.addPost(POBOX.UGUI_UAV, DataType.FLIGHT_PLAN);
+						Simulator.getInstance().addPost(POBOX.UGUI_UAV, DataType.FLIGHT_PLAN);
 						break;
 					default:
 						//Ignore
@@ -269,15 +269,15 @@ public class UAVGUIRole extends Role {
 	private void sendUAVDataToPilot()
 	{
 		//Clear out previous data
-		Simulator.clearPost(POBOX.UGUI_PILOT);
+		Simulator.getInstance().clearPost(POBOX.UGUI_PILOT);
 		
 		//Send UAV internal states
-//		Simulator.addPost(POBOX.UGUI_PILOT, _uav_state);
-		Simulator.addPost(POBOX.UGUI_PILOT, _bat_state);
-		Simulator.addPost(POBOX.UGUI_PILOT, _hag_state);
-		Simulator.addPost(POBOX.UGUI_PILOT, _path_state);
-//		Simulator.addPost(POBOX.UGUI_PILOT, _signal_state);
-		Simulator.addPost(POBOX.UGUI_PILOT, _plan_state);
+//		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _uav_state);
+		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _bat_state);
+		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _hag_state);
+		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _path_state);
+//		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _signal_state);
+		Simulator.getInstance().addPost(POBOX.UGUI_PILOT, _plan_state);
 	}
 	
 	

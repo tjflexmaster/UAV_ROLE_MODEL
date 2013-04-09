@@ -6,8 +6,8 @@ import NewModel.Events.Event;
 import NewModel.Simulation.Assumptions;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
-import NewModel.Utils.DurationGenerator;
 import NewModel.Utils.PostOffice.POBOX;
+import WiSAR.WiSARDurations.Duration;
 
 public class PilotRole extends Role {
 	
@@ -29,7 +29,7 @@ public class PilotRole extends Role {
 	
 	//Bad Path Internal Vars
 	int _bad_path_start_time = 0;
-	int _bad_path_allowance_threshold = 50; //How long to we allow for a bad path before landing the UAV?
+//	int _bad_path_allowance_threshold = Simulator.getInstance().duration(Duration.PILOT_BAD_PATH_THRESHOLD.name()); //How long do we allow for a bad path before landing the UAV?
 	
 	//Signal Lost Vars
 	boolean _reset_flight_plan = false;
@@ -47,7 +47,7 @@ public class PilotRole extends Role {
 	@Override
 	public boolean processNextState() {
 		//Is our next state now?
-		if ( nextStateTime() != Simulator.getTime() ) {
+		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
 			return false;
 		}
 		
@@ -61,12 +61,12 @@ public class PilotRole extends Role {
 		switch(nextState()) {
 			case PILOT_POKE_MM:
 //				duration = 30;
-				nextState(RoleState.IDLE, Assumptions.PILOT_POKE_MM_DUR);
+				nextState(RoleState.IDLE, Simulator.getInstance().duration(Duration.PILOT_POKE_MM_DUR.name()));
 				break;
 			case PILOT_TX_MM:
 				//TODO change this duration based on the data being transmitted
 //				duration = 20;
-				nextState(RoleState.PILOT_END_MM, Assumptions.PILOT_TX_MM_DUR);
+				nextState(RoleState.PILOT_END_MM, Simulator.getInstance().duration(Duration.PILOT_TX_MM_DUR.name()));
 				break;
 			case PILOT_END_MM:
 				nextState(RoleState.IDLE, 1);
@@ -76,23 +76,23 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_RX_MM:
 				//TODO dont just receive forever
-				nextState(RoleState.IDLE, Assumptions.PILOT_RX_MM_DUR);
+				nextState(RoleState.IDLE, Simulator.getInstance().duration(Duration.PILOT_RX_MM_DUR.name()));
 				break;
 			case PILOT_OBSERVING_UAV:
 				//We should only get here if the UAV is flying
-//				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+//				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 //				duration = 10;
-				nextState(RoleState.PILOT_OBSERVING_GUI, Assumptions.PILOT_OBSERVE_UAV_DUR);
+				nextState(RoleState.PILOT_OBSERVING_GUI, Simulator.getInstance().duration(Duration.PILOT_OBSERVE_UAV_DUR.name()));
 				break;
 			case PILOT_OBSERVING_GUI:
-//				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
-//					_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+//				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+//					_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 //				}
 //				duration = 60;
-				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
 					nextState(RoleState.PILOT_OBSERVING_UAV, 1);
 				} else {
-					nextState(RoleState.PILOT_OBSERVING_UAV, Assumptions.PILOT_OBSERVE_UGUI_DUR);
+					nextState(RoleState.PILOT_OBSERVING_UAV, Simulator.getInstance().duration(Duration.PILOT_OBSERVE_UGUI_DUR.name()));
 				}
 				
 				break;
@@ -101,18 +101,18 @@ public class PilotRole extends Role {
 				//Assumption: The UGUI is working and the pilot can communicate as needed
 				//Launch the UAV and then wait for it to leave the take off state
 //				duration = 100;
-//				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
-				Simulator.addPost(POBOX.PILOT_UGUI, DataType.TAKE_OFF);
+//				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
+				Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.TAKE_OFF);
 				nextState(null, 0);
 				break;
 			case PILOT_POKE_UGUI:
 //				duration = 30;
-				nextState(RoleState.IDLE, Assumptions.PILOT_POKE_UGUI_DUR);
+				nextState(RoleState.IDLE, Simulator.getInstance().duration(Duration.PILOT_POKE_UGUI_DUR.name()));
 				break;
 			case PILOT_TX_UGUI:
 				//TODO base this duration on the items being transmitted
 //				duration = 15;
-				nextState(RoleState.PILOT_END_UGUI, Assumptions.PILOT_TX_UGUI_DUR);
+				nextState(RoleState.PILOT_END_UGUI, Simulator.getInstance().duration(Duration.PILOT_TX_UGUI_DUR.name()));
 				break;
 			case PILOT_END_UGUI:
 				//After we do something on the GUI we click a "save button" signaling completion
@@ -124,25 +124,25 @@ public class PilotRole extends Role {
 				// in the next time step it updates itself.  After this the Pilot can then
 				// read the latest data on the gui.
 //				duration = 1;
-				nextState(RoleState.PILOT_OBSERVING_GUI, 1);
+				nextState(RoleState.PILOT_OBSERVING_GUI, 2);
 				break;
 			case PILOT_POST_FLIGHT:
-				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 				if ( _uav_state == RoleState.UAV_LANDED ) {
 					//Plane is on the ground
 //					duration = 30;
-					Simulator.addPost(POBOX.PILOT_UAV, DataType.POST_FLIGHT_COMPLETE); // Do this immediately to avoid looping
-					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Assumptions.PILOT_POST_FLIGHT_LAND_DUR);
+					Simulator.getInstance().addPost(POBOX.PILOT_UAV, DataType.POST_FLIGHT_COMPLETE); // Do this immediately to avoid looping
+					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Simulator.getInstance().duration(Duration.PILOT_POST_FLIGHT_LAND_DUR.name()));
 				} else if ( _uav_state == RoleState.UAV_CRASHED ) {
 					//Recover the crashed UAV
 //					duration = 100;
-					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Assumptions.PILOT_POST_FLIGHT_CRASH_DUR);
+					nextState(RoleState.PILOT_POST_FLIGHT_COMPLETE, Simulator.getInstance().duration(Duration.PILOT_POST_FLIGHT_CRASH_DUR.name()));
 				}
 				break;
 			case PILOT_POST_FLIGHT_COMPLETE:
-				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 				if ( _uav_state == RoleState.UAV_CRASHED ) {
-					Simulator.addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_FAILED);
+					Simulator.getInstance().addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_FAILED);
 					nextState(RoleState.PILOT_POKE_MM, 1);
 				} else {
 					if ( _search_state == DataType.SEARCH_ACTIVE ) {
@@ -189,7 +189,7 @@ public class PilotRole extends Role {
 		switch( state() ) {
 			case PILOT_POKE_MM:
 				//Look for Ack
-				if ( Simulator.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_ACK_PILOT ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_ACK_PILOT ) {
 					nextState(RoleState.PILOT_TX_MM, 1);
 				}
 				break;
@@ -208,10 +208,10 @@ public class PilotRole extends Role {
 				//Look for end of TX
 				//Whatever the Pilot does next it should be on the next time step so that it does not
 				//appear that he is receiving after the MM stopped transmitting.
-				if ( Simulator.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PILOT ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_END_PILOT ) {
 					
 					//Check the post office for data
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.MM_PILOT);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.MM_PILOT);
 					if ( !data.isEmpty() ) {
 						if ( data.contains( DataType.TERMINATE_SEARCH ) ) {
 							//Change our internal search state to TERMINATED
@@ -221,7 +221,7 @@ public class PilotRole extends Role {
 									_uav_state == RoleState.UAV_LOITERING || 
 									_uav_state == RoleState.UAV_TAKE_OFF ||
 									_uav_state == RoleState.UAV_NO_SIGNAL ) {
-								Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
+								Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							} else {
 								nextState(RoleState.IDLE, 1);
@@ -231,7 +231,7 @@ public class PilotRole extends Role {
 							_search_state = DataType.SEARCH_ACTIVE;
 							//Build a flight plan
 							//Note: The Pilot should launch the UAV after building the flight plan if it is grounded
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						} else if ( data.contains( DataType.MM_CMD_PAUSE) ) {
 						} else if ( data.contains( DataType.MM_CMD_RESUME) ) {
@@ -251,12 +251,12 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_LAUNCH_UAV:
 				//Technically the pilot is observing the UAV here so we can update the uav state
-				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 				//Listen for GUI alarm
-				if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 				} else {
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_PILOT);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.UAV_PILOT);
 					if ( !data.isEmpty() ) {
 						for ( DataType info : data ) {
 							switch(info) {
@@ -279,7 +279,7 @@ public class PilotRole extends Role {
 						nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 					} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
 						//TODO does it matter what the uav state is?
-						Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+						Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 						nextState(RoleState.PILOT_POKE_UGUI, 1);
 					}
 				}
@@ -287,14 +287,14 @@ public class PilotRole extends Role {
 				
 				break;
 			case PILOT_OBSERVING_UAV:
-				_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 				
-				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
 					nextState(RoleState.PILOT_ACK_MM, 1);
-				} else if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
+				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI, 1);
 				} else {
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.UAV_PILOT);
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.UAV_PILOT);
 					if ( !data.isEmpty() ) {
 						for ( DataType info : data ) {
 							switch(info) {
@@ -313,13 +313,13 @@ public class PilotRole extends Role {
 						nextState(RoleState.PILOT_POST_FLIGHT, 1);
 					} else if ( _hag_state == DataType.UAV_HAG_LOW ) {
 						//TODO does it matter what the uav state is?
-						Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+						Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 						nextState(RoleState.PILOT_POKE_UGUI, 1);
 					} else if( _uav_state == RoleState.UAV_READY ) {
 						//If the uav is ready and we have an active search then launch the UAV
 						if ( _search_state == DataType.SEARCH_ACTIVE ) {
 							if ( _plan_state == DataType.UAV_FLIGHT_PLAN_NO ) {
-								Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+								Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							} else {
 								nextState(RoleState.PILOT_LAUNCH_UAV, 1);
@@ -331,10 +331,10 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_OBSERVING_GUI:
 				//These are ordered as priority
-				if ( Simulator.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
 					nextState(RoleState.PILOT_ACK_MM, 1);
-				} else if ( Simulator.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
-					ArrayList<DataType> data = Simulator.removePosts(POBOX.UGUI_PILOT);
+				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.UGUI_PILOT);
 					if ( !data.isEmpty() ) {
 						//Update the UAV state
 						for( DataType info : data ) {
@@ -353,7 +353,7 @@ public class PilotRole extends Role {
 									break;
 								case UAV_PATH_BAD:
 									if ( _path_state != info ) {
-										_bad_path_start_time = Simulator.getTime();
+										_bad_path_start_time = Simulator.getInstance().getTime();
 									}
 									_path_state = info;
 									break;
@@ -368,38 +368,38 @@ public class PilotRole extends Role {
 						}//end for
 					}
 					
-					_uav_state = Simulator.getRoleState(RoleType.ROLE_UAV);
+					_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 					
 					//Based on the Pilot GUI observations what do we do next
 					//INTERNAL STATE MACHINE
 					if ( _uav_state == RoleState.UAV_FLYING ) {
 						if ( _hag_state == DataType.UAV_HAG_LOW ) {
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						} else if ( _bat_state == DataType.UAV_BAT_LOW ) {
 							//If battery is low then have it land
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 //							} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
 //								//Wait until we have signal again, then change the flight plan
 //								_reset_flight_plan = true;
 //							} else if ( _signal_state == DataType.UAV_SIGNAL_OK && _reset_flight_plan ) {
-//								Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+//								Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 //								nextState(RoleState.PILOT_POKE_UGUI, 1);
 //								_reset_flight_plan = false;
 						} else if ( _path_state == DataType.UAV_PATH_BAD && !allowBadPath() ) {
 							//If the UAV cannot fly the path specified because of wind or hardware malfunction then land the plan
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						}
 					} else if ( _uav_state == RoleState.UAV_LOITERING ) {
 						if ( _hag_state == DataType.UAV_HAG_LOW ) {
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 							
 						} else if ( _bat_state == DataType.UAV_BAT_LOW ) {
 							//If battery is low then have it land
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 							
 //							} else if ( _signal_state == DataType.UAV_SIGNAL_LOST ) {
@@ -407,13 +407,13 @@ public class PilotRole extends Role {
 //								_reset_flight_plan = true;
 //								
 //							} else if ( _signal_state == DataType.UAV_SIGNAL_OK && _reset_flight_plan ) {
-//								Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+//								Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 //								nextState(RoleState.PILOT_POKE_UGUI, 1);
 //								_reset_flight_plan = false;
 //								
 						} else if ( _path_state == DataType.UAV_PATH_BAD && !allowBadPath() ) {
 							//If the UAV cannot fly the path specified because of wind or hardware malfunction then land the plan
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.LAND);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 							
 						} else if ( _plan_state == DataType.UAV_FLIGHT_PLAN_NO ) {
@@ -421,7 +421,7 @@ public class PilotRole extends Role {
 							if ( _search_state == DataType.SEARCH_ACTIVE ) {
 								_search_state = DataType.SEARCH_COMPLETE;
 								//We should let the MM know
-								Simulator.addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_COMPLETE);
+								Simulator.getInstance().addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_COMPLETE);
 								nextState(RoleState.PILOT_POKE_MM, 1);
 							}
 						}
@@ -429,7 +429,7 @@ public class PilotRole extends Role {
 					} else if ( _uav_state == RoleState.UAV_LANDING ) {
 						if ( _path_state == DataType.UAV_PATH_BAD && !allowBadPath() ) {
 							//UAV cannot fly, pilot is unable to execute search
-							Simulator.addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_FAILED);
+							Simulator.getInstance().addPost(POBOX.PILOT_MM, DataType.SEARCH_AOI_FAILED);
 							nextState(RoleState.PILOT_POKE_MM, 1);
 						}
 						
@@ -444,7 +444,7 @@ public class PilotRole extends Role {
 							nextState(RoleState.PILOT_LAUNCH_UAV, 1);
 						} else {
 							if ( _search_state == DataType.SEARCH_ACTIVE ) {
-								Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+								Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 								nextState(RoleState.PILOT_POKE_UGUI, 1);
 							}
 						}
@@ -452,7 +452,7 @@ public class PilotRole extends Role {
 						//If the UAV has no signal then we want to send a new Flight Path
 						//After this we wait and see
 						if ( _search_state == DataType.SEARCH_ACTIVE ) {
-							Simulator.addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						}
 					}
@@ -469,7 +469,7 @@ public class PilotRole extends Role {
 				break;
 			case PILOT_POKE_UGUI:
 				//Look for Ack
-				if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
 					nextState(RoleState.PILOT_TX_UGUI, 1);
 				}
 				break;
@@ -482,9 +482,9 @@ public class PilotRole extends Role {
 				break;
 			case IDLE:
 				//Look for commands from the MM or alerts from the UGUI
-				if ( Simulator.team.getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_MISSION_MANAGER) == RoleState.MM_POKE_PILOT ) {
 					nextState(RoleState.PILOT_ACK_MM, 1);
-				} else if ( Simulator.team.getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
+				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI,1);
 				}
 				
@@ -514,7 +514,7 @@ public class PilotRole extends Role {
 	 */
 	private boolean allowBadPath()
 	{
-		if ( Simulator.getTime() - _bad_path_start_time >= _bad_path_allowance_threshold && _bad_path_start_time > 0 ) {
+		if ( Simulator.getInstance().getTime() - _bad_path_start_time >= Simulator.getInstance().duration(Duration.PILOT_BAD_PATH_THRESHOLD_DUR.name()) && _bad_path_start_time > 0 ) {
 			return false;
 		}
 		return true;
