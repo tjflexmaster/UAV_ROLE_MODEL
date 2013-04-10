@@ -104,6 +104,11 @@ public class PilotRole extends Role {
 //				_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
 				Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.TAKE_OFF);
 				nextState(null, 0);
+				
+				//If the UAV is launched when the search has been terminated then fail
+				if ( Simulator.getInstance().getPosts(POBOX.MM_PILOT).contains(DataType.TERMINATE_SEARCH) ) {
+					assert false : "The Search has been terminated but the UAV was launched";
+				}
 				break;
 			case PILOT_POKE_UGUI:
 //				duration = 30;
@@ -381,7 +386,7 @@ public class PilotRole extends Role {
 					//INTERNAL STATE MACHINE
 					if ( _uav_state == RoleState.UAV_FLYING ) {
 						if ( _hag_state == DataType.UAV_HAG_LOW ) {
-							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.FLIGHT_PLAN);
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LOITER);
 							nextState(RoleState.PILOT_POKE_UGUI, 1);
 						} else if ( _bat_state == DataType.UAV_BAT_LOW ) {
 							//If battery is low then have it land
@@ -481,7 +486,54 @@ public class PilotRole extends Role {
 				}
 				break;
 			case PILOT_TX_UGUI:
-				//TODO Handle interruptions while working with the GUI
+				if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) != RoleState.UGUI_INACCESSIBLE ) {
+					//If the Pilot is creating a flight plan and sees that the battery is low then the pilot should immediately tell it to land.
+					ArrayList<DataType> data = Simulator.getInstance().removePosts(POBOX.UGUI_PILOT);
+					if ( !data.isEmpty() ) {
+						//Update the UAV state
+						for( DataType info : data ) {
+							switch(info) {
+								case UAV_BAT_OK:
+								case UAV_BAT_LOW:
+									_bat_state = info;
+									break;
+								case UAV_HAG_OK:
+								case UAV_HAG_LOW:
+									_hag_state = info;
+									break;
+								case UAV_PATH_OK:
+									_path_state = info;
+									_bad_path_start_time = 0;
+									break;
+								case UAV_PATH_BAD:
+									if ( _path_state != info ) {
+										_bad_path_start_time = Simulator.getInstance().getTime();
+									}
+									_path_state = info;
+									break;
+								case UAV_FLIGHT_PLAN_YES:
+								case UAV_FLIGHT_PLAN_NO:
+									_plan_state = info;
+									break;
+								default:
+									//Do nothing
+									break;
+							}
+						}//end for
+					}
+					
+					_uav_state = Simulator.getInstance().getRoleState(RoleType.ROLE_UAV);
+					
+					if ( _bat_state == DataType.UAV_BAT_LOW ) {
+						if ( !Simulator.getInstance().getPosts(POBOX.PILOT_UGUI).contains(DataType.LAND) ) {
+							Simulator.getInstance().addPost(POBOX.PILOT_UGUI, DataType.LAND);
+							//Because the UAV needs to land immediately the Pilot will not take long to land the UAV.
+							nextState(RoleState.PILOT_END_UGUI, Simulator.getInstance().duration(Duration.PILOT_TX_UGUI_DUR.name()) );
+						}
+					}
+				} else {
+					nextState(RoleState.PILOT_POKE_UGUI, 1);
+				}
 				break;
 			case PILOT_END_UGUI:
 			case PILOT_WAIT_UGUI:

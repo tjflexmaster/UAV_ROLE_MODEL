@@ -13,11 +13,12 @@ public class Application {
 //		Simulator simulator = new Simulator(Mode.MIN, WiSARDurations.durations(), new DefaultTeam());
 //		Simulator simulator = new Simulator();
 		try {
-			Simulator.getInstance().setup(Mode.RANDOM, new WiSARDurations().durations(), new DefaultTeam());
+			Simulator.getInstance().setup(Mode.MIN, new WiSARDurations().durations(), new DefaultTeam());
 			//Load Duration Assumptions
 			
 			//Load a Scenario
-			Scenario.scenario1();
+//			Scenario.scenario1();
+			Scenario.scenario2();
 			
 			//Run the simulation
 			Simulator.getInstance().run();

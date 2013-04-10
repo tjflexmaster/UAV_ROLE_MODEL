@@ -44,7 +44,10 @@ public class PostOffice {
 	
 	public ArrayList<DataType> getPosts(POBOX pobox)
 	{
-		return _po_boxes.get(pobox);
+		if ( _po_boxes.containsKey(pobox) )
+			return _po_boxes.get(pobox);
+		else
+			return new ArrayList<DataType>();
 	}
 	
 	public ArrayList<DataType> removePosts(POBOX pobox)
