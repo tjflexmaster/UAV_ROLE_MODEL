@@ -1,0 +1,4 @@
+target = NewModel.Simulation.Application
+cg.enumerate_random = true
+classpath=/Users/egm/Documents/github/UAV_ROLE_MODEL/bin
+sourcepath=/Users/egm/Documents/github/UAV_ROLE_MODEL/src
