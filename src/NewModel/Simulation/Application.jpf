@@ -1,6 +1,4 @@
 target = NewModel.Simulation.Application
-
 cg.enumerate_random = true
-report.console.property_violation=error,trace
-classpath=C:\\Users\\egm\\Documents\\github\\UAV_ROLE_MODEL\\bin
-sourcepath=C:\\Users\\egm\\Documents\\github\\UAV_ROLE_MODEL\\src
+classpath=/Users/egm/Documents/github/UAV_ROLE_MODEL/bin
+sourcepath=/Users/egm/Documents/github/UAV_ROLE_MODEL/src
