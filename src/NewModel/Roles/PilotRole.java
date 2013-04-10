@@ -545,6 +545,8 @@ public class PilotRole extends Role {
 					nextState(RoleState.PILOT_ACK_MM, 1);
 				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_AUDIBLE_ALARM ) {
 					nextState(RoleState.PILOT_OBSERVING_GUI,1);
+				} else if ( Simulator.getInstance().getRoleState(RoleType.ROLE_UAV_GUI) == RoleState.UGUI_INACCESSIBLE ) {
+					nextState(RoleState.PILOT_POKE_UGUI, 1);
 				}
 				
 				break;

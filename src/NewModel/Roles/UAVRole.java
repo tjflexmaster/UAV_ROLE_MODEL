@@ -668,7 +668,12 @@ public class UAVRole extends Role {
 //		_signal_state = DataType.UAV_SIGNAL_LOST;
 		_signal_start_time = Simulator.getInstance().getTime();
 		_signal_duration = duration;
-		nextState(RoleState.UAV_NO_SIGNAL, 1);
+		
+		if ( state() == RoleState.UAV_FLYING || 
+				state() == RoleState.UAV_TAKE_OFF || 
+				state() ==RoleState.UAV_LOITERING || 
+				state() ==RoleState.UAV_LANDING)
+			nextState(RoleState.UAV_NO_SIGNAL, 1);
 		
 //		System.out.println("Created Lost Signal Event of duration: " + duration);
 	}
