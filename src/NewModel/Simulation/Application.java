@@ -1,6 +1,7 @@
 package NewModel.Simulation;
 
 import NewModel.Utils.DurationGenerator.Mode;
+import WiSAR.DefaultTeam;
 import WiSAR.WiSARDurations;
 import NewModel.Simulation.Simulator;;
 
@@ -13,12 +14,12 @@ public class Application {
 //		Simulator simulator = new Simulator(Mode.MIN, WiSARDurations.durations(), new DefaultTeam());
 //		Simulator simulator = new Simulator();
 		try {
-			Simulator.getInstance().setup(Mode.MIN, new WiSARDurations().durations(), new DefaultTeam());
+			Simulator.getInstance().setup(Mode.MIN, new DefaultTeam());
 			//Load Duration Assumptions
 			
 			//Load a Scenario
-//			Scenario.scenario1();
-			Scenario.scenario2();
+			Scenario.scenario1();
+//			Scenario.scenario3();
 			
 			//Run the simulation
 			Simulator.getInstance().run();

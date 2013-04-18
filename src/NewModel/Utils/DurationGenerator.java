@@ -1,6 +1,6 @@
 package NewModel.Utils;
 
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -8,7 +8,7 @@ import NewModel.Utils.Duration;
 
 public class DurationGenerator {
 	
-	private HashMap<String, Range> _ranges;
+//	private HashMap<String, Range> _ranges;
 	private Mode _mode = Mode.MIN;
 	
 	public enum Mode
@@ -25,42 +25,69 @@ public class DurationGenerator {
 		initializeDefaults();
 	}
 	
-	public DurationGenerator(Mode mode, Map<String, Range> ranges)
+	public DurationGenerator(Mode mode)
 	{
-		_ranges = new HashMap<String, Range>();
-		_ranges.putAll(ranges);
+//		_ranges = new HashMap<String, Range>();
+//		_ranges.putAll(ranges);
 		_mode = mode;
 	}
 	
-	public int duration(String key)
+//	public int duration(String key)
+//	{
+//		if ( _ranges.containsKey(key) ) {
+//			switch(_mode) {
+//				case MIN:
+//					return _ranges.get(key).min();
+//				case MAX:
+//					return _ranges.get(key).max();
+//				case MIN_OR_MAX:
+//					if ( random(1) == 0 )
+//						return _ranges.get(key).min();
+//					else
+//						return _ranges.get(key).max();
+//				case MIN_MEAN_OR_MAX:
+//					int val = random(2);
+//					if ( val == 0 )
+//						return _ranges.get(key).min();
+//					else if (val == 2)
+//						return _ranges.get(key).max();
+//					else 
+//						return _ranges.get(key).mean();
+//				case RANDOM:
+//					return random(_ranges.get(key));
+//				default:
+//					return 1;
+//			}
+//		} else {
+//			//By default return 1
+//			return 1;
+//		}
+//	}
+	
+	public int duration(Range range)
 	{
-		if ( _ranges.containsKey(key) ) {
-			switch(_mode) {
-				case MIN:
-					return _ranges.get(key).min();
-				case MAX:
-					return _ranges.get(key).max();
-				case MIN_OR_MAX:
-					if ( random(1) == 0 )
-						return _ranges.get(key).min();
-					else
-						return _ranges.get(key).max();
-				case MIN_MEAN_OR_MAX:
-					int val = random(2);
-					if ( val == 0 )
-						return _ranges.get(key).min();
-					else if (val == 2)
-						return _ranges.get(key).max();
-					else 
-						return _ranges.get(key).mean();
-				case RANDOM:
-					return random(_ranges.get(key));
-				default:
-					return 1;
-			}
-		} else {
-			//By default return 1
-			return 1;
+		switch(_mode) {
+			case MIN:
+				return range.min();
+			case MAX:
+				return range.max();
+			case MIN_OR_MAX:
+				if ( random(1) == 0 )
+					return range.min();
+				else
+					return range.max();
+			case MIN_MEAN_OR_MAX:
+				int val = random(2);
+				if ( val == 0 )
+					return range.min();
+				else if (val == 2)
+					return range.max();
+				else 
+					return range.mean();
+			case RANDOM:
+				return random(range);
+			default:
+				return 1;
 		}
 	}
 	
@@ -86,12 +113,12 @@ public class DurationGenerator {
 	private void initializeDefaults()
 	{
 		_mode = Mode.MIN;
-		_ranges = new HashMap<String, Range>();
-		_ranges.put(Duration.DUR_30.name(), new Range(30, 30));
-		_ranges.put(Duration.DUR_60.name(), new Range(60, 60));
-		_ranges.put(Duration.DUR_5MIN.name(), new Range(300, 300));
-		_ranges.put(Duration.DUR_10MIN.name(), new Range(600, 600));
-		_ranges.put(Duration.DUR_30MIN.name(), new Range(1800, 1800));
+//		_ranges = new HashMap<String, Range>();
+//		_ranges.put(Duration.DUR_30.name(), new Range(30, 30));
+//		_ranges.put(Duration.DUR_60.name(), new Range(60, 60));
+//		_ranges.put(Duration.DUR_5MIN.name(), new Range(300, 300));
+//		_ranges.put(Duration.DUR_10MIN.name(), new Range(600, 600));
+//		_ranges.put(Duration.DUR_30MIN.name(), new Range(1800, 1800));
 	}
 
 }

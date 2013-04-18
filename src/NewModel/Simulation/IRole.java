@@ -1,11 +1,11 @@
 /**
  * 
  */
-package NewModel.Roles;
+package NewModel.Simulation;
 
 import java.util.ArrayList;
 
-import NewModel.Events.Event;
+import NewModel.Events.IEvent;
 
 
 
@@ -39,14 +39,16 @@ public interface IRole {
 	 * each event and decide how it should change its state.
 	 * @param events
 	 */
-	public abstract void processEvents(ArrayList<Event> events);
+	void processEvent(IEvent event);
+	
+
 	
 	/**
 	 * Helper methods for obtaining role specific information
 	 */
 	int nextStateTime();
-	RoleState state();
-	RoleState nextState();
-	RoleType type();
+	IStateEnum state();
+	IStateEnum nextState();
+	String name();
 	
 }

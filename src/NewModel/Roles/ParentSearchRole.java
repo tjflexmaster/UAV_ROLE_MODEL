@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import NewModel.Events.Event;
 import NewModel.Simulation.Assumptions;
+import NewModel.Simulation.IInputEnum;
+import NewModel.Simulation.IOutputEnum;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
@@ -12,6 +14,23 @@ public class ParentSearchRole extends Role {
 	
 	//INTERNAL VARS
 	int _search_aoi_count = 0;
+	
+	/**
+	 * Setup Inputs and Outputs
+	 */
+	public enum Inputs implements IInputEnum
+	{
+		SEARCH_AOI_SIGHTING,
+		SEARCH_AOI_COMPLETE,
+		SEARCH_AOI_FAILED
+	}
+	
+	public enum Outputs implements IOutputEnum
+	{
+		SEARCH_AOI,
+		TARGET_DESCRIPTION,
+		TERMINATE_SEARCH
+	}
 
 	public ParentSearchRole()
 	{

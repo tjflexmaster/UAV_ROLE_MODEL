@@ -3,18 +3,22 @@ package NewModel.Simulation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import NewModel.Events.Event;
-import NewModel.Roles.IRole;
 import NewModel.Roles.RoleState;
 import NewModel.Roles.RoleType;
 
 public abstract class Team implements ITeam {
 
-	protected HashMap<RoleType, IRole> _roles = new HashMap<RoleType, IRole>();
+	protected HashMap<String, IRole> _roles = new HashMap<String, IRole>();
+	
+//	@Override
+//	public RoleState getRoleState(RoleType type) {
+//		return _roles.get(type).state();
+//	}
 	
 	@Override
-	public RoleState getRoleState(RoleType type) {
-		return _roles.get(type).state();
+	public ICommunicate getRole(String role_name)
+	{
+		return (ICommunicate)_roles.get(role_name);
 	}
 
 	@Override
@@ -62,12 +66,23 @@ public abstract class Team implements ITeam {
 			role.updateState();
 		}
 	}
+	
+//	@Override
+//	public boolean canProcessEvent(String type) {
+//		for ( IRole role : _roles.values() ) {
+//			if ( !role.canProcessEvent(type) ) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
 
 	@Override
-	public void processExternalEvents(ArrayList<Event> events) {
+	public void processEvent(String type) {
 		//Have each role look at the events and see how it is effected
 		for( IRole role : _roles.values() ) {
-			role.processEvents(events);
+			//TODO process role events
+//			role.processEvent(type);
 		}
 	}
 

@@ -1,20 +1,14 @@
 package NewModel.Simulation;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Scanner;
 
 import NewModel.Simulation.ITeam;
-import NewModel.Events.Event;
 import NewModel.Events.EventManager;
-import NewModel.Roles.RoleState;
-import NewModel.Roles.RoleType;
-import NewModel.Utils.DataType;
+import NewModel.Events.IEvent;
 import NewModel.Utils.DurationGenerator;
 import NewModel.Utils.DurationGenerator.Mode;
 import NewModel.Utils.GlobalTimer;
-import NewModel.Utils.PostOffice;
-import NewModel.Utils.PostOffice.POBOX;
 import NewModel.Utils.Range;
 
 /**
@@ -27,8 +21,16 @@ public class Simulator {
 	
 	private static volatile Simulator _instance = null;
 	
+	public enum Environment
+	{
+		DEBUG,
+		PRODUCTION
+	}
+	
 	private Simulator() {
-		
+		_timer = new GlobalTimer();
+		_event_manager = new EventManager();
+		_timer.time(0);
 	}
 	
 	public static Simulator getInstance() {
@@ -44,28 +46,25 @@ public class Simulator {
 	
 	private ITeam _team = null;
 	private GlobalTimer _timer = null;
-	private PostOffice _post_office = null;
+//	private PostOffice _post_office = null;
 	private EventManager _event_manager = null;
 	private DurationGenerator _duration_generator = null;
+	private Environment _env = Environment.DEBUG;
 	
 	private boolean _running = false;
 	
-	public void setup(Mode mode, Map<String, Range> ranges, ITeam team)
+	public void setup(Mode mode, ITeam team)
 	{
-		_timer = new GlobalTimer();
-		_post_office = new PostOffice();
-		_event_manager = new EventManager();
-		_timer.time(0);
-		setDurations(mode, ranges);
+		setDurations(mode);
 		setTeam(team);
 	}
 	
 	public boolean isReady()
 	{
-		if ( _team != null && _duration_generator != null ) 
+//		if ( _team != null && _duration_generator != null ) 
 			return true;
-		else
-			return false;
+//		else
+//			return false;
 	}
 	
 	/**
@@ -84,11 +83,11 @@ public class Simulator {
 		_timer.time(time);
 	}
 	
-	public RoleState getRoleState(RoleType type)
-	{
-		assert isReady() : "The Simulator was not setup properly";
-		return _team.getRoleState(type);
-	}
+//	public RoleState getRoleState(RoleType type)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		return _team.getRoleState(type);
+//	}
 	
 	public int getNextStateTime()
 	{
@@ -96,58 +95,91 @@ public class Simulator {
 		return _team.getNextStateTime(getTime());
 	}
 	
-	public ArrayList<DataType> removePosts(POBOX pobox)
+//	public ArrayList<DataType> removePosts(POBOX pobox)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		return _post_office.removePosts(pobox);
+//	}
+//	
+//	public void addPost(POBOX pobox, DataType data)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		_post_office.addPost(pobox, data);
+//	}
+//	
+//	public ArrayList<DataType> getPosts(POBOX pobox)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		return _post_office.getPosts(pobox);
+//	}
+//	
+//	public boolean isPoboxEmpty(POBOX pobox)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		return _post_office.isPoboxEmpty(pobox);
+//	}
+//	
+//	public void clearPost(POBOX pobox)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		_post_office.clearPost(pobox);
+//	}
+	
+	public ICommunicate getRole(String role_name)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		return _post_office.removePosts(pobox);
+		return _team.getRole(role_name);
 	}
 	
-	public void addPost(POBOX pobox, DataType data)
+	public void addInput(String role_name, IInputEnum input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		_post_office.addPost(pobox, data);
+		getRole(role_name).addInput(input);
 	}
 	
-	public ArrayList<DataType> getPosts(POBOX pobox)
+	public void addInput(String role_name, ArrayList<IInputEnum> input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		return _post_office.getPosts(pobox);
+		getRole(role_name).addInputs(input);
 	}
 	
-	public boolean isPoboxEmpty(POBOX pobox)
+	public void addEvent(IEvent event, int count)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		return _post_office.isPoboxEmpty(pobox);
+		_event_manager.addEvent(event, count);
 	}
 	
-	public void clearPost(POBOX pobox)
-	{
+//	public int duration(String key)
+//	{
+//		assert isReady() : "The Simulator was not setup properly";
+//		return _duration_generator.duration(key);
+//	}
+	
+	public int duration(Range range) {
 		assert isReady() : "The Simulator was not setup properly";
-		_post_office.clearPost(pobox);
+		return _duration_generator.duration(range);
 	}
 	
-	public void addExternalEvent(Event event, int time)
+	public void setEnvironment(Environment env)
 	{
-		assert isReady() : "The Simulator was not setup properly";
-		_event_manager.addEvent(event, time);
+		_env = env;
 	}
 	
-	public int duration(String key)
+	public boolean debug()
 	{
-		assert isReady() : "The Simulator was not setup properly";
-		return _duration_generator.duration(key);
+		return _env == Environment.DEBUG ? true : false;
 	}
-	
 	/**
 	 * Durations must exist for Simulation timing
 	 * 
 	 * @param mode
 	 * @param ranges
 	 */
-	private void setDurations(Mode mode, Map<String, Range> ranges)
+	private void setDurations(Mode mode)
 	{
-		_duration_generator = new DurationGenerator(mode, ranges);
+		_duration_generator = new DurationGenerator(mode);
 	}
+	
 	
 	/**
 	 * If Team roles require duration information be sure to set that first
@@ -168,7 +200,8 @@ public class Simulator {
 	{
 		assert isReady() : "The Simulator was not setup properly";
 		_running = true;
-		System.out.println("Started Simulation...");
+		if( debug() ) 
+			System.out.println("Started Simulation...");
 		Scanner readUserInput = new Scanner(System.in);
 		
 		try {
@@ -176,49 +209,35 @@ public class Simulator {
 			while(_running) {
 				
 				//Get user input
-//				System.out.println("Enter Command: ");
-//				String input = readUserInput.nextLine();
+				System.out.println("Enter Command: ");
+				String input = readUserInput.nextLine();
 				//TODO Use user input to guide the system
 				
-				assert Simulator.getInstance().getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED : "UAV Crashed!";
-		
+//				assert Simulator.getInstance().getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED : "UAV Crashed!";
+				//TODO Add asserts for anything that is incorrect that can be detected here
 			
 				int next_team_time = _team.getNextStateTime(getTime());
-				int next_event_time = _event_manager.getNextEventTime(getTime());
-				
-				if ( next_event_time == 0 && next_team_time == 0 ) {
-					System.out.println("Nothing to process: " + getTime());
+				if ( next_team_time == 0 ) {
+					if ( debug() )
+						System.out.println("Nothing to process: " + getTime());
 					_running = false;
-				} else if ( next_event_time != 0 && next_team_time == 0 ) {
-					_timer.time(next_event_time);
-					System.out.println("Processing External Events: " + getTime());
-					processExternalEvents();
-				} else if ( next_event_time == 0 && next_team_time != 0 ) {
+					
+				} else {
 					_timer.time(next_team_time);
-					System.out.println("Processing Team Events: " + getTime());
-					processNextStates();
-				} else if ( next_event_time < next_team_time) {
-					_timer.time(next_event_time);
-					System.out.println("Processing External Events: " + getTime());
-					processExternalEvents();
-				} else if ( next_team_time < next_event_time ) {
-					_timer.time(next_team_time);
-					System.out.println("Processing Team Events: " + getTime());
-					processNextStates();
-				} else if ( next_event_time == next_team_time ) {
-					_timer.time(next_event_time);
-					System.out.println("Processing External Events: " + getTime());
-					processExternalEvents();
-					System.out.println("Processing Team Events: " + getTime());
+					if (debug())
+						System.out.println("Processing Team States: " + getTime());
 					processNextStates();
 				}
-				System.out.println("\n");
+		
 			}//end while
-			System.out.println("Simulation Successful");
+			if (debug())
+				System.out.println("Simulation Successful");
 		} catch(AssertionError e) {
-			System.out.println("Simulation Failed: " + e.getMessage());
+			if (debug())
+				System.out.println("Simulation Failed: " + e.getMessage());
 		}
-		System.out.println("Ended Simulation");
+		if (debug())
+			System.out.println("Ended Simulation");
 		
 	}
 	
@@ -237,15 +256,16 @@ public class Simulator {
 
 	private void processExternalEvents()
 	{
+		//TODO Get the event system working
 		System.out.println("Events...");
-		ArrayList<Event> events = _event_manager.getEvents(getTime());
-		
-		for(Event e : events) {
-			System.out.println("\tEvent: " + e.type().name());
-		}
-			
-		_team.processExternalEvents(events);
-		System.out.println("Events Finished");
+//		ArrayList<Event> events = _event_manager.getEvents(getTime());
+//		
+//		for(Event e : events) {
+//			System.out.println("\tEvent: " + e.type().name());
+//		}
+//			
+//		_team.processExternalEvents(events);
+//		System.out.println("Events Finished");
 	}
 	
 }

@@ -3,10 +3,10 @@ package NewModel.Roles;
 import java.util.ArrayList;
 
 import NewModel.Events.Event;
+import NewModel.Events.IEvent;
 import NewModel.Simulation.Simulator;
 import NewModel.Utils.DataType;
 import NewModel.Utils.PostOffice.POBOX;
-import WiSAR.WiSARDurations.Duration;
 
 public class UAVRole extends Role {
 	
@@ -579,6 +579,12 @@ public class UAVRole extends Role {
 //				}
 //			}
 //		}
+	}
+	
+	@Override
+	public void processEvent(IEvent event) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
