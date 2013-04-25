@@ -1,13 +1,11 @@
-package WiSAR.Roles;
+package WiSAR.Agents;
 
+import javax.management.relation.Role;
+
+import CUAS.Simulator.Simulator;
 import NewModel.Events.IEvent;
-import NewModel.Roles.Role;
-import NewModel.Simulation.IInputEnum;
-import NewModel.Simulation.IOutputEnum;
 import NewModel.Simulation.IStateEnum;
-import NewModel.Simulation.Simulator;
 import WiSAR.Durations;
-import WiSAR.Events;
 
 public class VideoGUIRole extends Role {
 
