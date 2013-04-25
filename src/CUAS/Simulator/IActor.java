@@ -5,7 +5,6 @@ package CUAS.Simulator;
 
 import java.util.ArrayList;
 
-import NewModel.Events.IEvent;
 
 
 
@@ -18,6 +17,11 @@ import NewModel.Events.IEvent;
  *
  */
 public interface IActor {
+	/**
+	 * Get next state time tells the Simulator the next time step that this actor needs
+	 * processing time.
+	 */
+	int nextStateTime();
 
 	/**
 	 * This method updates the Role to whatever state is next.  It is a simple method,
@@ -43,13 +47,5 @@ public interface IActor {
 	void addInput(IData data);
 	void addInput(ArrayList<IData> data);
 
-	
-	/**
-	 * Helper methods for obtaining role specific information
-	 */
-	int nextStateTime();
-	IStateEnum state();
-	IStateEnum nextState();
-	String name();
 	
 }

@@ -3,19 +3,11 @@ package CUAS.Simulator;
 
 import java.util.ArrayList;
 
-import CUAS.Simulator.IInputEnum;
-import CUAS.Simulator.IOutputEnum;
 import CUAS.Simulator.IStateEnum;
-import NewModel.Events.IEvent;
 
-public abstract class Actor implements IActor, IObservable {
+public abstract class Actor extends State implements IActor, IObservable {
 
 	private String _name;
-	
-//	private LinkedList<RoleEvent> _state_history = new LinkedList<RoleEvent>();
-	private IStateEnum _state = null;
-	private IStateEnum _next_state = null;
-	private int _next_state_time = 1;
 	
 	/**
 	 * Roles must also define their own Inputs and Outputs.  This is done by extending the
@@ -58,19 +50,12 @@ public abstract class Actor implements IActor, IObservable {
 	
 	
 	
-	public int nextStateTime()
+	/**
+	 * Private methods for changing the state
+	 */
+	protected void name(String name)
 	{
-		return _next_state_time;
-	}
-	
-	public IStateEnum nextState()
-	{
-		return _next_state;
-	}
-	
-	public IStateEnum state()
-	{
-		return _state;
+		_name = name;
 	}
 	
 	public String name()
@@ -95,59 +80,4 @@ public abstract class Actor implements IActor, IObservable {
 	}
 	
 	
-
-	
-	/**
-	 * Private methods for changing the state
-	 */
-	protected void name(String name)
-	{
-		_name = name;
-	}
-	
-	protected void nextState(IStateEnum state, int time)
-	{
-		if ( state == null ) {
-			_next_state = null;
-			_next_state_time = 0;
-			if ( simulator().debug() )
-				System.out.println(name() + " no next state!");
-		} else if ( time > 0 ) {
-			_next_state = state;
-			_next_state_time = Simulator.getInstance().getTime() + time;
-			if ( simulator().debug() )
-				System.out.println(name() + " next state: " + state.name() + " at time: " + _next_state_time);
-		} else {
-//			System.out.println("Failed to set the next state");
-		}
-	}
-	
-	protected void state(IStateEnum state)
-	{
-		_state = state;
-		if ( simulator().debug() )
-			System.out.println(name() + " changed to " + state.name());
-//		recordCurrentState();
-	}
-	
-//	protected void recordCurrentState()
-//	{
-//		//Record the state
-//		_state_history.add(new RoleEvent(_state));
-//	}
-	
-	protected void resetNextState()
-	{
-		_next_state_time = 0;
-		_next_state = null;
-	}
-	
-	/**
-	 * Convenience method so that getInstance does not have to be called over and over
-	 * @return
-	 */
-	protected Simulator sim()
-	{
-		return Simulator.getInstance();
-	}
 }

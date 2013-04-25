@@ -5,11 +5,10 @@ import java.util.Scanner;
 
 import CUAS.Simulator.ITeam;
 import CUAS.Utils.DurationGenerator;
+import CUAS.Utils.EventManager;
 import CUAS.Utils.GlobalTimer;
 import CUAS.Utils.Range;
 import CUAS.Utils.DurationGenerator.Mode;
-import NewModel.Events.EventManager;
-import NewModel.Events.IEvent;
 
 /**
  * This class is a singleton
@@ -61,10 +60,10 @@ public class Simulator {
 	
 	public boolean isReady()
 	{
-//		if ( _team != null && _duration_generator != null ) 
+		if ( _team != null && _duration_generator != null ) 
 			return true;
-//		else
-//			return false;
+		else
+			return false;
 	}
 	
 	/**
@@ -73,13 +72,13 @@ public class Simulator {
 	
 	public int getTime()
 	{
-		assert isReady() : "The Simulator was not setup properly";
+//		assert isReady() : "The Simulator was not setup properly";
 		return _timer.time();
 	}
 	
 	public void setTime(int time)
 	{
-		assert isReady() : "The Simulator was not setup properly";
+//		assert isReady() : "The Simulator was not setup properly";
 		_timer.time(time);
 	}
 	
@@ -118,10 +117,10 @@ public class Simulator {
 		return ((IObservable) actor).getObservations();
 	}
 	
-	public void addEvent(IEvent event, int count)
+	public void addEvent(IEvent event)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		_event_manager.addEvent(event, count);
+		_event_manager.addEvent(event);
 	}
 	
 	public int duration(Range range) {
