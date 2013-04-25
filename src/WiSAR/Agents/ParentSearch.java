@@ -1,4 +1,4 @@
-package WiSAR.Roles;
+package WiSAR.Agents;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -12,7 +12,7 @@ import NewModel.Simulation.IStateEnum;
 import WiSAR.Durations;
 import WiSAR.Events;
 
-public class ParentSearchRole extends Role {
+public class ParentSearch extends Role {
 	
 	//INTERNAL VARS
 	boolean _search_active = true;
@@ -61,7 +61,7 @@ public class ParentSearchRole extends Role {
 		RX_MM
 	}
 	
-	public ParentSearchRole()
+	public ParentSearch()
 	{
 		name( Roles.PARENT_SEARCH.name() );
 		nextState(States.IDLE, 1);

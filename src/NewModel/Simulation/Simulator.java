@@ -143,6 +143,12 @@ public class Simulator {
 		getRole(role_name).addInputs(input);
 	}
 	
+	public ArrayList<IOutputEnum> getOutput(String role_name)
+	{
+		assert isReady() : "The Simulator was not setup properly";
+		return getRole(role_name).getOutput();
+	}
+	
 	public void addEvent(IEvent event, int count)
 	{
 		assert isReady() : "The Simulator was not setup properly";

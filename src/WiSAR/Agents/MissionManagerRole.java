@@ -1,4 +1,4 @@
-package WiSAR.Roles;
+package WiSAR.Agents;
 
 import java.util.ArrayList;
 
@@ -41,10 +41,10 @@ public class MissionManagerRole extends Role {
 		BUSY_PS,
 		ACK_PS,
 		END_PS,
-		POKE_PILOT,
-		BUSY_PILOT,
-		ACK_PILOT,
-		END_PILOT
+		POKE_OPERATOR,
+		BUSY_OPERATOR,
+		ACK_OPERATOR,
+		END_OPERATOR
 	}
 	
 	public enum Outputs implements IOutputEnum
@@ -62,15 +62,15 @@ public class MissionManagerRole extends Role {
 	{
 		IDLE,
 		POKE_PS,
-//		MM_POKE_PILOT,
+//		MM_POKE_OPERATOR,
 		TX_PS,
-//		MM_TX_PILOT,
+//		MM_TX_OPERATOR,
 		END_PS,
-//		MM_END_PILOT,
+//		MM_END_OPERATOR,
 //		MM_ACK_PS,
-//		MM_ACK_PILOT,
+//		MM_ACK_OPERATOR,
 		RX_PS,
-//		MM_RX_PILOT
+//		MM_RX_OPERATOR
 	}
 	
 	
@@ -104,7 +104,7 @@ public class MissionManagerRole extends Role {
 				nextState(null, 0);
 				break;
 			case POKE_PS:
-				simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearchRole.Inputs.POKE_MM);
+				simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearch.Inputs.POKE_MM);
 				nextState(States.IDLE, simulator().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_PS:
@@ -116,8 +116,8 @@ public class MissionManagerRole extends Role {
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
 				ICommunicate role = simulator().getRole(Roles.PARENT_SEARCH.name());
-				role.addInput(ParentSearchRole.Inputs.SEARCH_AOI_COMPLETE);
-				role.addInput(ParentSearchRole.Inputs.END_MM);
+				role.addInput(ParentSearch.Inputs.SEARCH_AOI_COMPLETE);
+				role.addInput(ParentSearch.Inputs.END_MM);
 				nextState(States.IDLE, 1);
 				break;
 			case RX_PS:
@@ -141,7 +141,7 @@ public class MissionManagerRole extends Role {
 				//If the MM is idle then do the following things in sequence
 				//First check for Parent Search Commands
 				if ( _input.contains(Inputs.POKE_PS) ) {
-					simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearchRole.Inputs.ACK_MM);
+					simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearch.Inputs.ACK_MM);
 					nextState(States.RX_PS, 1);
 				}
 				
@@ -168,9 +168,9 @@ public class MissionManagerRole extends Role {
 				if ( _input.contains(Inputs.END_PS) ) {
 					//Look for the inputs
 					if ( _input.contains(Inputs.TERMINATE_SEARCH) ) {
-						//TODO Tell the Pilot and the VA
+						//TODO Tell the OPERATOR and the VA
 					} else if ( _input.contains(Inputs.SEARCH_AOI) ) {
-						//TODO Send AOI to the Pilot
+						//TODO Send AOI to the OPERATOR
 					}
 					
 					nextState(States.IDLE, 1);
