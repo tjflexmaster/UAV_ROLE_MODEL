@@ -1,6 +1,6 @@
 package WiSAR;
 
-import NewModel.Utils.Range;
+import CUAS.Utils.Range;
 
 public enum Durations {
 	

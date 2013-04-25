@@ -2,10 +2,11 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
 import NewModel.Events.Event;
-import NewModel.Simulation.Simulator;
 
-public class EnvironmentRole extends Role {
+public class EnvironmentRole extends Actor {
 
 	public EnvironmentRole()
 	{

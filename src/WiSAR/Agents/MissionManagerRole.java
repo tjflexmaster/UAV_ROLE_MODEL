@@ -2,16 +2,16 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.IObservable;
+import CUAS.Simulator.IInputEnum;
+import CUAS.Simulator.IOutputEnum;
+import CUAS.Simulator.IStateEnum;
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
 import NewModel.Events.IEvent;
-import NewModel.Roles.Role;
-import NewModel.Simulation.ICommunicate;
-import NewModel.Simulation.IInputEnum;
-import NewModel.Simulation.IOutputEnum;
-import NewModel.Simulation.IStateEnum;
-import NewModel.Simulation.Simulator;
 import WiSAR.Durations;
 
-public class MissionManagerRole extends Role {
+public class MissionManagerRole extends Actor {
 
 	//INTERNAL VARS
 	ArrayList<IInputEnum> temp_inputs = new ArrayList<IInputEnum>();
@@ -115,7 +115,7 @@ public class MissionManagerRole extends Role {
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
-				ICommunicate role = simulator().getRole(Roles.PARENT_SEARCH.name());
+				IObservable role = simulator().getRole(Roles.PARENT_SEARCH.name());
 				role.addInput(ParentSearch.Inputs.SEARCH_AOI_COMPLETE);
 				role.addInput(ParentSearch.Inputs.END_MM);
 				nextState(States.IDLE, 1);

@@ -3,7 +3,7 @@ package WiSAR;
 import java.util.HashMap;
 import java.util.Map;
 
-import NewModel.Utils.Range;
+import CUAS.Utils.Range;
 
 public class WiSARDurations {
 	private HashMap<String, Range> _ranges;

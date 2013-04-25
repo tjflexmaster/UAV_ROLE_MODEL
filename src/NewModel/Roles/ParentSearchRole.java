@@ -2,15 +2,16 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.Assumptions;
+import CUAS.Simulator.IInputEnum;
+import CUAS.Simulator.IOutputEnum;
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
+import CUAS.Utils.DataType;
+import CUAS.Utils.PostOffice.POBOX;
 import NewModel.Events.Event;
-import NewModel.Simulation.Assumptions;
-import NewModel.Simulation.IInputEnum;
-import NewModel.Simulation.IOutputEnum;
-import NewModel.Simulation.Simulator;
-import NewModel.Utils.DataType;
-import NewModel.Utils.PostOffice.POBOX;
 
-public class ParentSearchRole extends Role {
+public class ParentSearchRole extends Actor {
 	
 	//INTERNAL VARS
 	int _search_aoi_count = 0;

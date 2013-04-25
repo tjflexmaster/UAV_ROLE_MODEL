@@ -2,13 +2,14 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
+import CUAS.Utils.DataType;
+import CUAS.Utils.PostOffice.POBOX;
 import NewModel.Events.Event;
 import NewModel.Events.IEvent;
-import NewModel.Simulation.Simulator;
-import NewModel.Utils.DataType;
-import NewModel.Utils.PostOffice.POBOX;
 
-public class UAVRole extends Role {
+public class UAVRole extends Actor {
 	
 	/**
 	 * UAV INTERNAL STATES

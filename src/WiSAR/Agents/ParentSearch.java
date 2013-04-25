@@ -3,16 +3,16 @@ package WiSAR.Agents;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import CUAS.Simulator.IObservable;
+import CUAS.Simulator.IInputEnum;
+import CUAS.Simulator.IOutputEnum;
+import CUAS.Simulator.IStateEnum;
+import CUAS.Simulator.Actor;
 import NewModel.Events.IEvent;
-import NewModel.Roles.Role;
-import NewModel.Simulation.ICommunicate;
-import NewModel.Simulation.IInputEnum;
-import NewModel.Simulation.IOutputEnum;
-import NewModel.Simulation.IStateEnum;
 import WiSAR.Durations;
-import WiSAR.Events;
+import WiSAR.EventEnum;
 
-public class ParentSearch extends Role {
+public class ParentSearch extends Actor {
 	
 	//INTERNAL VARS
 	boolean _search_active = true;
@@ -67,7 +67,7 @@ public class ParentSearch extends Role {
 		nextState(States.IDLE, 1);
 		
 		//Initialize that a new search area needs to be searched
-		processEvent(Events.PS_NEW_AOI);
+		processEvent(EventEnum.PS_NEW_AOI);
 	}
 	
 	@Override
@@ -103,7 +103,7 @@ public class ParentSearch extends Role {
 				break;
 			case END_MM:
 				//Now send the data that got sent from the transfer
-				ICommunicate role = simulator().getRole(Roles.MISSION_MANAGER.name());
+				IObservable role = simulator().getRole(Roles.MISSION_MANAGER.name());
 				if ( current_output == Outputs.SEARCH_AOI ) {
 					role.addInput(MissionManagerRole.Inputs.SEARCH_AOI);
 				} else if ( current_output == Outputs.SEARCH_TERMINATED ) {
@@ -182,7 +182,7 @@ public class ParentSearch extends Role {
 	@Override
 	public void processEvent(IEvent event) {
 		
-		switch((Events) event) {
+		switch((EventEnum) event) {
 			case PS_NEW_AOI:
 				output_queue.add(Outputs.SEARCH_AOI);
 				break;

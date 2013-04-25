@@ -2,14 +2,15 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.Assumptions;
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
+import CUAS.Utils.DataType;
+import CUAS.Utils.PostOffice.POBOX;
 import NewModel.Events.Event;
-import NewModel.Simulation.Assumptions;
-import NewModel.Simulation.Simulator;
-import NewModel.Utils.DataType;
-import NewModel.Utils.PostOffice.POBOX;
 import WiSAR.WiSARDurations.Duration;
 
-public class PilotRole extends Role {
+public class PilotRole extends Actor {
 	
 	/**
 	 * PILOT STATE VARS

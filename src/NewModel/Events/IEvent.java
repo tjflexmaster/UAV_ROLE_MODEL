@@ -1,6 +1,6 @@
 package NewModel.Events;
 
-import NewModel.Utils.Range;
+import CUAS.Utils.Range;
 
 public interface IEvent {
 

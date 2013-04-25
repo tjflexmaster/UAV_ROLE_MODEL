@@ -2,14 +2,15 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.Assumptions;
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
+import CUAS.Utils.DataType;
+import CUAS.Utils.DurationGenerator;
+import CUAS.Utils.PostOffice.POBOX;
 import NewModel.Events.Event;
-import NewModel.Simulation.Assumptions;
-import NewModel.Simulation.Simulator;
-import NewModel.Utils.DataType;
-import NewModel.Utils.DurationGenerator;
-import NewModel.Utils.PostOffice.POBOX;
 
-public class MissionManagerRole extends Role {
+public class MissionManagerRole extends Actor {
 
 	/**
 	 * STATE VARS

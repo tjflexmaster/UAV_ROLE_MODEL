@@ -2,10 +2,11 @@ package NewModel.Roles;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.IActor;
+import CUAS.Simulator.Actor;
 import NewModel.Events.Event;
-import NewModel.Simulation.IRole;
 
-public class HumanRole extends Role implements IRole {
+public class HumanRole extends Actor implements IActor {
 
 	@Override
 	public boolean processNextState() {

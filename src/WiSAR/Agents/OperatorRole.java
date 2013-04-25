@@ -2,63 +2,68 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.IData;
+import CUAS.Simulator.IInputEnum;
+import CUAS.Simulator.IOutputEnum;
+import CUAS.Simulator.IStateEnum;
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.Simulator;
+import CUAS.Utils.DataType;
+import CUAS.Utils.PostOffice.POBOX;
 import NewModel.Events.IEvent;
-import NewModel.Roles.Role;
-import NewModel.Simulation.Assumptions;
-import NewModel.Simulation.IInputEnum;
-import NewModel.Simulation.IOutputEnum;
-import NewModel.Simulation.IStateEnum;
-import NewModel.Simulation.Simulator;
-import NewModel.Utils.DataType;
-import NewModel.Utils.PostOffice.POBOX;
 import WiSAR.Durations;
-import WiSAR.Agents.ParentSearch.States;
+import WiSAR.AgentEnum.ParentSearch.States;
 import WiSAR.WiSARDurations.Duration;
 
-public class OperatorRole extends Role {
+public class OperatorRole extends Actor {
 	
 	/**
 	 *  STATE VARS
 	 */
 	
-	public enum Inputs implements IInputEnum
-	{
-		/**
-		 * PS Inputs
-		 */
-		SEARCH_AOI,
-		TERMINATE_SEARCH,
-		
-		/**
-		 * Search Inputs (Only received during RX)
-		 */
-		LOW_BAT,
-		LOW_HAG,
-		HAG_OK,
-		LOSS_OF_SIGNAL,
-		SIGNAL_OK,
-		UAV_CRASH,
-		FLIGHT_COMPLETE,
-		BAD_PATH,
-		OK_PATH,
-		
-		/**
-		 * Communication Inputs
-		 */
-		POKE_MM,
-		BUSY_MM,
-		ACK_MM,
-		END_MM,
-		POKE_VA,
-		BUSY_VA,
-		ACK_VA,
-		END_VA
-	}
+//	public enum Inputs implements IInputEnum
+//	{
+//		/**
+//		 * PS Inputs
+//		 */
+//		SEARCH_AOI,
+//		TERMINATE_SEARCH,
+//		
+//		/**
+//		 * Search Inputs (Only received during RX)
+//		 */
+//		LOW_BAT,
+//		LOW_HAG,
+//		HAG_OK,
+//		LOSS_OF_SIGNAL,
+//		SIGNAL_OK,
+//		UAV_CRASH,
+//		FLIGHT_COMPLETE,
+//		BAD_PATH,
+//		OK_PATH,
+//		
+//		/**
+//		 * Communication Inputs
+//		 */
+//		POKE_MM,
+//		BUSY_MM,
+//		ACK_MM,
+//		END_MM,
+//		POKE_VA,
+//		BUSY_VA,
+//		ACK_VA,
+//		END_VA
+//	}
 	
-	public enum Outputs implements IOutputEnum
+	public enum Outputs implements IData
 	{
-		SEARCH_AOI_COMPLETE,
-		SEARCH_AOI_FAILED
+		OP_POKE,
+		OP_ACK,
+		OP_BUSY,
+		OP_TX,
+		OP_END,
+		OP_SEARCH_AOI_COMPLETE,
+		OP_SEARCH_AOI_FAILED
 	}
 	
 	public enum States implements IStateEnum
