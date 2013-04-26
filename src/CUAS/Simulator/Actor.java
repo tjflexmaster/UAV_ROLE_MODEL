@@ -68,6 +68,16 @@ public abstract class Actor extends State implements IActor, IObservable {
 		_input.addAll(inputs);
 	}
 	
+	protected void addObservation(IData data)
+	{
+		_output.add(data);
+	}
+	
+	protected void clearObservations()
+	{
+		_output.clear();
+	}
+	
 	
 	public ArrayList<IData> getObservations()
 	{
