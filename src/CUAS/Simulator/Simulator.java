@@ -94,7 +94,7 @@ public class Simulator {
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add to the PostOffice
 //		_team.getActor(actor_name).addInput(input);
-		_post_office.addOutput(input, actor_name);
+		_team.getActor(actor_name).addInput(input);
 	}
 	
 	void addInput(String actor_name, ArrayList<IData> input)
@@ -102,7 +102,13 @@ public class Simulator {
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add input to the post office
 //		getActor(actor_name).addInput(input);
-		_post_office.addOutputs(input, actor_name);
+		_team.getActor(actor_name).addInput(input);
+	}
+	public void addOutput(String actor_name, IData input){
+		_post_office.addOutput(input, actor_name);
+	}
+	public void addOutputs(String actor_name, ArrayList<IData> inputs){
+		_post_office.addOutputs(inputs, actor_name);
 	}
 	
 	public ArrayList<IData> getObservations(String actor_name)
