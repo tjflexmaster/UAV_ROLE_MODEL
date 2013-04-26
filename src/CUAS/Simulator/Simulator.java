@@ -10,8 +10,6 @@ import CUAS.Utils.GlobalTimer;
 import CUAS.Utils.PostOffice;
 import CUAS.Utils.Range;
 import CUAS.Utils.DurationGenerator.Mode;
-import NewModel.Events.EventManager;
-import NewModel.Events.IEvent;
 
 /**
  * This class is a singleton
@@ -49,7 +47,6 @@ public class Simulator {
 	
 	private ITeam _team = null;
 	private GlobalTimer _timer = null;
-//	private PostOffice _post_office = null;
 	private EventManager _event_manager = null;
 	private DurationGenerator _duration_generator = null;
 	private Environment _env = Environment.DEBUG;
