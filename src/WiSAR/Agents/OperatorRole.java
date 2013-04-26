@@ -2,18 +2,10 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
-import CUAS.Simulator.IData;
-import CUAS.Simulator.IInputEnum;
-import CUAS.Simulator.IOutputEnum;
-import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
-import CUAS.Simulator.Simulator;
-import CUAS.Utils.DataType;
-import CUAS.Utils.PostOffice.POBOX;
-import NewModel.Events.IEvent;
+import CUAS.Simulator.IData;
+import CUAS.Simulator.IStateEnum;
 import WiSAR.Durations;
-import WiSAR.AgentEnum.ParentSearch.States;
-import WiSAR.WiSARDurations.Duration;
 
 public class OperatorRole extends Actor {
 	
@@ -127,10 +119,10 @@ public class OperatorRole extends Actor {
 	}
 	
 	@Override
-	public boolean processNextState() {
+	public ArrayList<IData> processNextState() {
 		//Is our next state now?
-		if ( nextStateTime() != simulator().getTime() ) {
-			return false;
+		if ( nextStateTime() != sim().getTime() ) {
+			return null;
 		}
 		
 		//Update to the next state
@@ -141,11 +133,11 @@ public class OperatorRole extends Actor {
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
 			case POKE_MM:
-				nextState(States.IDLE, simulator().duration(Durations.PILOT_POKE_MM_DUR.range()) );
+				nextState(States.IDLE, sim().duration(Durations.PILOT_POKE_MM_DUR.range()) );
 				break;
 			case TX_MM:
 				//TODO change this duration based on the data being transmitted
-				nextState(States.END_MM, simulator().duration(Durations.PILOT_TX_MM_DUR.range()) );
+				nextState(States.END_MM, sim().duration(Durations.PILOT_TX_MM_DUR.range()) );
 				break;
 			case END_MM:
 				nextState(States.IDLE, 1);
@@ -154,14 +146,14 @@ public class OperatorRole extends Actor {
 //				nextState(States.RX_MM, 1);
 //				break;
 			case RX_MM:
-				nextState(States.IDLE, simulator().duration(Durations.PILOT_RX_MM_DUR.range()) );
+				nextState(States.IDLE, sim().duration(Durations.PILOT_RX_MM_DUR.range()) );
 				break;
 			case OBSERVING_UAV:
 				//We should only get here if the UAV is flying
-				nextState(States.OBSERVING_GUI, simulator().duration(Durations.PILOT_OBSERVE_UAV_DUR.range()) );
+				nextState(States.OBSERVING_GUI, sim().duration(Durations.PILOT_OBSERVE_UAV_DUR.range()) );
 				break;
 			case OBSERVING_GUI:
-				nextState(States.OBSERVING_UAV, simulator().duration(Durations.PILOT_OBSERVE_UGUI_DUR.range()) );
+				nextState(States.OBSERVING_UAV, sim().duration(Durations.PILOT_OBSERVE_UGUI_DUR.range()) );
 				break;
 			case LAUNCH_UAV:
 				//Give command to the GUI to take off
@@ -169,15 +161,15 @@ public class OperatorRole extends Actor {
 				//Launch the UAV and then wait for it to leave the take off state
 				//TODO Send input to launch the UAV to the Pilot GUI
 //				simulator().addInput(Roles.PILOT_GUI.name(), PilotGUIRole.Inputs);
-				nextState(States.OBSERVING_GUI, simulator().duration(Durations.PILOT_LAUNCH_UAV_DUR.range()) );
+				nextState(States.OBSERVING_GUI, sim().duration(Durations.PILOT_LAUNCH_UAV_DUR.range()) );
 				
 				break;
 			case POKE_GUI:
-				nextState(States.IDLE, simulator().duration(Durations.PILOT_POKE_UGUI_DUR.range()) );
+				nextState(States.IDLE, sim().duration(Durations.PILOT_POKE_UGUI_DUR.range()) );
 				break;
 			case TX_GUI:
 				//TODO base this duration on the items being transmitted
-				nextState(States.END_GUI, simulator().duration(Durations.PILOT_TX_UGUI_DUR.range()) );
+				nextState(States.END_GUI, sim().duration(Durations.PILOT_TX_UGUI_DUR.range()) );
 				break;
 			case END_GUI:
 				//After we do something on the GUI we click a "save button" signaling completion
@@ -190,7 +182,7 @@ public class OperatorRole extends Actor {
 				nextState(States.OBSERVING_GUI, 2);
 				break;
 			case POST_FLIGHT:
-				nextState(States.POST_FLIGHT_COMPLETE, simulator().duration(Durations.PILOT_POST_FLIGHT_LAND_DUR.range()) );
+				nextState(States.POST_FLIGHT_COMPLETE, sim().duration(Durations.PILOT_POST_FLIGHT_LAND_DUR.range()) );
 				break;
 			case POST_FLIGHT_COMPLETE:
 				//TODO set the next state based on if their is an active search or not
@@ -204,21 +196,22 @@ public class OperatorRole extends Actor {
 				break;
 		}
 		
-		return true;
+		return _output;
 	}
 	
+
 	@Override
-	public void updateState() {
-		ArrayList<IOutputEnum> uav_output;
-		ArrayList<IOutputEnum> gui_output;
+	public ArrayList<IData> processInputs() {
+		ArrayList<IData> uav_output;
+		ArrayList<IData> gui_output;
 		
 		switch((States) state() ) {
 			case POKE_MM:
 				//Always respond to an ACK_MM
-				if (_input.contains(Inputs.ACK_MM)) {
+				if (_input.contains(MissionManagerRole.Outputs.ACK_MM)) {
 					nextState(States.TX_MM, 1);
 				}
-				if ( _input.contains(Inputs.BUSY_MM)) {
+				if ( _input.contains(MissionManagerRole.Outputs.BUSY_MM)) {
 					nextState(States.IDLE, 1);
 				}
 				//TODO listen for more inputs such as PILOT GUI Alarms
@@ -236,7 +229,7 @@ public class OperatorRole extends Actor {
 				//Look for end of TX
 				//Whatever the Pilot does next it should be on the next time step so that it does not
 				//appear that he is receiving after the MM stopped transmitting.
-				if ( _input.contains(Inputs.END_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.END_MM) ) {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
 				}
 				
@@ -245,7 +238,7 @@ public class OperatorRole extends Actor {
 			case LAUNCH_UAV:
 				//Technically the pilot is observing the UAV here so we can update the uav state
 				//Get UAV outputs
-				uav_output = simulator().getOutput(Roles.UAV.name());
+				uav_output = sim().getObservations(Roles.UAV.name());
 				
 				//TODO Do we care about any of the UAV outputs at take off? Yes
 				
@@ -254,13 +247,13 @@ public class OperatorRole extends Actor {
 				break;
 			case OBSERVING_UAV:
 				
-				uav_output = simulator().getOutput(Roles.UAV.name());
+				uav_output = sim().getObservations(Roles.UAV.name());
 				//TODO handle this output accordingly
 				
 				
 				break;
 			case OBSERVING_GUI:
-				gui_output = simulator().getOutput(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
 				
 				//TODO Handle GUI input
 				
@@ -274,7 +267,7 @@ public class OperatorRole extends Actor {
 				break;
 			case POKE_GUI:
 				//Check the GUI output to make sure it is accessible
-				gui_output = simulator().getOutput(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
 				
 				//TODO Check that the operator gui is accessible
 //				if ( gui_output.contains() ) 
@@ -286,7 +279,7 @@ public class OperatorRole extends Actor {
 			case TX_GUI:
 				//TODO The operator is observing the GUI while using it, if it changes then he should respond to those changes instead of continuing what he is doing.
 				//TODO Also make sure the GUI is still accessible
-				gui_output = simulator().getOutput(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
 				
 				//TODO Listen to other interruptions from the other Roles
 				break;
@@ -305,12 +298,19 @@ public class OperatorRole extends Actor {
 				break;
 		}
 
+		return _output;
 	}
-	
+
 	@Override
-	public void processEvent(IEvent event) {
+	public void addInput(ArrayList<IData> data) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ArrayList<IData> getObservations() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	/**

@@ -44,7 +44,18 @@ public enum Durations {
 	UAV_BATTERY_DUR(new Range(60, 1800)),
 	UAV_LANDING_DUR(new Range(60, 1800)),
 	UAV_LOW_BATTERY_THRESHOLD_DUR(new Range(60, 1800)),
-	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800));
+	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800)),
+	VO_RX_MM_DUR(new Range(60, 1800)),
+	VO_POKE_VGUI_DUR(new Range(60, 1800)),
+	VO_POKE_MM_DUR(new Range(60, 1800)),
+	VO_POKE_OPERATOR_DUR(new Range(60, 1800)),
+	VO_TX_VGUI_DUR(new Range(60, 1800)),
+	VO_TX_MM_DUR(new Range(60, 1800)),
+	VO_TX_OPERATOR_BAD_STREAM(new Range(60, 1800)),
+	VO_TX_OPERATOR_STREAM_ENDED(new Range(60, 1800)),
+	VO_TX_OPERATOR_LOOK_CLOSER(new Range(60, 1800)), 
+	VGUI_RETURN_TO_IDLE(new Range(60, 1800)),
+	VGUI_START_STREAM(new Range(60, 1800));
 
 	private Range _range;
 	

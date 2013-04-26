@@ -1,11 +1,11 @@
 package WiSAR.Agents;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 
+import CUAS.Simulator.IData;
 import CUAS.Simulator.IObservable;
-import CUAS.Simulator.IInputEnum;
-import CUAS.Simulator.IOutputEnum;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import NewModel.Events.IEvent;
@@ -23,28 +23,16 @@ public class ParentSearch extends Actor {
 	/**
 	 * Setup Inputs and Outputs
 	 */
-	public enum Inputs implements IInputEnum
-	{
-		/**
-		 * Search Inputs (Only received during RX)
-		 */
-		SEARCH_AOI_SIGHTING,
-		SEARCH_AOI_COMPLETE,
-		SEARCH_AOI_FAILED,
-		
-		/**
-		 * Communication Inputs
-		 */
-		POKE_MM,
-		BUSY_MM,
-		ACK_MM,
-		END_MM
-	}
+
 	
-	public enum Outputs implements IOutputEnum
+	public enum Outputs implements IData
 	{
 		SEARCH_AOI,
-		SEARCH_TERMINATED
+		SEARCH_TERMINATED,
+		POKE_PS,
+		END_PS,
+		BUSY_PS,
+		ACK_PS, 
 	}
 	
 	/**
@@ -66,16 +54,14 @@ public class ParentSearch extends Actor {
 		name( Roles.PARENT_SEARCH.name() );
 		nextState(States.IDLE, 1);
 		
-		//Initialize that a new search area needs to be searched
-		processEvent(EventEnum.PS_NEW_AOI);
 	}
 	
 	@Override
-	public boolean processNextState()
+	public ArrayList<IData> processNextState()
 	{
 		//Is our next state now?
-		if ( nextStateTime() != simulator().getTime() ) {
-			return false;
+		if ( nextStateTime() != sim().getTime() ) {
+			return null;
 		}
 		
 		//Update to the next state
@@ -88,52 +74,51 @@ public class ParentSearch extends Actor {
 				nextState(null, 0);
 				break;
 			case POKE_MM:
-				simulator().addInput(Roles.MISSION_MANAGER.name(), MissionManagerRole.Inputs.POKE_PS);
-				nextState(States.IDLE, simulator().duration(Durations.PS_POKE_MM_DUR.range()));
+				sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.POKE_PS);
+				nextState(States.IDLE, sim().duration(Durations.PS_POKE_MM_DUR.range()));
 				break;
 			case TX_MM:
 				current_output = output_queue.pollLast();
 				int duration = 1;
 				if ( current_output == Outputs.SEARCH_AOI ) {
-					duration = simulator().duration(Durations.PS_TX_AOI_MM_DUR.range());
+					duration = sim().duration(Durations.PS_TX_AOI_MM_DUR.range());
 				} else if ( current_output == Outputs.SEARCH_TERMINATED ) {
-					duration = simulator().duration(Durations.PS_TX_TERMINATE_MM_DUR.range());
+					duration = sim().duration(Durations.PS_TX_TERMINATE_MM_DUR.range());
 				}
 				nextState(States.END_MM, duration);
 				break;
 			case END_MM:
 				//Now send the data that got sent from the transfer
-				IObservable role = simulator().getRole(Roles.MISSION_MANAGER.name());
 				if ( current_output == Outputs.SEARCH_AOI ) {
-					role.addInput(MissionManagerRole.Inputs.SEARCH_AOI);
+					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
 				} else if ( current_output == Outputs.SEARCH_TERMINATED ) {
-					role.addInput(MissionManagerRole.Inputs.TERMINATE_SEARCH);
+					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
 				}
-				role.addInput(MissionManagerRole.Inputs.END_PS);
+				sim().addInput(Roles.MISSION_MANAGER.name(),Outputs.END_PS);
 				nextState(States.IDLE, 1);
 				break;
 			case RX_MM:
 				//Is it possible to receive for too long?
-				nextState(States.IDLE, simulator().duration(Durations.PS_RX_MM_DUR.range()) );
+				nextState(States.IDLE, sim().duration(Durations.PS_RX_MM_DUR.range()) );
 				break;
 			default:
 				nextState(null, 1);
 				break;
 		}
 		
-		return true;
+		return _output;
 	}
 
 	@Override
-	public void updateState() {
+	public ArrayList<IData> processInputs() {
 		
 		//Depending on our state we will handle different inputs.
 		switch((States) state() ) {
 			case IDLE:
 				//If the MM is idle then do the following things in sequence
 				//First check for Parent Search Commands
-				if ( _input.contains(Inputs.POKE_MM) ) {
-					simulator().addInput(Roles.MISSION_MANAGER.name(), MissionManagerRole.Inputs.ACK_PS);
+				if ( _input.contains(MissionManagerRole.Outputs.POKE_PS) ) {
+					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.ACK_PS);
 					nextState(States.RX_MM, 1);
 				} else if( output_queue.size() > 0 ) {
 					nextState(States.POKE_MM, 1);
@@ -145,9 +130,9 @@ public class ParentSearch extends Actor {
 				//TODO Handle simultaneous pokes from MM
 				
 				//Look for Busy or Ack from MM
-				if ( _input.contains(Inputs.ACK_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.ACK_PS) ) {
 					nextState(States.TX_MM, 1);
-				} else if ( _input.contains(Inputs.BUSY_MM) ) {
+				} else if ( _input.contains(MissionManagerRole.Outputs.BUSY_MM) ) {
 					nextState(States.IDLE, 1);
 				}
 				
@@ -161,10 +146,10 @@ public class ParentSearch extends Actor {
 				break;
 			case RX_MM:
 				//Look for the END_MM input before handling other inputs
-				if ( _input.contains(Inputs.END_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.END_PS) ) {
 					//TODO Handle all inputs from the MM
 					
-					if ( _input.contains(Inputs.SEARCH_AOI_COMPLETE) ) {
+					if ( _input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE) ) {
 						//Do we do anything with this info?
 					}
 					
@@ -177,24 +162,20 @@ public class ParentSearch extends Actor {
 				break;
 		}
 
+		return _output;
 	}
-	
+
 	@Override
-	public void processEvent(IEvent event) {
-		
-		switch((EventEnum) event) {
-			case PS_NEW_AOI:
-				output_queue.add(Outputs.SEARCH_AOI);
-				break;
-			case PS_TERMINATE_SEARCH:
-				output_queue.clear(); //If we terminate the search then we dont need to send more data
-				output_queue.add(Outputs.SEARCH_TERMINATED);
-				break;
-			default:
-				//Do Nothing
-				break;
-		}
+	public void addInput(ArrayList<IData> data) {
+		_input.addAll(data);
 	}
+
+	@Override
+	public ArrayList<IData> getObservations() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 //	@Override
 //	public void processEvents(ArrayList<Event> events) {

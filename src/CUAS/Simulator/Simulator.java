@@ -7,8 +7,11 @@ import CUAS.Simulator.ITeam;
 import CUAS.Utils.DurationGenerator;
 import CUAS.Utils.EventManager;
 import CUAS.Utils.GlobalTimer;
+import CUAS.Utils.PostOffice;
 import CUAS.Utils.Range;
 import CUAS.Utils.DurationGenerator.Mode;
+import NewModel.Events.EventManager;
+import NewModel.Events.IEvent;
 
 /**
  * This class is a singleton
@@ -30,6 +33,7 @@ public class Simulator {
 		_timer = new GlobalTimer();
 		_event_manager = new EventManager();
 		_timer.time(0);
+		_post_office = new PostOffice();
 	}
 	
 	public static Simulator getInstance() {
@@ -49,6 +53,7 @@ public class Simulator {
 	private EventManager _event_manager = null;
 	private DurationGenerator _duration_generator = null;
 	private Environment _env = Environment.DEBUG;
+	private PostOffice _post_office = null;
 	
 	private boolean _running = false;
 	
@@ -99,6 +104,7 @@ public class Simulator {
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add to the PostOffice
 //		_team.getActor(actor_name).addInput(input);
+		_post_office.addOutput(input, actor_name);
 	}
 	
 	public void addInput(String actor_name, ArrayList<IData> input)
@@ -106,6 +112,7 @@ public class Simulator {
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add input to the post office
 //		getActor(actor_name).addInput(input);
+		_post_office.addOutputs(input, actor_name);
 	}
 	
 	public ArrayList<IData> getObservations(String actor_name)
@@ -200,6 +207,7 @@ public class Simulator {
 					if (debug())
 						System.out.println("Processing Team States: " + getTime());
 					//First Update each Role based on the current time
+					_post_office.addInputs();
 					System.out.println("Processing Next States...");
 					output = _team.processNextState();
 					//TODO pass output to post office

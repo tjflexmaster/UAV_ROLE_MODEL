@@ -1,80 +1,99 @@
 package CUAS.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import NewModel.Roles.RoleState;
+import CUAS.Simulator.IData;
+import CUAS.Simulator.Simulator;
+import WiSAR.Agents.Roles;
 
-public class PostOffice {
+public class PostOffice  {
 	
-	private HashMap<POBOX, ArrayList<DataType> > _po_boxes = new HashMap<POBOX, ArrayList<DataType> >();
+	private ArrayList<IData> PS;
+	private ArrayList<IData> MM;
+	private ArrayList<IData> VO;
+	private ArrayList<IData> OP;
+	private ArrayList<IData> VO_GUI;
+	private ArrayList<IData> OP_GUI;
 	
-	public enum POBOX {
-		PS_MM,
-		MM_PS,
-		MM_PILOT,
-		MM_VA,
-		VA_MM,
-		PILOT_MM,
-		PILOT_UGUI,
-		PILOT_UAV,
-		UGUI_PILOT,
-		UGUI_UAV,
-		UAV_UGUI,
-		UAV_PILOT
-	}
+	
 	
 	public PostOffice() {
-		
+		PS = new ArrayList<IData>();
+		MM = new ArrayList<IData>();
+		VO = new ArrayList<IData>();
+		OP = new ArrayList<IData>();
 	}
 	
-	public void addPost(POBOX pobox, DataType data)
-	{
-		ArrayList<DataType> mail;
-		if ( _po_boxes.containsKey(pobox) ) {
-			mail = _po_boxes.get(pobox);
-			mail.add(data);
-		} else {
-			mail = new ArrayList<DataType>();
-			mail.add(data);
-		}
-		System.out.println("\t\t>>>>>" + pobox.name() + " -- " + data.name());
-		_po_boxes.put(pobox, mail);
-	}
 	
-	public ArrayList<DataType> getPosts(POBOX pobox)
-	{
-		if ( _po_boxes.containsKey(pobox) )
-			return _po_boxes.get(pobox);
-		else
-			return new ArrayList<DataType>();
-	}
-	
-	public ArrayList<DataType> removePosts(POBOX pobox)
-	{
-		ArrayList<DataType> mail = new ArrayList<DataType>();
-		if ( _po_boxes.containsKey(pobox) )
-			mail = _po_boxes.remove(pobox);
-			
-		for( DataType m : mail ) {
-			System.out.println("\t\t<<<<<" + pobox.name() + " -- " + m.name());
-		}
-		return mail;
-	}
-	
-	public boolean isPoboxEmpty(POBOX pobox)
-	{
-		if ( _po_boxes.containsKey(pobox) ) {
-			ArrayList<DataType> mail = _po_boxes.get(pobox);
-			return mail.isEmpty();
-		} else {
-			return false;
+
+	public void addOutput(IData d, String name){
+		switch(name){
+		case Roles.PARENT_SEARCH.name():
+			PS.add(d);
+			break;
+		case Roles.MISSION_MANAGER.name():
+			MM.add(d);
+			break;
+		case Roles.VIDEO_OPERATOR.name():
+			VO.add(d);
+			break;
+		case Roles.OPERATOR.name():
+			OP.add(d);
+			break;
+		case Roles.VIDEO_OPERATOR_GUI.name():
+			VO_GUI.add(d);
+			break;
+		case Roles.OPERATOR_GUI.name():
+			OP_GUI.add(d);
+			break;
+		default:
+			break;
 		}
 	}
 	
-	public void clearPost(POBOX pobox)
+	public void addOutputs(ArrayList<IData> data, String name){
+		switch(name){
+		case Roles.PARENT_SEARCH.name():
+			PS.addAll(data);
+			break;
+		case Roles.MISSION_MANAGER.name():
+			MM.addAll(data);
+			break;
+		case Roles.VIDEO_OPERATOR.name():
+			VO.addAll(data);
+			break;
+		case Roles.OPERATOR.name():
+			OP.addAll(data);
+			break;
+		case Roles.VIDEO_OPERATOR_GUI.name():
+			VO_GUI.addAll(data);
+			break;
+		case Roles.OPERATOR_GUI.name():
+			OP_GUI.addAll(data);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	public void addInputs(){
+		sim().addInput(Roles.PARENT_SEARCH.name(), PS);
+		sim().addInput(Roles.MISSION_MANAGER.name(), MM);
+		sim().addInput(Roles.OPERATOR.name(), OP);
+		sim().addInput(Roles.VIDEO_OPERATOR.name(), VO);
+		sim().addInput(Roles.OPERATOR_GUI.name(), OP_GUI);
+		sim().addInput(Roles.VIDEO_OPERATOR_GUI.name(), VO_GUI);
+	}
+
+
+
+	/**
+	 * Convenience method so that getInstance does not have to be called over and over
+	 * @return
+	 */
+	protected Simulator sim()
 	{
-		_po_boxes.remove(pobox);
+		return Simulator.getInstance();
 	}
 
 }

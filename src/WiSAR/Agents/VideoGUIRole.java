@@ -1,32 +1,21 @@
 package WiSAR.Agents;
 
+import java.util.ArrayList;
+
 import javax.management.relation.Role;
 
+import CUAS.Simulator.Actor;
+import CUAS.Simulator.IData;
+import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import NewModel.Events.IEvent;
-import NewModel.Simulation.IStateEnum;
 import WiSAR.Durations;
+import WiSAR.EventEnum;
 
-public class VideoGUIRole extends Role {
+public class VideoGUIRole extends Actor {
 
-    public enum Inputs implements IInputEnum
-    {
-        /**
-         * For the GUI
-         */
-    	VO_POKE,
-    	START,
-        CLICK,
-        TERMINATE,
-        STREAM_ENDED,
-        BAD_STREAM,
-        ANOMALY_PRESENT, 
-        FALSE_POSITIVE,
-        TRUE_POSITIVE, 
-       
-    }
    
-    public enum Outputs implements IOutputEnum
+    public enum Outputs implements IData
     {
         /**
          * GUI Inputs
@@ -57,97 +46,98 @@ public class VideoGUIRole extends Role {
 		
 	}
 
-	   @Override
-	    public boolean processNextState() {//Is our next state now?
-	        if ( nextStateTime() != Simulator.getInstance().getTime() ) {
-	            return false;
-	        }
-	        state(nextState());
-	        switch ((States) nextState()) {
-		        case ACK_VO:
-		        	_output.add(Outputs.ACK_VO);
-		        	nextState(States.RX_VO,1);
-		        	break;
-		        case RX_VO:
-		        	if ( _output.contains(Outputs.STREAM_ENDED) )
-		        		nextState(States.IDLE,simulator().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
-		        	else 
-		        		nextState(States.STREAMING,simulator().duration(Durations.VGUI_START_STREAM.range()));
-		        	break;
-		        case STREAMING:
-		        	if ( _output.contains(Outputs.STREAM_ENDED) ) {
-		        		nextState(States.IDLE,simulator().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
-		        	} else {
-			        	nextState(null,0);
-		        	}
-		        	break;
-	        	default:
+   @Override
+    public ArrayList<IData> processNextState() {//Is our next state now?
+        if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+            return null;
+        }
+        state(nextState());
+        switch ((States) nextState()) {
+	        case ACK_VO:
+	        	_output.add(Outputs.ACK_VO);
+	        	nextState(States.RX_VO,1);
+	        	break;
+	        case RX_VO:
+	        	if ( _output.contains(Outputs.STREAM_ENDED) )
+	        		nextState(States.IDLE,sim().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
+	        	else 
+	        		nextState(States.STREAMING,sim().duration(Durations.VGUI_START_STREAM.range()));
+	        	break;
+	        case STREAMING:
+	        	if ( _output.contains(Outputs.STREAM_ENDED) ) {
+	        		nextState(States.IDLE,sim().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
+	        	} else {
 		        	nextState(null,0);
-		        	break;
-	        }
-	        return false;
-	    }
+	        	}
+	        	break;
+        	default:
+	        	nextState(null,0);
+	        	break;
+        }
+        return _output;
+    }
 
-	    @Override
-	    public void updateState () {
-	    	_output.clear();
-			switch ( (States) state() ) {
-				case IDLE:
-					if (_input.contains(Inputs.VO_POKE)) {
+	@Override
+	public ArrayList<IData> processInputs() {
+    	_output.clear();
+		switch ( (States) state() ) {
+			case IDLE:
+				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
+					nextState(States.ACK_VO,1);
+				}
+				break;
+			case RX_VO:
+				if (_input.contains(VideoOperatorRole.Outputs.END_FEED)) {
+					_output.add(Outputs.STREAM_ENDED);
+					nextState(States.IDLE,1);
+				} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED)) {
+					_output.add(Outputs.STREAM_STARTED);
+					nextState(States.STREAMING,1);
+				} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME)) {
+					_output.add(Outputs.ANOMALY_IDENTIFIED);
+					nextState(States.STREAMING,1);
+				}
+				break;
+			case STREAMING:
+				if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
+					_output.add(Outputs.STREAM_ENDED);
+					nextState(States.IDLE,1);
+				} else {
+		        	nextState(null,0);
+					if (_input.contains(EventEnum.VGUI_FALSE_POSITIVE)) {
+						_output.add(Outputs.FALSE_POSITIVE);
+						nextState(States.STREAMING,1);
+					}else if (_input.contains(EventEnum.VGUI_TRUE_POSITIVE)) {
+						_output.add(Outputs.TRUE_POSITIVE);
+						nextState(States.STREAMING,1);
+					}else if (_input.contains(EventEnum.VGUI_BAD_STREAM)) {
+						_output.add(Outputs.BAD_STREAM);
+						nextState(States.STREAMING,1);
+					}
+					if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME)) {
 						nextState(States.ACK_VO,1);
 					}
-					break;
-				case RX_VO:
-					if (_input.contains(Inputs.TERMINATE)) {
-						_output.add(Outputs.STREAM_ENDED);
-						nextState(States.IDLE,1);
-					} else if (_input.contains(Inputs.START)) {
-						_output.add(Outputs.STREAM_STARTED);
-						nextState(States.STREAMING,1);
-					} else if (_input.contains(Inputs.CLICK)) {
-						_output.add(Outputs.ANOMALY_IDENTIFIED);
-						nextState(States.STREAMING,1);
-					}
-					break;
-				case STREAMING:
-					if (_input.contains(Inputs.STREAM_ENDED)) {
-						_output.add(Outputs.STREAM_ENDED);
-						nextState(States.IDLE,1);
-					} else {
-			        	nextState(null,0);
-						if (_input.contains(Inputs.FALSE_POSITIVE)) {
-							_output.add(Outputs.FALSE_POSITIVE);
-							nextState(States.STREAMING,1);
-						}else if (_input.contains(Inputs.TRUE_POSITIVE)) {
-							_output.add(Outputs.TRUE_POSITIVE);
-							nextState(States.STREAMING,1);
-						}else if (_input.contains(Inputs.BAD_STREAM)) {
-							_output.add(Outputs.BAD_STREAM);
-							nextState(States.STREAMING,1);
-						}
-						if (_input.contains(Inputs.CLICK)) {
-							nextState(States.ACK_VO,1);
-						}
-					}
-					break;
-				default:
-					break;
-			}
-	    }
-
-    @Override
-    public void processEvent(IEvent event) {
-        // TODO Auto-generated method stub
-    	switch((Events)event){
-    	case VGUI_INACCESSIBLE:
-    		_input.add(Inputs.STREAM_ENDED);
-    	case VGUI_FALSE_POSITIVE:
-    		_input.add(Inputs.FALSE_POSITIVE);
-    	case VGUI_TRUE_POSITIVE:
-    		_input.add(Inputs.TRUE_POSITIVE);
-    	}
+				}
+				break;
+			default:
+				break;
+		}
+		return _output;
     }
-   
+
+
+	@Override
+	public void addInput(ArrayList<IData> data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayList<IData> getObservations() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
      */

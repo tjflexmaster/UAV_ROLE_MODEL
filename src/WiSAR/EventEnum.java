@@ -28,7 +28,8 @@ public enum EventEnum implements IEvent {
 	 */
 	VGUI_INACCESSIBLE(new Range()),
 	VGUI_FALSE_POSITIVE(new Range()),
-	VGUI_TRUE_POSITIVE(new Range());
+	VGUI_TRUE_POSITIVE(new Range()), 
+	VGUI_BAD_STREAM(new Range());
 
 	private Range _duration;
 	

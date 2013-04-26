@@ -2,9 +2,8 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
+import CUAS.Simulator.IData;
 import CUAS.Simulator.IObservable;
-import CUAS.Simulator.IInputEnum;
-import CUAS.Simulator.IOutputEnum;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.Simulator;
@@ -14,43 +13,37 @@ import WiSAR.Durations;
 public class MissionManagerRole extends Actor {
 
 	//INTERNAL VARS
-	ArrayList<IInputEnum> temp_inputs = new ArrayList<IInputEnum>();
+	ArrayList<IData> temp_inputs = new ArrayList<IData>();
 	
-	/**
-	 * Setup Inputs and Outputs
-	 */
-	public enum Inputs implements IInputEnum
+	
+	public enum Outputs implements IData
 	{
 		/**
-		 * PS Inputs
+		 * Operator and VideoOperator
 		 */
-		SEARCH_AOI,
-		TERMINATE_SEARCH,
+		MM_SEARCH_AOI,
+		MM_SEARCH_TERMINATED,
 		
 		/**
-		 * Search Inputs (Only received during RX)
+		 * Video Operator
 		 */
-		SEARCH_AOI_SIGHTING,
+		POKE_MM, 
+		ACK_MM, 
+		END_MM, 
+		
+		/**
+		 * Operator
+		 */
+		 
+		/**
+		 * ParentSearch
+		 */
 		SEARCH_AOI_COMPLETE,
-		SEARCH_AOI_FAILED,
 		
 		/**
-		 * Communication Inputs
+		 * global outputs
 		 */
-		POKE_PS,
-		BUSY_PS,
-		ACK_PS,
-		END_PS,
-		POKE_OPERATOR,
-		BUSY_OPERATOR,
-		ACK_OPERATOR,
-		END_OPERATOR
-	}
-	
-	public enum Outputs implements IOutputEnum
-	{
-		SEARCH_AOI,
-		SEARCH_TERMINATED
+		BUSY_MM
 	}
 	
 	/**
@@ -85,10 +78,10 @@ public class MissionManagerRole extends Actor {
 	 * IRole Methods	
 	 */
 	@Override
-	public boolean processNextState() {
+	public ArrayList<IData> processNextState() {
 		//Is our next state now?
 		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
-			return false;
+			return null;
 		}
 		
 		//Update to the next state
@@ -104,24 +97,23 @@ public class MissionManagerRole extends Actor {
 				nextState(null, 0);
 				break;
 			case POKE_PS:
-				simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearch.Inputs.POKE_MM);
-				nextState(States.IDLE, simulator().duration(Durations.MM_POKE_DUR.range()));
+				sim().addInput(Roles.PARENT_SEARCH.name(), Outputs.POKE_PS);
+				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_PS:
 				//TODO change this duration based on the data being transmitted
 //				nextState(States.END_PS, simulator().duration(Durations.MM_TX_SIGHTING_PS_DUR.range()));
 //				nextState(States.END_PS, simulator().duration(Durations.MM_TX_SEARCH_FAILED_PS_DUR.range()));
-				nextState(States.END_PS, simulator().duration(Durations.MM_TX_SEARCH_COMPLETE_PS_DUR.range()));
+				nextState(States.END_PS, sim().duration(Durations.MM_TX_SEARCH_COMPLETE_PS_DUR.range()));
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
-				IObservable role = simulator().getRole(Roles.PARENT_SEARCH.name());
-				role.addInput(ParentSearch.Inputs.SEARCH_AOI_COMPLETE);
-				role.addInput(ParentSearch.Inputs.END_MM);
+				sim().addInput(Roles.PARENT_SEARCH.name(), Outputs.SEARCH_AOI_COMPLETE);
+				sim().addInput(Roles.PARENT_SEARCH.name(), Outputs.END_PS);
 				nextState(States.IDLE, 1);
 				break;
 			case RX_PS:
-				nextState(States.IDLE, simulator().duration(Durations.MM_RX_DUR.range()));
+				nextState(States.IDLE, sim().duration(Durations.MM_RX_DUR.range()));
 				break;
 			default:
 				//Stay as we are
@@ -129,19 +121,19 @@ public class MissionManagerRole extends Actor {
 				break;
 		}
 		
-		return true;
+		return _output;
 	}
 
 	@Override
-	public void updateState() {
+	public ArrayList<IData> processInputs() {
 //		temp_inputs.addAll(_input);
 //		_input.clear();
 		switch( (States) state() ) {
 			case IDLE:
 				//If the MM is idle then do the following things in sequence
 				//First check for Parent Search Commands
-				if ( _input.contains(Inputs.POKE_PS) ) {
-					simulator().addInput(Roles.PARENT_SEARCH.name(), ParentSearch.Inputs.ACK_MM);
+				if ( _input.contains(ParentSearch.Outputs.POKE_PS) ) {
+					sim().addInput(Roles.PARENT_SEARCH.name(), Outputs.ACK_PS);
 					nextState(States.RX_PS, 1);
 				}
 				
@@ -149,9 +141,9 @@ public class MissionManagerRole extends Actor {
 				break;
 			case POKE_PS:
 				//Look for Ack
-				if( _input.contains(Inputs.ACK_PS) ) {
+				if( _input.contains(ParentSearch.Outputs.ACK_PS) ) {
 					nextState(States.TX_PS, 1);
-				} else if ( _input.contains(Inputs.BUSY_PS) ) {
+				} else if ( _input.contains(ParentSearch.Outputs.BUSY_PS) ) {
 					nextState(States.IDLE, 1);
 				}
 				break;
@@ -165,11 +157,11 @@ public class MissionManagerRole extends Actor {
 				break;
 			case RX_PS:
 				//Look for end of TX
-				if ( _input.contains(Inputs.END_PS) ) {
+				if ( _input.contains(ParentSearch.Outputs.END_PS) ) {
 					//Look for the inputs
-					if ( _input.contains(Inputs.TERMINATE_SEARCH) ) {
+					if ( _input.contains(ParentSearch.Outputs.SEARCH_TERMINATED) ) {
 						//TODO Tell the OPERATOR and the VA
-					} else if ( _input.contains(Inputs.SEARCH_AOI) ) {
+					} else if ( _input.contains(ParentSearch.Outputs.SEARCH_AOI) ) {
 						//TODO Send AOI to the OPERATOR
 					}
 					
@@ -183,12 +175,24 @@ public class MissionManagerRole extends Actor {
 		}
 		//Now empty the temp input list
 		_input.clear();
+		return _output;
 	}
+
+
 
 	@Override
-	public void processEvent(IEvent event) {
+	public void addInput(ArrayList<IData> data) {
 		// TODO Auto-generated method stub
-
+		_input.addAll(data);
 	}
+
+
+	@Override
+	public ArrayList<IData> getObservations() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 
 }
