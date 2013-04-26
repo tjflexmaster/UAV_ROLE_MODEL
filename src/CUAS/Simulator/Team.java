@@ -44,25 +44,20 @@ public abstract class Team implements ITeam {
 	 * @return boolean
 	 */
 	@Override
-	public ArrayList<IData> processNextState() {
-		ArrayList<IData> result = new ArrayList<IData>();
+	public void processNextState() {
 		for( IActor actor : _actors.values() ) {
-			result.addAll(actor.processNextState());
+			actor.processNextState();
 		}
-		
-		return result;
 	}
 
 	@Override
-	public ArrayList<IData> processInputs() {
+	public void processInputs() {
 		
 		//Have each actor process its inputs
-		ArrayList<IData> result = new ArrayList<IData>();
 		for( IActor actor : _actors.values() ) {
-			result.addAll(actor.processInputs());
+			actor.processInputs();
 		}
 		
-		return result;
 	}
 
 }

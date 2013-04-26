@@ -89,12 +89,6 @@ public class Simulator {
 		return _team.getNextStateTime(getTime());
 	}
 	
-//	public IActor getActor(String role_name)
-//	{
-//		assert isReady() : "The Simulator was not setup properly";
-//		return _team.getActor(role_name);
-//	}
-	
 	void addInput(String actor_name, IData input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
@@ -176,7 +170,6 @@ public class Simulator {
 			System.out.println("Started Simulation...");
 		Scanner readUserInput = new Scanner(System.in);
 		
-		ArrayList<IData> output = new ArrayList<IData>();
 		try {
 			//When is the next time something runs
 			while(_running) {
@@ -186,40 +179,35 @@ public class Simulator {
 //				String input = readUserInput.nextLine();
 				//TODO Use user input to guide the system
 				
-//				assert Simulator.getInstance().getRoleState(RoleType.ROLE_UAV) != RoleState.UAV_CRASHED : "UAV Crashed!";
-				//TODO Add asserts for anything that is incorrect that can be detected here
-			
-				int next_team_time = _team.getNextStateTime(getTime());
-				//TODO get the next event time
-				//TODO use the minimum value between these
+				/**
+				 * By calling getNextEventTime() on the event manager events are automatically processed.
+				 */
+				int next_time = Math.min(_event_manager.getNextEventTime() , _team.getNextStateTime(getTime()) );
 				
-				if ( next_team_time == 0 ) {
+				if ( next_time == 0 ) {
 					if ( debug() )
 						System.out.println("Nothing to process: " + getTime());
 					_running = false;
 					
 				} else {
-					_timer.time(next_team_time);
-					if (debug())
-						System.out.println("Processing Team States: " + getTime());
-					//First Update each Role based on the current time
-					_post_office.addInputs();
-					System.out.println("Processing Next States...");
-					output = _team.processNextState();
-					//TODO pass output to post office
-					System.out.println("Processing Finished");
+					_timer.time(next_time);
 					
-					//TODO Send Output to the actors
-					output.clear();
+					//First Update each Role based on the current time
+					if (debug())
+						System.out.println("Processing Next States...");
+					_team.processNextState();
+					_post_office.sendInput();
+					if (debug())
+						System.out.println("Processing Finished");
 					
 					//Now have each role determine what it's next action will be
-					System.out.println("Updating States...");
-					output = _team.processInputs();
-					//TODO pass output to the post office
-					System.out.println("Updating Finished");
+					if (debug())
+						System.out.println("Updating States...");
+					_team.processInputs();
+					_post_office.sendInput();
+					if (debug())
+						System.out.println("Updating Finished");
 					
-					//TODO Send Output to the actors
-					output.clear();
 				}
 		
 			}//end while
@@ -232,21 +220,6 @@ public class Simulator {
 		if (debug())
 			System.out.println("Ended Simulation");
 		
-	}
-	
-
-	private void processExternalEvents()
-	{
-		//TODO Get the event system working
-		System.out.println("Events...");
-//		ArrayList<Event> events = _event_manager.getEvents(getTime());
-//		
-//		for(Event e : events) {
-//			System.out.println("\tEvent: " + e.type().name());
-//		}
-//			
-//		_team.processExternalEvents(events);
-//		System.out.println("Events Finished");
 	}
 	
 }

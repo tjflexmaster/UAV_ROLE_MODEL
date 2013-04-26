@@ -27,7 +27,7 @@ public interface ITeam {
 	 * to the simulator.
 	 * @return
 	 */
-	public ArrayList<IData> processNextState();
+	public void processNextState();
 	
 	/**
 	 * This method has each team member process their inputs.
@@ -35,6 +35,6 @@ public interface ITeam {
 	 * to the simulator.
 	 * @return
 	 */
-	public ArrayList<IData> processInputs();
+	public void processInputs();
 	
 }

@@ -57,7 +57,7 @@ public class ParentSearch extends Actor {
 	}
 	
 	@Override
-	public ArrayList<IData> processNextState()
+	public void processNextState()
 	{
 		//Is our next state now?
 		if ( nextStateTime() != sim().getTime() ) {
