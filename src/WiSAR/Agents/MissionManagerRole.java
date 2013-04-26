@@ -7,7 +7,6 @@ import CUAS.Simulator.IObservable;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.Simulator;
-import NewModel.Events.IEvent;
 import WiSAR.Durations;
 
 public class MissionManagerRole extends Actor {
@@ -78,10 +77,10 @@ public class MissionManagerRole extends Actor {
 	 * IRole Methods	
 	 */
 	@Override
-	public ArrayList<IData> processNextState() {
+	public void processNextState() {
 		//Is our next state now?
 		if ( nextStateTime() != Simulator.getInstance().getTime() ) {
-			return null;
+			return;
 		}
 		
 		//Update to the next state
@@ -121,11 +120,11 @@ public class MissionManagerRole extends Actor {
 				break;
 		}
 		
-		return _output;
+		return;
 	}
 
 	@Override
-	public ArrayList<IData> processInputs() {
+	public void processInputs() {
 //		temp_inputs.addAll(_input);
 //		_input.clear();
 		switch( (States) state() ) {
@@ -175,24 +174,6 @@ public class MissionManagerRole extends Actor {
 		}
 		//Now empty the temp input list
 		_input.clear();
-		return _output;
 	}
-
-
-
-	@Override
-	public void addInput(ArrayList<IData> data) {
-		// TODO Auto-generated method stub
-		_input.addAll(data);
-	}
-
-
-	@Override
-	public ArrayList<IData> getObservations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 
 }

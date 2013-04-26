@@ -29,14 +29,14 @@ public interface IActor {
 	 * for the event then nothing happens.  If the next event is processed then the simulator
 	 * will call updateState on all of the roles.
 	 */
-	ArrayList<IData> processNextState();
+	void processNextState();
 	
 	
 	/**
 	 * This is where the logic for each Role resides.  When this is called a role determines
 	 * how it should act, setting its next event and possibly changing its current state.
 	 */
-	ArrayList<IData> processInputs();
+	void processInputs();
 	
 	
 	/**
