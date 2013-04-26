@@ -80,8 +80,8 @@ public class PostOffice  {
 		sim().addInput(Roles.PARENT_SEARCH.name(), PS);
 		sim().addInput(Roles.MISSION_MANAGER.name(), MM);
 		sim().addInput(Roles.OPERATOR.name(), OP);
-		sim().addInput(Roles.VIDEO_OPERATOR.name(), VO);
 		sim().addInput(Roles.OPERATOR_GUI.name(), OP_GUI);
+		sim().addInput(Roles.VIDEO_OPERATOR.name(), VO);
 		sim().addInput(Roles.VIDEO_OPERATOR_GUI.name(), VO_GUI);
 	}
 
