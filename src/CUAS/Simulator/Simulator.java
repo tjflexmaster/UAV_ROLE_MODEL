@@ -7,7 +7,6 @@ import CUAS.Simulator.ITeam;
 import CUAS.Utils.DurationGenerator;
 import CUAS.Utils.EventManager;
 import CUAS.Utils.GlobalTimer;
-import CUAS.Utils.PostOffice;
 import CUAS.Utils.Range;
 import CUAS.Utils.DurationGenerator.Mode;
 import NewModel.Events.EventManager;
@@ -99,7 +98,7 @@ public class Simulator {
 //		return _team.getActor(role_name);
 //	}
 	
-	public void addInput(String actor_name, IData input)
+	void addInput(String actor_name, IData input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add to the PostOffice
@@ -107,7 +106,7 @@ public class Simulator {
 		_post_office.addOutput(input, actor_name);
 	}
 	
-	public void addInput(String actor_name, ArrayList<IData> input)
+	void addInput(String actor_name, ArrayList<IData> input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
 		//TODO Add input to the post office
