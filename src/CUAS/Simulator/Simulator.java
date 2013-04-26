@@ -7,7 +7,6 @@ import CUAS.Simulator.ITeam;
 import CUAS.Utils.DurationGenerator;
 import CUAS.Utils.EventManager;
 import CUAS.Utils.GlobalTimer;
-import CUAS.Utils.PostOffice;
 import CUAS.Utils.Range;
 import CUAS.Utils.DurationGenerator.Mode;
 
