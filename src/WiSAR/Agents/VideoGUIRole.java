@@ -2,15 +2,11 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
-import javax.management.relation.Role;
-
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
-import NewModel.Events.IEvent;
 import WiSAR.Durations;
-import WiSAR.EventEnum;
 
 public class VideoGUIRole extends Actor {
 
@@ -47,9 +43,9 @@ public class VideoGUIRole extends Actor {
 	}
 
    @Override
-    public ArrayList<IData> processNextState() {//Is our next state now?
+    public void processNextState() {//Is our next state now?
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
-            return null;
+            return;
         }
         state(nextState());
         switch ((States) nextState()) {
@@ -58,71 +54,57 @@ public class VideoGUIRole extends Actor {
 	        	nextState(States.RX_VO,1);
 	        	break;
 	        case RX_VO:
-	        	if ( _output.contains(Outputs.STREAM_ENDED) )
-	        		nextState(States.IDLE,sim().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
-	        	else 
-	        		nextState(States.STREAMING,sim().duration(Durations.VGUI_START_STREAM.range()));
-	        	break;
-	        case STREAMING:
-	        	if ( _output.contains(Outputs.STREAM_ENDED) ) {
-	        		nextState(States.IDLE,sim().duration(Durations.VGUI_RETURN_TO_IDLE.range()));
-	        	} else {
-		        	nextState(null,0);
-	        	}
+        		nextState(States.STREAMING,sim().duration(Durations.VGUI_RX_DUR.range()));
 	        	break;
         	default:
 	        	nextState(null,0);
 	        	break;
         }
-        return _output;
     }
 
 	@Override
-	public ArrayList<IData> processInputs() {
+	public void processInputs() {
     	_output.clear();
 		switch ( (States) state() ) {
 			case IDLE:
-				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
+				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
 					nextState(States.ACK_VO,1);
 				}
 				break;
 			case RX_VO:
-				if (_input.contains(VideoOperatorRole.Outputs.END_FEED)) {
+				if (_input.contains(VideoOperatorRole.Outputs.END_FEED_VO)) {
 					_output.add(Outputs.STREAM_ENDED);
 					nextState(States.IDLE,1);
-				} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED)) {
+				} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED_VO)) {
 					_output.add(Outputs.STREAM_STARTED);
 					nextState(States.STREAMING,1);
-				} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME)) {
+				} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME_VO)) {
 					_output.add(Outputs.ANOMALY_IDENTIFIED);
 					nextState(States.STREAMING,1);
 				}
 				break;
 			case STREAMING:
-				if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
-					_output.add(Outputs.STREAM_ENDED);
-					nextState(States.IDLE,1);
-				} else {
-		        	nextState(null,0);
-					if (_input.contains(EventEnum.VGUI_FALSE_POSITIVE)) {
-						_output.add(Outputs.FALSE_POSITIVE);
-						nextState(States.STREAMING,1);
-					}else if (_input.contains(EventEnum.VGUI_TRUE_POSITIVE)) {
-						_output.add(Outputs.TRUE_POSITIVE);
-						nextState(States.STREAMING,1);
-					}else if (_input.contains(EventEnum.VGUI_BAD_STREAM)) {
-						_output.add(Outputs.BAD_STREAM);
-						nextState(States.STREAMING,1);
-					}
-					if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME)) {
-						nextState(States.ACK_VO,1);
-					}
+				//TODO implement event handling
+//				if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
+//					_output.add(Outputs.STREAM_ENDED);
+//					nextState(States.IDLE,1);
+//				} else if (_input.contains(EventEnum.VGUI_FALSE_POSITIVE)) {
+//					_output.add(Outputs.FALSE_POSITIVE);
+//					nextState(States.STREAMING,1);
+//				}else if (_input.contains(EventEnum.VGUI_TRUE_POSITIVE)) {
+//					_output.add(Outputs.TRUE_POSITIVE);
+//					nextState(States.STREAMING,1);
+//				}else if (_input.contains(EventEnum.VGUI_BAD_STREAM)) {
+//					_output.add(Outputs.BAD_STREAM);
+//					nextState(States.STREAMING,1);
+//				}
+				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
+					nextState(States.ACK_VO,1);
 				}
 				break;
 			default:
 				break;
 		}
-		return _output;
     }
 
 
