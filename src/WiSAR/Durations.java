@@ -20,8 +20,10 @@ public enum Durations {
 	MM_TX_SEARCH_COMPLETE_PS_DUR(new Range(300, 600)),
 	MM_TX_SIGHTING_PS_DUR(new Range(600, 1800)),
 	MM_TX_AOI_PILOT_DUR(new Range(300, 900)),
+	MM_TX_INITIATE_FEED_VO_DUR(new Range(300, 900)),
 	MM_TX_TERMINATE_PILOT_DUR(new Range(60, 300)),
 	MM_RX_DUR(new Range(1800, 1800)),
+	MM_TX_END_FEED(new Range(300,1800)),
 	
 	
 	PILOT_POKE_MM_DUR(new Range(60, 1800)),

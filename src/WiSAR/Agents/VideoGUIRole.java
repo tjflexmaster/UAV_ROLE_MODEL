@@ -14,9 +14,9 @@ public class VideoGUIRole extends Actor {
     public enum Outputs implements IData
     {
         /**
-         * GUI Inputs
+         * GUI Outputs
          */
-    	ACK_VO,
+    	ACK_VGUI,
         STREAM_ENDED,
         BAD_STREAM,
         ANOMALY_PRESENT,
@@ -31,7 +31,6 @@ public class VideoGUIRole extends Actor {
     {
         IDLE,
         RX_VO,
-        ACK_VO,
         STREAMING
     }
     
@@ -49,10 +48,6 @@ public class VideoGUIRole extends Actor {
         }
         state(nextState());
         switch ((States) nextState()) {
-	        case ACK_VO:
-	        	_output.add(Outputs.ACK_VO);
-	        	nextState(States.RX_VO,1);
-	        	break;
 	        case RX_VO:
         		nextState(States.STREAMING,sim().duration(Durations.VGUI_RX_DUR.range()));
 	        	break;
@@ -68,19 +63,25 @@ public class VideoGUIRole extends Actor {
 		switch ( (States) state() ) {
 			case IDLE:
 				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
-					nextState(States.ACK_VO,1);
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+					nextState(States.RX_VO, 1);
 				}
 				break;
 			case RX_VO:
-				if (_input.contains(VideoOperatorRole.Outputs.END_FEED_VO)) {
-					_output.add(Outputs.STREAM_ENDED);
-					nextState(States.IDLE,1);
-				} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED_VO)) {
-					_output.add(Outputs.STREAM_STARTED);
-					nextState(States.STREAMING,1);
-				} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME_VO)) {
-					_output.add(Outputs.ANOMALY_IDENTIFIED);
-					nextState(States.STREAMING,1);
+				if(_input.contains(VideoOperatorRole.Outputs.END_VO));{
+					if (_input.contains(VideoOperatorRole.Outputs.END_FEED_VO)) {
+						_output.add(Outputs.STREAM_ENDED);
+						nextState(States.IDLE,1);
+					} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED_VO)) {
+						_output.add(Outputs.STREAM_STARTED);
+						nextState(States.STREAMING,1);
+					} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME_VO)) {
+						_output.add(Outputs.ANOMALY_IDENTIFIED);
+						nextState(States.STREAMING,1);
+					}else{
+						//TODO handle other inputs
+						nextState(States.STREAMING,1);
+					}
 				}
 				break;
 			case STREAMING:
@@ -99,7 +100,8 @@ public class VideoGUIRole extends Actor {
 //					nextState(States.STREAMING,1);
 //				}
 				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
-					nextState(States.ACK_VO,1);
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+					nextState(States.RX_VO,1);
 				}
 				break;
 			default:

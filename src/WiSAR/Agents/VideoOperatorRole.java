@@ -24,6 +24,9 @@ public class VideoOperatorRole extends Actor
 	public enum Outputs implements IData
 	{
 		POKE_VO,
+		END_VO,
+		ACK_VO,
+		BUSY_VO, 
 		/**
 		 * For the GUI
 		 */
@@ -42,7 +45,7 @@ public class VideoOperatorRole extends Actor
 		/**
 		 * For the MM
 		 */
-		FOUND_ANOMALY_VO,
+		FOUND_ANOMALY_VO, 
 		
 		
 	} /**
@@ -97,6 +100,7 @@ public class VideoOperatorRole extends Actor
 
         //If a state isn't included then it doesn't deviate from the default
         //ICommunicate role; 
+        //TODO handle outputing BUSY_VO
         switch((States)nextState()) {
 	        case ACK_MM:
 	        	//simulator().addOutput(Roles.MISSION_MANAGER.name(), MissionManagerRole.Inputs.ACK_VO);
@@ -121,9 +125,11 @@ public class VideoOperatorRole extends Actor
 	        	break;
 	        //Transmission states : wait the time for transmission then go to the end transmission state. 	
 	        case TX_GUI:
+	        	//TODO transmit different durations based on output
 	        	nextState(States.END_GUI, sim().duration(Durations.VO_TX_VGUI_DUR.range()));
 	        	break;
 	        case TX_MM:
+	        	//TODO transmit different durations based on output
 	        	nextState(States.END_MM, sim().duration(Durations.VO_TX_MM_DUR.range()));
 	        	break;
 	        case TX_OPERATOR:
@@ -134,6 +140,9 @@ public class VideoOperatorRole extends Actor
 	        		duration = sim().duration(Durations.VO_TX_OPERATOR_STREAM_ENDED.range());
 	        	else if(memory.contains(Outputs.LOOK_CLOSER_VO))
 	        		duration = sim().duration(Durations.VO_TX_OPERATOR_LOOK_CLOSER.range());
+	        	else{
+	        		//TODO handle more outputs
+	        	}
 	        	nextState(States.END_OPERATOR, duration);
 	        	break;
 	        //For all the end transmission states update the inputs to the receivers then return to observation.
@@ -144,9 +153,13 @@ public class VideoOperatorRole extends Actor
 	        		sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.START_FEED_VO);
 	        	else if(memory.contains(Outputs.END_FEED_VO))
 	        		sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.END_FEED_VO);
+	        	else{
+	        		//TODO handle different outputs
+	        	}
 	        	nextState(States.OBSERVING,1);
 	        	break;
 	        case END_MM:
+	        	sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.END_VO);
 	        	if(memory.contains(Outputs.FOUND_ANOMALY_VO))
 	        		sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.FOUND_ANOMALY_VO);
 	        	nextState(States.OBSERVING,1);
@@ -226,16 +239,16 @@ public class VideoOperatorRole extends Actor
 				break;
 			case POKE_GUI:
 				video_feed = sim().getObservations(Roles.VIDEO_OPERATOR_GUI.name());
-				if(video_feed.contains(VideoGUIRole.Outputs.ACK_VO))
-					nextState(States.TX_GUI,1);//we need to code state tx_gui
+				if(video_feed.contains(VideoGUIRole.Outputs.ACK_VGUI))
+					nextState(States.TX_GUI,1);
 				break;
 			case POKE_MM:
 				if(_input.contains(MissionManagerRole.Outputs.ACK_MM))
-					nextState(States.TX_MM,1);//we need to code state tx_mm
+					nextState(States.TX_MM,1);
 				break;
 			case POKE_OPERATOR:
 				if(_input.contains(OperatorRole.Outputs.OP_ACK))
-					nextState(States.TX_OPERATOR,1);//we need to code state tx_OPERATOR
+					nextState(States.TX_OPERATOR,1);
 				break;
 			default:
 				break;
