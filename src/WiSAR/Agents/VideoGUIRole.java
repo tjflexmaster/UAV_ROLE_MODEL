@@ -16,6 +16,7 @@ public class VideoGUIRole extends Actor {
         /**
          * GUI Outputs
          */
+<<<<<<< Upstream, based on myDev
     	VGUI_ACK,
         VGUI_STREAM_ENDED,
         VGUI_STREAM_STARTED, 
@@ -100,6 +101,93 @@ public class VideoGUIRole extends Actor {
 //				}
 				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
 					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
+=======
+    	ACK_VGUI,
+        STREAM_ENDED,
+        BAD_STREAM,
+        ANOMALY_PRESENT,
+        STREAM_STARTED, 
+        ANOMALY_IDENTIFIED, 
+        FALSE_POSITIVE, 
+        TRUE_POSITIVE
+       
+    }
+   
+    public enum States implements IStateEnum
+    {
+        IDLE,
+        RX_VO,
+        STREAMING
+    }
+    
+	public VideoGUIRole()
+	{
+		name( Roles.VIDEO_OPERATOR_GUI.name() );
+		nextState(States.IDLE, 1);
+		
+	}
+
+   @Override
+    public void processNextState() {//Is our next state now?
+        if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+            return;
+        }
+        state(nextState());
+        switch ((States) nextState()) {
+	        case RX_VO:
+        		nextState(States.STREAMING,sim().duration(Durations.VGUI_RX_DUR.range()));
+	        	break;
+        	default:
+	        	nextState(null,0);
+	        	break;
+        }
+    }
+
+	@Override
+	public void processInputs() {
+    	_output.clear();
+		switch ( (States) state() ) {
+			case IDLE:
+				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+					nextState(States.RX_VO, 1);
+				}
+				break;
+			case RX_VO:
+				if(_input.contains(VideoOperatorRole.Outputs.END_VO));{
+					if (_input.contains(VideoOperatorRole.Outputs.END_FEED_VO)) {
+						_output.add(Outputs.STREAM_ENDED);
+						nextState(States.IDLE,1);
+					} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED_VO)) {
+						_output.add(Outputs.STREAM_STARTED);
+						nextState(States.STREAMING,1);
+					} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME_VO)) {
+						_output.add(Outputs.ANOMALY_IDENTIFIED);
+						nextState(States.STREAMING,1);
+					}else{
+						//TODO handle other inputs
+						nextState(States.STREAMING,1);
+					}
+				}
+				break;
+			case STREAMING:
+				//TODO implement event handling
+//				if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
+//					_output.add(Outputs.STREAM_ENDED);
+//					nextState(States.IDLE,1);
+//				} else if (_input.contains(EventEnum.VGUI_FALSE_POSITIVE)) {
+//					_output.add(Outputs.FALSE_POSITIVE);
+//					nextState(States.STREAMING,1);
+//				}else if (_input.contains(EventEnum.VGUI_TRUE_POSITIVE)) {
+//					_output.add(Outputs.TRUE_POSITIVE);
+//					nextState(States.STREAMING,1);
+//				}else if (_input.contains(EventEnum.VGUI_BAD_STREAM)) {
+//					_output.add(Outputs.BAD_STREAM);
+//					nextState(States.STREAMING,1);
+//				}
+				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+>>>>>>> 29deef5 Pulled database
 					nextState(States.RX_VO,1);
 				}
 				break;
