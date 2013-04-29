@@ -24,6 +24,15 @@ public class EventManager {
 		_events.remove(event);
 	}
 	
+	public int totalEventsRemaining()
+	{
+		int result = 0;
+		for( IEvent event : _events ) {
+			result += event.getCount();
+		}
+		return result;
+	}
+	
 	public int getNextEventTime()
 	{
 		
@@ -40,6 +49,24 @@ public class EventManager {
 		}
 		
 		return result;
+	}
+	
+	public void processNextState()
+	{
+		for( IEvent event : _events ) {
+			if ( event.getCount() > 0 ) {
+				event.processNextState();
+			}
+		}
+	}
+	
+	public void processInputs()
+	{
+		for( IEvent event : _events ) {
+			if ( event.getCount() > 0 ) {
+				event.processInputs();
+			}
+		}
 	}
 	
 }

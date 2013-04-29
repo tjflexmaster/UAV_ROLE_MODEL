@@ -14,7 +14,9 @@ public abstract class Team implements ITeam {
 	@Override
 	public IActor getActor(String actor_name)
 	{
-		return _actors.get(actor_name);
+		IActor result = _actors.get(actor_name);
+		assert result != null : "Actor is not part of the team.";
+		return result;
 	}
 
 	@Override

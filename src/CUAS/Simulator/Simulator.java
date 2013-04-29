@@ -92,21 +92,19 @@ public class Simulator {
 	void addInput(String actor_name, IData input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		//TODO Add to the PostOffice
-//		_team.getActor(actor_name).addInput(input);
 		_team.getActor(actor_name).addInput(input);
 	}
 	
 	void addInput(String actor_name, ArrayList<IData> input)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		//TODO Add input to the post office
-//		getActor(actor_name).addInput(input);
 		_team.getActor(actor_name).addInput(input);
 	}
+	
 	public void addOutput(String actor_name, IData input){
 		_post_office.addOutput(input, actor_name);
 	}
+	
 	public void addOutputs(String actor_name, ArrayList<IData> inputs){
 		_post_office.addOutputs(inputs, actor_name);
 	}
@@ -185,18 +183,35 @@ public class Simulator {
 //				String input = readUserInput.nextLine();
 				//TODO Use user input to guide the system
 				
+				
+				
 				/**
 				 * By calling getNextEventTime() on the event manager events are automatically processed.
 				 */
-				int next_time = Math.min(_event_manager.getNextEventTime() , _team.getNextStateTime(getTime()) );
+				int next_time = 0;
+				int evt_time = _event_manager.getNextEventTime();
+				int team_time = _team.getNextStateTime(getTime());
+				if (  evt_time > 0 && team_time > 0 )
+					next_time = Math.min(evt_time, team_time);
+				else
+					next_time = Math.max(evt_time, team_time);
 				
 				if ( next_time == 0 ) {
 					if ( debug() )
 						System.out.println("Nothing to process: " + getTime());
+					
+					assert _event_manager.totalEventsRemaining() > 0 : "Terminated when there were still events left to be processed.";
 					_running = false;
 					
 				} else {
 					_timer.time(next_time);
+					
+					//First Process Events
+					_event_manager.processNextState();
+					_event_manager.processInputs();
+					
+					//Send data from the post office to the actors
+					_post_office.sendInput();
 					
 					//First Update each Role based on the current time
 					if (debug())

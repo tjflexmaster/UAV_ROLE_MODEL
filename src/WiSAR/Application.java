@@ -1,5 +1,6 @@
 package WiSAR;
 
+import WiSAR.Events.NewSearchAOIEvent;
 import CUAS.Simulator.Simulator;
 import CUAS.Utils.DurationGenerator.Mode;
 
@@ -15,8 +16,10 @@ public class Application {
 			Simulator.getInstance().setup(Mode.MIN, new DefaultTeam());
 			//Load Duration Assumptions
 			
+			
+			Simulator.getInstance().addEvent(new NewSearchAOIEvent(3));
 			//Load a Scenario
-			Scenario.scenario1();
+//			Scenario.scenario1();
 //			Scenario.scenario3();
 			
 			//Run the simulation

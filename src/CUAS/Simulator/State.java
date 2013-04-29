@@ -29,6 +29,9 @@ public abstract class State {
 		} else if ( time > 0 ) {
 			_next_state = state;
 			_next_state_time = sim().getTime() + time;
+			
+			if ( sim().debug() )
+				System.out.println("Next State: " + _next_state.name() + " at time: " + _next_state_time);
 		} else {
 //			System.out.println("Failed to set the next state");
 		}

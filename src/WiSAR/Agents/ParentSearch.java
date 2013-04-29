@@ -8,37 +8,39 @@ import CUAS.Simulator.IData;
 import CUAS.Simulator.IObservable;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
-import NewModel.Events.IEvent;
 import WiSAR.Durations;
-import WiSAR.EventEnum;
+import WiSAR.Events.NewSearchAOIEvent;
+import WiSAR.Events.TerminateSearchEvent;
 
 public class ParentSearch extends Actor {
 	
 	//INTERNAL VARS
 	boolean _search_active = true;
 	
-	Deque<Outputs> output_queue = new ArrayDeque<Outputs>();
-	Outputs current_output = null;
+	/**
+	 * These variables are used to keep track of how many search areas have been created, given, and searched.
+	 * It is assumed that all these search areas are for the UAV team.
+	 */
+	int _total_search_aoi = 0;
+	int _sent_search_aoi = 0;
+	int _received_search_aoi = 0;
 	
 	/**
-	 * Setup Inputs and Outputs
+	 * Setup Outputs
 	 */
-
-	
 	public enum Outputs implements IData
 	{
 		SEARCH_AOI,
 		SEARCH_TERMINATED,
-		POKE_PS,
-		END_PS,
-		BUSY_PS,
-		ACK_PS, 
+		PS_POKE,
+		PS_END,
+		PS_BUSY,
+		PS_ACK, 
+		
 	}
 	
 	/**
 	 * Define Role States
-	 * @author TJ-ASUS
-	 *
 	 */
 	public enum States implements IStateEnum
 	{
@@ -61,7 +63,7 @@ public class ParentSearch extends Actor {
 	{
 		//Is our next state now?
 		if ( nextStateTime() != sim().getTime() ) {
-			return null;
+			return;
 		}
 		
 		//Update to the next state
@@ -74,27 +76,27 @@ public class ParentSearch extends Actor {
 				nextState(null, 0);
 				break;
 			case POKE_MM:
-				sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.POKE_PS);
+				sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.PS_POKE);
 				nextState(States.IDLE, sim().duration(Durations.PS_POKE_MM_DUR.range()));
 				break;
 			case TX_MM:
-				current_output = output_queue.pollLast();
-				int duration = 1;
-				if ( current_output == Outputs.SEARCH_AOI ) {
+				int duration;
+				if ( _search_active ) {
 					duration = sim().duration(Durations.PS_TX_AOI_MM_DUR.range());
-				} else if ( current_output == Outputs.SEARCH_TERMINATED ) {
+				} else {
 					duration = sim().duration(Durations.PS_TX_TERMINATE_MM_DUR.range());
 				}
 				nextState(States.END_MM, duration);
 				break;
 			case END_MM:
 				//Now send the data that got sent from the transfer
-				if ( current_output == Outputs.SEARCH_AOI ) {
-					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
-				} else if ( current_output == Outputs.SEARCH_TERMINATED ) {
-					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
+				if ( _search_active ) {
+					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
+					_sent_search_aoi++;
+				} else {
+					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
 				}
-				sim().addInput(Roles.MISSION_MANAGER.name(),Outputs.END_PS);
+				sim().addOutput(Roles.MISSION_MANAGER.name(),Outputs.PS_END);
 				nextState(States.IDLE, 1);
 				break;
 			case RX_MM:
@@ -104,23 +106,29 @@ public class ParentSearch extends Actor {
 			default:
 				nextState(null, 1);
 				break;
-		}
-		
-		return _output;
+		}//end switch
 	}
 
 	@Override
-	public ArrayList<IData> processInputs() {
+	public void processInputs() {
+		
+		//Always check for this input
+		if ( _input.contains(NewSearchAOIEvent.Outputs.NEW_SEARCH_AOI) ) {
+			_total_search_aoi++;
+		}
+		
+		if ( _input.contains(TerminateSearchEvent.Outputs.TERMINATE_SEARCH) ) {
+			_search_active = false;
+		}
 		
 		//Depending on our state we will handle different inputs.
 		switch((States) state() ) {
 			case IDLE:
-				//If the MM is idle then do the following things in sequence
-				//First check for Parent Search Commands
-				if ( _input.contains(MissionManagerRole.Outputs.POKE_PS) ) {
-					sim().addInput(Roles.MISSION_MANAGER.name(), Outputs.ACK_PS);
+				//IF the parent search is idle then watch for
+				if ( _input.contains(MissionManagerRole.Outputs.POKE_MM) ) {
+					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.PS_ACK);
 					nextState(States.RX_MM, 1);
-				} else if( output_queue.size() > 0 ) {
+				} else if ( _total_search_aoi > _sent_search_aoi ) {
 					nextState(States.POKE_MM, 1);
 				}
 				
@@ -130,7 +138,7 @@ public class ParentSearch extends Actor {
 				//TODO Handle simultaneous pokes from MM
 				
 				//Look for Busy or Ack from MM
-				if ( _input.contains(MissionManagerRole.Outputs.ACK_PS) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.ACK_MM) ) {
 					nextState(States.TX_MM, 1);
 				} else if ( _input.contains(MissionManagerRole.Outputs.BUSY_MM) ) {
 					nextState(States.IDLE, 1);
@@ -145,13 +153,20 @@ public class ParentSearch extends Actor {
 				//Do Nothing I will soon be idle
 				break;
 			case RX_MM:
-				//Look for the END_MM input before handling other inputs
-				if ( _input.contains(MissionManagerRole.Outputs.END_PS) ) {
+				//Look for the MM_END input before handling other inputs
+				if ( _input.contains(MissionManagerRole.Outputs.END_MM) ) {
 					//TODO Handle all inputs from the MM
 					
 					if ( _input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE) ) {
-						//Do we do anything with this info?
+						_received_search_aoi++;
 					}
+					
+					//TODO Add Search Failed to the Mission Manager
+					if (_input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE)) {
+						_received_search_aoi = _sent_search_aoi;
+					}
+					
+					//TODO Handle findings
 					
 					nextState(States.IDLE, 1);
 				}
@@ -161,70 +176,27 @@ public class ParentSearch extends Actor {
 				//Do Nothing for any state not mentioned here
 				break;
 		}
+		
+		//Set the parent search observations after handling inputs
+		setObservations();
+		
+		//Input has been handled so clear it
+		_input.clear();
 
-		return _output;
 	}
-
-	@Override
-	public void addInput(ArrayList<IData> data) {
-		_input.addAll(data);
-	}
-
-	@Override
-	public ArrayList<IData> getObservations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-//	@Override
-//	public void processEvents(ArrayList<Event> events) {
-//		for( Event e : events ) {
-//			switch(e.type()) {
-//				case PS_TERMINATE_SEARCH:
-//					createTerminateSearchEvent();
-//					break;
-//				case PS_NEW_AOI:
-//					createNewSearchAOIEvent();
-//					break;
-//				default:
-//					//Do nothing with the event
-//					break;
-//			}
-//		}
-//	}
-	
-	
 	
 	/**
 	 * PRIVATE HELPER METHODS
 	 */
+	private void setObservations()
+	{
+		clearObservations();
+		if ( !_search_active ) {
+			addObservation(Outputs.SEARCH_TERMINATED);
+			addObservation(Outputs.PS_BUSY);
+		} else if (state() != States.IDLE ) {
+			addObservation(Outputs.PS_BUSY);
+		}
+	}
 	
-	
-	
-//	private void createTerminateSearchEvent()
-//	{
-//		if ( state() == RoleState.IDLE ) {
-//			Simulator.getInstance().addPost(POBOX.PS_MM, DataType.TERMINATE_SEARCH);
-//			nextState(RoleState.POKE_MM, 1);
-////			System.out.println("Created new Terminate Search Event");
-//		} else {
-//			assert false : "Unable to create Terminate Search Event, Parent Search is busy";
-////			System.out.println("Unable to create Terminate Search Event, Parent Search is busy");
-//		}
-//	}
-	
-//	private void createNewSearchAOIEvent()
-//	{
-//		if ( state() == RoleState.IDLE ) {
-////			_search_aoi_count++;
-//			Simulator.getInstance().addPost(POBOX.PS_MM, DataType.SEARCH_AOI);
-//			nextState(RoleState.POKE_MM, 1);
-////			System.out.println("Created new Search AOI Event");
-//		} else {
-//			assert false : "Unable to create Search AOI Event, Parent Search is busy";
-////			System.out.println("Unable to create Search AOI Event, Parent Search is busy");
-//		}
-//	}
-
 }
