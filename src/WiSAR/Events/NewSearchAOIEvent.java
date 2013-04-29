@@ -2,7 +2,6 @@ package WiSAR.Events;
 
 import java.util.ArrayList;
 
-import org.omg.PortableInterceptor.INACTIVE;
 
 import WiSAR.Agents.ParentSearch;
 import WiSAR.Agents.Roles;

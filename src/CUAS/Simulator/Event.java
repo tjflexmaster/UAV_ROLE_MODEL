@@ -20,6 +20,10 @@ public abstract class Event extends State implements IEvent {
 	
 	protected int _count = 0;
 	
+	public Event() {
+		nextState(States.INACTIVE, 1);
+	}
+	
 	@Override
 	public int getCount() 
 	{
