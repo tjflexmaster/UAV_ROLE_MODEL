@@ -203,7 +203,7 @@ public class Simulator {
 					
 				} else {
 					_timer.time(next_time);
-					
+					System.out.println("At time: " + next_time);
 					//First Process Events
 					_event_manager.processNextState();
 					_event_manager.processInputs();
@@ -225,7 +225,7 @@ public class Simulator {
 					_team.processInputs();
 					_post_office.sendInput();
 					if (debug())
-						System.out.println("Updating Finished");
+						System.out.println("Updating Finished\n");
 					
 				}
 		

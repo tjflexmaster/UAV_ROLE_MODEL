@@ -30,8 +30,16 @@ public abstract class State {
 			_next_state = state;
 			_next_state_time = sim().getTime() + time;
 			
-			if ( sim().debug() )
-				System.out.println("Next State: " + _next_state.name() + " at time: " + _next_state_time);
+			if ( sim().debug() ){
+				String name;
+				if(this instanceof Actor){
+					name = ((Actor)this).name();
+				}else{
+					String class_name = this.toString();
+					name = class_name.substring(class_name.lastIndexOf('.')+1, class_name.indexOf('@'));
+				}
+				System.out.println("Next State(" + name + "): " + _next_state.name() + " at time: " + _next_state_time);
+			}
 		} else {
 //			System.out.println("Failed to set the next state");
 		}

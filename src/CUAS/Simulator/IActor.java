@@ -18,6 +18,10 @@ import java.util.ArrayList;
  */
 public interface IActor {
 	/**
+	 * get the name of the actor.
+	 */
+	String name();
+	/**
 	 * Get next state time tells the Simulator the next time step that this actor needs
 	 * processing time.
 	 */
