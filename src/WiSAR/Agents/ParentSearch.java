@@ -1,11 +1,6 @@
 package WiSAR.Agents;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-
 import CUAS.Simulator.IData;
-import CUAS.Simulator.IObservable;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import WiSAR.Durations;
@@ -157,12 +152,12 @@ public class ParentSearch extends Actor {
 				if ( _input.contains(MissionManagerRole.Outputs.END_MM) ) {
 					//TODO Handle all inputs from the MM
 					
-					if ( _input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE) ) {
+					if ( _input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE_MM) ) {
 						_received_search_aoi++;
 					}
 					
 					//TODO Add Search Failed to the Mission Manager
-					if (_input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE)) {
+					if (_input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE_MM)) {
 						_received_search_aoi = _sent_search_aoi;
 					}
 					
