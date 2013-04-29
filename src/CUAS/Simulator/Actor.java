@@ -8,7 +8,6 @@ import WiSAR.Agents.ParentSearch.Outputs;
 public abstract class Actor extends State implements IActor, IObservable {
 
 	private String _name;
-	protected IData memory = null;
 	
 	/**
 	 * Actors define their output, observables, and state processing.

@@ -13,7 +13,7 @@ public class MissionManagerRole extends Actor {
 
 	//INTERNAL VARS
 	ArrayList<IData> temp_inputs = new ArrayList<IData>();
-	
+	IData current_output = null;
 	
 	public enum Outputs implements IData
 	{
@@ -119,9 +119,9 @@ public class MissionManagerRole extends Actor {
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_PS:
-				if(memory == Outputs.SEARCH_AOI_COMPLETE_MM)
+				if(current_output == Outputs.SEARCH_AOI_COMPLETE_MM)
 					nextState(States.END_PS,sim().duration(Durations.MM_TX_SEARCH_COMPLETE_PS_DUR.range()));
-				else if(memory == Outputs.FOUND_ANOMALY_MM)
+				else if(current_output == Outputs.FOUND_ANOMALY_MM)
 					nextState(States.END_PS, sim().duration(Durations.MM_TX_SIGHTING_PS_DUR.range()));
 				else{
 					//TODO handle other possible transmission lengths
@@ -129,9 +129,9 @@ public class MissionManagerRole extends Actor {
 				}
 				break;
 			case TX_OP:
-				if(memory == Outputs.SEARCH_AOI_MM)
+				if(current_output == Outputs.SEARCH_AOI_MM)
 					nextState(States.END_OP, sim().duration(Durations.MM_TX_AOI_PILOT_DUR.range()));
-				else if(memory == Outputs.SEARCH_TERMINATED_MM)
+				else if(current_output == Outputs.SEARCH_TERMINATED_MM)
 					nextState(States.END_OP, sim().duration(Durations.MM_TX_TERMINATE_PILOT_DUR.range()));
 				else{
 					//TODO handle other possible transmission lengths
@@ -139,9 +139,9 @@ public class MissionManagerRole extends Actor {
 				}
 				break;
 			case TX_VO:
-				if(memory == Outputs.SEARCH_AOI_MM){
+				if(current_output == Outputs.SEARCH_AOI_MM){
 					nextState(States.END_VO, sim().duration(Durations.MM_TX_INITIATE_FEED_VO_DUR.range()));
-				} else if(memory == Outputs.SEARCH_TERMINATED_MM) {
+				} else if(current_output == Outputs.SEARCH_TERMINATED_MM) {
 					nextState(States.END_VO, sim().duration(Durations.MM_TX_END_FEED.range()));
 				}else{
 					//TODO handle other possible transmission lengths
@@ -152,19 +152,19 @@ public class MissionManagerRole extends Actor {
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
 				sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.END_MM);
-				if(memory == Outputs.SEARCH_AOI_COMPLETE_MM)
+				if(current_output == Outputs.SEARCH_AOI_COMPLETE_MM)
 					sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.SEARCH_AOI_COMPLETE_MM);
-				else if(memory == Outputs.FOUND_ANOMALY_MM)
+				else if(current_output == Outputs.FOUND_ANOMALY_MM)
 					sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.FOUND_ANOMALY_MM);
 				nextState(States.IDLE, 1);
 				break;
 			case END_OP:
 				nextState(States.IDLE, 1);
 				sim().addOutput(Roles.OPERATOR.name(), Outputs.END_MM);
-				if(memory == Outputs.SEARCH_AOI_MM){
+				if(current_output == Outputs.SEARCH_AOI_MM){
 					sim().addOutput(Roles.OPERATOR.name(), Outputs.SEARCH_AOI_MM);
 					nextState(States.POKE_VO,1);
-				}else if(memory == Outputs.SEARCH_TERMINATED_MM){
+				}else if(current_output == Outputs.SEARCH_TERMINATED_MM){
 					sim().addOutput(Roles.OPERATOR.name(), Outputs.SEARCH_TERMINATED_MM);
 					nextState(States.POKE_VO,1);
 				}else {
@@ -174,11 +174,11 @@ public class MissionManagerRole extends Actor {
 			case END_VO:
 				sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.END_MM);
 				nextState(States.IDLE, 1);
-				if(memory == Outputs.SEARCH_AOI_MM)
+				if(current_output == Outputs.SEARCH_AOI_MM)
 					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.SEARCH_AOI_MM);
-				else if(memory == Outputs.SEARCH_TERMINATED_MM)
+				else if(current_output == Outputs.SEARCH_TERMINATED_MM)
 					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.SEARCH_TERMINATED_MM);
-				else if(memory == Outputs.SEARCH_AOI_COMPLETE_MM){
+				else if(current_output == Outputs.SEARCH_AOI_COMPLETE_MM){
 					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.SEARCH_AOI_COMPLETE_MM);
 					nextState(States.POKE_PS, sim().duration(Durations.MM_POKE_DUR.range()));
 				}else{
@@ -230,10 +230,10 @@ public class MissionManagerRole extends Actor {
 			if ( _input.contains(ParentSearch.Outputs.END_PS) ) {
 				//Look for the inputs
 				if ( _input.contains(ParentSearch.Outputs.SEARCH_TERMINATED) ) {
-					memory = Outputs.SEARCH_TERMINATED_MM;
+					current_output = Outputs.SEARCH_TERMINATED_MM;
 					nextState(States.POKE_OP, 1);
 				} else if ( _input.contains(ParentSearch.Outputs.SEARCH_AOI) ) {
-					memory = Outputs.SEARCH_AOI_MM;
+					current_output = Outputs.SEARCH_AOI_MM;
 					nextState(States.POKE_OP,1);
 				}else{
 					//TODO handle other commands from PS
@@ -243,7 +243,7 @@ public class MissionManagerRole extends Actor {
 		case RX_OP:
 			if(_input.contains(OperatorRole.Outputs.OP_END)){
 				if(_input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_COMPLETE)){
-					memory = Outputs.SEARCH_AOI_COMPLETE_MM;
+					current_output = Outputs.SEARCH_AOI_COMPLETE_MM;
 					nextState(States.POKE_VO,1);
 				}else{
 					//TODO handle other inputs from OPERATOR
@@ -254,7 +254,7 @@ public class MissionManagerRole extends Actor {
 		case RX_VO:
 			if(_input.contains(VideoOperatorRole.Outputs.END_VO)){
 				if(_input.contains(VideoOperatorRole.Outputs.FOUND_ANOMALY_VO)){
-					memory = Outputs.FOUND_ANOMALY_MM;
+					current_output = Outputs.FOUND_ANOMALY_MM;
 					nextState(States.POKE_PS,1);
 				}else{
 					//TODO handle other inputs from Video Operator
