@@ -32,7 +32,6 @@ public abstract class Actor extends State implements IActor, IObservable {
 	 * processed if nextStateTime == Simulator.time().  If it is then 
 	 * this method is processed.  This implies that the role is immediately
 	 * placed into its new state.
-	 * @return 
 	 */
 	public abstract void processNextState();
 	

@@ -183,8 +183,6 @@ public class Simulator {
 //				String input = readUserInput.nextLine();
 				//TODO Use user input to guide the system
 				
-				
-				
 				/**
 				 * By calling getNextEventTime() on the event manager events are automatically processed.
 				 */
