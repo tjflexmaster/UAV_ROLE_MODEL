@@ -120,7 +120,7 @@ public class ParentSearch extends Actor {
 		switch((States) state() ) {
 			case IDLE:
 				//IF the parent search is idle then watch for
-				if ( _input.contains(MissionManagerRole.Outputs.POKE_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
 					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.PS_ACK);
 					nextState(States.RX_MM, 1);
 				} else if ( _total_search_aoi > _sent_search_aoi ) {
@@ -133,9 +133,9 @@ public class ParentSearch extends Actor {
 				//TODO Handle simultaneous pokes from MM
 				
 				//Look for Busy or Ack from MM
-				if ( _input.contains(MissionManagerRole.Outputs.ACK_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.MM_ACK) ) {
 					nextState(States.TX_MM, 1);
-				} else if ( _input.contains(MissionManagerRole.Outputs.BUSY_MM) ) {
+				} else if ( _input.contains(MissionManagerRole.Outputs.MM_BUSY) ) {
 					nextState(States.IDLE, 1);
 				}
 				
@@ -149,15 +149,15 @@ public class ParentSearch extends Actor {
 				break;
 			case RX_MM:
 				//Look for the MM_END input before handling other inputs
-				if ( _input.contains(MissionManagerRole.Outputs.END_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					//TODO Handle all inputs from the MM
 					
-					if ( _input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE_MM) ) {
+					if ( _input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE) ) {
 						_received_search_aoi++;
 					}
 					
 					//TODO Add Search Failed to the Mission Manager
-					if (_input.contains(MissionManagerRole.Outputs.SEARCH_AOI_COMPLETE_MM)) {
+					if (_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE)) {
 						_received_search_aoi = _sent_search_aoi;
 					}
 					

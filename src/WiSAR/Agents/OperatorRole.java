@@ -208,10 +208,10 @@ public class OperatorRole extends Actor {
 		switch((States) state() ) {
 			case POKE_MM:
 				//Always respond to an ACK_MM
-				if (_input.contains(MissionManagerRole.Outputs.ACK_MM)) {
+				if (_input.contains(MissionManagerRole.Outputs.MM_ACK)) {
 					nextState(States.TX_MM, 1);
 				}
-				if ( _input.contains(MissionManagerRole.Outputs.BUSY_MM)) {
+				if ( _input.contains(MissionManagerRole.Outputs.MM_BUSY)) {
 					nextState(States.IDLE, 1);
 				}
 				//TODO listen for more inputs such as PILOT GUI Alarms
@@ -229,7 +229,7 @@ public class OperatorRole extends Actor {
 				//Look for end of TX
 				//Whatever the Pilot does next it should be on the next time step so that it does not
 				//appear that he is receiving after the MM stopped transmitting.
-				if ( _input.contains(MissionManagerRole.Outputs.END_MM) ) {
+				if ( _input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
 				}
 				
