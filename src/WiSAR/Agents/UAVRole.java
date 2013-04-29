@@ -10,11 +10,8 @@ public class UAVRole extends Actor  {
 	
     public enum Outputs implements IData
     {
-<<<<<<< Upstream, based on myDev
 		DEACTIVATE_BATTERY,
 		ACTIVATE_BATTERY
-=======
->>>>>>> 29deef5 Pulled database
     	
     }
     
