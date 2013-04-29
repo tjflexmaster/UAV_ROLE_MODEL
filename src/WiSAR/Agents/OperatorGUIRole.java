@@ -74,13 +74,13 @@ public class OperatorGUIRole extends Actor {
     	_output.clear();
 		switch ( (States) state() ) {
 			case UAV_IDLE:
-				if (_input.contains(OperatorRole.Outputs.POKE_OP)) {
+				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
 					sim().addOutput(Roles.OPERATOR.name(), Outputs.ACK_OP_GUI);
 					nextState(States.RX_OP, 1);
 				}
 				break;
 			case RX_OP:
-				if(_input.contains(OperatorRole.Outputs.END_OP));{
+				if(_input.contains(OperatorRole.Outputs.OP_END));{
 					if (_input.contains(OperatorRole.Outputs.TAKE_OFF)) {
 						sim().addOutput(Roles.UAV.name(), Outputs.TAKE_OFF);
 						_output.add(Outputs.DEPARTING);
@@ -120,7 +120,7 @@ public class OperatorGUIRole extends Actor {
 				}
 				break;
 			case UAV_IN_AIR:
-				if (_input.contains(OperatorRole.Outputs.POKE_OP)) {
+				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
 					sim().addOutput(Roles.OPERATOR.name(), Outputs.ACK_OP_GUI);
 					nextState(States.RX_OP,1);
 				} else if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
@@ -150,7 +150,7 @@ public class OperatorGUIRole extends Actor {
 				}
 				break;
 			case UAV_CRASHING:
-				if (_input.contains(OperatorRole.Outputs.POKE_OP)) {
+				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
 					sim().addOutput(Roles.OPERATOR.name(), Outputs.ACK_OGUI);
 					nextState(States.RX_OP,1);
 				} else if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
@@ -168,19 +168,6 @@ public class OperatorGUIRole extends Actor {
 				break;
 		}
     }
-
-
-	@Override
-	public void addInput(ArrayList<IData> data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ArrayList<IData> getObservations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////

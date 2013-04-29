@@ -16,14 +16,13 @@ public class VideoGUIRole extends Actor {
         /**
          * GUI Outputs
          */
-    	ACK_VGUI,
-        STREAM_ENDED,
-        BAD_STREAM,
-        ANOMALY_PRESENT,
-        STREAM_STARTED, 
-        ANOMALY_IDENTIFIED, 
-        FALSE_POSITIVE, 
-        TRUE_POSITIVE
+    	VGUI_ACK,
+        VGUI_STREAM_ENDED,
+        VGUI_STREAM_STARTED, 
+        VGUI_BAD_STREAM,
+        VGUI_ANOMALY_IDENTIFIED, 
+        VGUI_FALSE_POSITIVE, 
+        VGUI_TRUE_POSITIVE
        
     }
    
@@ -62,21 +61,21 @@ public class VideoGUIRole extends Actor {
     	_output.clear();
 		switch ( (States) state() ) {
 			case IDLE:
-				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 					nextState(States.RX_VO, 1);
 				}
 				break;
 			case RX_VO:
-				if(_input.contains(VideoOperatorRole.Outputs.END_VO));{
-					if (_input.contains(VideoOperatorRole.Outputs.END_FEED_VO)) {
-						_output.add(Outputs.STREAM_ENDED);
+				if(_input.contains(VideoOperatorRole.Outputs.VO_END));{
+					if (_input.contains(VideoOperatorRole.Outputs.VO_END_FEED)) {
+						_output.add(Outputs.VGUI_STREAM_ENDED);
 						nextState(States.IDLE,1);
-					} else if (_input.contains(VideoOperatorRole.Outputs.START_FEED_VO)) {
-						_output.add(Outputs.STREAM_STARTED);
+					} else if (_input.contains(VideoOperatorRole.Outputs.VO_START_FEED)) {
+						_output.add(Outputs.VGUI_STREAM_STARTED);
 						nextState(States.STREAMING,1);
-					} else if (_input.contains(VideoOperatorRole.Outputs.CLICK_FRAME_VO)) {
-						_output.add(Outputs.ANOMALY_IDENTIFIED);
+					} else if (_input.contains(VideoOperatorRole.Outputs.VO_CLICK_FRAME)) {
+						_output.add(Outputs.VGUI_ANOMALY_IDENTIFIED);
 						nextState(States.STREAMING,1);
 					}else{
 						//TODO handle other inputs
@@ -99,8 +98,8 @@ public class VideoGUIRole extends Actor {
 //					_output.add(Outputs.BAD_STREAM);
 //					nextState(States.STREAMING,1);
 //				}
-				if (_input.contains(VideoOperatorRole.Outputs.POKE_VO)) {
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.ACK_VGUI);
+				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
+					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 					nextState(States.RX_VO,1);
 				}
 				break;
