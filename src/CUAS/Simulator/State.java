@@ -47,6 +47,16 @@ public abstract class State {
 	
 	protected void state(IStateEnum state)
 	{
+		if ( sim().debug() ){
+			String name;
+			if(this instanceof Actor){
+				name = ((Actor)this).name();
+			}else{
+				String class_name = this.toString();
+				name = class_name.substring(class_name.lastIndexOf('.')+1, class_name.indexOf('@'));
+			}
+			System.out.println("State(" + name + "): " + state.name());
+		}
 		_state = state;
 	}
 	
