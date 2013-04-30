@@ -63,8 +63,8 @@ public class OperatorGUIRole extends Actor {
         state(nextState());
         switch ((States) nextState()) {
 	        case RX_OP:
-	        	nextState(States.UAV_IN_AIR,sim().duration(Durations.OGUI_RX_DUR.range()));
-	        	break;
+	        	//nextState(States.UAV_IN_AIR,sim().duration(Durations.OGUI_RX_DUR.range()));
+	        	//break;
         	default:
 	        	nextState(null,0);
 	        	break;
@@ -82,16 +82,18 @@ public class OperatorGUIRole extends Actor {
 				}
 				break;
 			case RX_OP:
-				if(_input.contains(OperatorRole.Outputs.OP_END));{
-					if (_input.contains(OperatorRole.Outputs.TAKE_OFF)) {
-						sim().addOutput(Roles.UAV.name(), Outputs.TAKE_OFF);
-						_output.add(Outputs.DEPARTING);
-						nextState(States.UAV_IN_AIR,1);
-					} else if (_input.contains(OperatorRole.Outputs.PATH)) {
+				if(_input.contains(OperatorRole.Outputs.OP_END)){
+					if (_input.contains(OperatorRole.Outputs.PATH)) {
 						flight_paths++;
 						sim().addOutput(Roles.UAV.name(), Outputs.GOOD_PATH);
 						_output.add(Outputs.GOOD_PATH);
 						nextState(States.UAV_IN_AIR,1);
+					}
+					if (_input.contains(OperatorRole.Outputs.TAKE_OFF)) {
+						sim().addOutput(Roles.UAV.name(), Outputs.TAKE_OFF);
+						_output.add(Outputs.DEPARTING);
+						nextState(States.UAV_IN_AIR,1);
+					
 //					} else if (_input.contains(OperatorRole.Outputs.RETURN)) {
 //						sim().addOutput(Roles.UAV.name(), Outputs.RETURN);
 //						_output.add(Outputs.RETURNING);

@@ -12,6 +12,7 @@ public class UAVRole extends Actor  {
 	IData _search;
 	IData _battery;
 	IData _signal;
+	boolean _flight_plan = false;
 	
     public enum Outputs implements IData
     {
@@ -50,6 +51,7 @@ public class UAVRole extends Actor  {
     }
     
     public UAVRole(){
+    	name(Roles.UAV.name());
     	nextState(States.UAV_READY,1);
     }
     
@@ -82,15 +84,26 @@ public class UAVRole extends Actor  {
 		switch ( (States) state() ) {
 			case UAV_READY:
 				//TODO Handle new Flight path
-				
+				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+					_flight_plan = true;
+				}
 				//TODO Handle Take off cmd
+				if(_input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
+					nextState(States.UAV_TAKE_OFF,1);
+				}
 				break;
 			case UAV_TAKE_OFF:
 				//TODO Handle Land Cmd
 				
 				//TODO Handle new Flight path
-				
+				int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+				if(_flight_plan){
+					nextState(States.UAV_FLYING,duration);
+				}
 				//TODO Handle Loiter
+				else{
+					nextState(States.UAV_LOITERING,duration);
+				}
 				break;
 			case UAV_FLYING:
 				//TODO Handle New Flight Path

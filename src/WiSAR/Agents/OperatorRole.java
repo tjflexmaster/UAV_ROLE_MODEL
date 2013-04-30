@@ -183,6 +183,7 @@ public class OperatorRole extends Actor {
 				
 				break;
 			case POKE_GUI:
+				sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.OP_POKE);
 				nextState(States.IDLE, sim().duration(Durations.OPERATOR_POKE_UGUI_DUR.range()) );
 				break;
 			case TX_GUI:
@@ -197,10 +198,10 @@ public class OperatorRole extends Actor {
 				if(uav_state == Assumptions.FLYING){
 					//TODO check for communications that are relevant to when the UAV is aloft
 				}else{
-					if(current_output == Outputs.PATH){
-						sim().addOutput(Roles.UAV.name(), Outputs.TAKE_OFF);
+					//if(current_output == Outputs.PATH){
+						sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.TAKE_OFF);
 						nextState(States.LAUNCH_UAV,sim().duration(Durations.OPERATOR_LAUNCH_UAV_DUR.range()));
-					}
+					//}
 				}
 				nextState(States.WAIT_GUI, 1);
 				break;
