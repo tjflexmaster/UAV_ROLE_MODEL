@@ -1,11 +1,7 @@
 package CUAS.Simulator;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
-import NewModel.Roles.RoleState;
-import NewModel.Roles.RoleType;
 
 public abstract class Team implements ITeam {
 
@@ -15,7 +11,7 @@ public abstract class Team implements ITeam {
 	public IActor getActor(String actor_name)
 	{
 		IActor result = _actors.get(actor_name);
-		assert result != null : "Actor is not part of the team.";
+		assert result != null : "Actor: " + actor_name + " is not part of the team.";
 		return result;
 	}
 
