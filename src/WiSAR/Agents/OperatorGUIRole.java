@@ -9,6 +9,7 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorRole;
+import WiSAR.submodule.UAVFlightPlan;
 
 public class OperatorGUIRole extends Actor {
  

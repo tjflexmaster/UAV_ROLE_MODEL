@@ -265,7 +265,7 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_LANDING,duration);
 				}
 				//Handle Loiter Cmd
-				else if(_input.contains(OperatorGUIRole.Outputs.LOITER)){
+				else if(input.contains(OperatorGUIRole.Outputs.LOITER)){
 					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LOITERING,duration);
 //					_flight_plan = false;

@@ -1,5 +1,7 @@
 package WiSAR.submodule;
 
+import java.util.ArrayList;
+
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -63,23 +65,24 @@ public class UAVFlightPlan extends Actor {
 
 	@Override
 	public void processInputs() {
+		ArrayList<IData> input = sim().getInput(this.name());
 		switch((States)state()){
 		case COMPLETE:
 		case NO_PATH:
-			if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
 				_start_time = sim().getTime();
 				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
 				nextState(States.YES_PATH,1);
 			}
 			break;
 		case YES_PATH:
-			if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
 				nextState(States.NO_PATH,1);
 			}
 			//TODO check if received paused command.
 			break;
 		case PAUSED:
-			if(_input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+			if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
 				resume();
 				nextState(States.YES_PATH,1);
 			}
@@ -87,7 +90,7 @@ public class UAVFlightPlan extends Actor {
 			break;
 		}
 		setObservations();
-		_input.clear();
+		input.clear();
 	}
 	private void resume() {
 		_path_dur -= (sim().getTime() - _start_time);
