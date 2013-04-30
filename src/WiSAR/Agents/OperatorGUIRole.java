@@ -80,6 +80,8 @@ public class OperatorGUIRole extends Actor {
 	@Override
 	public void processInputs() {
     	_output.clear();
+		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
+    	
 		switch ( (States) state() ) {
 			case UAV_IDLE:
 				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
@@ -93,12 +95,11 @@ public class OperatorGUIRole extends Actor {
 						flight_paths++;
 						sim().addOutput(Actors.UAV.name(), Outputs.GOOD_PATH);
 						_output.add(Outputs.GOOD_PATH);
-						nextState(States.UAV_IN_AIR,1);
 					}
 					if (_input.contains(OperatorRole.Outputs.TAKE_OFF)) {
 						sim().addOutput(Actors.UAV.name(), Outputs.TAKE_OFF);
 						_output.add(Outputs.DEPARTING);
-						nextState(States.UAV_IN_AIR,1);
+						nextState(States.UAV_TAKING_OFF,1);
 					
 //					} else if (_input.contains(OperatorRole.Outputs.RETURN)) {
 //						sim().addOutput(Actors.UAV.name(), Outputs.RETURN);
@@ -112,10 +113,16 @@ public class OperatorGUIRole extends Actor {
 						sim().addOutput(Actors.UAV.name(), Outputs.LAND);
 						_output.add(Outputs.LANDED);
 						nextState(States.UAV_IDLE,1);
-					}
+					}else if(uav_data.contains(UAVRole.Outputs.UAV_LANDED)){
+						nextState(States.UAV_IDLE,1);
+					}else
+						nextState(States.UAV_IN_AIR,1);
 				}
 				break;
 			case UAV_TAKING_OFF:
+				if(uav_data.contains(UAVRole.Outputs.UAV_FLYING) || uav_data.contains(UAVRole.Outputs.UAV_LOITERING)){
+					nextState(States.UAV_IN_AIR,1);
+				}
 //				if (_input.contains(EventEnum.UAV_LOW_BATTERY)) {
 //					sim().addOutput(Actors.OPERATOR.name(), Outputs.LOW_BATTERY);
 //					nextState(States.UAV_IDLE,1);

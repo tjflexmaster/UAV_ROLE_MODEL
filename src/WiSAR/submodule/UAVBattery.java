@@ -102,6 +102,7 @@ public class UAVBattery extends Actor {
 				}
 				break;
 		}
+		_input.clear();
 	}
 	
 	/**

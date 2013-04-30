@@ -154,7 +154,11 @@ public class UAVRole extends Actor  {
     			nextState(States.UAV_LOITERING, take_off_dur );
         		break;
         	case UAV_FLYING:
+        		_output.add(Outputs.UAV_FLYING);
+        		nextState(null, 0);
+        		break;
         	case UAV_LOITERING:
+        		_output.add(Outputs.UAV_LOITERING);
         		nextState(null, 0);
         		break;
         	case UAV_LANDED:
@@ -193,6 +197,10 @@ public class UAVRole extends Actor  {
 		 * Get observations of sub actors
 		 */
 		handleBatteryObservations();
+		if(_battery == UAVBattery.Outputs.BATTERY_DEAD){
+			nextState(States.UAV_CRASHED,1);
+			return;
+		}
 		
 		switch ( (States) state() ) {
 			case UAV_READY:
