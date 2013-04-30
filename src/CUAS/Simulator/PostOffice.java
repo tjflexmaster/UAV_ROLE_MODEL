@@ -40,6 +40,7 @@ public class PostOffice  {
 	public void sendInput(){
 		for(Map.Entry<String, ArrayList<IData>> pair : POBox.entrySet()){
 			sim().addInput(pair.getKey(), pair.getValue());
+			pair.getValue().clear();
 		}
 	}
 
