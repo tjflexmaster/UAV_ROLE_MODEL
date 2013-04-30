@@ -109,13 +109,31 @@ public class Simulator {
 		_post_office.addOutputs(inputs, actor_name);
 	}
 	
+	public void linkInput(String parent, String child)
+	{
+		_post_office.linkInput(parent, child);
+	}
+	
+	public void linkObservations(String parent, String child)
+	{
+		_post_office.linkObservations(parent, child);
+	}
+	
 	public ArrayList<IData> getObservations(String actor_name)
 	{
 		assert isReady() : "The Simulator was not setup properly";
-		IActor actor = _team.getActor(actor_name);
-		assert actor != null : "Actor not found";
-		assert actor instanceof IObservable : "Specified Actor is not observable";
-		return ((IObservable) actor).getObservations();
+		return _post_office.getObservations(actor_name);
+	}
+	
+	public void addObservation(IData data, String actor_name)
+	{
+		//Give the observation to the post office
+		_post_office.addObservation(data, actor_name);
+	}
+	
+	public void addObservations(ArrayList<IData> data, String actor_name)
+	{
+		_post_office.addObservations(data, actor_name);
 	}
 	
 	public void addEvent(IEvent event)
@@ -218,6 +236,9 @@ public class Simulator {
 					_post_office.sendInput();
 					if (debug())
 						System.out.println("Processing Finished");
+					
+					//Before processing Inputs we need to update the observations
+					_post_office.updateObservations();
 					
 					//Now have each role determine what it's next action will be
 					if (debug())

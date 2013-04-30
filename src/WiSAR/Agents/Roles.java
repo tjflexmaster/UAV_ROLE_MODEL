@@ -14,7 +14,7 @@ public enum Roles {
 	 * UAV Roles
 	 */
 	UAV,
-	UAV_BATTERY_TIMER,
+	UAV_BATTERY,
 	UAV_FLIGHT_PATH_TIMER,
 	UAV_HAG_TIMER,
 	UAV_SIGNAL_TIMER,
