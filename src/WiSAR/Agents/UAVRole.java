@@ -74,19 +74,17 @@ public class UAVRole extends Actor  {
     	nextState(States.UAV_READY, 1);
     	
     	//Add children
-    	//##############################################
-    	//
-    	//  YOU MUST REGISTER THESE ACTORS WITH THE TEAM
-    	//
-    	//##############################################
     	_sub_actors.add(new UAVBattery());
     	
-//    	//
-//    	//Duplicate input to all sub actors
-//    	for(IActor sub : _sub_actors) {
-//    		sim().linkInput(this.name(), sub.name());
-//    		sim().linkObservations(sub.name(), this.name()); //When observing the UAV you will also see the battery observations
-//    	}
+    	//Duplicate input to all sub actors
+    	for(IActor sub : _sub_actors) {
+    		//The child receives all the input that the parent receives
+    		sim().linkInput(this.name(), sub.name());
+    		
+    		//The parent makes all of this actors observations visible through itself
+    		//When observing the UAV you will also see the battery observations
+    		sim().linkObservations(sub.name(), this.name()); 
+    	}
     }
     
 	@Override
