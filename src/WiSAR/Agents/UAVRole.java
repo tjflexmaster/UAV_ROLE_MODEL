@@ -2,6 +2,7 @@ package WiSAR.Agents;
 
 import java.util.ArrayList;
 
+import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
 import CUAS.Simulator.Actor;
@@ -64,7 +65,7 @@ public class UAVRole extends Actor  {
     
     public UAVRole()
     {
-    	name(Roles.UAV.name());
+    	name(Actors.UAV.name());
     	nextState(States.UAV_READY, 1);
     	
     	//Add children
@@ -122,12 +123,12 @@ public class UAVRole extends Actor  {
         	 */
         	case UAV_READY:
         		//reset battery
-        		sim().addOutput(Roles.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
-        		sim().addOutput(Roles.UAV_BATTERY.name(), Outputs.RESET_BATTERY);
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.RESET_BATTERY);
         		nextState(null, 0);
         		break;
         	case UAV_TAKE_OFF:
-        		sim().addOutput(Roles.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
         		int take_off_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
         		
         		//TODO Base next state on the observation of the UAV Flight Plan
@@ -138,7 +139,7 @@ public class UAVRole extends Actor  {
         		nextState(null, 0);
         		break;
         	case UAV_LANDED:
-        		sim().addOutput(Roles.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
         		nextState(null, 0);
         		break;
         	case UAV_LANDING:
@@ -321,7 +322,7 @@ public class UAVRole extends Actor  {
 	 */
 	private void handleBatteryObservations()
 	{
-		ArrayList<IData> observations = sim().getObservations(Roles.UAV_BATTERY.name());
+		ArrayList<IData> observations = sim().getObservations(Actors.UAV_BATTERY.name());
 		if ( observations.size() > 0 ) {
 			_battery = observations.get(0);
 		}

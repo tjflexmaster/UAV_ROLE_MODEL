@@ -3,8 +3,8 @@ package WiSAR.Events;
 import java.util.ArrayList;
 
 
+import WiSAR.Actors;
 import WiSAR.Agents.ParentSearch;
-import WiSAR.Agents.Roles;
 import CUAS.Simulator.Event;
 import CUAS.Simulator.IData;
 
@@ -22,7 +22,7 @@ public class NewSearchAOIEvent extends Event {
 	
 	@Override
 	protected boolean eventPossible() {
-		ArrayList<IData> output = sim().getObservations(Roles.PARENT_SEARCH.name());
+		ArrayList<IData> output = sim().getObservations(Actors.PARENT_SEARCH.name());
 		if ( !output.contains(ParentSearch.Outputs.SEARCH_TERMINATED) ) {
 			return true;
 		}
@@ -31,12 +31,12 @@ public class NewSearchAOIEvent extends Event {
 
 	@Override
 	protected void activateEvent() {
-		sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_AOI);
+		sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_AOI);
 	}
 
 	@Override
 	protected void finishEvent() {
-		sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_AOI_END);
+		sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_AOI_END);
 
 	}
 

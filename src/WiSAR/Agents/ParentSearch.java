@@ -3,6 +3,7 @@ package WiSAR.Agents;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
+import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Events.NewSearchAOIEvent;
 import WiSAR.Events.TerminateSearchEvent;
@@ -48,7 +49,7 @@ public class ParentSearch extends Actor {
 	
 	public ParentSearch()
 	{
-		name( Roles.PARENT_SEARCH.name() );
+		name( Actors.PARENT_SEARCH.name() );
 		nextState(States.IDLE, 1);
 		
 	}
@@ -58,6 +59,7 @@ public class ParentSearch extends Actor {
 	{
 		//Is our next state now?
 		if ( nextStateTime() != sim().getTime() ) {
+			setObservations();
 			return;
 		}
 		
@@ -71,7 +73,7 @@ public class ParentSearch extends Actor {
 				nextState(null, 0);
 				break;
 			case POKE_MM:
-				sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.PS_POKE);
+				sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_POKE);
 				nextState(States.IDLE, sim().duration(Durations.PS_POKE_MM_DUR.range()));
 				break;
 			case TX_MM:
@@ -86,12 +88,12 @@ public class ParentSearch extends Actor {
 			case END_MM:
 				//Now send the data that got sent from the transfer
 				if ( _search_active ) {
-					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
 					_sent_search_aoi++;
 				} else {
-					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
 				}
-				sim().addOutput(Roles.MISSION_MANAGER.name(),Outputs.PS_END);
+				sim().addOutput(Actors.MISSION_MANAGER.name(),Outputs.PS_END);
 				nextState(States.IDLE, 1);
 				break;
 			case RX_MM:
@@ -102,6 +104,8 @@ public class ParentSearch extends Actor {
 				nextState(null, 1);
 				break;
 		}//end switch
+		
+		setObservations();
 	}
 
 	@Override
@@ -121,7 +125,7 @@ public class ParentSearch extends Actor {
 			case IDLE:
 				//IF the parent search is idle then watch for
 				if ( _input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
-					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.PS_ACK);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_ACK);
 					nextState(States.RX_MM, 1);
 				} else if ( _total_search_aoi > _sent_search_aoi ) {
 					nextState(States.POKE_MM, 1);
@@ -185,12 +189,12 @@ public class ParentSearch extends Actor {
 	 */
 	private void setObservations()
 	{
-		clearObservations();
+		
 		if ( !_search_active ) {
-			addObservation(Outputs.SEARCH_TERMINATED);
-			addObservation(Outputs.PS_BUSY);
+			sim().addObservation(Outputs.SEARCH_TERMINATED, this.name());
+			sim().addObservation(Outputs.PS_BUSY, this.name());
 		} else if (state() != States.IDLE ) {
-			addObservation(Outputs.PS_BUSY);
+			sim().addObservation(Outputs.PS_BUSY, this.name());
 		}
 	}
 	

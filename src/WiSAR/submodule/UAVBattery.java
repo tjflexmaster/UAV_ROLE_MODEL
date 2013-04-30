@@ -4,8 +4,8 @@ import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
+import WiSAR.Actors;
 import WiSAR.Durations;
-import WiSAR.Agents.Roles;
 import WiSAR.Agents.UAVRole;
 
 
@@ -32,7 +32,7 @@ public class UAVBattery extends Actor {
 	
 	public UAVBattery()
 	{
-		name(Roles.UAV_BATTERY.name());
+		name(Actors.UAV_BATTERY.name());
 		nextState(States.INACTIVE, 1);
 		resetBattery();
 	}

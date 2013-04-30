@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
+import WiSAR.Actors;
 import WiSAR.Durations;
 
 public class OperatorRole extends Actor {
@@ -130,7 +131,7 @@ public class OperatorRole extends Actor {
 
 	public OperatorRole()
 	{
-		name( Roles.OPERATOR.name() );
+		name( Actors.OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		uav_state = Assumptions.LANDED;
 		current_output = null;
@@ -178,12 +179,12 @@ public class OperatorRole extends Actor {
 				//Assumption: The UGUI is working and the pilot can communicate as needed
 				//Launch the UAV and then wait for it to leave the take off state
 				//TODO Send input to launch the UAV to the Pilot GUI
-//				simulator().addInput(Roles.PILOT_GUI.name(), PilotGUIRole.Inputs);
+//				simulator().addInput(Actors.PILOT_GUI.name(), PilotGUIRole.Inputs);
 				nextState(States.OBSERVING_UAV, 1 );
 				
 				break;
 			case POKE_GUI:
-				sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.OP_POKE);
+				sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.OP_POKE);
 				nextState(States.IDLE, sim().duration(Durations.OPERATOR_POKE_UGUI_DUR.range()) );
 				break;
 			case TX_GUI:
@@ -191,15 +192,15 @@ public class OperatorRole extends Actor {
 				nextState(States.END_GUI, sim().duration(Durations.OPERATOR_TX_UGUI_DUR.range()) );
 				break;
 			case END_GUI:
-				sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.OP_END);
+				sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.OP_END);
 				if(current_output == Outputs.PATH){
-					sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.PATH);
+					sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.PATH);
 				}
 				if(uav_state == Assumptions.FLYING){
 					//TODO check for communications that are relevant to when the UAV is aloft
 				}else{
 					//if(current_output == Outputs.PATH){
-						sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.TAKE_OFF);
+						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.TAKE_OFF);
 						nextState(States.LAUNCH_UAV,sim().duration(Durations.OPERATOR_LAUNCH_UAV_DUR.range()));
 					//}
 				}
@@ -260,7 +261,7 @@ public class OperatorRole extends Actor {
 				//appear that he is receiving after the MM stopped transmitting.
 				if ( _input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
-					ArrayList<IData> gui_feed = sim().getObservations(Roles.OPERATOR_GUI.name());
+					ArrayList<IData> gui_feed = sim().getObservations(Actors.OPERATOR_GUI.name());
 					if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI)){
 						current_output = Outputs.PATH;
 						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
@@ -283,7 +284,7 @@ public class OperatorRole extends Actor {
 			case LAUNCH_UAV:
 				//Technically the pilot is observing the UAV here so we can update the uav state
 				//Get UAV outputs
-				uav_output = sim().getObservations(Roles.UAV.name());
+				uav_output = sim().getObservations(Actors.UAV.name());
 				//TODO Do we care about any of the UAV outputs at take off? Yes
 				assert !uav_output.contains(UAVRole.Outputs.UAV_FLYING) : "UAV should not be flying at this point";
 				//TODO Watch for the UAV to be flying or crashed
@@ -291,7 +292,7 @@ public class OperatorRole extends Actor {
 				break;
 			case OBSERVING_UAV:
 				
-				uav_output = sim().getObservations(Roles.UAV.name());
+				uav_output = sim().getObservations(Actors.UAV.name());
 				//TODO handle this output accordingly
 				if(uav_output.contains(UAVRole.Outputs.UAV_FLIGHT_PLAN_NO)){
 					current_output = Outputs.LAND;
@@ -299,7 +300,7 @@ public class OperatorRole extends Actor {
 				}
 				break;
 			case OBSERVING_GUI:
-				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Actors.OPERATOR_GUI.name());
 				
 				//TODO Handle GUI input
 				if(gui_output.contains(OperatorGUIRole.Outputs.NO_PATH)){
@@ -317,7 +318,7 @@ public class OperatorRole extends Actor {
 				break;
 			case POKE_GUI:
 				//Check the GUI output to make sure it is accessible
-				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Actors.OPERATOR_GUI.name());
 				
 				//TODO Check that the operator gui is accessible
 //				if ( gui_output.contains() ) 
@@ -329,7 +330,7 @@ public class OperatorRole extends Actor {
 			case TX_GUI:
 				//TODO The operator is observing the GUI while using it, if it changes then he should respond to those changes instead of continuing what he is doing.
 				//TODO Also make sure the GUI is still accessible
-				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
+				gui_output = sim().getObservations(Actors.OPERATOR_GUI.name());
 				
 				//TODO Listen to other interruptions from the other Roles
 				break;
@@ -341,7 +342,7 @@ public class OperatorRole extends Actor {
 			case IDLE:
 				//TODO Watch for commands from the MM or VO
 				if(_input.contains(MissionManagerRole.Outputs.MM_POKE)){
-					sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.OP_ACK);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_ACK);
 					nextState(States.RX_MM,1);
 				}
 				//TODO Act on internal states, such as UAV airborne, or more search areas need to be searched
