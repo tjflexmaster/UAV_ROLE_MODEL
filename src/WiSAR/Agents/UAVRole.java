@@ -1,30 +1,34 @@
-
 package WiSAR.Agents;
+import java.util.ArrayList;
 
+import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.submodule.UAVBattery;
 import CUAS.Simulator.Actor;
+import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 
 public class UAVRole extends Actor  {
 	
-	IData _search;
+	IData _flight_plan;
 	IData _battery;
 	IData _signal;
-	boolean _flight_plan = false;
+	IData _hag;
+	IData _path;
+	
+	ArrayList<IActor> _sub_actors = new ArrayList<IActor>();
 	
     public enum Outputs implements IData
     {
     	UAV_READY,
     	UAV_TAKE_OFF,
     	UAV_FLYING,
+    	UAV_LOITERING,
     	UAV_LANDING,
     	UAV_LANDED,
     	UAV_CRASHED,
-    	
-    	UAV_BAT_OK,
-    	UAV_BAT_LOW,
     	
     	UAV_SIGNAL_OK,
     	UAV_SIGNAL_LOST,
@@ -36,7 +40,20 @@ public class UAVRole extends Actor  {
     	UAV_HAG_LOW,
     	
     	UAV_PATH_OK,
-    	UAV_PATH_BAD
+    	UAV_PATH_BAD,
+    	
+    	/**
+    	 * GUI Outputs
+    	 */
+    	UAV_PATH_COMPLETE,
+    	UAV_PATH_BAD,
+    	
+    	/**
+    	 * Output to battery
+    	 */
+    	ACTIVATE_BATTERY,
+    	DEACTIVATE_BATTERY,
+    	RESET_BATTERY
     }
     
     public enum States implements IStateEnum
@@ -47,29 +64,100 @@ public class UAVRole extends Actor  {
         UAV_LOITERING,
         UAV_LANDING,
         UAV_LANDED,
-        UAV_CRASHED
+        UAV_CRASHED,
+        UAV_END_PATH
     }
     
-    public UAVRole(){
-    	name(Roles.UAV.name());
+    
+    public UAVRole()
+    {
+    	name(Actors.UAV.name());
     	nextState(States.UAV_READY,1);
+    	
+    	//Add children
+    	_sub_actors.add(new UAVBattery());
+    	
+    	//Duplicate input to all sub actors
+    	for(IActor sub : _sub_actors) {
+    		sim().linkInput(this.name(), sub.name());
+    		sim().linkObservations(sub.name(), this.name()); //When observing the UAV you will also see the battery observations
+    	}
+    }
+    
+	@Override
+    public int nextStateTime()
+    {
+    	/**
+		 * Process all sub-actors first
+		 */
+		int min_next_state_time = 0;
+		for(IActor child : _sub_actors) {
+			int time = child.nextStateTime();
+			if ( time  > 0 ) {
+				min_next_state_time = Math.min(time, min_next_state_time);
+			} else {
+				min_next_state_time = Math.max(time, min_next_state_time);
+			}
+		}
+		return min_next_state_time;
     }
     
 	@Override
 	public void processNextState() {
+		/**
+		 * Process all sub-actors first
+		 */
+		for(IActor child : _sub_actors) {
+			child.processNextState();
+		}
+		
+		/**
+		 * Now do the processing for this state
+		 */
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+        	//Set Observations
+            setObservations();
             return;
         }
         state(nextState());
+        
+        
         switch ((States) nextState()) {
         	/**
         	 * The UAV should not change any of its states alone.
         	 * 
         	 * Look to the sub-actors for when specific durations will occur.
         	 */
+        	case UAV_READY:
+        		//reset battery
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.RESET_BATTERY);
+        		nextState(null, 0);
+        		break;
+        	case UAV_TAKE_OFF:
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
+        		int take_off_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+        		
+        		//TODO Base next state on the observation of the UAV Flight Plan
+    			nextState(States.UAV_LOITERING, take_off_dur );
+        		break;
+        	case UAV_FLYING:
+        	case UAV_LOITERING:
+        		nextState(null, 0);
+        		break;
+        	case UAV_LANDED:
+        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
+        		nextState(null, 0);
+        		break;
+        	case UAV_LANDING:
+    			nextState(States.UAV_LANDED,  sim().duration(Durations.UAV_LANDING_DUR.range()));
+        		break;
 	        case UAV_CRASHED:
 	        	assert false : "The UAV Crashed!";
 	        	break;
+	        case UAV_END_PATH:
+	        	_output.add(Outputs.UAV_PATH_COMPLETE);
+	        	nextState(States.UAV_LOITERING,1);
         	default:
 	        	nextState(null,0);
 	        	break;
@@ -81,51 +169,126 @@ public class UAVRole extends Actor  {
 
 	@Override
 	public void processInputs() {
+		/**
+		 * Process all sub-actors first
+		 */
+		for(IActor child : _sub_actors) {
+			child.processInputs();
+		}
+		
+		/**
+		 * Get observations of sub actors
+		 */
+		handleBatteryObservations();
+		
 		switch ( (States) state() ) {
 			case UAV_READY:
-				//TODO Handle new Flight path
-				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-					_flight_plan = true;
-				}
-				//TODO Handle Take off cmd
+//				//Handle new Flight path
+//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+//					_flight_plan = true;
+//				}
+				//Handle Take off cmd
 				if(_input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
 				}
 				break;
 			case UAV_TAKE_OFF:
-				//TODO Handle Land Cmd
-				
-				//TODO Handle new Flight path
-				int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
-				if(_flight_plan){
-					nextState(States.UAV_FLYING,duration);
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+					nextState(States.UAV_CRASHED, 1);
 				}
-				//TODO Handle Loiter
+				//Handle Land Cmd
+				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
+					nextState(States.UAV_LANDED,duration);
+				}
+				//Handle new Flight path
+//				if(_flight_plan){
+//					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+//					nextState(States.UAV_FLYING,duration);
+//				}
+//				else if (_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)) {
+//					_flight_plan = true;
+//					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+//					nextState(States.UAV_FLYING,duration);
+//				}
+				//Handle Loiter
+//				else{
+//					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
+//					nextState(States.UAV_LOITERING,duration);
+//					_flight_plan = false;
+//				}
+				break;
+			case UAV_FLYING:
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+					nextState(States.UAV_CRASHED, 1);
+				}
+				//Handle New Flight Path
+//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+//					_flight_plan = true;
+//				}
+				//Handle Land Cmd
+				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_LANDING,duration);
+				}
+				//Handle Loiter Cmd
 				else{
+					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
 					nextState(States.UAV_LOITERING,duration);
+//					_flight_plan = false;
 				}
 				break;
 			case UAV_FLYING:
 				//TODO Handle New Flight Path
-				
+				if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+					nextState(States.UAV_END_PATH,sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range()));
+				}
 				//TODO Handle Land Cmd
 				
 				//TODO Handle Loiter Cmd
 				
 				break;
 			case UAV_LOITERING:
-				//TODO Handle New Flight Path
-				
-				//TODO Handle Resume cmd
-				
-				//TODO Handle Land cmd
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+					nextState(States.UAV_CRASHED, 1);
+				}
+				//Handle New Flight Path
+//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+//					nextState(States.UAV_FLYING,duration);
+//					_flight_plan = true;
+//				}
+				//Handle Resume cmd
+//				else if(_input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+//					nextState(States.UAV_FLYING,duration);
+//					_flight_plan = true;
+//				}
+				//Handle Land cmd
+//				else if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+//					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
+//					nextState(States.UAV_LANDED,duration);
+//				}
 				break;
 			case UAV_LANDING:
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+					nextState(States.UAV_CRASHED, 1);
+				}
 				//TODO Handle Fly cmd
-				//TODO Handle new Flight Plan
+				//Handle new Flight Plan
+//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+//					nextState(States.UAV_FLYING,duration);
+//					_flight_plan = true;
+//				}
 				break;
 			case UAV_LANDED:
-				//TODO Handle New Flight Plan
+				//Handle New Flight Plan
+//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+//					int duration = sim().duration(Durations.UAV_PREPARATION_DUR.range());
+//					nextState(States.UAV_READY,duration);
+//					_flight_plan = true;
+//				}
 				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
@@ -133,11 +296,57 @@ public class UAVRole extends Actor  {
 			default:
 				break;
 		}
+		_input.clear();
 	}
 	
+	/**
+	 * Make these things on the UAV observable
+	 */
 	private void setObservations()
 	{
+		//Make UAV State Observable
+		IData _state = Outputs.UAV_READY;
+		switch((States) state() ) {
+			case UAV_FLYING:
+		    	_state = Outputs.UAV_FLYING;
+		    	break;
+		    case UAV_READY:
+		    	_state = Outputs.UAV_READY;
+		    	break;
+		    case UAV_TAKE_OFF:
+		    	_state = Outputs.UAV_TAKE_OFF;
+		    	break;
+		    case UAV_LOITERING:
+		    	_state = Outputs.UAV_LOITERING;
+		    	break;
+		    case UAV_LANDING:
+		    	_state = Outputs.UAV_LANDING;
+		    	break;
+		    case UAV_LANDED:
+		    	_state = Outputs.UAV_LANDED;
+		    	break;
+		    case UAV_CRASHED:
+		    	_state = Outputs.UAV_CRASHED;
+		    	break;
+		}
+		sim().addObservation(_state, this.name());
+	
+//		sim().addObservation(_battery, this.name());
+//		sim().addObservation(_flight_plan, this.name());
+//		sim().addObservation(_hag, this.name());
+//		sim().addObservation(_path, this.name());
+//		sim().addObservation(_signal, this.name());
+	}
 		
+	/**
+	 * Observe UAV Battery
+	 */
+	private void handleBatteryObservations()
+	{
+		ArrayList<IData> observations = sim().getObservations(Actors.UAV_BATTERY.name());
+		if ( observations.size() > 0 ) {
+			_battery = observations.get(0);
+		}
 	}
 
 }
