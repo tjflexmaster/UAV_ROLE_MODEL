@@ -197,8 +197,8 @@ public class Simulator {
 				if ( next_time == 0 ) {
 					if ( debug() )
 						System.out.println("Nothing to process: " + getTime());
-					
-					assert _event_manager.totalEventsRemaining() > 0 : "Terminated when there were still events left to be processed.";
+					int test = _event_manager.totalEventsRemaining();
+					assert test > 0 : "Terminated when there were still events left to be processed.";
 					_running = false;
 					
 				} else {
@@ -226,7 +226,8 @@ public class Simulator {
 					_post_office.sendInput();
 					if (debug())
 						System.out.println("Updating Finished\n");
-					
+					if(_timer.time() > 2000)
+						break;
 				}
 		
 			}//end while

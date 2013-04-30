@@ -17,7 +17,7 @@ public class Application {
 			//Load Duration Assumptions
 			
 			
-			Simulator.getInstance().addEvent(new NewSearchAOIEvent(3));
+			Simulator.getInstance().addEvent(new NewSearchAOIEvent(1));
 			//Load a Scenario
 //			Scenario.scenario1();
 //			Scenario.scenario3();
