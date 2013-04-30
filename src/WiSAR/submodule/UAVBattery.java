@@ -15,6 +15,7 @@ public class UAVBattery extends Actor {
 	private int _battery_life = 0;
 	private int _low_battery_threshold = 0;
 	private int _pause_time = 0;
+	private boolean _initialized = false;
 	
 	public enum Outputs implements IData {
 		BATTERY_DEAD,
@@ -34,7 +35,6 @@ public class UAVBattery extends Actor {
 	{
 		name(Actors.UAV_BATTERY.name());
 		nextState(States.INACTIVE, 1);
-		resetBattery();
 	}
 	
 	@Override
@@ -44,6 +44,12 @@ public class UAVBattery extends Actor {
         	//Set Observations
             setObservations();
             return;
+        }
+        
+        if ( !_initialized ) {
+        	//Initialize the Battery
+        	resetBattery();
+        	_initialized = true;
         }
         
         state(nextState());

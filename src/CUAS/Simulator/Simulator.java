@@ -85,19 +85,19 @@ public class Simulator {
 	
 	public int getNextStateTime()
 	{
-		assert isReady() : "The Simulator was not setup properly";
+		assert isReady() : "getNextStateTime(): The Simulator was not setup properly";
 		return _team.getNextStateTime(getTime());
 	}
 	
 	void addInput(String actor_name, IData input)
 	{
-		assert isReady() : "The Simulator was not setup properly";
+		assert isReady() : "addInput: The Simulator was not setup properly";
 		_team.getActor(actor_name).addInput(input);
 	}
 	
 	void addInput(String actor_name, ArrayList<IData> input)
 	{
-		assert isReady() : "The Simulator was not setup properly";
+		assert isReady() : "addInput: The Simulator was not setup properly";
 		_team.getActor(actor_name).addInput(input);
 	}
 	
@@ -121,7 +121,7 @@ public class Simulator {
 	
 	public ArrayList<IData> getObservations(String actor_name)
 	{
-		assert isReady() : "The Simulator was not setup properly";
+		assert isReady() : "getObservations: The Simulator was not setup properly";
 		return _post_office.getObservations(actor_name);
 	}
 	
@@ -143,7 +143,7 @@ public class Simulator {
 	}
 	
 	public int duration(Range range) {
-		assert isReady() : "The Simulator was not setup properly";
+		assert isReady() : "duration(): The Simulator was not setup properly";
 		return _duration_generator.duration(range);
 	}
 	

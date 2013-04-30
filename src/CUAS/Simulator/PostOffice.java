@@ -18,6 +18,11 @@ public class PostOffice  {
 	
 	public PostOffice() {
 		POBox = new HashMap<String,ArrayList<IData>>();
+		_linked_poboxes = new HashMap<String, ArrayList<String>>();
+		
+		_temp_observations = new HashMap<String, ArrayList<IData>>();
+		_visible_observations = new HashMap<String, ArrayList<IData>>();
+		_linked_observations = new HashMap<String, ArrayList<String>>();
 	}
 	
 	

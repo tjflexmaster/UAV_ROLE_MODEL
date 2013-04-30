@@ -69,6 +69,7 @@ public class UAVRole extends Actor  {
         UAV_END_PATH
     }
       
+    
     public UAVRole()
     {
     	name(Actors.UAV.name());
@@ -99,7 +100,14 @@ public class UAVRole extends Actor  {
 				min_next_state_time = Math.max(time, min_next_state_time);
 			}
 		}
-		return min_next_state_time;
+		
+		if ( min_next_state_time == 0 )
+			return super.nextStateTime();
+		else if ( super.nextStateTime() == 0 )
+			return min_next_state_time;
+		else
+			return Math.min(super.nextStateTime(), min_next_state_time);
+
     }
     
     
@@ -117,9 +125,9 @@ public class UAVRole extends Actor  {
 		 * Now do the processing for this state
 		 */
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
-
         	//Set Observations
-            setObservations();
+        	if ( state() != null )
+        		setObservations();
             return;
         }
         state(nextState());
