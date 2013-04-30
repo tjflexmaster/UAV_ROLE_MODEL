@@ -6,6 +6,7 @@ import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
+import WiSAR.Actors;
 import WiSAR.Durations;
 
 public class VideoGUIRole extends Actor {
@@ -35,7 +36,7 @@ public class VideoGUIRole extends Actor {
     
 	public VideoGUIRole()
 	{
-		name( Roles.VIDEO_OPERATOR_GUI.name() );
+		name( Actors.VIDEO_OPERATOR_GUI.name() );
 		nextState(States.IDLE, 1);
 		
 	}
@@ -62,7 +63,7 @@ public class VideoGUIRole extends Actor {
 		switch ( (States) state() ) {
 			case IDLE:
 				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
+					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 					nextState(States.RX_VO, 1);
 				}
 				break;
@@ -99,7 +100,7 @@ public class VideoGUIRole extends Actor {
 //					nextState(States.STREAMING,1);
 //				}
 				if (_input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
+					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 					nextState(States.RX_VO,1);
 				}
 				break;

@@ -10,6 +10,7 @@ import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
+import WiSAR.Actors;
 import WiSAR.Durations;
 
 /**
@@ -75,7 +76,7 @@ public class VideoOperatorRole extends Actor
 	
 	public VideoOperatorRole()
 	{
-		name( Roles.VIDEO_OPERATOR.name() );
+		name( Actors.VIDEO_OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		
 	}
@@ -104,7 +105,7 @@ public class VideoOperatorRole extends Actor
         //TODO handle outputing BUSY_VO
         switch((States)nextState()) {
 	        case ACK_MM:
-	        	//simulator().addOutput(Roles.MISSION_MANAGER.name(), MissionManagerRole.Inputs.ACK_VO);
+	        	//simulator().addOutput(Actors.MISSION_MANAGER.name(), MissionManagerRole.Inputs.ACK_VO);
 	        	nextState(States.RX_MM,1);
 	        	break;
 	        case RX_MM:
@@ -113,15 +114,15 @@ public class VideoOperatorRole extends Actor
 	        //wait the specified time to receive an acknowledgment from the receiver,
 	        // if no acknowledgment is received then return to observing.
 	        case POKE_GUI:
-	        	sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POKE);
+	        	sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POKE);
 	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_VGUI_DUR.range()));
 	        	break;
 	        case POKE_MM:
-	        	sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.VO_POKE);
+	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_POKE);
 	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_MM_DUR.range()));
 	        	break;
 	        case POKE_OPERATOR:
-	        	sim().addOutput(Roles.OPERATOR.name(), Outputs.VO_POKE);
+	        	sim().addOutput(Actors.OPERATOR.name(), Outputs.VO_POKE);
 	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_OPERATOR_DUR.range()));
 	        	break;
 	        //Transmission states : wait the time for transmission then go to the end transmission state. 	
@@ -149,31 +150,31 @@ public class VideoOperatorRole extends Actor
 	        //For all the end transmission states update the inputs to the receivers then return to observation.
 	        case END_GUI:
 	        	if(memory.contains(Outputs.VO_CLICK_FRAME))
-	        		sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.VO_CLICK_FRAME);
+	        		sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_CLICK_FRAME);
 	        	else if(memory.contains(Outputs.VO_START_FEED))
-	        		sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.VO_START_FEED);
+	        		sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_START_FEED);
 	        	else if(memory.contains(Outputs.VO_END_FEED))
-	        		sim().addOutput(Roles.VIDEO_OPERATOR_GUI.name(), Outputs.VO_END_FEED);
+	        		sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_END_FEED);
 	        	else{
 	        		//TODO handle different outputs
 	        	}
 	        	nextState(States.OBSERVING,1);
 	        	break;
 	        case END_MM:
-	        	sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.VO_END);
+	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_END);
 	        	if(memory.contains(Outputs.VO_FOUND_ANOMALY))
-	        		sim().addOutput(Roles.MISSION_MANAGER.name(), Outputs.VO_FOUND_ANOMALY);
+	        		sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_FOUND_ANOMALY);
 	        	nextState(States.OBSERVING,1);
 	        	break;
 	        case END_OPERATOR:
 	        	//TODO implement comm with OPERATOR
 	        	/**
 	        	if(memory.contains(Outputs.BAD_STREAM))
-	        		simulator().addOutput(Roles.OPERATOR.name(), OPERATORRole.Inputs.BAD_STREAM);
+	        		simulator().addOutput(Actors.OPERATOR.name(), OPERATORRole.Inputs.BAD_STREAM);
 	        	else if(memory.contains(Outputs.STREAM_ENDED))
-	        		simulator().addOutput(Roles.OPERATOR.name(), OPERATORRole.Inputs.STREAM_ENDED);
+	        		simulator().addOutput(Actors.OPERATOR.name(), OPERATORRole.Inputs.STREAM_ENDED);
 	        	else if(memory.contains(Outputs.LOOK_CLOSER))
-	        		simulator().addOutput(Roles.OPERATOR.name(), OPERATORRole.Inputs.LOOK_CLOSER);
+	        		simulator().addOutput(Actors.OPERATOR.name(), OPERATORRole.Inputs.LOOK_CLOSER);
 	        		*/
 	        	nextState(States.OBSERVING,1);
 	        	break;
@@ -212,7 +213,7 @@ public class VideoOperatorRole extends Actor
 				break;
 		//Check the inputs from the GUI and if the MM has initiated a handshake.
 			case OBSERVING:
-				video_feed = sim().getObservations(Roles.VIDEO_OPERATOR_GUI.name());
+				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
 				if(video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
 				{
 					memory.add(Outputs.VO_BAD_STREAM);
@@ -239,7 +240,7 @@ public class VideoOperatorRole extends Actor
 				}
 				break;
 			case POKE_GUI:
-				video_feed = sim().getObservations(Roles.VIDEO_OPERATOR_GUI.name());
+				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
 				if(video_feed.contains(VideoGUIRole.Outputs.VGUI_ACK))
 					nextState(States.TX_GUI,1);
 				break;

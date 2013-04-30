@@ -1,10 +1,12 @@
 package WiSAR.Agents;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
+import WiSAR.submodule.UAVBattery;
 import CUAS.Simulator.Actor;
+import CUAS.Simulator.IActor;
 import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -40,7 +42,6 @@ public class UAVRole extends Actor  {
     	UAV_HAG_LOW,
     	
     	UAV_PATH_OK,
-    	UAV_PATH_BAD,
     	
     	/**
     	 * GUI Outputs
@@ -67,12 +68,11 @@ public class UAVRole extends Actor  {
         UAV_CRASHED,
         UAV_END_PATH
     }
-    
-    
+      
     public UAVRole()
     {
     	name(Actors.UAV.name());
-    	nextState(States.UAV_READY,1);
+    	nextState(States.UAV_READY, 1);
     	
     	//Add children
     	_sub_actors.add(new UAVBattery());
@@ -102,8 +102,10 @@ public class UAVRole extends Actor  {
 		return min_next_state_time;
     }
     
+    
 	@Override
 	public void processNextState() {
+
 		/**
 		 * Process all sub-actors first
 		 */
@@ -115,6 +117,7 @@ public class UAVRole extends Actor  {
 		 * Now do the processing for this state
 		 */
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+
         	//Set Observations
             setObservations();
             return;
@@ -128,6 +131,7 @@ public class UAVRole extends Actor  {
         	 * 
         	 * Look to the sub-actors for when specific durations will occur.
         	 */
+ 
         	case UAV_READY:
         		//reset battery
         		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
@@ -169,6 +173,7 @@ public class UAVRole extends Actor  {
 
 	@Override
 	public void processInputs() {
+
 		/**
 		 * Process all sub-actors first
 		 */
@@ -237,16 +242,6 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_LOITERING,duration);
 //					_flight_plan = false;
 				}
-				break;
-			case UAV_FLYING:
-				//TODO Handle New Flight Path
-				if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
-					nextState(States.UAV_END_PATH,sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range()));
-				}
-				//TODO Handle Land Cmd
-				
-				//TODO Handle Loiter Cmd
-				
 				break;
 			case UAV_LOITERING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
@@ -337,7 +332,7 @@ public class UAVRole extends Actor  {
 //		sim().addObservation(_path, this.name());
 //		sim().addObservation(_signal, this.name());
 	}
-		
+	
 	/**
 	 * Observe UAV Battery
 	 */

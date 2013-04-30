@@ -3,14 +3,13 @@ package CUAS.Simulator;
 
 import java.util.ArrayList;
 
-import WiSAR.Agents.ParentSearch.Outputs;
 
-public abstract class Actor extends State implements IActor, IObservable {
+public abstract class Actor extends State implements IActor {
 
 	private String _name;
 	
 	/**
-	 * Actors define their output, observables, and state processing.
+	 * Actors define their output, and state processing.
 	 */
 	
 	/**
@@ -69,22 +68,5 @@ public abstract class Actor extends State implements IActor, IObservable {
 	{
 		_input.addAll(inputs);
 	}
-	
-	protected void addObservation(IData data)
-	{
-		_output.add(data);
-	}
-	
-	protected void clearObservations()
-	{
-		_output.clear();
-	}
-	
-	
-	public ArrayList<IData> getObservations()
-	{
-		return _output;
-	}
-	
 	
 }

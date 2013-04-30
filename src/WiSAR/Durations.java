@@ -61,7 +61,10 @@ public enum Durations {
 	VGUI_START_STREAM(new Range(60, 1800)),
 	VGUI_RX_DUR(new Range(60, 1800)), 
 	
-	OGUI_RX_DUR(new Range(60, 1800));
+	OGUI_RX_DUR(new Range(60, 1800)), 
+	
+	UAV_ADJUST_PATH(new Range(60, 1800)), 
+	UAV_PREPARATION_DUR(new Range(60, 1800));
 
 	private Range _range;
 	

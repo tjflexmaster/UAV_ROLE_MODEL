@@ -3,10 +3,10 @@ package WiSAR.Agents;
 import java.util.ArrayList;
 
 import CUAS.Simulator.IData;
-import CUAS.Simulator.IObservable;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.Simulator;
+import WiSAR.Actors;
 import WiSAR.Durations;
 
 public class MissionManagerRole extends Actor {
@@ -74,7 +74,7 @@ public class MissionManagerRole extends Actor {
 	
 	public MissionManagerRole()
 	{
-		name(Roles.MISSION_MANAGER.name());
+		name(Actors.MISSION_MANAGER.name());
 		nextState(States.IDLE, 1);
 	}
 	
@@ -102,17 +102,17 @@ public class MissionManagerRole extends Actor {
 				nextState(null, 0);
 				break;
 			case POKE_PS:
-				sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.MM_POKE);
+				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_POKE);
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case POKE_OP:
 				//TODO handle when the OPERATOR is busy but the VO is not and 
 				//		the information needs to be passed to both
-				sim().addOutput(Roles.OPERATOR.name(), Outputs.MM_POKE);
+				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_POKE);
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case POKE_VO:
-				sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_POKE);
+				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_POKE);
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_PS:
@@ -148,35 +148,35 @@ public class MissionManagerRole extends Actor {
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
-				sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.MM_END);
+				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_END);
 				if(current_output == Outputs.MM_SEARCH_AOI_COMPLETE)
-					sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
+					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
 				else if(current_output == Outputs.MM_FOUND_ANOMALY)
-					sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.MM_FOUND_ANOMALY);
+					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_FOUND_ANOMALY);
 				nextState(States.IDLE, 1);
 				break;
 			case END_OP:
 				nextState(States.IDLE, 1);
-				sim().addOutput(Roles.OPERATOR.name(), Outputs.MM_END);
+				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_END);
 				if(current_output == Outputs.MM_SEARCH_AOI){
-					sim().addOutput(Roles.OPERATOR.name(), Outputs.MM_SEARCH_AOI);
+					sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_SEARCH_AOI);
 					nextState(States.POKE_VO,1);
 				}else if(current_output == Outputs.MM_SEARCH_TERMINATED){
-					sim().addOutput(Roles.OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
+					sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
 					nextState(States.POKE_VO,1);
 				}else {
 					nextState(States.IDLE,1);
 				}
 				break;
 			case END_VO:
-				sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_END);
+				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
 				nextState(States.IDLE, 1);
 				if(current_output == Outputs.MM_SEARCH_AOI)
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI);
+					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI);
 				else if(current_output == Outputs.MM_SEARCH_TERMINATED)
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
+					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
 				else if(current_output == Outputs.MM_SEARCH_AOI_COMPLETE){
-					sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
+					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
 					nextState(States.POKE_PS, sim().duration(Durations.MM_POKE_DUR.range()));
 				}else{
 					//TODO handle other messages
@@ -209,15 +209,15 @@ public class MissionManagerRole extends Actor {
 			//If the MM is idle then do the following things in sequence
 			//First check for Parent Search Commands
 			if ( _input.contains(ParentSearch.Outputs.PS_POKE) ) {
-				sim().addOutput(Roles.PARENT_SEARCH.name(), Outputs.MM_ACK);
+				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_ACK);
 				nextState(States.RX_PS, 1);
 			} 
 			if(_input.contains(OperatorRole.Outputs.OP_POKE)){
-				sim().addOutput(Roles.OPERATOR.name(), Outputs.MM_ACK);
+				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_ACK);
 				nextState(States.RX_OP,1);
 			}
 			if(_input.contains(VideoOperatorRole.Outputs.VO_POKE)){
-				sim().addOutput(Roles.VIDEO_OPERATOR.name(), Outputs.MM_ACK);
+				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_ACK);
 				nextState(States.RX_VO,1);
 			}
 			//TODO Handle more input values

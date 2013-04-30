@@ -14,13 +14,13 @@ public class DefaultTeam extends Team {
 
 	public DefaultTeam()
 	{
-		_actors.put(ObjectEnum.PARENT_SEARCH.name(), new ParentSearch());
-		_actors.put(AgentEnum.MISSION_MANAGER.name(), new MissionManagerRole());
-		_actors.put(AgentEnum.OPERATOR.name(), new OperatorRole());
-		_actors.put(AgentEnum.OPERATOR_GUI.name(), new OperatorGUIRole());
-		_actors.put(AgentEnum.VIDEO_OPERATOR.name(), new VideoOperatorRole());
-		_actors.put(AgentEnum.VIDEO_OPERATOR_GUI.name(), new VideoGUIRole());
-		_actors.put(AgentEnum.UAV.name(), new UAVRole());
+		_actors.put(Actors.PARENT_SEARCH.name(), new ParentSearch());
+		_actors.put(Actors.MISSION_MANAGER.name(), new MissionManagerRole());
+		_actors.put(Actors.OPERATOR.name(), new OperatorRole());
+		_actors.put(Actors.OPERATOR_GUI.name(), new OperatorGUIRole());
+		_actors.put(Actors.VIDEO_OPERATOR.name(), new VideoOperatorRole());
+		_actors.put(Actors.VIDEO_OPERATOR_GUI.name(), new VideoGUIRole());
+		_actors.put(Actors.UAV.name(), new UAVRole());
 //		_roles.put(RoleType.ROLE_ENVIRONMENT, new EnvironmentRole());
 //		_roles.put(RoleType.ROLE_UAV, new UAVRole());
 //		_roles.put(RoleType.ROLE_UAV_GUI, new UAVGUIRole());

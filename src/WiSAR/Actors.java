@@ -1,0 +1,22 @@
+package WiSAR;
+
+public enum Actors {
+
+	PARENT_SEARCH,
+	MISSION_MANAGER,
+	OPERATOR,
+	VIDEO_OPERATOR,
+	OPERATOR_GUI,
+	VIDEO_OPERATOR_GUI,
+	
+	/**
+	 * UAV Roles
+	 */
+	UAV,
+	UAV_BATTERY,
+	UAV_FLIGHT_PLAN,
+	UAV_HAG,
+	UAV_SIGNAL,
+	UAV_PATH
+	
+}

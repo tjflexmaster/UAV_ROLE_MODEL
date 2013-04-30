@@ -34,12 +34,11 @@ public class OperatorGUIRole extends Actor {
 		LANDING, 
 		BAD_PATH, 
 		ACK_OGUI, 
-		UAV_FOUND,
 		/**
 		 * UAV outputs
 		 */
 		OGUI_PATH_NEW,
-		OGUI_PATH_END
+		OGUI_PATH_END,
 		UAV_FOUND, 
 		RESUME_PATH
     }
