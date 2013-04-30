@@ -10,9 +10,12 @@ import WiSAR.Agents.UAVRole;
 import WiSAR.Agents.VideoGUIRole;
 import WiSAR.Agents.VideoOperatorRole;
 <<<<<<< Upstream, based on origin/master
+<<<<<<< Upstream, based on origin/master
 =======
 import WiSAR.submodule.UAVFlightPlan;
 >>>>>>> 86f791f merged with pull
+=======
+>>>>>>> e06d1d0 Merged with pull
 
 public class DefaultTeam extends Team {
 

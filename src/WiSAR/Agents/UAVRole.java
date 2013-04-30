@@ -1,7 +1,6 @@
 package WiSAR.Agents;
 
 import java.util.ArrayList;
-
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
@@ -10,10 +9,6 @@ import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
-import WiSAR.Actors;
-import WiSAR.Durations;
-import WiSAR.submodule.UAVBattery;
-import WiSAR.submodule.UAVFlightPlan;
 
 public class UAVRole extends Actor  {
 	
@@ -80,7 +75,6 @@ public class UAVRole extends Actor  {
     	
     	//Add children
     	_sub_actors.add(new UAVBattery());
-    	_sub_actors.add(new UAVFlightPlan());
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -327,15 +321,17 @@ public class UAVRole extends Actor  {
 			default:
 				break;
 		}//end switch
+<<<<<<< Upstream, based on origin/master
 		
 <<<<<<< Upstream, based on origin/master
 =======
 		}
 		_input.clear();
 >>>>>>> 86f791f merged with pull
+=======
+>>>>>>> e06d1d0 Merged with pull
 	}
 	
-
 	/**
 	 * Make these things on the UAV observable
 	 */
