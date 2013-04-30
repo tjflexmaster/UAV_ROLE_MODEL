@@ -235,13 +235,16 @@ public class OperatorRole extends Actor {
 		ArrayList<IData> uav_output;
 		ArrayList<IData> gui_output;
 		
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
+		
 		switch((States) state() ) {
 			case POKE_MM:
 				//Always respond to an ACK_MM
-				if (_input.contains(MissionManagerRole.Outputs.MM_ACK)) {
+				if (input.contains(MissionManagerRole.Outputs.MM_ACK)) {
 					nextState(States.TX_MM, 1);
 				}
-				if ( _input.contains(MissionManagerRole.Outputs.MM_BUSY)) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_BUSY)) {
 					nextState(States.IDLE, 1);
 				}
 				//TODO listen for more inputs such as PILOT GUI Alarms
@@ -259,17 +262,17 @@ public class OperatorRole extends Actor {
 				//Look for end of TX
 				//Whatever the Pilot does next it should be on the next time step so that it does not
 				//appear that he is receiving after the MM stopped transmitting.
-				if ( _input.contains(MissionManagerRole.Outputs.MM_END) ) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
 					ArrayList<IData> gui_feed = sim().getObservations(Actors.OPERATOR_GUI.name());
-					if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI)){
+					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI)){
 						current_output = Outputs.PATH;
 						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
 							nextState(States.POKE_GUI,1);
 						}else{
 							nextState(States.POKE_GUI,1);
 						}
-					}else if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED)){
+					}else if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED)){
 						current_output = Outputs.END_SEARCH;
 						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
 							nextState(States.POKE_GUI,1);
@@ -341,7 +344,7 @@ public class OperatorRole extends Actor {
 				break;
 			case IDLE:
 				//TODO Watch for commands from the MM or VO
-				if(_input.contains(MissionManagerRole.Outputs.MM_POKE)){
+				if(input.contains(MissionManagerRole.Outputs.MM_POKE)){
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_ACK);
 					nextState(States.RX_MM,1);
 				}
@@ -353,7 +356,7 @@ public class OperatorRole extends Actor {
 				//Do nothing for states not mentioned
 				break;
 		}
-		_input.clear();
+		
 	}
 
 	

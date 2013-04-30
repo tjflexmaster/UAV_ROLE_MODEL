@@ -188,21 +188,24 @@ public class VideoOperatorRole extends Actor
 	 * Process the current state and all inputs to determine the next state, also activates mealy outputs.
 	 */
 	public void processInputs() {
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
 		ArrayList<IData> video_feed;
+		
 		switch( (States) state() ) {
 			case IDLE:
-				if(_input.contains(Outputs.VO_POKE))
+				if(input.contains(Outputs.VO_POKE))
 					nextState(States.ACK_MM,1);//we need to code state ack_mm
 				break;
 			case RX_MM:
-				if(_input.contains(MissionManagerRole.Outputs.MM_END))
+				if(input.contains(MissionManagerRole.Outputs.MM_END))
 				{
-					if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI))
+					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI))
 					{
 						memory.add(Outputs.VO_START_FEED);
 						nextState(States.POKE_GUI,1);
 					}
-					else if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED))
+					else if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED))
 					{
 						memory.add(Outputs.VO_END_FEED);
 						nextState(States.POKE_GUI,1);
@@ -224,7 +227,7 @@ public class VideoOperatorRole extends Actor
 					memory.add(Outputs.VO_STREAM_ENDED);
 					nextState(States.POKE_OPERATOR, 1);
 				}
-				else if (_input.contains(MissionManagerRole.Outputs.MM_ACK))
+				else if (input.contains(MissionManagerRole.Outputs.MM_ACK))
 				{
 					nextState(States.ACK_MM,1);
 				}
@@ -245,17 +248,17 @@ public class VideoOperatorRole extends Actor
 					nextState(States.TX_GUI,1);
 				break;
 			case POKE_MM:
-				if(_input.contains(MissionManagerRole.Outputs.MM_ACK))
+				if(input.contains(MissionManagerRole.Outputs.MM_ACK))
 					nextState(States.TX_MM,1);
 				break;
 			case POKE_OPERATOR:
-				if(_input.contains(OperatorRole.Outputs.OP_ACK))
+				if(input.contains(OperatorRole.Outputs.OP_ACK))
 					nextState(States.TX_OPERATOR,1);
 				break;
 			default:
 				break;
-		}
-		_input.clear();
+		}//end switch
+		
 	}
 
    

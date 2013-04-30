@@ -1,5 +1,7 @@
 package WiSAR.submodule;
 
+import java.util.ArrayList;
+
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -81,28 +83,32 @@ public class UAVBattery extends Actor {
 
 	@Override
 	public void processInputs() {
+		
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
+				
 		/**
 		 * The battery can be activated and deactivated,
 		 * It can also be reset back to fresh.
 		 */
-		if ( _input.contains(UAVRole.Outputs.RESET_BATTERY) ) {
+		if ( input.contains(UAVRole.Outputs.RESET_BATTERY) ) {
 			resetBattery();
 		}
 		
 		switch( (States)state() ){
 			case INACTIVE:
-				if(_input.contains(UAVRole.Outputs.ACTIVATE_BATTERY)){
+				if(input.contains(UAVRole.Outputs.ACTIVATE_BATTERY)){
 					nextState(States.ACTIVE, 1);
 				}
 				break;
 			case ACTIVE:
 			case LOW:
-				if(_input.contains(UAVRole.Outputs.DEACTIVATE_BATTERY)){
+				if(input.contains(UAVRole.Outputs.DEACTIVATE_BATTERY)){
 					nextState(States.INACTIVE, 1);
 				}
 				break;
-		}
-		_input.clear();
+		}//end switch
+		
 	}
 	
 	/**

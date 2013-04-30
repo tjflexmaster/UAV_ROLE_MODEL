@@ -23,21 +23,5 @@ public class DefaultTeam extends Team {
 		_actors.put(Actors.VIDEO_OPERATOR_GUI.name(), new VideoGUIRole());
 		_actors.put(Actors.UAV.name(), new UAVRole());
 		
-//		//Register Child Actors so their inputs and outputs work correctly
-//		registerChildActor(Actors.UAV.name(), Actors.UAV_BATTERY.name());
-//		registerChildActor(Actors.UAV.name(), Actors.UAV_FLIGHT_PLAN.name());
-//		registerChildActor(Actors.UAV.name(), Actors.UAV_HAG.name());
-//		registerChildActor(Actors.UAV.name(), Actors.UAV_PATH.name());
-//		registerChildActor(Actors.UAV.name(), Actors.UAV_SIGNAL.name());
-		
-//		_actors.put(Actors.UAV_BATTERY.name(), new UAVBattery());
-//		_roles.put(RoleType.ROLE_ENVIRONMENT, new EnvironmentRole());
-//		_roles.put(RoleType.ROLE_UAV, new UAVRole());
-//		_roles.put(RoleType.ROLE_UAV_GUI, new UAVGUIRole());
-//		_roles.put(RoleType.ROLE_PARENT_SEARCH, new ParentSearchRole());
-//		_roles.put(RoleType.ROLE_MISSION_MANAGER, new MissionManagerRole());
-//		_roles.put(RoleType.ROLE_PILOT, new PilotRole());
-//		_roles.put(RoleType.ROLE_VIDEO_ANALYST, new VideoAnalystRole());
-//		_roles.put(RoleType.ROLE_VIDEO_GUI, new VideoGUIRole());
 	}
 }

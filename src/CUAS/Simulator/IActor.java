@@ -1,17 +1,10 @@
-/**
- * 
- */
 package CUAS.Simulator;
 
-import java.util.ArrayList;
-
-
-
 
 
 /**
- * This interface is attached to all Roles.  Each role is observable and
- * must be able to perform specific actions, such as executing Events.
+ * This interface is attached to all Actors.  The simulator will call the following methods
+ * during the simulation.
  * 
  * @author TJ-ASUS
  *
@@ -32,22 +25,11 @@ public interface IActor {
 	 */
 	void processNextState();
 	
-	
 	/**
 	 * This is where the logic for each Role resides.  When this is called a role determines
 	 * how it should act, setting its next event and possibly changing its current state.
 	 */
 	void processInputs();
-	
-	
-	/**
-	 * Add Input to the Actor
-	 * 
-	 * @param input
-	 */
-	void addInput(IData data);
-	void addInput(ArrayList<IData> data);
-
 	
 	/**
 	 * Return a string name for the actor

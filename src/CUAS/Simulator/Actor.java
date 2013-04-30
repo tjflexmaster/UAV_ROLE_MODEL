@@ -1,9 +1,6 @@
 package CUAS.Simulator;
 
 
-import java.util.ArrayList;
-
-
 public abstract class Actor extends State implements IActor {
 
 	private String _name;
@@ -12,15 +9,13 @@ public abstract class Actor extends State implements IActor {
 	 * Actors define their output, and state processing.
 	 */
 	
-	/**
-	 * Used to handle inputs and outputs for the Role
-	 */
-	protected ArrayList<IData> _input = new ArrayList<IData>();
-	protected ArrayList<IData> _output = new ArrayList<IData>();
-	
 	
 	/**
 	 * IActor Methods
+	 */
+	
+	/**
+	 * nextStateTime is implemented in the State class
 	 */
 	
 	/**
@@ -44,29 +39,18 @@ public abstract class Actor extends State implements IActor {
 	 */
 	public abstract void processInputs();
 	
-	
-	
-	/**
-	 * Private methods for changing the state
-	 */
-	protected void name(String name)
-	{
-		_name = name;
-	}
-	
 	public String name()
 	{
 		return _name;
 	}
 	
-	public void addInput(IData input)
-	{
-		_input.add(input);
-	}
 	
-	public void addInput(ArrayList<IData> inputs)
+	/**
+	 * Only the class itself can set it's name
+	 */
+	protected void name(String name)
 	{
-		_input.addAll(inputs);
+		_name = name;
 	}
 	
 }

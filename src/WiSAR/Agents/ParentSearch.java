@@ -1,5 +1,7 @@
 package WiSAR.Agents;
 
+import java.util.ArrayList;
+
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
@@ -111,12 +113,15 @@ public class ParentSearch extends Actor {
 	@Override
 	public void processInputs() {
 		
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
+		
 		//Always check for this input
-		if ( _input.contains(NewSearchAOIEvent.Outputs.NEW_SEARCH_AOI) ) {
+		if ( input.contains(NewSearchAOIEvent.Outputs.NEW_SEARCH_AOI) ) {
 			_total_search_aoi++;
 		}
 		
-		if ( _input.contains(TerminateSearchEvent.Outputs.TERMINATE_SEARCH) ) {
+		if ( input.contains(TerminateSearchEvent.Outputs.TERMINATE_SEARCH) ) {
 			_search_active = false;
 		}
 		
@@ -124,7 +129,7 @@ public class ParentSearch extends Actor {
 		switch((States) state() ) {
 			case IDLE:
 				//IF the parent search is idle then watch for
-				if ( _input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_ACK);
 					nextState(States.RX_MM, 1);
 				} else if ( _total_search_aoi > _sent_search_aoi ) {
@@ -137,9 +142,9 @@ public class ParentSearch extends Actor {
 				//TODO Handle simultaneous pokes from MM
 				
 				//Look for Busy or Ack from MM
-				if ( _input.contains(MissionManagerRole.Outputs.MM_ACK) ) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_ACK) ) {
 					nextState(States.TX_MM, 1);
-				} else if ( _input.contains(MissionManagerRole.Outputs.MM_BUSY) ) {
+				} else if ( input.contains(MissionManagerRole.Outputs.MM_BUSY) ) {
 					nextState(States.IDLE, 1);
 				}
 				
@@ -153,15 +158,15 @@ public class ParentSearch extends Actor {
 				break;
 			case RX_MM:
 				//Look for the MM_END input before handling other inputs
-				if ( _input.contains(MissionManagerRole.Outputs.MM_END) ) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					//TODO Handle all inputs from the MM
 					
-					if ( _input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE) ) {
+					if ( input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE) ) {
 						_received_search_aoi++;
 					}
 					
 					//TODO Add Search Failed to the Mission Manager
-					if (_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE)) {
+					if (input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE)) {
 						_received_search_aoi = _sent_search_aoi;
 					}
 					
@@ -178,9 +183,6 @@ public class ParentSearch extends Actor {
 		
 		//Set the parent search observations after handling inputs
 		setObservations();
-		
-		//Input has been handled so clear it
-		_input.clear();
 
 	}
 	

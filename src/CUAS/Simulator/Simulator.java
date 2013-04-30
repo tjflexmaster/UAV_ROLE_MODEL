@@ -89,24 +89,17 @@ public class Simulator {
 		return _team.getNextStateTime(getTime());
 	}
 	
-	void addInput(String actor_name, IData input)
-	{
-		assert isReady() : "addInput: The Simulator was not setup properly";
-		_team.getActor(actor_name).addInput(input);
-	}
-	
-	void addInput(String actor_name, ArrayList<IData> input)
-	{
-		assert isReady() : "addInput: The Simulator was not setup properly";
-		_team.getActor(actor_name).addInput(input);
-	}
-	
 	public void addOutput(String actor_name, IData input){
 		_post_office.addOutput(input, actor_name);
 	}
 	
 	public void addOutputs(String actor_name, ArrayList<IData> inputs){
 		_post_office.addOutputs(inputs, actor_name);
+	}
+	
+	public ArrayList<IData> getInput(String actor_name)
+	{
+		return _post_office.getInput(actor_name);
 	}
 	
 	public void linkInput(String parent, String child)
@@ -226,25 +219,21 @@ public class Simulator {
 					_event_manager.processNextState();
 					_event_manager.processInputs();
 					
-					//Send data from the post office to the actors
-					_post_office.sendInput();
-					
 					//First Update each Role based on the current time
 					if (debug())
 						System.out.println("Processing Next States...");
 					_team.processNextState();
-					_post_office.sendInput();
 					if (debug())
 						System.out.println("Processing Finished");
 					
-					//Before processing Inputs we need to update the observations
-					_post_office.updateObservations();
+					//Process both the Outputs and the Observations so they will be visible for
+					//the processInputs step
+					_post_office.processInboundData();
 					
 					//Now have each role determine what it's next action will be
 					if (debug())
 						System.out.println("Updating States...");
 					_team.processInputs();
-					_post_office.sendInput();
 					if (debug())
 						System.out.println("Updating Finished\n");
 					if(_timer.time() > 2000)

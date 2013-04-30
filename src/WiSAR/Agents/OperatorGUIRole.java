@@ -79,39 +79,36 @@ public class OperatorGUIRole extends Actor {
 
 	@Override
 	public void processInputs() {
-    	_output.clear();
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
 		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
     	
 		switch ( (States) state() ) {
 			case UAV_IDLE:
-				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
+				if (input.contains(OperatorRole.Outputs.OP_POKE)) {
 					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OP_GUI);
 					nextState(States.RX_OP, 1);
 				}
 				break;
 			case RX_OP:
-				if(_input.contains(OperatorRole.Outputs.OP_END)){
-					if (_input.contains(OperatorRole.Outputs.PATH)) {
+				if(input.contains(OperatorRole.Outputs.OP_END)){
+					if (input.contains(OperatorRole.Outputs.PATH)) {
 						flight_paths++;
 						sim().addOutput(Actors.UAV.name(), Outputs.GOOD_PATH);
-						_output.add(Outputs.GOOD_PATH);
 					}
-					if (_input.contains(OperatorRole.Outputs.TAKE_OFF)) {
+					if (input.contains(OperatorRole.Outputs.TAKE_OFF)) {
 						sim().addOutput(Actors.UAV.name(), Outputs.TAKE_OFF);
-						_output.add(Outputs.DEPARTING);
 						nextState(States.UAV_TAKING_OFF,1);
 					
 //					} else if (_input.contains(OperatorRole.Outputs.RETURN)) {
 //						sim().addOutput(Actors.UAV.name(), Outputs.RETURN);
 //						_output.add(Outputs.RETURNING);
 //						nextState(States.UAV_IN_AIR,1);
-					} else if (_input.contains(OperatorRole.Outputs.LOITER)) {
+					} else if (input.contains(OperatorRole.Outputs.LOITER)) {
 						sim().addOutput(Actors.UAV.name(), Outputs.LOITER);
-						_output.add(Outputs.LOITERING);
 						nextState(States.UAV_IN_AIR,1);
-					} else if (_input.contains(OperatorRole.Outputs.LAND)) {
+					} else if (input.contains(OperatorRole.Outputs.LAND)) {
 						sim().addOutput(Actors.UAV.name(), Outputs.LAND);
-						_output.add(Outputs.LANDED);
 						nextState(States.UAV_IDLE,1);
 					}else if(uav_data.contains(UAVRole.Outputs.UAV_LANDED)){
 						nextState(States.UAV_IDLE,1);
