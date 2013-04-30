@@ -10,6 +10,18 @@ import WiSAR.Durations;
 public class OperatorRole extends Actor {
 	
 	/**
+	 * private assumptions
+	 */
+	
+	private enum Assumptions{
+		LANDED,
+		FLYING,
+		LANDING,
+		
+	}
+	Assumptions uav_state;
+	Outputs current_output;
+	/**
 	 *  STATE VARS
 	 */
 	
@@ -55,7 +67,11 @@ public class OperatorRole extends Actor {
 		OP_TX,
 		OP_END,
 		OP_SEARCH_AOI_COMPLETE,
-		OP_SEARCH_AOI_FAILED
+		OP_SEARCH_AOI_FAILED,
+		TAKE_OFF,
+		LOITER, 
+		LAND,
+		PATH, END_SEARCH
 	}
 	
 	public enum States implements IStateEnum
@@ -116,6 +132,8 @@ public class OperatorRole extends Actor {
 	{
 		name( Roles.OPERATOR.name() );
 		nextState(States.IDLE, 1);
+		uav_state = Assumptions.LANDED;
+		current_output = null;
 	}
 	
 	@Override
@@ -161,7 +179,7 @@ public class OperatorRole extends Actor {
 				//Launch the UAV and then wait for it to leave the take off state
 				//TODO Send input to launch the UAV to the Pilot GUI
 //				simulator().addInput(Roles.PILOT_GUI.name(), PilotGUIRole.Inputs);
-				nextState(States.OBSERVING_GUI, sim().duration(Durations.OPERATOR_LAUNCH_UAV_DUR.range()) );
+				nextState(States.OBSERVING_UAV, 1 );
 				
 				break;
 			case POKE_GUI:
@@ -172,7 +190,18 @@ public class OperatorRole extends Actor {
 				nextState(States.END_GUI, sim().duration(Durations.OPERATOR_TX_UGUI_DUR.range()) );
 				break;
 			case END_GUI:
-				//After we do something on the GUI we click a "save button" signaling completion
+				sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.OP_END);
+				if(current_output == Outputs.PATH){
+					sim().addOutput(Roles.OPERATOR_GUI.name(), Outputs.PATH);
+				}
+				if(uav_state == Assumptions.FLYING){
+					//TODO check for communications that are relevant to when the UAV is aloft
+				}else{
+					if(current_output == Outputs.PATH){
+						sim().addOutput(Roles.UAV.name(), Outputs.TAKE_OFF);
+						nextState(States.LAUNCH_UAV,sim().duration(Durations.OPERATOR_LAUNCH_UAV_DUR.range()));
+					}
+				}
 				nextState(States.WAIT_GUI, 1);
 				break;
 			case WAIT_GUI:
@@ -232,12 +261,14 @@ public class OperatorRole extends Actor {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
 					ArrayList<IData> gui_feed = sim().getObservations(Roles.OPERATOR_GUI.name());
 					if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI)){
+						current_output = Outputs.PATH;
 						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
 							nextState(States.POKE_GUI,1);
 						}else{
-							nextState(States.LAUNCH_UAV,1);
+							nextState(States.POKE_GUI,1);
 						}
 					}else if(_input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED)){
+						current_output = Outputs.END_SEARCH;
 						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
 							nextState(States.POKE_GUI,1);
 						}else{
@@ -252,9 +283,8 @@ public class OperatorRole extends Actor {
 				//Technically the pilot is observing the UAV here so we can update the uav state
 				//Get UAV outputs
 				uav_output = sim().getObservations(Roles.UAV.name());
-				
 				//TODO Do we care about any of the UAV outputs at take off? Yes
-				
+				assert !uav_output.contains(UAVRole.Outputs.UAV_FLYING) : "UAV should not be flying at this point";
 				//TODO Watch for the UAV to be flying or crashed
 				
 				break;
@@ -262,13 +292,19 @@ public class OperatorRole extends Actor {
 				
 				uav_output = sim().getObservations(Roles.UAV.name());
 				//TODO handle this output accordingly
-				
-				
+				if(uav_output.contains(UAVRole.Outputs.UAV_FLIGHT_PLAN_NO)){
+					current_output = Outputs.LAND;
+					nextState(States.POKE_GUI,1);
+				}
 				break;
 			case OBSERVING_GUI:
 				gui_output = sim().getObservations(Roles.OPERATOR_GUI.name());
 				
 				//TODO Handle GUI input
+				if(gui_output.contains(OperatorGUIRole.Outputs.NO_PATH)){
+					current_output = Outputs.LAND;
+					nextState(States.POKE_GUI,1);
+				}
 				
 				break;
 			case POST_FLIGHT:
@@ -297,6 +333,7 @@ public class OperatorRole extends Actor {
 				//TODO Listen to other interruptions from the other Roles
 				break;
 			case END_GUI:
+				break;
 			case WAIT_GUI:
 				//No interruptions
 				break;

@@ -63,15 +63,12 @@ public class MissionManagerRole extends Actor {
 		END_PS,
 		END_OP,
 		END_VO,
-//		MM_ACK_PS,
-//		MM_ACK_OPERATOR,
 		RX_PS,
 		RX_VO,
 		RX_OP,
 		ACK_PS,
 		ACK_VO,
 		ACK_OP,
-//		MM_RX_OPERATOR
 	}
 	
 	
@@ -130,9 +127,9 @@ public class MissionManagerRole extends Actor {
 				break;
 			case TX_OP:
 				if(current_output == Outputs.MM_SEARCH_AOI)
-					nextState(States.END_OP, sim().duration(Durations.MM_TX_AOI_PILOT_DUR.range()));
+					nextState(States.END_OP, sim().duration(Durations.MM_TX_AOI_OPERATOR_DUR.range()));
 				else if(current_output == Outputs.MM_SEARCH_TERMINATED)
-					nextState(States.END_OP, sim().duration(Durations.MM_TX_TERMINATE_PILOT_DUR.range()));
+					nextState(States.END_OP, sim().duration(Durations.MM_TX_TERMINATE_OPERATOR_DUR.range()));
 				else{
 					//TODO handle other possible transmission lengths
 					nextState(States.END_OP,1);

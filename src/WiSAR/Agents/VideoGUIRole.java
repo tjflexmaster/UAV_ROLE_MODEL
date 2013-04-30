@@ -108,19 +108,6 @@ public class VideoGUIRole extends Actor {
 		}
     }
 
-
-	@Override
-	public void addInput(ArrayList<IData> data) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ArrayList<IData> getObservations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
      */
