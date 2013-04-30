@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
-import WiSAR.submodule.UAVBattery;
 import CUAS.Simulator.Actor;
-import CUAS.Simulator.IActor;
 import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -20,7 +18,7 @@ public class UAVRole extends Actor  {
 	IData _hag;
 	IData _path;
 	
-	ArrayList<IActor> _sub_actors = new ArrayList<IActor>();
+	protected ArrayList<IActor> _sub_actors = new ArrayList<IActor>();
 	
     public enum Outputs implements IData
     {
@@ -80,8 +78,12 @@ public class UAVRole extends Actor  {
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
+    		//The child receives all the input that the parent receives
     		sim().linkInput(this.name(), sub.name());
-    		sim().linkObservations(sub.name(), this.name()); //When observing the UAV you will also see the battery observations
+    		
+    		//The parent makes all of this actors observations visible through itself
+    		//When observing the UAV you will also see the battery observations
+    		sim().linkObservations(sub.name(), this.name()); 
     	}
     }
     
@@ -154,11 +156,9 @@ public class UAVRole extends Actor  {
     			nextState(States.UAV_LOITERING, take_off_dur );
         		break;
         	case UAV_FLYING:
-        		_output.add(Outputs.UAV_FLYING);
         		nextState(null, 0);
         		break;
         	case UAV_LOITERING:
-        		_output.add(Outputs.UAV_LOITERING);
         		nextState(null, 0);
         		break;
         	case UAV_LANDED:
@@ -172,7 +172,6 @@ public class UAVRole extends Actor  {
 	        	assert false : "The UAV Crashed!";
 	        	break;
 	        case UAV_END_PATH:
-	        	_output.add(Outputs.UAV_PATH_COMPLETE);
 	        	nextState(States.UAV_LOITERING,1);
         	default:
 	        	nextState(null,0);
@@ -193,14 +192,13 @@ public class UAVRole extends Actor  {
 			child.processInputs();
 		}
 		
+		//Pull Input and any observations that need to be made from the simulator
+		ArrayList<IData> input = sim().getInput(this.name());
+		
 		/**
 		 * Get observations of sub actors
 		 */
 		handleBatteryObservations();
-		if(_battery == UAVBattery.Outputs.BATTERY_DEAD){
-			nextState(States.UAV_CRASHED,1);
-			return;
-		}
 		
 		switch ( (States) state() ) {
 			case UAV_READY:
@@ -209,7 +207,7 @@ public class UAVRole extends Actor  {
 //					_flight_plan = true;
 //				}
 				//Handle Take off cmd
-				if(_input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
+				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
 				}
 				break;
@@ -218,7 +216,7 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_CRASHED, 1);
 				}
 				//Handle Land Cmd
-				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+				if(input.contains(OperatorGUIRole.Outputs.LAND)){
 					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
 					nextState(States.UAV_LANDED,duration);
 				}
@@ -248,7 +246,7 @@ public class UAVRole extends Actor  {
 //					_flight_plan = true;
 //				}
 				//Handle Land Cmd
-				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+				if(input.contains(OperatorGUIRole.Outputs.LAND)){
 					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LANDING,duration);
 				}
@@ -306,8 +304,8 @@ public class UAVRole extends Actor  {
 				break;
 			default:
 				break;
-		}
-		_input.clear();
+		}//end switch
+		
 	}
 	
 	/**

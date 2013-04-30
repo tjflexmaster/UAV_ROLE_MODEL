@@ -6,14 +6,11 @@ import java.util.HashMap;
 public abstract class Team implements ITeam {
 
 	protected HashMap<String, IActor> _actors = new HashMap<String, IActor>();
-	
-	@Override
-	public IActor getActor(String actor_name)
-	{
-		IActor result = _actors.get(actor_name);
-		assert result != null : "Actor: " + actor_name + " is not part of the team.";
-		return result;
-	}
+
+	/**
+	 * This team implementation allows for child actors, these child actors receive input through
+	 * the parent actor and are observable through the parent actor.
+	 */
 
 	@Override
 	public int getNextStateTime(int time) {
@@ -57,5 +54,4 @@ public abstract class Team implements ITeam {
 		}
 		
 	}
-
 }

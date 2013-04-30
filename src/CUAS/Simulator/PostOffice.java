@@ -8,7 +8,8 @@ import java.util.Map;
 
 public class PostOffice  {
 	
-	private HashMap<String,ArrayList<IData>> POBox;
+	private HashMap<String,ArrayList<IData>> _inbound_pobox;
+	private HashMap<String,ArrayList<IData>> _outbound_pobox;
 	private HashMap<String, ArrayList<String>> _linked_poboxes;
 	
 	private HashMap<String, ArrayList<IData>> _temp_observations;
@@ -17,7 +18,8 @@ public class PostOffice  {
 	
 	
 	public PostOffice() {
-		POBox = new HashMap<String,ArrayList<IData>>();
+		_inbound_pobox = new HashMap<String, ArrayList<IData>>();
+		_outbound_pobox = new HashMap<String, ArrayList<IData>>();
 		_linked_poboxes = new HashMap<String, ArrayList<String>>();
 		
 		_temp_observations = new HashMap<String, ArrayList<IData>>();
@@ -36,12 +38,12 @@ public class PostOffice  {
 		targets.add(name);
 		
 		for( String target : targets ) {
-			if(POBox.containsKey(target)){
-				POBox.get(target).add(data);
+			if(_inbound_pobox.containsKey(target)){
+				_inbound_pobox.get(target).add(data);
 			}else{
 				ArrayList<IData> inputs = new ArrayList<IData>();
 				inputs.add(data);
-				POBox.put(target, inputs);
+				_inbound_pobox.put(target, inputs);
 			}
 		}
 	}
@@ -55,32 +57,44 @@ public class PostOffice  {
 		targets.add(name);
 		
 		for( String target : targets ) {
-			if(POBox.containsKey(target)){
-				POBox.get(target).addAll(data);
+			if(_inbound_pobox.containsKey(target)){
+				_inbound_pobox.get(target).addAll(data);
 			}else{
 				ArrayList<IData> inputs = new ArrayList<IData>();
 				inputs.addAll(data);
-				POBox.put(target, inputs);
+				_inbound_pobox.put(target, inputs);
 			}
 		}
 	}
 	
-	public void sendInput(){
+	/**
+	 * This method moves input from the inbound poboxes to the outbound poboxes
+	 */
+	public void processInboundData()
+	{
+		//Process Direct Input
+		_outbound_pobox.clear();
+		_outbound_pobox.putAll(_inbound_pobox);
+		_inbound_pobox.clear();
 		
-		//Send direct output
-		for(Map.Entry<String, ArrayList<IData>> pair : POBox.entrySet()){
-			sim().addInput(pair.getKey(), pair.getValue());
-			pair.getValue().clear();
-		}
-		
-//		//Make observations visible
-//		for(Map.Entry<String, ArrayList<IData>> pair : _temp_observations.entrySet()) {
-//			if ( _visible_observations.containsKey(pair.getKey()) ) {
-//				_visible_observations.get(pair.getKey()).addAll(pair.getValue());
-//			} else {
-//				_visible_observations.put(pair.getKey(), pair.getValue());
-//			}
-//		}
+		//Process Observations
+		_visible_observations.clear();
+		_visible_observations.putAll(_temp_observations);
+		_temp_observations.clear();
+	}
+	
+	/**
+	 * Request input for a specific actor
+	 * 
+	 * @param actor_name
+	 * @return
+	 */
+	public ArrayList<IData> getInput(String actor_name)
+	{
+		if ( _outbound_pobox.containsKey(actor_name) )
+			return _outbound_pobox.get(actor_name);
+		else
+			return new ArrayList<IData>();
 	}
 	
 	/**
@@ -99,16 +113,14 @@ public class PostOffice  {
 		}
 	}
 	
-	public void updateObservations()
-	{
-		_visible_observations.clear();
-		for(String key : _temp_observations.keySet()){
-			ArrayList<IData> data = _temp_observations.get(key);
-			_visible_observations.put(key, data);
-		}
-		
-		_temp_observations.clear();
-	}
+//	public void updateObservations()
+//	{
+//		_visible_observations.clear();
+//		
+//		_visible_observations.putAll(_temp_observations);
+//		
+//		_temp_observations.clear();
+//	}
 	
 	public void addObservation(IData data, String actor_name)
 	{

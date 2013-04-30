@@ -1,19 +1,7 @@
 package CUAS.Simulator;
 
-import java.util.ArrayList;
-
-import NewModel.Roles.RoleState;
-import NewModel.Roles.RoleType;
-
 public interface ITeam {
 
-	/**
-	 * Return the actor object by name
-	 * @param actor_name
-	 * @return
-	 */
-	public IActor getActor(String actor_name);
-	
 	/**
 	 * Returns the minimum time that an actor will change state.
 	 * @param time
