@@ -102,8 +102,10 @@ public class PostOffice  {
 	public void updateObservations()
 	{
 		_visible_observations.clear();
-		
-		_visible_observations = _temp_observations;
+		for(String key : _temp_observations.keySet()){
+			ArrayList<IData> data = _temp_observations.get(key);
+			_visible_observations.put(key, data);
+		}
 		
 		_temp_observations.clear();
 	}
@@ -115,7 +117,8 @@ public class PostOffice  {
 		if ( _linked_observations.containsKey(actor_name) ) {
 			targets = _linked_observations.get(actor_name);
 		}
-		targets.add(actor_name);
+		if(!targets.contains(actor_name))
+			targets.add(actor_name);
 		
 		for( String target : targets ) {
 			if ( _temp_observations.containsKey(target) ) {
