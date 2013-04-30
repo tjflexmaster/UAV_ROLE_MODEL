@@ -193,14 +193,9 @@ public class Simulator {
 		Scanner readUserInput = new Scanner(System.in);
 		
 		try {
+			int time_to_run = 0;
 			//When is the next time something runs
 			while(_running) {
-				
-				//Get user input
-//				System.out.println("Enter Command: ");
-//				String input = readUserInput.nextLine();
-				//TODO Use user input to guide the system
-				
 				/**
 				 * By calling getNextEventTime() on the event manager events are automatically processed.
 				 */
@@ -211,6 +206,28 @@ public class Simulator {
 					next_time = Math.min(evt_time, team_time);
 				else
 					next_time = Math.max(evt_time, team_time);
+				
+				//Get user input
+				if ( debug() ) {
+					if(time_to_run <= next_time){
+						boolean needCommand = true;
+						while (needCommand) {
+							System.out.println("Enter Command: ");
+							String input = readUserInput.nextLine();
+							if (input.isEmpty()) {
+								needCommand = false;
+							} else {
+								try {
+									int inputInt = Integer.parseInt(input);
+									time_to_run = inputInt;
+									needCommand = false;
+								} catch(Exception e) {
+									System.out.println("USAGE: Command may only be empty or a number.");
+								}
+							}
+						}
+					}
+				}
 				
 				if ( next_time == 0 ) {
 					if ( debug() )
@@ -250,7 +267,6 @@ public class Simulator {
 					if(_timer.time() > 2000)
 						break;
 				}
-		
 			}//end while
 			if (debug())
 				System.out.println("Simulation Successful");
