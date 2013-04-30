@@ -34,7 +34,8 @@ public class OperatorGUIRole extends Actor {
 		LANDING, 
 		BAD_PATH, 
 		ACK_OGUI, 
-		UAV_FOUND
+		UAV_FOUND, 
+		RESUME_PATH
     }
    
     public enum States implements IStateEnum

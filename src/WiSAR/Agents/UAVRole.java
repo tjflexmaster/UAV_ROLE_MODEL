@@ -83,49 +83,90 @@ public class UAVRole extends Actor  {
 	public void processInputs() {
 		switch ( (States) state() ) {
 			case UAV_READY:
-				//TODO Handle new Flight path
+				//Handle new Flight path
 				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
 					_flight_plan = true;
 				}
-				//TODO Handle Take off cmd
+				//Handle Take off cmd
 				if(_input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
 				}
 				break;
 			case UAV_TAKE_OFF:
-				//TODO Handle Land Cmd
-				
-				//TODO Handle new Flight path
-				int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+				//Handle Land Cmd
+				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
+					nextState(States.UAV_LANDED,duration);
+				}
+				//Handle new Flight path
 				if(_flight_plan){
+					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
 					nextState(States.UAV_FLYING,duration);
 				}
-				//TODO Handle Loiter
+				else if (_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)) {
+					_flight_plan = true;
+					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+					nextState(States.UAV_FLYING,duration);
+				}
+				//Handle Loiter
 				else{
+					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
 					nextState(States.UAV_LOITERING,duration);
+					_flight_plan = false;
 				}
 				break;
 			case UAV_FLYING:
-				//TODO Handle New Flight Path
-				
-				//TODO Handle Land Cmd
-				
-				//TODO Handle Loiter Cmd
-				
+				//Handle New Flight Path
+				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+					_flight_plan = true;
+				}
+				//Handle Land Cmd
+				if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_LANDING,duration);
+				}
+				//Handle Loiter Cmd
+				else{
+					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
+					nextState(States.UAV_LOITERING,duration);
+					_flight_plan = false;
+				}
 				break;
 			case UAV_LOITERING:
-				//TODO Handle New Flight Path
-				
-				//TODO Handle Resume cmd
-				
-				//TODO Handle Land cmd
+				//Handle New Flight Path
+				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_FLYING,duration);
+					_flight_plan = true;
+				}
+				//Handle Resume cmd
+				else if(_input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_FLYING,duration);
+					_flight_plan = true;
+				}
+				//Handle Land cmd
+				else if(_input.contains(OperatorGUIRole.Outputs.LAND)){
+					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
+					nextState(States.UAV_LANDED,duration);
+				}
 				break;
 			case UAV_LANDING:
 				//TODO Handle Fly cmd
-				//TODO Handle new Flight Plan
+				//Handle new Flight Plan
+				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_FLYING,duration);
+					_flight_plan = true;
+				}
 				break;
 			case UAV_LANDED:
-				//TODO Handle New Flight Plan
+				//Handle New Flight Plan
+				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
+					int duration = sim().duration(Durations.UAV_PREPARATION_DUR.range());
+					nextState(States.UAV_READY,duration);
+					_flight_plan = true;
+				}
 				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
