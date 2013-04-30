@@ -15,10 +15,10 @@ public class UAVFlightPlan extends Actor {
 	private int _time_paused;
 	
 	public enum Outputs implements IData {
-		NO_PATH,
-		YES_PATH,
-		PAUSED,
-		COMPLETE
+		UAV_FLIGHT_PLAN_NO,
+		UAV_FLIGHT_PLAN_YES,
+		UAV_FLIGHT_PLAN_PAUSED,
+		UAV_FLIGHT_PLAN_COMPLETE
 	}
 	
 	public enum States implements IStateEnum{
@@ -86,6 +86,7 @@ public class UAVFlightPlan extends Actor {
 		default:
 			break;
 		}
+		setObservations();
 		_input.clear();
 	}
 	private void resume() {
@@ -97,16 +98,16 @@ public class UAVFlightPlan extends Actor {
 		IData _state;
 		switch((States)state()){
 		case NO_PATH:
-			_state = Outputs.NO_PATH;
+			_state = Outputs.UAV_FLIGHT_PLAN_NO;
 			break;
 		case YES_PATH:
-			_state = Outputs.YES_PATH;
+			_state = Outputs.UAV_FLIGHT_PLAN_YES;
 			break;
 		case PAUSED:
-			_state = Outputs.PAUSED;
+			_state = Outputs.UAV_FLIGHT_PLAN_PAUSED;
 			break;
 		case COMPLETE:
-			_state = Outputs.COMPLETE;
+			_state = Outputs.UAV_FLIGHT_PLAN_COMPLETE;
 			break;
 		default:
 			_state = null;

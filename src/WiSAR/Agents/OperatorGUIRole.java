@@ -135,6 +135,10 @@ public class OperatorGUIRole extends Actor {
 //				}
 				break;
 			case UAV_IN_AIR:
+				if(flight_paths > 0 && uav_data.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO)){
+					flight_paths--;
+					sim().addOutput(Actors.UAV_FLIGHT_PLAN.name(), Outputs.OGUI_PATH_NEW);
+				}
 //				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
 //					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OP_GUI);
 //					nextState(States.RX_OP,1);

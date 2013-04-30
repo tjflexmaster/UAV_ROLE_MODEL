@@ -43,7 +43,7 @@ public enum Durations {
 	UGUI_ALARM_UNNOTICED_DUR(new Range(60, 1800)),
 	
 	UAV_TAKE_OFF_DUR(new Range(60, 1800)),
-	UAV_BATTERY_DUR(new Range(180, 1800)),
+	UAV_BATTERY_DUR(new Range(1500, 1800)),
 	UAV_LOW_BATTERY_THRESHOLD_DUR(new Range(60, 60)),
 	UAV_LANDING_DUR(new Range(60, 1800)),
 	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800)),

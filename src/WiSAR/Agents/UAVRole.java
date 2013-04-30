@@ -1,6 +1,7 @@
 package WiSAR.Agents;
 
 import java.util.ArrayList;
+
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
@@ -9,6 +10,10 @@ import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
+import WiSAR.Actors;
+import WiSAR.Durations;
+import WiSAR.submodule.UAVBattery;
+import WiSAR.submodule.UAVFlightPlan;
 
 public class UAVRole extends Actor  {
 	
@@ -75,6 +80,7 @@ public class UAVRole extends Actor  {
     	
     	//Add children
     	_sub_actors.add(new UAVBattery());
+    	_sub_actors.add(new UAVFlightPlan());
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -199,6 +205,14 @@ public class UAVRole extends Actor  {
 		 * Get observations of sub actors
 		 */
 		handleBatteryObservations();
+<<<<<<< Upstream, based on origin/master
+=======
+		if(_battery == UAVBattery.Outputs.BATTERY_DEAD){
+			nextState(States.UAV_CRASHED,1);
+			return;
+		}
+		handleFlightPlanObservations();
+>>>>>>> 86f791f merged with pull
 		
 		switch ( (States) state() ) {
 			case UAV_READY:
@@ -219,6 +233,8 @@ public class UAVRole extends Actor  {
 				if(input.contains(OperatorGUIRole.Outputs.LAND)){
 					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
 					nextState(States.UAV_LANDED,duration);
+				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
+					nextState(States.UAV_FLYING,sim().duration(Durations.UAV_TAKE_OFF_DUR.range()));
 				}
 				//Handle new Flight path
 //				if(_flight_plan){
@@ -240,6 +256,8 @@ public class UAVRole extends Actor  {
 			case UAV_FLYING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
 					nextState(States.UAV_CRASHED, 1);
+				} else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE){
+					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_ADJUST_PATH.range()));
 				}
 				//Handle New Flight Path
 //				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
@@ -251,8 +269,8 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_LANDING,duration);
 				}
 				//Handle Loiter Cmd
-				else{
-					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
+				else if(_input.contains(OperatorGUIRole.Outputs.LOITER)){
+					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LOITERING,duration);
 //					_flight_plan = false;
 				}
@@ -260,6 +278,10 @@ public class UAVRole extends Actor  {
 			case UAV_LOITERING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
 					nextState(States.UAV_CRASHED, 1);
+				}else{
+					if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
+						nextState(States.UAV_FLYING,1);
+					}
 				}
 				//Handle New Flight Path
 //				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
@@ -306,8 +328,14 @@ public class UAVRole extends Actor  {
 				break;
 		}//end switch
 		
+<<<<<<< Upstream, based on origin/master
+=======
+		}
+		_input.clear();
+>>>>>>> 86f791f merged with pull
 	}
 	
+
 	/**
 	 * Make these things on the UAV observable
 	 */
@@ -358,4 +386,10 @@ public class UAVRole extends Actor  {
 		}
 	}
 
+	private void handleFlightPlanObservations() {
+		ArrayList<IData> observations = sim().getObservations(Actors.UAV_FLIGHT_PLAN.name());
+		if ( observations.size() > 0 ) {
+			_flight_plan = observations.get(0);
+		}
+	}
 }
