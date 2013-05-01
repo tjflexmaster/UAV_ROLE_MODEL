@@ -64,6 +64,7 @@ public enum Durations {
 	VO_TX_OPERATOR_BAD_STREAM(new Range(60, 1800)),
 	VO_TX_OPERATOR_STREAM_ENDED(new Range(60, 1800)),
 	VO_TX_OPERATOR_LOOK_CLOSER(new Range(60, 1800)), 
+	VO_FLYBY_DUR(new Range(60,1800)),
 	
 	/**
 	 * VideoGUI assumptions
@@ -80,7 +81,7 @@ public enum Durations {
 	/**
 	 * Flyby assumptions
 	 */
-	FLYBY_FIND_ANOMALY(new Range(300,1200));
+	FLYBY_FIND_ANOMALY(new Range(60,1200));
 
 	private Range _range;
 	

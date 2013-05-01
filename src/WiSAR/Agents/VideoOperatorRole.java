@@ -38,18 +38,27 @@ public class VideoOperatorRole extends Actor
 		VO_CLICK_FRAME,
 		VO_END_FEED,
 		VO_START_FEED,
+		VO_FLYBY_T, 
+		VO_FLYBY_F, 
+		VO_FLYBY_END,
+		VO_ANOMALY_DETECTED_HIGH_T,
+		VO_ANOMALY_DETECTED_HIGH_F,
 		
 		/**
 		 * For the OPERATOR
 		 */
-		VO_LOOK_CLOSER,
 		VO_BAD_STREAM,
 		VO_STREAM_ENDED,
 		
 		/**
 		 * For the MM
 		 */
-		VO_FOUND_ANOMALY, 
+		VO_ANOMALY_DETECTED_LOW_T,//not used
+		VO_ANOMALY_DETECTED_LOW_F,//not used
+		VO_ANOMALY_DETECTED_MED_T,
+		VO_ANOMALY_DETECTED_MED_F,
+		VO_SEARCH_TARGET_FOUND_T,
+		VO_SEARCH_TARGET_FOUND_F,
 		
 		
 	} /**
@@ -64,8 +73,9 @@ public class VideoOperatorRole extends Actor
 	    IDLE,
 	    ACK_MM,
         RX_MM,
-		OBSERVING,					//1 idle state, analyst is observing the feed, listening for instructions, and monitoring physical world
-	    POKE_GUI,
+		OBSERVING_NORMAL,
+		OBSERVING_FLYBY,
+		POKE_GUI,
 	    TX_GUI,
 	    END_GUI,
 	    POKE_MM,
@@ -118,15 +128,15 @@ public class VideoOperatorRole extends Actor
 	        // if no acknowledgment is received then return to observing.
 	        case POKE_GUI:
 	        	sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POKE);
-	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_VGUI_DUR.range()));
+	        	nextState(States.OBSERVING_NORMAL,sim().duration(Durations.VO_POKE_VGUI_DUR.range()));
 	        	break;
 	        case POKE_MM:
 	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_POKE);
-	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_MM_DUR.range()));
+	        	nextState(States.OBSERVING_NORMAL,sim().duration(Durations.VO_POKE_MM_DUR.range()));
 	        	break;
 	        case POKE_OPERATOR:
 	        	sim().addOutput(Actors.OPERATOR.name(), Outputs.VO_POKE);
-	        	nextState(States.OBSERVING,sim().duration(Durations.VO_POKE_OPERATOR_DUR.range()));
+	        	nextState(States.OBSERVING_NORMAL,sim().duration(Durations.VO_POKE_OPERATOR_DUR.range()));
 	        	break;
 	        //Transmission states : wait the time for transmission then go to the end transmission state. 	
 	        case TX_GUI:
@@ -143,8 +153,6 @@ public class VideoOperatorRole extends Actor
 	        		duration = sim().duration(Durations.VO_TX_OPERATOR_BAD_STREAM.range());
 	        	else if(tasks.peek() == Outputs.VO_STREAM_ENDED)
 	        		duration = sim().duration(Durations.VO_TX_OPERATOR_STREAM_ENDED.range());
-	        	else if(tasks.peek() == Outputs.VO_LOOK_CLOSER)
-	        		duration = sim().duration(Durations.VO_TX_OPERATOR_LOOK_CLOSER.range());
 	        	else{
 	        		//TODO handle more outputs
 	        	}
@@ -162,14 +170,14 @@ public class VideoOperatorRole extends Actor
 	        	else{
 	        		//TODO handle different outputs
 	        	}
-	        	nextState(States.OBSERVING,1);
+	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case END_MM:
 	        	output = tasks.poll();
 	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_END);
-	        	if(output == Outputs.VO_FOUND_ANOMALY)
+	        	if(output != null)
 	        		sim().addOutput(Actors.MISSION_MANAGER.name(), output);
-	        	nextState(States.OBSERVING,1);
+	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case END_OPERATOR:
 	        	//TODO implement comm with OPERATOR
@@ -178,9 +186,7 @@ public class VideoOperatorRole extends Actor
 	        		sim().addOutput(Actors.OPERATOR.name(), output);
 	        	else if(output == Outputs.VO_STREAM_ENDED)
 	        		sim().addOutput(Actors.OPERATOR.name(), output);
-	        	else if(output == Outputs.VO_LOOK_CLOSER)
-	        		sim().addOutput(Actors.OPERATOR.name(), output);
-	        	nextState(States.OBSERVING,1);
+	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case IDLE:
 	        	IData current_task = tasks.peek();
@@ -201,7 +207,6 @@ public class VideoOperatorRole extends Actor
 	    		/**
 	    		 * For the OPERATOR
 	    		 */
-	        	case VO_LOOK_CLOSER:
 	        	case VO_BAD_STREAM:
 	        	case VO_STREAM_ENDED:
 	        		nextState(States.POKE_OPERATOR,1);
@@ -209,7 +214,7 @@ public class VideoOperatorRole extends Actor
 	    		/**
 	    		 * For the MM
 	    		 */
-	        	case VO_FOUND_ANOMALY: 
+	        	case VO_SEARCH_TARGET_FOUND_T: 
 	        		nextState(States.POKE_MM,1);
 	        		break;
 				default:
@@ -252,12 +257,12 @@ public class VideoOperatorRole extends Actor
 				}
 				break;
 		//Check the inputs from the GUI and if the MM has initiated a handshake.
-			case OBSERVING:
+			case OBSERVING_NORMAL:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
 				if(video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
 				{
-					//memory.add(Outputs.VO_BAD_STREAM);
 					tasks.add(Outputs.VO_BAD_STREAM);
+					//memory.add(Outputs.VO_BAD_STREAM);
 					//nextState(States.POKE_OPERATOR, 1);
 				} 
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
@@ -273,17 +278,17 @@ public class VideoOperatorRole extends Actor
 				}
 				else if(video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE))
 				{
-					tasks.add(Outputs.VO_FOUND_ANOMALY);
+					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE));
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
 				}
 				else if(video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE))
 				{
-					tasks.add(Outputs.VO_FOUND_ANOMALY);
+					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE));
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
 				}
-				nextState(States.OBSERVING,1);
+				nextState(States.OBSERVING_NORMAL,1);
 				break;
 			case POKE_GUI:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
@@ -302,6 +307,19 @@ public class VideoOperatorRole extends Actor
 				break;
 		}//end switch
 		
+	}
+
+	private IData detectAnomaly(VideoGUIRole.Outputs anomaly) {
+		IData certainty = Outputs.VO_ANOMALY_DETECTED_LOW_F;
+		int percent = (int) (Math.random()*100);
+		if(anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE){
+			if(percent < 33){
+				
+			}
+		}else if(anomaly == VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE){
+			
+		}
+		return null;
 	}
 
    
