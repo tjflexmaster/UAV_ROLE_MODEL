@@ -253,8 +253,6 @@ public class Simulator {
 					_team.processInputs();
 					if (debug())
 						System.out.println("Updating Finished\n");
-					if(_timer.time() > 2000)
-						break;
 				}
 			}//end while
 			if (debug())
