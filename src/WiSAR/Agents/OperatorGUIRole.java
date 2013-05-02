@@ -14,6 +14,7 @@ import WiSAR.submodule.UAVFlightPlan;
 public class OperatorGUIRole extends Actor {
  
 	int flight_paths = 0;
+	int _unacknowledged_paths_completed = 0;
 	
     public enum Outputs implements IData
     {
@@ -35,6 +36,7 @@ public class OperatorGUIRole extends Actor {
 		LANDING, 
 		BAD_PATH, 
 		ACK_OGUI, 
+		
 		/**
 		 * UAV outputs
 		 */
@@ -42,12 +44,25 @@ public class OperatorGUIRole extends Actor {
 		OGUI_PATH_END,
 		UAV_FOUND, 
 		RESUME_PATH,
+		
 		/**
 		 * VGUI outputs
 		 */
 		OGUI_FLYBY_T,
 		OGUI_FLYBY_F, 
-		OGUI_FLYBY_END,
+		OGUI_FLYBY_END, 
+		
+		/**
+		 * OP outputs
+		 */
+		OGUI_PATH_COMPLETE,
+		OGUI_IDLE,
+		OGUI_TAKING_OFF,
+		OGUI_IN_AIR,
+		OGUI_LANDING,
+		OGUI_CRASHING,
+		OGUI_LOST,
+		OGUI_PATH_NO
     }
    
     public enum States implements IStateEnum
@@ -99,7 +114,7 @@ public class OperatorGUIRole extends Actor {
 				break;
 			case RX_OP:
 				if(input.contains(OperatorRole.Outputs.OP_END)){
-					if (input.contains(OperatorRole.Outputs.PATH)) {
+					if (input.contains(OperatorRole.Outputs.OP_PATH_NEW)) {
 						flight_paths++;
 						sim().addOutput(Actors.UAV.name(), Outputs.GOOD_PATH);
 					}
@@ -119,8 +134,11 @@ public class OperatorGUIRole extends Actor {
 						nextState(States.UAV_IDLE,1);
 					}else if(uav_data.contains(UAVRole.Outputs.UAV_LANDED)){
 						nextState(States.UAV_IDLE,1);
-					}else
+					}else if(input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_COMPLETE_ACK)){
+						_unacknowledged_paths_completed--;
+					}else{
 						nextState(States.UAV_IN_AIR,1);
+					}
 				}
 				break;
 			case UAV_TAKING_OFF:
@@ -145,6 +163,13 @@ public class OperatorGUIRole extends Actor {
 				if(flight_paths > 0 && uav_data.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO)){
 					flight_paths--;
 					sim().addOutput(Actors.UAV_FLIGHT_PLAN.name(), Outputs.OGUI_PATH_NEW);
+				}else if(uav_data.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE)){
+					_unacknowledged_paths_completed++;
+					if(flight_paths > 0){
+						flight_paths--;
+						sim().addOutput(Actors.UAV_FLIGHT_PLAN.name(), Outputs.OGUI_PATH_NEW);
+					}
+					nextState(States.UAV_IN_AIR,1);
 				}
 //				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
 //					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OP_GUI);
@@ -193,8 +218,34 @@ public class OperatorGUIRole extends Actor {
 			default:
 				break;
 		}
+		setObservables();
     }
 
+	private void setObservables(){
+		if(_unacknowledged_paths_completed > 0){
+			sim().addObservation(Outputs.OGUI_PATH_COMPLETE, this.name());
+		}
+		IData state = Outputs.OGUI_IDLE;
+		switch((States)state()){
+		case UAV_LOST:
+			state = Outputs.OGUI_LOST;
+			break;
+		case UAV_CRASHING:
+			state = Outputs.OGUI_CRASHING;
+			break;
+		case UAV_IN_AIR:
+			state = Outputs.OGUI_IN_AIR;
+			break;
+		case UAV_LANDING:
+			state = Outputs.OGUI_LANDING;
+			break;
+		case UAV_TAKING_OFF:
+			state = Outputs.OGUI_TAKING_OFF;
+			break;
+		default:
+		}
+		sim().addObservation(state, this.name());
+	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////

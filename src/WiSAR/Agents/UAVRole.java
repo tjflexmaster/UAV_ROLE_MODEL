@@ -101,7 +101,7 @@ public class UAVRole extends Actor  {
 		int min_next_state_time = 0;
 		for(IActor child : _sub_actors) {
 			int time = child.nextStateTime();
-			if ( time  > 0 ) {
+			if ( time  > 0 && min_next_state_time > 0) {
 				min_next_state_time = Math.min(time, min_next_state_time);
 			} else {
 				min_next_state_time = Math.max(time, min_next_state_time);

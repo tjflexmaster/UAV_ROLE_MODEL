@@ -89,7 +89,6 @@ public class UAVFlightPlan extends Actor {
 		default:
 			break;
 		}
-		setObservations();
 		input.clear();
 	}
 	private void resume() {

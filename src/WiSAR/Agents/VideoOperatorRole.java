@@ -223,7 +223,6 @@ public class VideoOperatorRole extends Actor
 				}
 				break;
 			case RX_MM:
-				System.out.println("here-------------------------------");
 				if(input.contains(MissionManagerRole.Outputs.MM_END))
 				{
 					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI))
@@ -252,29 +251,30 @@ public class VideoOperatorRole extends Actor
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
 				{
 					tasks.add(Outputs.VO_BAD_STREAM);
+					nextState(States.OBSERVING_NORMAL,1);
 					//memory.add(Outputs.VO_BAD_STREAM);
 					//nextState(States.POKE_OPERATOR, 1);
 				} 
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_NO_STREAM))
 				{
 					tasks.add(Outputs.VO_STREAM_ENDED);
+					nextState(States.OBSERVING_NORMAL,1);
 					//memory.add(Outputs.VO_STREAM_ENDED);
 					//nextState(States.POKE_OPERATOR, 1);
 				}
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE));
+					nextState(States.OBSERVING_NORMAL,1);
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
 				}
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE));
+					nextState(States.OBSERVING_NORMAL,1);
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
-				}
-				else {
-					nextState(States.OBSERVING_NORMAL,1);
 				}
 				break;
 			case OBSERVING_FLYBY:

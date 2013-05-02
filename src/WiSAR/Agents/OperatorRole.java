@@ -1,6 +1,7 @@
 package WiSAR.Agents;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
@@ -9,6 +10,8 @@ import WiSAR.Actors;
 import WiSAR.Durations;
 
 public class OperatorRole extends Actor {
+	
+	PriorityQueue<IData> tasks;
 	
 	/**
 	 * private assumptions
@@ -33,12 +36,23 @@ public class OperatorRole extends Actor {
 		OP_BUSY,
 		OP_TX,
 		OP_END,
+		/**
+		 * MM Outputs
+		 */
 		OP_SEARCH_AOI_COMPLETE,
 		OP_SEARCH_AOI_FAILED,
 		TAKE_OFF,
 		LOITER, 
 		LAND,
-		PATH, END_SEARCH
+		PATH, 
+		
+		/**
+		 * OGUI Outputs
+		 */
+		END_SEARCH, 
+		OP_SEARCH_AOI_COMPLETE_ACK,
+		OP_PATH_NEW,
+		OP_PATH_END, OP_LAND
 	}
 	
 	public enum States implements IStateEnum
@@ -101,6 +115,7 @@ public class OperatorRole extends Actor {
 		nextState(States.IDLE, 1);
 		uav_state = Assumptions.LANDED;
 		current_output = null;
+		tasks = new PriorityQueue<IData>();
 	}
 	
 	@Override
@@ -118,7 +133,15 @@ public class OperatorRole extends Actor {
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
 			case IDLE:
-				nextState(null, 0);
+				if(!tasks.isEmpty()){
+					IData next_action = tasks.peek();
+					if(next_action == Outputs.OP_PATH_NEW){
+						nextState(States.POKE_GUI,1);
+					}else if(next_action == Outputs.OP_PATH_END){
+						nextState(States.POKE_GUI,1);
+					}
+				}else
+					nextState(null, 0);
 				break;
 			case POKE_MM:
 				nextState(States.IDLE, sim().duration(Durations.OPERATOR_POKE_MM_DUR.range()) );
@@ -135,10 +158,30 @@ public class OperatorRole extends Actor {
 				break;
 			case OBSERVING_UAV:
 				//We should only get here if the UAV is flying
-				nextState(States.OBSERVING_GUI, sim().duration(Durations.OPERATOR_OBSERVE_UAV_DUR.range()) );
+				if(!tasks.isEmpty()){
+					IData next_action = tasks.peek();
+					if(next_action == Outputs.OP_PATH_NEW){
+						nextState(States.POKE_GUI,1);
+					}else if(next_action == Outputs.OP_PATH_END){
+						nextState(States.POKE_GUI,1);
+					}else if(next_action == Outputs.OP_SEARCH_AOI_COMPLETE){
+						nextState(States.POKE_MM,1);
+					}
+				}else
+					nextState(States.OBSERVING_GUI, sim().duration(Durations.OPERATOR_OBSERVE_UAV_DUR.range()) );
 				break;
 			case OBSERVING_GUI:
-				nextState(States.OBSERVING_UAV, sim().duration(Durations.OPERATOR_OBSERVE_UGUI_DUR.range()) );
+				if(!tasks.isEmpty()){
+					IData next_action = tasks.peek();
+					if(next_action == Outputs.OP_PATH_NEW){
+						nextState(States.POKE_GUI,1);
+					}else if(next_action == Outputs.OP_PATH_END){
+						nextState(States.POKE_GUI,1);
+					}else if(next_action == Outputs.OP_SEARCH_AOI_COMPLETE){
+						nextState(States.POKE_MM,1);
+					}
+				}else
+					nextState(States.OBSERVING_UAV, sim().duration(Durations.OPERATOR_OBSERVE_UGUI_DUR.range()) );
 				break;
 			case LAUNCH_UAV:
 				//Give command to the GUI to take off
@@ -159,12 +202,15 @@ public class OperatorRole extends Actor {
 				break;
 			case END_GUI:
 				sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.OP_END);
-				if(current_output == Outputs.PATH){
-					sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.PATH);
+				IData output = tasks.poll();
+				if(output == Outputs.OP_PATH_NEW){
+					sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.OP_PATH_NEW);
+				}else if(output == Outputs.OP_PATH_END){
+					sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.OP_PATH_END);
 				}
 				if(uav_state == Assumptions.FLYING){
 					//TODO check for communications that are relevant to when the UAV is aloft
-				}else{
+				}else if(output == Outputs.OP_PATH_NEW){
 					//if(current_output == Outputs.PATH){
 						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.TAKE_OFF);
 						nextState(States.LAUNCH_UAV,sim().duration(Durations.OPERATOR_LAUNCH_UAV_DUR.range()));
@@ -239,19 +285,21 @@ public class OperatorRole extends Actor {
 					//TODO Handle relevant inputs from the MM such as terminate search and new search aoi
 					ArrayList<IData> gui_feed = sim().getObservations(Actors.OPERATOR_GUI.name());
 					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI)){
-						current_output = Outputs.PATH;
-						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
-							nextState(States.POKE_GUI,1);
-						}else{
-							nextState(States.POKE_GUI,1);
-						}
+						tasks.add(Outputs.OP_PATH_NEW);
+//						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
+//							nextState(States.POKE_GUI,1);
+//						}else{
+//							nextState(States.POKE_GUI,1);
+//						}
 					}else if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED)){
-						current_output = Outputs.END_SEARCH;
-						if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
-							nextState(States.POKE_GUI,1);
-						}else{
-							nextState(States.IDLE,1);
-						}
+						assert gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR) : "The UAV has not yet left the ground";
+						tasks.add(Outputs.END_SEARCH);
+						//nextState(States.POKE_GUI,1);
+					}
+					if(gui_feed.contains(OperatorGUIRole.Outputs.IN_AIR)){
+						nextState(States.OBSERVING_GUI,1);
+					} else {
+						nextState(States.IDLE,1);
 					}
 				}
 				
@@ -271,17 +319,21 @@ public class OperatorRole extends Actor {
 				uav_output = sim().getObservations(Actors.UAV.name());
 				//TODO handle this output accordingly
 				if(uav_output.contains(UAVRole.Outputs.UAV_FLIGHT_PLAN_NO)){
-					current_output = Outputs.LAND;
-					nextState(States.POKE_GUI,1);
+					//current_output = Outputs.LAND;
+					tasks.add(Outputs.OP_LAND);
+					nextState(States.OBSERVING_UAV,1);
 				}
 				break;
 			case OBSERVING_GUI:
 				gui_output = sim().getObservations(Actors.OPERATOR_GUI.name());
 				
 				//TODO Handle GUI input
-				if(gui_output.contains(OperatorGUIRole.Outputs.NO_PATH)){
-					current_output = Outputs.LAND;
-					nextState(States.POKE_GUI,1);
+				if(gui_output.contains(OperatorGUIRole.Outputs.OGUI_PATH_COMPLETE)){
+					tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
+					if(gui_output.contains(OperatorGUIRole.Outputs.OGUI_PATH_NO)){
+						tasks.add(Outputs.OP_LAND);
+					}
+					nextState(States.OBSERVING_GUI,1);
 				}
 				
 				break;
