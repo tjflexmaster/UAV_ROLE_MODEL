@@ -41,7 +41,12 @@ public class OperatorGUIRole extends Actor {
 		OGUI_PATH_NEW,
 		OGUI_PATH_END,
 		UAV_FOUND, 
-		RESUME_PATH
+		RESUME_PATH,
+		/**
+		 * GUI to GUI outputs
+		 */
+		OGUI_FLYBY_T,
+		OGUI_FLYBY_F
     }
    
     public enum States implements IStateEnum

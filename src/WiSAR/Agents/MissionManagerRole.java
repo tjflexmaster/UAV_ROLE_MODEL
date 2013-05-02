@@ -43,7 +43,8 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * global outputs
 		 */
-		MM_BUSY
+		MM_BUSY, 
+		MM_SEARCH_FAILED
 	}
 	
 	/**
@@ -148,12 +149,12 @@ public class MissionManagerRole extends Actor {
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
+				nextState(States.IDLE, 1);
 				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_END);
 				if(current_output == Outputs.MM_SEARCH_AOI_COMPLETE)
 					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
 				else if(current_output == Outputs.MM_FOUND_ANOMALY)
 					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_FOUND_ANOMALY);
-				nextState(States.IDLE, 1);
 				break;
 			case END_OP:
 				nextState(States.IDLE, 1);
@@ -169,8 +170,8 @@ public class MissionManagerRole extends Actor {
 				}
 				break;
 			case END_VO:
-				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
 				nextState(States.IDLE, 1);
+				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
 				if(current_output == Outputs.MM_SEARCH_AOI)
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI);
 				else if(current_output == Outputs.MM_SEARCH_TERMINATED)
@@ -196,7 +197,6 @@ public class MissionManagerRole extends Actor {
 				nextState(null, 0);
 				break;
 		}
-		
 		return;
 	}
 
@@ -252,11 +252,12 @@ public class MissionManagerRole extends Actor {
 				break;
 			case RX_VO:
 				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
-					if(input.contains(VideoOperatorRole.Outputs.VO_FOUND_ANOMALY)){
+					if(input.contains(VideoOperatorRole.Outputs.VO_LIKELY_ANOMALY_DETECTED_T)){
 						current_output = Outputs.MM_FOUND_ANOMALY;
 						nextState(States.POKE_PS,1);
 					}else{
 						//TODO handle other inputs from Video Operator
+						nextState(States.IDLE,1);
 					}
 				}
 				break;
@@ -297,6 +298,4 @@ public class MissionManagerRole extends Actor {
 				break;
 		}
 	}
-	
-
 }

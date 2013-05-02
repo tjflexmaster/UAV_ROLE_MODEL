@@ -12,6 +12,8 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.Agents.OperatorRole.Outputs;
+
 import java.util.PriorityQueue;
 
 /**
@@ -38,27 +40,19 @@ public class VideoOperatorRole extends Actor
 		VO_CLICK_FRAME,
 		VO_END_FEED,
 		VO_START_FEED,
-		VO_FLYBY_T, 
-		VO_FLYBY_F, 
+		VO_UNLIKELY_ANOMALY_DETECTED_T, 
+		VO_UNLIKELY_ANOMALY_DETECTED_F, 
+		VO_POSSIBLE_ANOMALY_DETECTED_T, 
+		VO_POSSIBLE_ANOMALY_DETECTED_F, 
+		VO_LIKELY_ANOMALY_DETECTED_T,
+		VO_LIKELY_ANOMALY_DETECTED_F,
 		VO_FLYBY_END,
-		VO_ANOMALY_DETECTED_HIGH_T,
-		VO_ANOMALY_DETECTED_HIGH_F,
 		
 		/**
 		 * For the OPERATOR
 		 */
 		VO_BAD_STREAM,
 		VO_STREAM_ENDED,
-		
-		/**
-		 * For the MM
-		 */
-		VO_ANOMALY_DETECTED_LOW_T,//not used
-		VO_ANOMALY_DETECTED_LOW_F,//not used
-		VO_ANOMALY_DETECTED_MED_T,
-		VO_ANOMALY_DETECTED_MED_F,
-		VO_SEARCH_TARGET_FOUND_T,
-		VO_SEARCH_TARGET_FOUND_F,
 		
 		
 	} /**
@@ -71,7 +65,6 @@ public class VideoOperatorRole extends Actor
 	public enum States implements IStateEnum
 	{
 	    IDLE,
-	    ACK_MM,
         RX_MM,
 		OBSERVING_NORMAL,
 		OBSERVING_FLYBY,
@@ -117,15 +110,8 @@ public class VideoOperatorRole extends Actor
         IData output;
         //TODO handle outputing BUSY_VO
         switch((States)nextState()) {
-	        case ACK_MM:
-	        	//simulator().addOutput(Actors.MISSION_MANAGER.name(), MissionManagerRole.Inputs.ACK_VO);
-	        	nextState(States.RX_MM,1);
-	        	break;
-	        case RX_MM:
-	        	nextState(States.IDLE,sim().duration(Durations.VO_RX_MM_DUR.range()));
-	        	break;
 	        //wait the specified time to receive an acknowledgment from the receiver,
-	        // if no acknowledgment is received then return to observing.
+	        //if no acknowledgment is received then return to observing.
 	        case POKE_GUI:
 	        	sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POKE);
 	        	nextState(States.OBSERVING_NORMAL,sim().duration(Durations.VO_POKE_VGUI_DUR.range()));
@@ -138,15 +124,11 @@ public class VideoOperatorRole extends Actor
 	        	sim().addOutput(Actors.OPERATOR.name(), Outputs.VO_POKE);
 	        	nextState(States.OBSERVING_NORMAL,sim().duration(Durations.VO_POKE_OPERATOR_DUR.range()));
 	        	break;
-	        //Transmission states : wait the time for transmission then go to the end transmission state. 	
-	        case TX_GUI:
-	        	//TODO transmit different durations based on output
-	        	nextState(States.END_GUI, sim().duration(Durations.VO_TX_VGUI_DUR.range()));
-	        	break;
+	        //Transmission states : wait the time for transmission then go to the end transmission state.
 	        case TX_MM:
 	        	//TODO transmit different durations based on output
 	        	nextState(States.END_MM, sim().duration(Durations.VO_TX_MM_DUR.range()));
-	        	break;
+	        	break; 	
 	        case TX_OPERATOR:
 	        	int duration = 1;
 	        	if(tasks.peek() == Outputs.VO_BAD_STREAM)
@@ -157,6 +139,10 @@ public class VideoOperatorRole extends Actor
 	        		//TODO handle more outputs
 	        	}
 	        	nextState(States.END_OPERATOR, duration);
+	        	break;
+	        case TX_GUI:
+	        	//TODO transmit different durations based on output
+	        	nextState(States.END_GUI, sim().duration(Durations.VO_TX_VGUI_DUR.range()));
 	        	break;
 	        //For all the end transmission states update the inputs to the receivers then return to observation.
 	        case END_GUI:
@@ -195,32 +181,26 @@ public class VideoOperatorRole extends Actor
 					break;
 	        	}
 	        	switch((Outputs)current_task){
-	    		/**
-	    		 * For the GUI
-	    		 */
-	        	case VO_GET_DATA:
-	        	case VO_CLICK_FRAME:
-	        	case VO_END_FEED:
-	        	case VO_START_FEED:
-	        		nextState(States.POKE_GUI,1);
-	        		break;
-	    		/**
-	    		 * For the OPERATOR
-	    		 */
-	        	case VO_BAD_STREAM:
-	        	case VO_STREAM_ENDED:
-	        		nextState(States.POKE_OPERATOR,1);
-	        		break;
-	    		/**
-	    		 * For the MM
-	    		 */
-	        	case VO_SEARCH_TARGET_FOUND_T: 
-	        		nextState(States.POKE_MM,1);
-	        		break;
-				default:
-					nextState(null,0);
-					break;
-	        	}
+		    		/**
+		    		 * For the GUI
+		    		 */
+		        	case VO_GET_DATA:
+		        	case VO_CLICK_FRAME:
+		        	case VO_END_FEED:
+		        	case VO_START_FEED:
+		        		nextState(States.POKE_GUI,1);
+		        		break;
+		    		/**
+		    		 * For the OPERATOR
+		    		 */
+		        	case VO_BAD_STREAM:
+		        	case VO_STREAM_ENDED:
+		        		nextState(States.POKE_OPERATOR,1);
+		        		break;
+					default:
+						nextState(null,0);
+						break;
+		        	}
 	        default:
 	        	nextState(null,0);
 	        	break;
@@ -237,58 +217,71 @@ public class VideoOperatorRole extends Actor
 		
 		switch( (States) state() ) {
 			case IDLE:
-				if(input.contains(Outputs.VO_POKE))
-					nextState(States.ACK_MM,1);//we need to code state ack_mm
+				if (input.contains(MissionManagerRole.Outputs.MM_POKE)) {
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_ACK);
+					nextState(States.RX_MM,1);
+				}
 				break;
 			case RX_MM:
+				System.out.println("here-------------------------------");
 				if(input.contains(MissionManagerRole.Outputs.MM_END))
 				{
 					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI))
 					{
-						//memory.add(Outputs.VO_START_FEED);
 						tasks.add(Outputs.VO_START_FEED);
+						nextState(States.OBSERVING_NORMAL,1);
 					}
 					else if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED))
 					{
-						//memory.add(Outputs.VO_END_FEED);
 						tasks.add(Outputs.VO_END_FEED);
+						nextState(States.IDLE,1);
 					}
-					nextState(States.IDLE,1);
+					else {
+						nextState(States.OBSERVING_NORMAL,1);
+					}
 				}
 				break;
-		//Check the inputs from the GUI and if the MM has initiated a handshake.
+			//Check the inputs from the GUI and if the MM has initiated a handshake.
 			case OBSERVING_NORMAL:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
-				if(video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
+				if (input.contains(MissionManagerRole.Outputs.MM_POKE))
+				{
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_ACK);
+					nextState(States.RX_MM,1);
+				}
+				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
 				{
 					tasks.add(Outputs.VO_BAD_STREAM);
 					//memory.add(Outputs.VO_BAD_STREAM);
 					//nextState(States.POKE_OPERATOR, 1);
 				} 
-				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_BAD_STREAM))
+				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_NO_STREAM))
 				{
 					tasks.add(Outputs.VO_STREAM_ENDED);
 					//memory.add(Outputs.VO_STREAM_ENDED);
 					//nextState(States.POKE_OPERATOR, 1);
 				}
-				else if (input.contains(MissionManagerRole.Outputs.MM_POKE))
-				{
-					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_ACK);
-					nextState(States.RX_MM,1);
-				}
-				else if(video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE))
+				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE));
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
 				}
-				else if(video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE))
+				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE));
 					//memory.add(Outputs.VO_FOUND_ANOMALY);
 					//nextState(States.POKE_GUI,1);
 				}
-				nextState(States.OBSERVING_NORMAL,1);
+				else {
+					nextState(States.OBSERVING_NORMAL,1);
+				}
+				break;
+			case OBSERVING_FLYBY:
+//				if ("finished flyby")
+//				{
+//					sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END);
+//				}
 				break;
 			case POKE_GUI:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
@@ -299,6 +292,9 @@ public class VideoOperatorRole extends Actor
 				if(input.contains(MissionManagerRole.Outputs.MM_ACK))
 					nextState(States.TX_MM,1);
 				break;
+			case TX_GUI:
+				//don't allow inputs here
+				break;
 			case POKE_OPERATOR:
 				if(input.contains(OperatorRole.Outputs.OP_ACK))
 					nextState(States.TX_OPERATOR,1);
@@ -306,18 +302,27 @@ public class VideoOperatorRole extends Actor
 			default:
 				break;
 		}//end switch
-		
 	}
 
 	private IData detectAnomaly(VideoGUIRole.Outputs anomaly) {
-		IData certainty = Outputs.VO_ANOMALY_DETECTED_LOW_F;
-		int percent = (int) (Math.random()*100);
-		if(anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE){
-			if(percent < 33){
-				
+		//we need params to verify an anomaly, but a random number works for now
+		int percent = (int) (Math.random() * 100);
+		if (anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) {
+			if (percent < 33) {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_UNLIKELY_ANOMALY_DETECTED_T);
+			} else if (percent >= 66) {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
+			} else {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_T);
 			}
 		}else if(anomaly == VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE){
-			
+			if (percent < 33) {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_UNLIKELY_ANOMALY_DETECTED_F);
+			} else if (percent >= 66) {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
+			} else {
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_F);
+			}
 		}
 		return null;
 	}

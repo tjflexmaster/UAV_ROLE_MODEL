@@ -166,7 +166,7 @@ public class ParentSearch extends Actor {
 					}
 					
 					//TODO Add Search Failed to the Mission Manager
-					if (input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE)) {
+					if (input.contains(MissionManagerRole.Outputs.MM_SEARCH_FAILED)) {
 						_received_search_aoi = _sent_search_aoi;
 					}
 					

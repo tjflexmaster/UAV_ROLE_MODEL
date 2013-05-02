@@ -26,40 +26,6 @@ public class OperatorRole extends Actor {
 	 *  STATE VARS
 	 */
 	
-//	public enum Inputs implements IInputEnum
-//	{
-//		/**
-//		 * PS Inputs
-//		 */
-//		SEARCH_AOI,
-//		TERMINATE_SEARCH,
-//		
-//		/**
-//		 * Search Inputs (Only received during RX)
-//		 */
-//		LOW_BAT,
-//		LOW_HAG,
-//		HAG_OK,
-//		LOSS_OF_SIGNAL,
-//		SIGNAL_OK,
-//		UAV_CRASH,
-//		FLIGHT_COMPLETE,
-//		BAD_PATH,
-//		OK_PATH,
-//		
-//		/**
-//		 * Communication Inputs
-//		 */
-//		POKE_MM,
-//		BUSY_MM,
-//		ACK_MM,
-//		END_MM,
-//		POKE_VA,
-//		BUSY_VA,
-//		ACK_VA,
-//		END_VA
-//	}
-	
 	public enum Outputs implements IData
 	{
 		OP_POKE,
@@ -151,6 +117,9 @@ public class OperatorRole extends Actor {
 		//Each state has a designated duration
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
+			case IDLE:
+				nextState(null, 0);
+				break;
 			case POKE_MM:
 				nextState(States.IDLE, sim().duration(Durations.OPERATOR_POKE_MM_DUR.range()) );
 				break;
@@ -161,9 +130,6 @@ public class OperatorRole extends Actor {
 			case END_MM:
 				nextState(States.IDLE, 1);
 				break;
-//			case ACK_MM:
-//				nextState(States.RX_MM, 1);
-//				break;
 			case RX_MM:
 				nextState(States.IDLE, sim().duration(Durations.OPERATOR_RX_MM_DUR.range()) );
 				break;
@@ -219,9 +185,6 @@ public class OperatorRole extends Actor {
 				//TODO set the next state based on if their is an active search or not
 				nextState(States.IDLE, 1);
 				break;
-			case IDLE:
-				nextState(null, 0);
-				break;
 			default:
 				nextState(null, 0);
 				break;
@@ -239,6 +202,16 @@ public class OperatorRole extends Actor {
 		ArrayList<IData> input = sim().getInput(this.name());
 		
 		switch((States) state() ) {
+			case IDLE:
+				//TODO Watch for commands from the MM or VO
+				if (input.contains(MissionManagerRole.Outputs.MM_POKE)) {
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_ACK);
+					nextState(States.RX_MM,1);
+				}
+				//TODO Act on internal states, such as UAV airborne, or more search areas need to be searched
+				//TODO Do this using priority
+				
+				break;
 			case POKE_MM:
 				//Always respond to an ACK_MM
 				if (input.contains(MissionManagerRole.Outputs.MM_ACK)) {
@@ -341,16 +314,6 @@ public class OperatorRole extends Actor {
 				break;
 			case WAIT_GUI:
 				//No interruptions
-				break;
-			case IDLE:
-				//TODO Watch for commands from the MM or VO
-				if(input.contains(MissionManagerRole.Outputs.MM_POKE)){
-					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_ACK);
-					nextState(States.RX_MM,1);
-				}
-				//TODO Act on internal states, such as UAV airborne, or more search areas need to be searched
-				//TODO Do this using priority
-				
 				break;
 			default:
 				//Do nothing for states not mentioned
