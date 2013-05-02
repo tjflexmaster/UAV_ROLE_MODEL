@@ -28,8 +28,9 @@ public class ParentSearch extends Actor {
 	 */
 	public enum Outputs implements IData
 	{
-		SEARCH_AOI,
-		SEARCH_TERMINATED,
+		PS_NEW_SEARCH_AOI,
+		PS_TERMINATE_SEARCH,
+		PS_TARGET_DESCRIPTION,
 		PS_POKE,
 		PS_END,
 		PS_BUSY,
@@ -90,10 +91,10 @@ public class ParentSearch extends Actor {
 			case END_MM:
 				//Now send the data that got sent from the transfer
 				if ( _search_active ) {
-					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.SEARCH_AOI);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_NEW_SEARCH_AOI);
 					_sent_search_aoi++;
 				} else {
-					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.SEARCH_TERMINATED);
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_TERMINATE_SEARCH);
 				}
 				sim().addOutput(Actors.MISSION_MANAGER.name(),Outputs.PS_END);
 				nextState(States.IDLE, 1);
@@ -139,14 +140,13 @@ public class ParentSearch extends Actor {
 				//TODO Handle more input values
 				break;
 			case POKE_MM:
-				//TODO Handle simultaneous pokes from MM
-				
 				//Look for Busy or Ack from MM
 				if ( input.contains(MissionManagerRole.Outputs.MM_ACK) ) {
 					nextState(States.TX_MM, 1);
 				} else if ( input.contains(MissionManagerRole.Outputs.MM_BUSY) ) {
 					nextState(States.IDLE, 1);
-				}
+				} 
+				//The PS does not accept a Poke while it is trying to poke
 				
 				break;
 			case TX_MM:
@@ -193,7 +193,7 @@ public class ParentSearch extends Actor {
 	{
 		
 		if ( !_search_active ) {
-			sim().addObservation(Outputs.SEARCH_TERMINATED, this.name());
+			sim().addObservation(Outputs.PS_TERMINATE_SEARCH, this.name());
 			sim().addObservation(Outputs.PS_BUSY, this.name());
 		} else if (state() != States.IDLE ) {
 			sim().addObservation(Outputs.PS_BUSY, this.name());
