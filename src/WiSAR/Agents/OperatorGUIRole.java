@@ -43,10 +43,19 @@ public class OperatorGUIRole extends Actor {
 		UAV_FOUND, 
 		RESUME_PATH,
 		/**
+<<<<<<< Upstream, based on origin/master
 		 * GUI to GUI outputs
 		 */
 		OGUI_FLYBY_T,
 		OGUI_FLYBY_F
+=======
+		 * VGUI outputs
+		 */
+		OGUI_FLYBY_T,
+		OGUI_FLYBY_F, 
+		OGUI_FLYBY_END,
+		
+>>>>>>> a379aeb Merged with remote
     }
    
     public enum States implements IStateEnum
