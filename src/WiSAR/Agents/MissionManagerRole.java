@@ -66,8 +66,7 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * global outputs
 		 */
-		MM_BUSY, 
-		MM_SEARCH_FAILED
+		MM_BUSY
 	}
 	
 	/**
@@ -212,55 +211,13 @@ public class MissionManagerRole extends Actor {
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				nextState(States.END_VO, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
-<<<<<<< HEAD
 			
-=======
-			case END_PS:
-				//Send the Data and End Msg and move into an idle state
-				nextState(States.IDLE, 1);
-				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_END);
-				if(current_output == Outputs.MM_SEARCH_AOI_COMPLETE)
-					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
-				else if(current_output == Outputs.MM_FOUND_ANOMALY)
-					sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_FOUND_ANOMALY);
-				break;
-			case END_OP:
-				nextState(States.IDLE, 1);
-				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_END);
-				if(current_output == Outputs.MM_SEARCH_AOI){
-					sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_SEARCH_AOI);
-					nextState(States.POKE_VO,1);
-				}else if(current_output == Outputs.MM_SEARCH_TERMINATED){
-					sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
-					nextState(States.POKE_VO,1);
-				}else {
-					nextState(States.IDLE,1);
-				}
-				break;
->>>>>>> branch 'master' of https://github.com/tjflexmaster/UAV_ROLE_MODEL.git
 			case END_VO:
-<<<<<<< HEAD
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
 				if ( current_task != null && current_task.receiver() != null )
 					sim().addOutputs(current_task.receiver(), current_task.data());
-=======
->>>>>>> branch 'master' of https://github.com/tjflexmaster/UAV_ROLE_MODEL.git
 				nextState(States.IDLE, 1);
-<<<<<<< HEAD
-=======
-				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
-				if(current_output == Outputs.MM_SEARCH_AOI)
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI);
-				else if(current_output == Outputs.MM_SEARCH_TERMINATED)
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_TERMINATED);
-				else if(current_output == Outputs.MM_SEARCH_AOI_COMPLETE){
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
-					nextState(States.POKE_PS, sim().duration(Durations.MM_POKE_DUR.range()));
-				}else{
-					//TODO handle other messages
-				}
->>>>>>> branch 'master' of https://github.com/tjflexmaster/UAV_ROLE_MODEL.git
 				break;
 			case RX_PS:
 			case RX_VO:
@@ -363,19 +320,9 @@ public class MissionManagerRole extends Actor {
 				}
 				break;
 			case RX_VO:
-<<<<<<< HEAD
 				if(input.contains(VideoOperatorRole.Outputs.VO_END)) {
 					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_TRUE)){
 						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_TRUE);
-=======
-				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
-					if(input.contains(VideoOperatorRole.Outputs.VO_LIKELY_ANOMALY_DETECTED_T)){
-						current_output = Outputs.MM_FOUND_ANOMALY;
-						nextState(States.POKE_PS,1);
-					}else{
-						//TODO handle other inputs from Video Operator
-						nextState(States.IDLE,1);
->>>>>>> branch 'master' of https://github.com/tjflexmaster/UAV_ROLE_MODEL.git
 					}
 					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_FALSE)){
 						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_FALSE);
@@ -513,8 +460,6 @@ public class MissionManagerRole extends Actor {
 				break;
 		}
 	}
-<<<<<<< HEAD
-	
 	
 	private void addTask(States state, String receiver, IData data)
 	{
@@ -569,7 +514,4 @@ public class MissionManagerRole extends Actor {
 		
 		return accepted_poke;
 	}
-
-=======
->>>>>>> branch 'master' of https://github.com/tjflexmaster/UAV_ROLE_MODEL.git
 }
