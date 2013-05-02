@@ -9,6 +9,7 @@ import WiSAR.Agents.ParentSearch;
 import WiSAR.Agents.UAVRole;
 import WiSAR.Agents.VideoGUIRole;
 import WiSAR.Agents.VideoOperatorRole;
+import WiSAR.submodule.UAVFlightPlan;
 
 public class DefaultTeam extends Team {
 

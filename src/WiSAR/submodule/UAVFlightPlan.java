@@ -1,5 +1,7 @@
 package WiSAR.submodule;
 
+import java.util.ArrayList;
+
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -15,10 +17,10 @@ public class UAVFlightPlan extends Actor {
 	private int _time_paused;
 	
 	public enum Outputs implements IData {
-		NO_PATH,
-		YES_PATH,
-		PAUSED,
-		COMPLETE
+		UAV_FLIGHT_PLAN_NO,
+		UAV_FLIGHT_PLAN_YES,
+		UAV_FLIGHT_PLAN_PAUSED,
+		UAV_FLIGHT_PLAN_COMPLETE
 	}
 	
 	public enum States implements IStateEnum{
@@ -63,30 +65,31 @@ public class UAVFlightPlan extends Actor {
 
 	@Override
 	public void processInputs() {
+		ArrayList<IData> input = sim().getInput(this.name());
 		switch((States)state()){
 		case COMPLETE:
 		case NO_PATH:
-			if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
 				_start_time = sim().getTime();
 				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
 				nextState(States.YES_PATH,1);
 			}
 			break;
 		case YES_PATH:
-			if(_input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
 				nextState(States.NO_PATH,1);
 			}
 			//TODO check if received paused command.
 			break;
 		case PAUSED:
-			if(_input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+			if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
 				resume();
 				nextState(States.YES_PATH,1);
 			}
 		default:
 			break;
 		}
-		_input.clear();
+		input.clear();
 	}
 	private void resume() {
 		_path_dur -= (sim().getTime() - _start_time);
@@ -97,16 +100,16 @@ public class UAVFlightPlan extends Actor {
 		IData _state;
 		switch((States)state()){
 		case NO_PATH:
-			_state = Outputs.NO_PATH;
+			_state = Outputs.UAV_FLIGHT_PLAN_NO;
 			break;
 		case YES_PATH:
-			_state = Outputs.YES_PATH;
+			_state = Outputs.UAV_FLIGHT_PLAN_YES;
 			break;
 		case PAUSED:
-			_state = Outputs.PAUSED;
+			_state = Outputs.UAV_FLIGHT_PLAN_PAUSED;
 			break;
 		case COMPLETE:
-			_state = Outputs.COMPLETE;
+			_state = Outputs.UAV_FLIGHT_PLAN_COMPLETE;
 			break;
 		default:
 			_state = null;

@@ -30,7 +30,9 @@ public enum Durations {
 	MM_VERIFY_ANOMALY_DUR(new Range(300, 900)),
 	MM_IDLE_DUR(new Range(60, 300)),
 	
-	
+	/**
+	 * Operator assumptions
+	 */
 	OPERATOR_POKE_MM_DUR(new Range(60, 1800)),
 	OPERATOR_TX_MM_DUR(new Range(60, 1800)),
 	OPERATOR_RX_MM_DUR(new Range(1800, 1800)),
@@ -46,12 +48,18 @@ public enum Durations {
 	
 	UGUI_AUDIBLE_ALARM_DUR(new Range(60, 1800)),
 	UGUI_ALARM_UNNOTICED_DUR(new Range(60, 1800)),
-	
+	/**
+	 * UAV assumptions
+	 */
 	UAV_TAKE_OFF_DUR(new Range(60, 1800)),
-	UAV_BATTERY_DUR(new Range(180, 1800)),
+	UAV_BATTERY_DUR(new Range(1500, 1800)),
 	UAV_LOW_BATTERY_THRESHOLD_DUR(new Range(60, 60)),
 	UAV_LANDING_DUR(new Range(60, 1800)),
 	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800)),
+	
+	/**
+	 * VideoOperator assumptions
+	 */
 	VO_RX_MM_DUR(new Range(60, 1800)),
 	VO_POKE_VGUI_DUR(new Range(60, 1800)),
 	VO_POKE_MM_DUR(new Range(60, 1800)),
@@ -61,7 +69,11 @@ public enum Durations {
 	VO_TX_OPERATOR_BAD_STREAM(new Range(60, 1800)),
 	VO_TX_OPERATOR_STREAM_ENDED(new Range(60, 1800)),
 	VO_TX_OPERATOR_LOOK_CLOSER(new Range(60, 1800)), 
+	VO_FLYBY_DUR(new Range(60,1800)),
 	
+	/**
+	 * VideoGUI assumptions
+	 */
 	VGUI_RETURN_TO_IDLE(new Range(60, 1800)),
 	VGUI_START_STREAM(new Range(60, 1800)),
 	VGUI_RX_DUR(new Range(60, 1800)), 
@@ -69,7 +81,12 @@ public enum Durations {
 	OGUI_RX_DUR(new Range(60, 1800)), 
 	
 	UAV_ADJUST_PATH(new Range(60, 1800)), 
-	UAV_PREPARATION_DUR(new Range(60, 1800));
+	UAV_PREPARATION_DUR(new Range(60, 1800)),
+	
+	/**
+	 * Flyby assumptions
+	 */
+	FLYBY_FIND_ANOMALY(new Range(60,1200));
 
 	private Range _range;
 	

@@ -24,7 +24,6 @@ public class UAVBattery extends Actor {
 		BATTERY_LOW,
 		BATTERY_OFF,
 		BATTERY_OK
-		
 	}
 	public enum States implements IStateEnum{
 		INACTIVE,
