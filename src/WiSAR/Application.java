@@ -1,8 +1,9 @@
 package WiSAR;
 
-import WiSAR.Events.NewSearchAOIEvent;
 import CUAS.Simulator.Simulator;
 import CUAS.Utils.DurationGenerator.Mode;
+import WiSAR.Events.NewSearchAOIEvent;
+import WiSAR.Events.SearchTargetDescriptionEvent;
 
 public class Application {
 
@@ -18,6 +19,7 @@ public class Application {
 			
 			
 			Simulator.getInstance().addEvent(new NewSearchAOIEvent(1));
+			Simulator.getInstance().addEvent(new SearchTargetDescriptionEvent(1));
 			//Load a Scenario
 //			Scenario.scenario1();
 //			Scenario.scenario3();

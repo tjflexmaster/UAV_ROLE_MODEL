@@ -8,12 +8,14 @@ import CUAS.Simulator.Actor;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Events.NewSearchAOIEvent;
+import WiSAR.Events.SearchTargetDescriptionEvent;
 import WiSAR.Events.TerminateSearchEvent;
 
 public class ParentSearch extends Actor {
 	
 	//INTERNAL VARS
 	boolean _search_active = true;
+	boolean new_description = false;
 	
 	/**
 	 * These variables are used to keep track of how many search areas have been created, given, and searched.
@@ -73,6 +75,8 @@ public class ParentSearch extends Actor {
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
 			case IDLE:
+				if(new_description)
+					nextState(States.POKE_MM,1);
 				nextState(null, 0);
 				break;
 			case POKE_MM:
@@ -83,21 +87,31 @@ public class ParentSearch extends Actor {
 				int duration;
 				if ( _search_active ) {
 					duration = sim().duration(Durations.PS_TX_AOI_MM_DUR.range());
-				} else {
+				} else if(new_description){
+					duration = sim().duration(Durations.PS_TX_TARGET_DESCRIPTION.range());
+				}else{
 					duration = sim().duration(Durations.PS_TX_TERMINATE_MM_DUR.range());
 				}
 				nextState(States.END_MM, duration);
 				break;
 			case END_MM:
+				//if there's more to transmit go immediately to poke
+				if((_total_search_aoi > _sent_search_aoi) && new_description){
+					nextState(States.POKE_MM,1);
+				}else{
+					nextState(States.IDLE, 1);
+				}
 				//Now send the data that got sent from the transfer
-				if ( _search_active ) {
+				if ( _total_search_aoi > _sent_search_aoi ) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_NEW_SEARCH_AOI);
 					_sent_search_aoi++;
-				} else {
+				} else if(new_description){
+					new_description = false;
+					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_TARGET_DESCRIPTION);
+				}else{
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_TERMINATE_SEARCH);
 				}
 				sim().addOutput(Actors.MISSION_MANAGER.name(),Outputs.PS_END);
-				nextState(States.IDLE, 1);
 				break;
 			case RX_MM:
 				//Is it possible to receive for too long?
@@ -130,11 +144,16 @@ public class ParentSearch extends Actor {
 		switch((States) state() ) {
 			case IDLE:
 				//IF the parent search is idle then watch for
+				if(input.contains(SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION)){
+					new_description = true;
+				}
 				if ( input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_ACK);
 					nextState(States.RX_MM, 1);
 				} else if ( _total_search_aoi > _sent_search_aoi ) {
 					nextState(States.POKE_MM, 1);
+				} else if(new_description){
+					nextState(States.POKE_MM,1);
 				}
 				
 				//TODO Handle more input values

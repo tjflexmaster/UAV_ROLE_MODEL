@@ -11,6 +11,7 @@ public enum Durations {
 	PS_TX_TERMINATE_MM_DUR(new Range(60, 300)),
 	PS_TX_AOI_MM_DUR(new Range(600, 1800)),
 	PS_RX_MM_DUR(new Range(1800, 1800)),
+	PS_TX_TARGET_DESCRIPTION(new Range(300, 1800)),
 	
 	/**
 	 * Mission Manager Time Assumptions
