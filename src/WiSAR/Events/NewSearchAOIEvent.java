@@ -23,7 +23,7 @@ public class NewSearchAOIEvent extends Event {
 	@Override
 	protected boolean eventPossible() {
 		ArrayList<IData> output = sim().getObservations(Actors.PARENT_SEARCH.name());
-		if ( !output.contains(ParentSearch.Outputs.SEARCH_TERMINATED) ) {
+		if ( !output.contains(ParentSearch.Outputs.PS_TERMINATE_SEARCH) ) {
 			return true;
 		}
 		return false;

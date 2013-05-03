@@ -22,7 +22,7 @@ public class TerminateSearchEvent extends Event {
 	@Override
 	protected boolean eventPossible() {
 		ArrayList<IData> output = sim().getObservations(Actors.PARENT_SEARCH.name());
-		if ( !output.contains(ParentSearch.Outputs.SEARCH_TERMINATED) &&
+		if ( !output.contains(ParentSearch.Outputs.PS_TERMINATE_SEARCH) &&
 				!output.contains(ParentSearch.Outputs.PS_BUSY) ) {
 			return true;
 		}
