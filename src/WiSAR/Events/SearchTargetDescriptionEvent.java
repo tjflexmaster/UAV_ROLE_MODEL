@@ -14,6 +14,7 @@ public class SearchTargetDescriptionEvent extends Event {
 	public enum Outputs implements IData
 	{
 		NEW_SEARCH_TARGET_DESCRIPTION,
+		NEW_SEARCH_TARGET_DESCRIPTION_END
 	}
 	
 	public SearchTargetDescriptionEvent(int count) {
@@ -36,7 +37,7 @@ public class SearchTargetDescriptionEvent extends Event {
 
 	@Override
 	protected void finishEvent() {
-		sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_TARGET_DESCRIPTION);
+		sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.NEW_SEARCH_TARGET_DESCRIPTION_END);
 	}
 
 	@Override
