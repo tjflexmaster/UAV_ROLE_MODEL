@@ -24,6 +24,7 @@ public class VideoGUIRole extends Actor {
         VGUI_BAD_STREAM,
         VGUI_FALSE_POSITIVE, 
         VGUI_TRUE_POSITIVE,
+        VGUI_ACCESSIBLE,
         
         /**
          * GUI to GUI ouputs
@@ -32,7 +33,9 @@ public class VideoGUIRole extends Actor {
         VGUI_REQUEST_FLYBY_F, 
         VGUI_NO_STREAM,
         VGUI_FLYBY_T, 
-        VGUI_FLYBY_F
+        VGUI_FLYBY_F, 
+        VGUI_VALIDATION_REQ_TRUE, 
+        VGUI_VALIDATION_REQ_FALSE,
        
     }
    
@@ -69,10 +72,10 @@ public class VideoGUIRole extends Actor {
 		
 		//Pull Input and any observations that need to be made from the simulator
 		ArrayList<IData> input = sim().getInput(this.name());
-		
+		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
 		switch ( (States) state() ) {
 			case IDLE:
-				if (input.contains(VideoOperatorRole.Outputs.VO_START_FEED)) {
+				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)){
 					nextState(States.STREAMING_NORMAL,1);
 				}
 				break;
@@ -109,6 +112,12 @@ public class VideoGUIRole extends Actor {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_FLYBY_F);
 					nextState(States.STREAMING_FLYBY,1);
 				}
+
+				if(uav_data.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)){
+					nextState(States.INACCESSIBLE,1);
+				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
+					nextState(States.IDLE,1);
+				}
 				//TODO implement event handling
 //				else if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
 //					_output.add(Outputs.STREAM_ENDED);
@@ -121,6 +130,16 @@ public class VideoGUIRole extends Actor {
 				break;
 			case STREAMING_FLYBY:
 				if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
+					nextState(States.STREAMING_NORMAL,1);
+				}
+				if(uav_data.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)){
+					nextState(States.INACCESSIBLE,1);
+				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
+					nextState(States.IDLE,1);
+				}
+				break;
+			case INACCESSIBLE:
+				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)){
 					nextState(States.STREAMING_NORMAL,1);
 				}
 				break;

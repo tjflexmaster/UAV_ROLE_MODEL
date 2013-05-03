@@ -54,6 +54,12 @@ public class VideoOperatorRole extends Actor
 		VO_BAD_STREAM,
 		VO_STREAM_ENDED,
 		
+		/**
+		 * For the MM
+		 */
+		VO_TARGET_SIGHTING_TRUE,
+		VO_TARGET_SIGHTING_FALSE,
+		
 		
 	} /**
 	     * Define Role States
@@ -225,14 +231,12 @@ public class VideoOperatorRole extends Actor
 			case RX_MM:
 				if(input.contains(MissionManagerRole.Outputs.MM_END))
 				{
-					if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_AOI))
+					if(input.contains(MissionManagerRole.Outputs.MM_TARGET_DESCRIPTION))
 					{
-						tasks.add(Outputs.VO_START_FEED);
 						nextState(States.OBSERVING_NORMAL,1);
 					}
-					else if(input.contains(MissionManagerRole.Outputs.MM_SEARCH_TERMINATED))
+					else if(input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH))
 					{
-						tasks.add(Outputs.VO_END_FEED);
 						nextState(States.IDLE,1);
 					}
 					else {
