@@ -7,7 +7,8 @@ import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
-import WiSAR.Durations;
+import WiSAR.Events.TargetSightingFalseEvent;
+import WiSAR.Events.TargetSightingTrueEvent;
 
 public class VideoGUIRole extends Actor {
 
@@ -15,6 +16,12 @@ public class VideoGUIRole extends Actor {
    
     public enum Outputs implements IData
     {
+    	/**
+    	 * Observables
+    	 */
+    	VGUI_FLYBY,
+    	VGUI_NORMAL,
+    	
         /**
          * For the VideoOperator or MissionManager
          */
@@ -80,6 +87,12 @@ public class VideoGUIRole extends Actor {
 				}
 				break;
 			case STREAMING_NORMAL:
+				if(input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE)){
+					//TODO implement behavior till receiving input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE_END
+				}
+				if(input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_TRUE)){
+					//TODO implement behavior till receiving input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_TRUE_END
+				}
 				if (input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 				}
@@ -146,7 +159,22 @@ public class VideoGUIRole extends Actor {
 			default:
 				break;
 		}
+		setObservations();
     }
+
+	private void setObservations() {
+		IData _state = Outputs.VGUI_NO_STREAM;
+		switch((States)state()){
+		case STREAMING_FLYBY:
+			_state = Outputs.VGUI_FLYBY;
+			break;
+		case STREAMING_NORMAL:
+			_state = Outputs.VGUI_NORMAL;
+			break;
+		}
+		sim().addObservation(_state, this.name());
+		
+	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////

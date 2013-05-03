@@ -4,6 +4,8 @@ import CUAS.Simulator.Simulator;
 import CUAS.Utils.DurationGenerator.Mode;
 import WiSAR.Events.NewSearchAOIEvent;
 import WiSAR.Events.SearchTargetDescriptionEvent;
+import WiSAR.Events.TargetSightingFalseEvent;
+import WiSAR.Events.TargetSightingTrueEvent;
 
 public class Application {
 
@@ -20,6 +22,8 @@ public class Application {
 			
 			Simulator.getInstance().addEvent(new NewSearchAOIEvent(1));
 			Simulator.getInstance().addEvent(new SearchTargetDescriptionEvent(1));
+			Simulator.getInstance().addEvent(new TargetSightingTrueEvent(1));
+			Simulator.getInstance().addEvent(new TargetSightingFalseEvent(3));
 			//Load a Scenario
 //			Scenario.scenario1();
 //			Scenario.scenario3();

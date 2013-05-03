@@ -3,7 +3,10 @@ package WiSAR;
 import CUAS.Utils.Range;
 
 public enum Durations {
-	
+	/**
+	 * Event Time Assumptions
+	 */
+	EVENT_TARGET_SIGHTED_DUR(new Range(60,1800)),
 	/**
 	 * Parent Search Time Assumptions
 	 */

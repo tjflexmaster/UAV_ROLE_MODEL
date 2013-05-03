@@ -7,6 +7,7 @@ import CUAS.Simulator.IData;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.UAVRole;
+import WiSAR.Agents.VideoGUIRole;
 
 public class TargetSightingFalseEvent extends Event {
 
@@ -21,7 +22,8 @@ public class TargetSightingFalseEvent extends Event {
 	@Override
 	protected boolean eventPossible() {
 		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
-		if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)){
+		ArrayList<IData> vgui_data = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
+		if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE) && vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)){
 			return true;
 		}
 		return false;
