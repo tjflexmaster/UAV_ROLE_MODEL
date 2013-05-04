@@ -29,6 +29,7 @@ public class UAVFlightPlan extends Actor {
 		NO_PATH,
 		YES_PATH,
 		PAUSED,
+		RESUME_AFTER_TAKE_OFF,
 		COMPLETE
 		
 	}
@@ -91,21 +92,35 @@ public class UAVFlightPlan extends Actor {
 			}
 			break;
 		case YES_PATH:
-			//if a new path is to overwrite the old
+			//TODO assert that the UAV is flying
+			//replace path
 			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
 				_start_time = sim().getTime();
 				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
 				nextState(States.COMPLETE,_path_dur);
-			} //if the flight path needs to be adjusted
+			}
+			//end path
+			else if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+				nextState(States.NO_PATH,1);
+			}
+			//adjust path
 			else if(input.contains(OperatorGUIRole.Outputs.OGUI_ADJUST_PATH)){
 				_path_dur = getTimeRemaining() + sim().duration(Durations.UAV_ADJUST_PATH.range());
 				nextState(States.COMPLETE,_path_dur);
-			} else if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
-				nextState(States.NO_PATH,1);
-			} //If the command to loiter, to land, or if the signal is lost then the flight plan is paused
-			else if(input.contains(OperatorGUIRole.Outputs.LOITER)
-					|| uav.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)
-					|| uav.contains(UAVRole.Outputs.UAV_LANDING)){
+			} 
+			//land
+			else if(input.contains(OperatorGUIRole.Outputs.OGUI_LAND)){
+				_pause_time = sim().getTime();
+				nextState(States.PAUSED,1);
+			}
+			//pause path
+			else if(input.contains(OperatorGUIRole.Outputs.OGUI_PAUSE_FLIGHT_PLAN)){
+				_pause_time = sim().getTime();
+				nextState(States.PAUSED,1);
+			}
+			//execute a flyby
+			else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_F)
+					|| input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_T)){
 				_pause_time = sim().getTime();
 				nextState(States.PAUSED,1);
 			}
@@ -113,12 +128,21 @@ public class UAVFlightPlan extends Actor {
 		case PAUSED:
 			//two ways to get out of the paused state, 
 				//if currently loitering and the OGUI issues the cmd to resume
-				//else if the UAV has entered the flying state.
 			if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)
-					|| uav.contains(UAVRole.Outputs.UAV_FLYING)){
-				resume();
+					|| uav.contains(UAVRole.Outputs.UAV_LOITERING)){
+				nextState(States.YES_PATH,1);
+			//else if the UAV has been issued the cmd to take off. Or the land has been aborted
+			}else if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)
+					|| input.contains(OperatorGUIRole.Outputs.OGUI_ABORT_LAND)){
+				nextState(States.RESUME_AFTER_TAKE_OFF,1);
+			}
+			break;
+		case RESUME_AFTER_TAKE_OFF:
+			//once the UAV has made it airborn resume path
+			if(uav.contains(UAVRole.Outputs.UAV_LOITERING) || uav.contains(UAVRole.Outputs.UAV_FLYING)){
 				nextState(States.YES_PATH,1);
 			}
+			break;
 		default:
 			break;
 		}

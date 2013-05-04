@@ -8,6 +8,7 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.Agents.OperatorGUIRole;
 import WiSAR.Agents.UAVRole;
 
 
@@ -96,7 +97,7 @@ public class UAVBattery extends Actor {
 		
 		switch( (States)state() ){
 			case INACTIVE:
-				if(input.contains(UAVRole.Outputs.ACTIVATE_BATTERY)){
+				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
 					nextState(States.ACTIVE, 1);
 				}
 				break;

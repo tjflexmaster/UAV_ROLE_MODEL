@@ -15,11 +15,13 @@ import WiSAR.submodule.UAVHeightAboveGround;
 
 public class UAVRole extends Actor  {
 	
-	IData _flight_plan;
-	IData _battery;
-	IData _signal;
-	IData _hag;
-	IData _path;
+	private IData _flight_plan;
+	private IData _battery;
+	private IData _signal;
+	private IData _hag;
+	private IData _path;
+	private int _dur;
+	private int _take_off_time;
 	
 	protected ArrayList<IActor> _sub_actors = new ArrayList<IActor>();
 	
@@ -72,7 +74,6 @@ public class UAVRole extends Actor  {
         UAV_LANDING,
         UAV_LANDED,
         UAV_CRASHED,
-        UAV_END_PATH
     }
       
     
@@ -161,10 +162,13 @@ public class UAVRole extends Actor  {
         	case UAV_TAKE_OFF:
         		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
         		sim().addOutput(Actors.UAV_HAG.name(), Outputs.UAV_TAKE_OFF);
-        		int take_off_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
-        		
-        		//TODO Base next state on the observation of the UAV Flight Plan
-    			nextState(States.UAV_LOITERING, take_off_dur );
+        		_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
+        		_take_off_time = sim().getTime();
+        		//Base next state on the observation of the UAV Flight Plan
+        		if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED)
+        			nextState(States.UAV_FLYING, _dur );
+        		else
+        			nextState(States.UAV_LOITERING,_dur);
         		break;
         	case UAV_FLYING:
         		nextState(null, 0);
@@ -177,13 +181,12 @@ public class UAVRole extends Actor  {
         		nextState(null, 0);
         		break;
         	case UAV_LANDING:
-    			nextState(States.UAV_LANDED,  sim().duration(Durations.UAV_LANDING_DUR.range()));
+        		_dur = sim().duration(Durations.UAV_LANDING_DUR.range());
+    			nextState(States.UAV_LANDED, _dur);
         		break;
 	        case UAV_CRASHED:
 	        	assert false : "The UAV Crashed!";
 	        	break;
-	        case UAV_END_PATH:
-	        	nextState(States.UAV_LOITERING,1);
         	default:
 	        	nextState(null,0);
 	        	break;
@@ -230,22 +233,33 @@ public class UAVRole extends Actor  {
 				}
 				//Handle Land Cmd
 				else if(input.contains(OperatorGUIRole.Outputs.LAND)){
-					nextState(States.UAV_LANDED,sim().duration(Durations.UAV_LANDING_DUR.range()));
-				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED){
-					nextState(States.UAV_FLYING,sim().duration(Durations.UAV_TAKE_OFF_DUR.range()));
-				}else{
-					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_TAKE_OFF_DUR.range()));
+					_dur -= sim().getTime() - _take_off_time;
+					nextState(States.UAV_LANDED,_dur);
+				// if mid take off the OGUI transmits a new flight plan and the UAV has no current flight plan
+				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO
+						&& input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+					_dur -= sim().getTime() - _take_off_time;
+					nextState(States.UAV_FLYING,_dur);
+				// if mid take off the OGUI terminates the current flight plan.
+				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED
+						&& input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+					_dur -= sim().getTime() - _take_off_time;
+					nextState(States.UAV_LOITERING,_dur);
 				}
 				break;
 			case UAV_FLYING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
 					nextState(States.UAV_CRASHED, 1);
+				//handle cmd to land
 				} else if(input.contains(OperatorGUIRole.Outputs.LAND)){
-					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
-					nextState(States.UAV_LANDING,duration);
+					_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_LANDING,_dur);
+				//if the flight plan reaches completion, the Op orders its termination or to pause the flight
 				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE 
-						|| _flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED){
-					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_ADJUST_PATH.range()));
+						|| input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)
+						|| input.contains(OperatorGUIRole.Outputs.OGUI_PAUSE_FLIGHT_PLAN)){
+					_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
+					nextState(States.UAV_LOITERING,_dur);
 				}
 				break;
 			case UAV_LOITERING:
@@ -253,13 +267,19 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_CRASHED, 1);
 				}else{
 					//Handle Resume cmd
-					if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
+					if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
 						nextState(States.UAV_FLYING,1);
+					}
+					//handle flyby
+					else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_F)
+							|| input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_T)){
+						_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
+						nextState(States.UAV_FLYING,_dur);
 					}
 					//Handle Land cmd
 					else if(input.contains(OperatorGUIRole.Outputs.LAND)){
-						int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
-						nextState(States.UAV_LANDED,duration);
+						_dur = sim().duration(Durations.UAV_LANDING_DUR.range());
+						nextState(States.UAV_LANDED,_dur);
 					}
 				}
 				break;
@@ -267,7 +287,6 @@ public class UAVRole extends Actor  {
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
 					nextState(States.UAV_CRASHED, 1);
 				}else{
-					//TODO Handle Fly cmd
 					if(input.contains(OperatorGUIRole.Outputs.OGUI_ABORT_LAND)){
 						if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
 							nextState(States.UAV_FLYING,1);
