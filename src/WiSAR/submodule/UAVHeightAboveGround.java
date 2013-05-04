@@ -2,8 +2,11 @@ package WiSAR.submodule;
 
 import java.util.ArrayList;
 
+import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorGUIRole;
+import WiSAR.Agents.UAVRole;
+import WiSAR.Events.HAGEvent;
 import WiSAR.submodule.UAVBattery.Outputs;
 import WiSAR.submodule.UAVFlightPlan.States;
 import CUAS.Simulator.Actor;
@@ -16,12 +19,20 @@ public class UAVHeightAboveGround extends Actor {
 	public enum Outputs implements IData {
 		HAG_DANGEROUS,
 		HAG_NONE,
-		HAG_GOOD
+		HAG_GOOD, 
+		HAG_CRASHED
 	}
 	
 	public enum States implements IStateEnum{
 		INACTIVE,
-		ACTIVE
+		GOOD,
+		DANGEROUS,
+		CRASHED
+	}
+
+	public UAVHeightAboveGround(){
+		name(Actors.UAV_HAG.name());
+		nextState(States.INACTIVE,1);
 	}
 	
 	@Override
@@ -32,43 +43,61 @@ public class UAVHeightAboveGround extends Actor {
             setObservations();
             return;
         }
+        
+        state(nextState());
+        
+        switch((States)state()){
+    	default:
+    		nextState(null,0);
+    		break;
+        }
+        
+        setObservations();
 	}
 
 	@Override
 	public void processInputs() {
-        
-		ArrayList<IData> input = sim().getInput(this.name());
-		switch((States)state()){
-		case COMPLETE:
-		case NO_PATH:
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
-				_start_time = sim().getTime();
-				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
-				nextState(States.YES_PATH,1);
-			}
-			break;
-		default:
-			break;
-		}
-		setObservations();
+        ArrayList<IData> input = sim().getInput(this.name());
+        switch((States)state()){
+        case INACTIVE:
+        	if(input.contains(UAVRole.Outputs.UAV_TAKE_OFF)){
+        		nextState(States.GOOD,1);
+        	}
+        	break;
+        case GOOD:
+        	if(input.contains(HAGEvent.Outputs.EHAG_DANGEROUS)){
+        		nextState(States.DANGEROUS,1);
+        	}
+        	break;
+        case DANGEROUS:
+        	if(input.contains(HAGEvent.Outputs.EHAG_CRASHED)){
+        		nextState(States.CRASHED,1);
+        	} else if(input.contains(OperatorGUIRole.Outputs.OGUI_ADJUST_PATH)){
+        		nextState(States.GOOD,sim().duration(Durations.UAV_ADJUST_PATH.range()));
+        	}
+        	break;
+        case CRASHED:
+        	break;
+        	
+        }
 		input.clear();
 	}
 	
 	private void setObservations()
 	{
-		IData _state = Outputs.BATTERY_OK;
+		IData _state = Outputs.HAG_NONE;
 		switch((States) state()) {
 			case INACTIVE:
-				_state = Outputs.BATTERY_OFF;
+				_state = Outputs.HAG_NONE;
 				break;
-			case LOW:
-				_state = Outputs.BATTERY_LOW;
+			case GOOD:
+				_state = Outputs.HAG_GOOD;
 				break;
-			case ACTIVE:
-				_state = Outputs.BATTERY_OK;
+			case DANGEROUS:
+				_state = Outputs.HAG_DANGEROUS;
 				break;
-			case DEAD:
-				_state = Outputs.BATTERY_DEAD;
+			case CRASHED:
+				_state = Outputs.HAG_CRASHED;
 				break;
 		}
 		sim().addObservation(_state, this.name());

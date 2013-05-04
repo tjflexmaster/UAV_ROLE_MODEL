@@ -100,7 +100,7 @@ public class UAVBattery extends Actor {
 					nextState(States.ACTIVE, 1);
 				}
 				break;
-			case ACTIVE:
+			case ACTIVE: // If the battery is active then if the UAV issues the cmd to deactivate the battery then it goes to inactive
 			case LOW:
 				if(input.contains(UAVRole.Outputs.DEACTIVATE_BATTERY)){
 					nextState(States.INACTIVE, 1);

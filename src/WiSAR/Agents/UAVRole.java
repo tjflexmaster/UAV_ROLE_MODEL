@@ -1,9 +1,7 @@
 package WiSAR.Agents;
 
 import java.util.ArrayList;
-import WiSAR.Actors;
-import WiSAR.Durations;
-import WiSAR.submodule.UAVBattery;
+
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IActor;
 import CUAS.Simulator.IData;
@@ -13,6 +11,7 @@ import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
+import WiSAR.submodule.UAVHeightAboveGround;
 
 public class UAVRole extends Actor  {
 	
@@ -37,8 +36,6 @@ public class UAVRole extends Actor  {
     	UAV_SIGNAL_OK,
     	UAV_SIGNAL_LOST,
     	
-    	UAV_FLIGHT_PLAN_YES,
-    	UAV_FLIGHT_PLAN_NO,
     	
     	UAV_HAG_OK,
     	UAV_HAG_LOW,
@@ -48,7 +45,6 @@ public class UAVRole extends Actor  {
     	/**
     	 * GUI Outputs
     	 */
-    	UAV_PATH_COMPLETE,
     	UAV_PATH_BAD,
     	
     	/**
@@ -88,6 +84,7 @@ public class UAVRole extends Actor  {
     	//Add children
     	_sub_actors.add(new UAVBattery());
     	_sub_actors.add(new UAVFlightPlan());
+    	_sub_actors.add(new UAVHeightAboveGround());
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -163,6 +160,7 @@ public class UAVRole extends Actor  {
         		break;
         	case UAV_TAKE_OFF:
         		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
+        		sim().addOutput(Actors.UAV_HAG.name(), Outputs.UAV_TAKE_OFF);
         		int take_off_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
         		
         		//TODO Base next state on the observation of the UAV Flight Plan
@@ -217,13 +215,10 @@ public class UAVRole extends Actor  {
 			return;
 		}
 		handleFlightPlanObservations();
+		handleHAGObservations();
 		
 		switch ( (States) state() ) {
 			case UAV_READY:
-//				//Handle new Flight path
-//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-//					_flight_plan = true;
-//				}
 				//Handle Take off cmd
 				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
@@ -234,96 +229,58 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_CRASHED, 1);
 				}
 				//Handle Land Cmd
-				if(input.contains(OperatorGUIRole.Outputs.LAND)){
-					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
-					nextState(States.UAV_LANDED,duration);
-				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
+				else if(input.contains(OperatorGUIRole.Outputs.LAND)){
+					nextState(States.UAV_LANDED,sim().duration(Durations.UAV_LANDING_DUR.range()));
+				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED){
 					nextState(States.UAV_FLYING,sim().duration(Durations.UAV_TAKE_OFF_DUR.range()));
+				}else{
+					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_TAKE_OFF_DUR.range()));
 				}
-				//Handle new Flight path
-//				if(_flight_plan){
-//					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
-//					nextState(States.UAV_FLYING,duration);
-//				}
-//				else if (_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)) {
-//					_flight_plan = true;
-//					int duration = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
-//					nextState(States.UAV_FLYING,duration);
-//				}
-				//Handle Loiter
-//				else{
-//					int duration = sim().duration(Durations.UAV_LOW_BATTERY_THRESHOLD_DUR.range());
-//					nextState(States.UAV_LOITERING,duration);
-//					_flight_plan = false;
-//				}
 				break;
 			case UAV_FLYING:
-				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
 					nextState(States.UAV_CRASHED, 1);
-				} else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE){
-					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_ADJUST_PATH.range()));
-				}
-				//Handle New Flight Path
-//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-//					_flight_plan = true;
-//				}
-				//Handle Land Cmd
-				if(input.contains(OperatorGUIRole.Outputs.LAND)){
+				} else if(input.contains(OperatorGUIRole.Outputs.LAND)){
 					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LANDING,duration);
-				}
-				//Handle Loiter Cmd
-				else if(input.contains(OperatorGUIRole.Outputs.LOITER)){
-					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
-					nextState(States.UAV_LOITERING,duration);
-//					_flight_plan = false;
+				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE 
+						|| _flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED){
+					nextState(States.UAV_LOITERING,sim().duration(Durations.UAV_ADJUST_PATH.range()));
 				}
 				break;
 			case UAV_LOITERING:
-				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
+				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
 					nextState(States.UAV_CRASHED, 1);
 				}else{
+					//Handle Resume cmd
 					if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
 						nextState(States.UAV_FLYING,1);
 					}
+					//Handle Land cmd
+					else if(input.contains(OperatorGUIRole.Outputs.LAND)){
+						int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
+						nextState(States.UAV_LANDED,duration);
+					}
 				}
-				//Handle New Flight Path
-//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
-//					nextState(States.UAV_FLYING,duration);
-//					_flight_plan = true;
-//				}
-				//Handle Resume cmd
-//				else if(_input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
-//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
-//					nextState(States.UAV_FLYING,duration);
-//					_flight_plan = true;
-//				}
-				//Handle Land cmd
-//				else if(_input.contains(OperatorGUIRole.Outputs.LAND)){
-//					int duration = sim().duration(Durations.UAV_LANDING_DUR.range());
-//					nextState(States.UAV_LANDED,duration);
-//				}
 				break;
 			case UAV_LANDING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
 					nextState(States.UAV_CRASHED, 1);
-				}
-				//TODO Handle Fly cmd
-				//Handle new Flight Plan
-//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-//					int duration = sim().duration(Durations.UAV_ADJUST_PATH.range());
-//					nextState(States.UAV_FLYING,duration);
-//					_flight_plan = true;
-//				}
+				}else{
+					//TODO Handle Fly cmd
+					if(input.contains(OperatorGUIRole.Outputs.OGUI_ABORT_LAND)){
+						if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
+							nextState(States.UAV_FLYING,1);
+						}else{
+							nextState(States.UAV_LOITERING,1);
+						}
+					}
+				}	
 				break;
 			case UAV_LANDED:
-				//Handle New Flight Plan
-//				if(_input.contains(OperatorGUIRole.Outputs.GOOD_PATH)){
-//					int duration = sim().duration(Durations.UAV_PREPARATION_DUR.range());
-//					nextState(States.UAV_READY,duration);
-//					_flight_plan = true;
-//				}
+				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
+					nextState(States.UAV_TAKE_OFF,1);
+				}
 				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
@@ -391,6 +348,13 @@ public class UAVRole extends Actor  {
 		ArrayList<IData> observations = sim().getObservations(Actors.UAV_FLIGHT_PLAN.name());
 		if ( observations.size() > 0 ) {
 			_flight_plan = observations.get(0);
+		}
+	}
+	
+	private void handleHAGObservations(){
+		ArrayList<IData> observations = sim().getObservations(Actors.UAV_HAG.name());
+		if(observations.size() > 0){
+			_hag = observations.get(0);
 		}
 	}
 }

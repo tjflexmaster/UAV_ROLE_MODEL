@@ -9,12 +9,14 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorGUIRole;
+import WiSAR.Agents.UAVRole;
 
 public class UAVFlightPlan extends Actor {
 
 	private int _path_dur;
 	private int _start_time;
 	private int _time_paused;
+	private int _pause_time;
 	
 	public enum Outputs implements IData {
 		UAV_FLIGHT_PLAN_NO,
@@ -66,23 +68,54 @@ public class UAVFlightPlan extends Actor {
 	@Override
 	public void processInputs() {
 		ArrayList<IData> input = sim().getInput(this.name());
+		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
 		switch((States)state()){
-		case COMPLETE:
-		case NO_PATH:
+		case COMPLETE: 
+			//check if there is a new path to immediately follow, if so return to YES_PATH
 			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
 				_start_time = sim().getTime();
 				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
 				nextState(States.YES_PATH,1);
 			}
+		case NO_PATH:
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+				_start_time = sim().getTime();
+				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
+				//if the uav is loitering then it can immediately enter the flight plan, otherwise it will go to the paused state
+				if(uav.contains(UAVRole.Outputs.UAV_LOITERING)){
+					nextState(States.YES_PATH,1);
+				}else{
+					_pause_time = sim().getTime();
+					nextState(States.PAUSED,1);
+				}
+			}
 			break;
 		case YES_PATH:
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+			//if a new path is to overwrite the old
+			if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+				_start_time = sim().getTime();
+				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
+				nextState(States.COMPLETE,_path_dur);
+			} //if the flight path needs to be adjusted
+			else if(input.contains(OperatorGUIRole.Outputs.OGUI_ADJUST_PATH)){
+				_path_dur = getTimeRemaining() + sim().duration(Durations.UAV_ADJUST_PATH.range());
+				nextState(States.COMPLETE,_path_dur);
+			} else if(input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
 				nextState(States.NO_PATH,1);
+			} //If the command to loiter, to land, or if the signal is lost then the flight plan is paused
+			else if(input.contains(OperatorGUIRole.Outputs.LOITER)
+					|| uav.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)
+					|| uav.contains(UAVRole.Outputs.UAV_LANDING)){
+				_pause_time = sim().getTime();
+				nextState(States.PAUSED,1);
 			}
-			//TODO check if received paused command.
 			break;
 		case PAUSED:
-			if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+			//two ways to get out of the paused state, 
+				//if currently loitering and the OGUI issues the cmd to resume
+				//else if the UAV has entered the flying state.
+			if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)
+					|| uav.contains(UAVRole.Outputs.UAV_FLYING)){
 				resume();
 				nextState(States.YES_PATH,1);
 			}
@@ -92,7 +125,7 @@ public class UAVFlightPlan extends Actor {
 		input.clear();
 	}
 	private void resume() {
-		_path_dur -= (sim().getTime() - _start_time);
+		_path_dur -= (_pause_time - _start_time);
 		_start_time = sim().getTime();
 	}
 

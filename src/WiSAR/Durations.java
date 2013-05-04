@@ -7,6 +7,8 @@ public enum Durations {
 	 * Event Time Assumptions
 	 */
 	EVENT_TARGET_SIGHTED_DUR(new Range(60,1800)),
+	HAG_DANGER_TO_CRASH_DUR(new Range(100,1800)),
+	
 	/**
 	 * Parent Search Time Assumptions
 	 */
@@ -60,6 +62,7 @@ public enum Durations {
 	UAV_LOW_BATTERY_THRESHOLD_DUR(new Range(60, 60)),
 	UAV_LANDING_DUR(new Range(60, 1800)),
 	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800)),
+	
 	
 	/**
 	 * VideoOperator assumptions
