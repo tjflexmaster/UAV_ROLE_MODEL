@@ -97,13 +97,7 @@ public class VideoGUIRole extends Actor {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 				}
 				else if(input.contains(VideoOperatorRole.Outputs.VO_END)){
-					if ( input.contains(VideoOperatorRole.Outputs.VO_UNLIKELY_ANOMALY_DETECTED_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_T);
-						nextState(States.STREAMING_NORMAL,1);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_UNLIKELY_ANOMALY_DETECTED_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_F);
-						nextState(States.STREAMING_NORMAL,1);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
+					if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
 						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_T);
 						nextState(States.STREAMING_NORMAL,1);
 					} else if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F) ) {
@@ -117,38 +111,27 @@ public class VideoGUIRole extends Actor {
 						nextState(States.STREAMING_NORMAL,1);
 					}
 				}
-				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_T)){
+				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T)){
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_FLYBY_T);
 					nextState(States.STREAMING_FLYBY,1);
 				}
-				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_F)){
+				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F)){
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_FLYBY_F);
 					nextState(States.STREAMING_FLYBY,1);
 				}
 
-				if(uav_data.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)){
+				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
 					nextState(States.INACCESSIBLE,1);
 				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
 					nextState(States.IDLE,1);
 				}
-				//TODO implement event handling
-//				else if (_input.contains(EventEnum.VGUI_INACCESSIBLE)) {
-//					_output.add(Outputs.STREAM_ENDED);
-//					nextState(States.IDLE,1);
-//				}
-//				else if (_input.contains(EventEnum.VGUI_BAD_STREAM)) {
-//					_output.add(Outputs.BAD_STREAM);
-//					nextState(States.STREAMING,1);
-//				}
 				break;
 			case STREAMING_FLYBY:
 				if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
 					nextState(States.STREAMING_NORMAL,1);
 				}
-				if(uav_data.contains(UAVRole.Outputs.UAV_SIGNAL_LOST)){
+				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
 					nextState(States.INACCESSIBLE,1);
-				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
-					nextState(States.IDLE,1);
 				}
 				break;
 			case INACCESSIBLE:

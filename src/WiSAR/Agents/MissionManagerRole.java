@@ -445,10 +445,10 @@ public class MissionManagerRole extends Actor {
 					for( IData observation : vgui_observations ) {
 						//Only accept one verify task at a time
 						if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_TRUE ) {
-							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_TP_VERIFIED);
+							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_VERIFIED_T);
 							break;
 						} else if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_FALSE ) {
-							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_FP_VERIFIED);
+							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_VERIFIED_F);
 							break;
 						}
 					}

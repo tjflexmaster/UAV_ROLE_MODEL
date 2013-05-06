@@ -40,8 +40,6 @@ public class VideoOperatorRole extends Actor
 		VO_CLICK_FRAME,
 		VO_END_FEED,
 		VO_START_FEED,
-		VO_UNLIKELY_ANOMALY_DETECTED_T, 
-		VO_UNLIKELY_ANOMALY_DETECTED_F, 
 		VO_POSSIBLE_ANOMALY_DETECTED_T, 
 		VO_POSSIBLE_ANOMALY_DETECTED_F, 
 		VO_LIKELY_ANOMALY_DETECTED_T,
@@ -172,7 +170,6 @@ public class VideoOperatorRole extends Actor
 	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case END_OPERATOR:
-	        	//TODO implement comm with OPERATOR
 	        	output = tasks.poll();
 	        	if(output == Outputs.VO_BAD_STREAM)
 	        		sim().addOutput(Actors.OPERATOR.name(), output);
@@ -256,36 +253,24 @@ public class VideoOperatorRole extends Actor
 				{
 					tasks.add(Outputs.VO_BAD_STREAM);
 					nextState(States.OBSERVING_NORMAL,1);
-					//memory.add(Outputs.VO_BAD_STREAM);
-					//nextState(States.POKE_OPERATOR, 1);
 				} 
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_NO_STREAM))
 				{
 					tasks.add(Outputs.VO_STREAM_ENDED);
 					nextState(States.OBSERVING_NORMAL,1);
-					//memory.add(Outputs.VO_STREAM_ENDED);
-					//nextState(States.POKE_OPERATOR, 1);
 				}
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE));
 					nextState(States.OBSERVING_NORMAL,1);
-					//memory.add(Outputs.VO_FOUND_ANOMALY);
-					//nextState(States.POKE_GUI,1);
 				}
 				else if (video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE))
 				{
 					tasks.add(detectAnomaly(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE));
 					nextState(States.OBSERVING_NORMAL,1);
-					//memory.add(Outputs.VO_FOUND_ANOMALY);
-					//nextState(States.POKE_GUI,1);
 				}
 				break;
 			case OBSERVING_FLYBY:
-//				if ("finished flyby")
-//				{
-//					sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END);
-//				}
 				break;
 			case POKE_GUI:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
@@ -311,22 +296,15 @@ public class VideoOperatorRole extends Actor
 	private IData detectAnomaly(VideoGUIRole.Outputs anomaly) {
 		//we need params to verify an anomaly, but a random number works for now
 		int percent = (int) (Math.random() * 100);
-		if (anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) {
-			if (percent < 33) {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_UNLIKELY_ANOMALY_DETECTED_T);
-			} else if (percent >= 66) {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
-			} else {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_T);
-			}
-		}else if(anomaly == VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE){
-			if (percent < 33) {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_UNLIKELY_ANOMALY_DETECTED_F);
-			} else if (percent >= 66) {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
-			} else {
-				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_F);
-			}
+		if (percent <= 50 && anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) {
+			sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
+		}
+		else if (percent <= 50 && anomaly == VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE) {
+			sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
+		} else if (percent > 50 && anomaly == VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) {
+			sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_T);
+		} else if (percent > 50 && anomaly == VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE) {
+			sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_LIKELY_ANOMALY_DETECTED_F);
 		}
 		return null;
 	}

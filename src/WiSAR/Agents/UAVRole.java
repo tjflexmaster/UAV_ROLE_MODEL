@@ -36,24 +36,6 @@ public class UAVRole extends Actor  {
     	UAV_LANDED,
     	UAV_CRASHED,
     	
-//    	UAV_SIGNAL_OK,
-//    	UAV_SIGNAL_LOST,
-    	
-//    	UAV_FLIGHT_PLAN_YES,
-//    	UAV_FLIGHT_PLAN_NO,
-    	
-//    	UAV_HAG_OK,
-//    	UAV_HAG_LOW,
-    	
-//    	UAV_PATH_OK,
-    	
-
-//    	/**
-//    	 * GUI Outputs
-//    	 */
-//    	UAV_PATH_COMPLETE,
-//    	UAV_PATH_BAD,
-    	
     	/**
     	 * Output to VGUI
     	 */
@@ -61,14 +43,6 @@ public class UAVRole extends Actor  {
     	UAV_FEED_GOOD,
     	UAV_FEED_BAD,
     	UAV_FEED_INACTIVE,
-
-    	
-//    	/**
-//    	 * Output to battery
-//    	 */
-//    	ACTIVATE_BATTERY,
-//    	DEACTIVATE_BATTERY,
-//    	RESET_BATTERY
     }
     
     public enum States implements IStateEnum
@@ -161,13 +135,9 @@ public class UAVRole extends Actor  {
  
         	case UAV_READY:
         		//reset battery
-        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
-        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.RESET_BATTERY);
         		nextState(null, 0);
         		break;
         	case UAV_TAKE_OFF:
-        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.ACTIVATE_BATTERY);
-        		sim().addOutput(Actors.UAV_HAG.name(), Outputs.UAV_TAKE_OFF);
         		_dur = sim().duration(Durations.UAV_TAKE_OFF_DUR.range());
         		_take_off_time = sim().getTime();
         		//Base next state on the observation of the UAV Flight Plan
@@ -183,7 +153,6 @@ public class UAVRole extends Actor  {
         		nextState(null, 0);
         		break;
         	case UAV_LANDED:
-        		sim().addOutput(Actors.UAV_BATTERY.name(), Outputs.DEACTIVATE_BATTERY);
         		nextState(null, 0);
         		break;
         	case UAV_LANDING:
@@ -229,7 +198,7 @@ public class UAVRole extends Actor  {
 		switch ( (States) state() ) {
 			case UAV_READY:
 				//Handle Take off cmd
-				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
+				if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
 				}
 				break;
@@ -238,17 +207,17 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_CRASHED, 1);
 				}
 				//Handle Land Cmd
-				else if(input.contains(OperatorGUIRole.Outputs.LAND)){
+				else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 					_dur -= sim().getTime() - _take_off_time;
 					nextState(States.UAV_LANDED,_dur);
 				// if mid take off the OGUI transmits a new flight plan and the UAV has no current flight plan
 				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO
-						&& input.contains(OperatorGUIRole.Outputs.OGUI_PATH_NEW)){
+						&& input.contains(OperatorRole.Outputs.OP_NEW_FLIGHT_PLAN)){
 					_dur -= sim().getTime() - _take_off_time;
 					nextState(States.UAV_FLYING,_dur);
 				// if mid take off the OGUI terminates the current flight plan.
 				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_PAUSED
-						&& input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)){
+						&& input.contains(OperatorRole.Outputs.OP_LOITER)){
 					_dur -= sim().getTime() - _take_off_time;
 					nextState(States.UAV_LOITERING,_dur);
 				}
@@ -257,13 +226,12 @@ public class UAVRole extends Actor  {
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
 					nextState(States.UAV_CRASHED, 1);
 				//handle cmd to land
-				} else if(input.contains(OperatorGUIRole.Outputs.LAND)){
+				} else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 					_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LANDING,_dur);
 				//if the flight plan reaches completion, the Op orders its termination or to pause the flight
 				}else if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE 
-						|| input.contains(OperatorGUIRole.Outputs.OGUI_PATH_END)
-						|| input.contains(OperatorGUIRole.Outputs.OGUI_PAUSE_FLIGHT_PLAN)){
+						|| input.contains(OperatorRole.Outputs.OP_LOITER)){
 					_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LOITERING,_dur);
 				}
@@ -273,17 +241,17 @@ public class UAVRole extends Actor  {
 					nextState(States.UAV_CRASHED, 1);
 				}else{
 					//Handle Resume cmd
-					if(input.contains(OperatorGUIRole.Outputs.RESUME_PATH)){
+					if(input.contains(OperatorRole.Outputs.OP_RESUME)){
 						nextState(States.UAV_FLYING,1);
 					}
 					//handle flyby
-					else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_F)
-							|| input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_T)){
+					else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F)
+							|| input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T)){
 						_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
 						nextState(States.UAV_FLYING,_dur);
 					}
 					//Handle Land cmd
-					else if(input.contains(OperatorGUIRole.Outputs.LAND)){
+					else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 						_dur = sim().duration(Durations.UAV_LANDING_DUR.range());
 						nextState(States.UAV_LANDED,_dur);
 					}
@@ -293,7 +261,7 @@ public class UAVRole extends Actor  {
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
 					nextState(States.UAV_CRASHED, 1);
 				}else{
-					if(input.contains(OperatorGUIRole.Outputs.OGUI_ABORT_LAND)){
+					if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
 						if(_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES){
 							nextState(States.UAV_FLYING,1);
 						}else{
@@ -301,11 +269,6 @@ public class UAVRole extends Actor  {
 						}
 					}
 				}	
-				break;
-			case UAV_LANDED:
-				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
-					nextState(States.UAV_TAKE_OFF,1);
-				}
 				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
@@ -324,7 +287,7 @@ public class UAVRole extends Actor  {
 		IData _state = Outputs.UAV_READY;
 		switch((States) state() ) {
 			case UAV_FLYING:
-		    	_state = Outputs.UAV_FLYING;
+		    	_state = Outputs.UAV_FLYING_NORMAL;
 		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_READY:
