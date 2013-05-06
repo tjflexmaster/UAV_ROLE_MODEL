@@ -244,12 +244,7 @@ public class UAVRole extends Actor  {
 					if(input.contains(OperatorRole.Outputs.OP_RESUME)){
 						nextState(States.UAV_FLYING,1);
 					}
-					//handle flyby
-					else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F)
-							|| input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T)){
-						_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
-						nextState(States.UAV_FLYING,_dur);
-					}
+					//TODO handle flyby
 					//Handle Land cmd
 					else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 						_dur = sim().duration(Durations.UAV_LANDING_DUR.range());

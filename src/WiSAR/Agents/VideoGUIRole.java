@@ -96,6 +96,7 @@ public class VideoGUIRole extends Actor {
 				if (input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
 				}
+				//end flyby
 				else if(input.contains(VideoOperatorRole.Outputs.VO_END)){
 					if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
 						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_T);
@@ -111,15 +112,7 @@ public class VideoGUIRole extends Actor {
 						nextState(States.STREAMING_NORMAL,1);
 					}
 				}
-				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T)){
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_FLYBY_T);
-					nextState(States.STREAMING_FLYBY,1);
-				}
-				else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F)){
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_FLYBY_F);
-					nextState(States.STREAMING_FLYBY,1);
-				}
-
+				//TODO start flyby
 				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
 					nextState(States.INACCESSIBLE,1);
 				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
