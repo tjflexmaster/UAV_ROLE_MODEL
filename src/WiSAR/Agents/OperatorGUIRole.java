@@ -7,131 +7,42 @@ import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
-import WiSAR.Durations;
 import WiSAR.Agents.OperatorRole;
+import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
+import WiSAR.submodule.UAVHeightAboveGround;
+import WiSAR.submodule.UAVSignal;
 
 public class OperatorGUIRole extends Actor {
  
 	int flight_paths = 0;
 	int _unacknowledged_paths_completed = 0;
 	
+	ArrayList<IData> _uav_observations;
+	
+	UAVRole.Outputs _uav_state;
+	UAVSignal.Outputs _uav_signal;
+	UAVHeightAboveGround.Outputs _uav_hag;
+	UAVFlightPlan.Outputs _uav_flight_plan;
+	UAVBattery.Outputs _uav_battery;
+	
+	ArrayList<IData> _flyby_requests;
+	//TODO make end flyby commands appear observable
+	
     public enum Outputs implements IData
     {
     	//TODO Pass the output from the UAV directly to the operator
-//    	/**
-//    	 * Output UAV State
-//    	 */
-//    	OGUI_UAV_READY,
-//    	OGUI_UAV_FLYING_NORMAL,
-//    	OGUI_UAV_FLYING_FLYBY,
-//    	OGUI_UAV_TAKE_OFF,
-//    	OGUI_UAV_LOITERING,
-//    	OGUI_UAV_LANDING,
-//    	OGUI_UAV_LANDED,
-//    	OGUI_UAV_CRASHED,
-//    	
-//    	/**
-//    	 * Output Battery
-//    	 */
-//    	OGUI_BATTERY_OK,
-//    	OGUI_BATTERY_LOW,
-//    	
-//    	/**
-//    	 * Output Signal
-//    	 */
-//    	OGUI_SIGNAL_OK,
-//    	OGUI_SIGNAL_LOST,
-//    	
-//    	/**
-//   	 * Output HAG
-//   	 */
-//   	OGUI_HAG_OK,
-//   	OGUI_HAG_LOW,
-//   	
-//   	/**
-//   	 * Output FlightPlan
-//   	 */
-//   	OGUI_FLIGHT_PLAN_NO,
-//   	OGUI_FLIGHT_PLAN_YES,
-//   	OGUI_FLIGHT_PLAN_COMPLETE,
-    	
-    	/**
-    	 * Output Flyby Request
-    	 */
-    	OGUI_FLYBY_REQ_T,
-    	OGUI_FLYBY_REQ_F,
-    	
-
-    	
-    	/**
-    	 * Output Bad Path
-    	 */
-    	//TODO Do not implement this unless we decide to add it back into the model
     	
     	/**
     	 * Output GUI State
     	 */
-    	OGUI_NORMAL,
-    	OGUI_ALARM,
+    	OGUI_STATE_NORMAL,
+    	OGUI_STATE_ALARM,
     	
-    	
-//		ACK_OP_GUI,
-//		DEPARTING,
-//		GOOD_PATH,
-//		RETURNING,
-//		LOITERING,
-//		LANDED,
-//		TAKE_OFF,
-//		RETURN, 
-//		LOITER, 
-//		LAND, 
-//		LOW_BATTERY, 
-//		NO_PATH, 
-//		UAV_LOST, 
-//		IN_AIR, 
-//		UAV_BAD_HAG, 
-//		LANDING, 
-//		BAD_PATH, 
-//		ACK_OGUI, 
-		
-//		/**
-//		 * UAV outputs
-//		 */
-//		OGUI_PATH_NEW,
-//		OGUI_PATH_END,
-//		UAV_FOUND, 
-//		RESUME_PATH,
-		
-//		/**
-//		 * VGUI outputs
-//		 */
-//		OGUI_FLYBY_T,
-//		OGUI_FLYBY_F, 
-//		OGUI_FLYBY_END, 
-		
-//		/**
-//		 * OP outputs
-//		 */
-//		OGUI_PATH_COMPLETE,
-//		OGUI_IDLE,
-//		OGUI_TAKING_OFF,
-//		OGUI_IN_AIR,
-//		OGUI_LANDING,
-//		OGUI_CRASHING,
-//		OGUI_LOST,
-//		OGUI_PATH_NO
     }
    
     public enum States implements IStateEnum
     {
-//        UAV_IDLE,
-//        RX_OP,
-//        UAV_TAKING_OFF,
-//        UAV_IN_AIR,
-//        UAV_LANDING,
-//        UAV_CRASHING,
-//        UAV_LOST
     	NORMAL,
     	ALARM,
     	AUDIBLE_ALARM
@@ -140,8 +51,7 @@ public class OperatorGUIRole extends Actor {
 	public OperatorGUIRole()
 	{
 		name( Actors.OPERATOR_GUI.name() );
-		nextState(States.UAV_IDLE, 1);
-		
+		nextState(States.NORMAL, 1);
 	}
 
    @Override
@@ -151,164 +61,178 @@ public class OperatorGUIRole extends Actor {
         }
         state(nextState());
         switch ((States) nextState()) {
-	        case RX_OP:
-	        	//nextState(States.UAV_IN_AIR,sim().duration(Durations.OGUI_RX_DUR.range()));
-	        	//break;
+	        case NORMAL:
+	        	//Stay in this state
+	        case ALARM:
+	        	//Stay in this state
+	        case AUDIBLE_ALARM:
+	        	/**
+	        	 * Leave this out for now.
+	        	 * 
+	        	 * At some point if the GUI has an alarm and does not receive a 
+	        	 * poke for some duration then it will give an audible alarm.
+	        	 */
         	default:
 	        	nextState(null,0);
 	        	break;
         }
+        
+        //Observables get replaced after this method so make sure that the latest observables are available
+        setObservables();
     }
 
 	@Override
 	public void processInputs() {
 		//Pull Input and any observations that need to be made from the simulator
+		_uav_observations = sim().getObservations(Actors.UAV.name());
+		parseUAVStateFromUAV(_uav_observations);
+		
+		//Handle Inputs
 		ArrayList<IData> input = sim().getInput(this.name());
-		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
-    	
+		handleOPInputs(input);
+		//TODO Handle Flyby Requests and end flyby commands
+		
+		
 		switch ( (States) state() ) {
-			case UAV_IDLE:
-				if (input.contains(OperatorRole.Outputs.OP_POKE)) {
-					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OP_GUI);
-					nextState(States.RX_OP, 1);
-				}
+			case NORMAL:
+				//Decide to go to alarm or stay in normal
+				if ( isAlarm() )
+					nextState(States.ALARM, 1);
+				
+				//Send any commands from the Operator to the UAV
+				
 				break;
-			case RX_OP:
-				if(input.contains(OperatorRole.Outputs.OP_END)){
-					if (input.contains(OperatorRole.Outputs.OP_PATH_NEW)) {
-						flight_paths++;
-						sim().addOutput(Actors.UAV.name(), Outputs.GOOD_PATH);
-					}
-					if (input.contains(OperatorRole.Outputs.TAKE_OFF)) {
-						sim().addOutput(Actors.UAV.name(), Outputs.TAKE_OFF);
-						nextState(States.UAV_TAKING_OFF,1);
-					
-//					} else if (_input.contains(OperatorRole.Outputs.RETURN)) {
-//						sim().addOutput(Actors.UAV.name(), Outputs.RETURN);
-//						_output.add(Outputs.RETURNING);
-//						nextState(States.UAV_IN_AIR,1);
-					} else if (input.contains(OperatorRole.Outputs.LOITER)) {
-						sim().addOutput(Actors.UAV.name(), Outputs.LOITER);
-						nextState(States.UAV_IN_AIR,1);
-					} else if (input.contains(OperatorRole.Outputs.LAND)) {
-						sim().addOutput(Actors.UAV.name(), Outputs.LAND);
-						nextState(States.UAV_IDLE,1);
-					}else if(uav_data.contains(UAVRole.Outputs.UAV_LANDED)){
-						nextState(States.UAV_IDLE,1);
-					}else if(input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_COMPLETE_ACK)){
-						_unacknowledged_paths_completed--;
-					}else{
-						nextState(States.UAV_IN_AIR,1);
-					}
-				}
-				break;
-			case UAV_TAKING_OFF:
-				if(uav_data.contains(UAVRole.Outputs.UAV_FLYING) || uav_data.contains(UAVRole.Outputs.UAV_LOITERING)){
-					nextState(States.UAV_IN_AIR,1);
-				}
-//				if (_input.contains(EventEnum.UAV_LOW_BATTERY)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.LOW_BATTERY);
-//					nextState(States.UAV_IDLE,1);
-//				} else if (!_input.contains(OperatorRole.Outputs.GOOD_PATH)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.NO_PATH);
-//					nextState(States.UAV_IDLE,1);
-//				} else if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_LOST);
-//					nextState(States.UAV_IDLE,1);
-//				} else if (_input.contains(EventEnum.UAV_GOOD_HAG)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.IN_AIR);
-//					nextState(States.UAV_IN_AIR,1);
-//				}
-				break;
-			case UAV_IN_AIR:
-				if(flight_paths > 0 && uav_data.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO)){
-					flight_paths--;
-					sim().addOutput(Actors.UAV_FLIGHT_PLAN.name(), Outputs.OGUI_PATH_NEW);
-				}else if(uav_data.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE)){
-					_unacknowledged_paths_completed++;
-					if(flight_paths > 0){
-						flight_paths--;
-						sim().addOutput(Actors.UAV_FLIGHT_PLAN.name(), Outputs.OGUI_PATH_NEW);
-					}
-					nextState(States.UAV_IN_AIR,1);
-				}
-//				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OP_GUI);
-//					nextState(States.RX_OP,1);
-//				} else if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_LOST);
-//					nextState(States.UAV_LOST,1);
-//				} else if (_input.contains(EventEnum.UAV_BAD_HAG)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_BAD_HAG);
-//					nextState(States.UAV_LOST,1);
-//				} else if (_input.contains(EventEnum.UAV_ARRIVED)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.LANDING);
-//					nextState(States.UAV_LANDING,1);
-//				} else if (_input.contains(EventEnum.UAV_LOW_BATTERY)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.LOW_BATTERY);
-//					nextState(States.UAV_IN_AIR,1);
-//				} else if (_input.contains(UAVRole.Outputs.BAD_PATH)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.BAD_PATH);
-//					nextState(States.UAV_IN_AIR,1);
-//				}
-				break;
-			case UAV_LANDING:
-//				if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_LOST);
-//					nextState(States.UAV_LOST,1);
-//				} else if (_input.contains(UAVRole.Outputs.NO_HAG)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.LANDED);
-//					nextState(States.UAV_LOST,1);
-//				}
-				break;
-			case UAV_CRASHING:
-//				if (_input.contains(OperatorRole.Outputs.OP_POKE)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.ACK_OGUI);
-//					nextState(States.RX_OP,1);
-//				} else if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_LOST);
-//					nextState(States.UAV_LOST,1);
-//				}
-				break;
-			case UAV_LOST:
-//				if (_input.contains(EventEnum.UAV_LOST_SIGNAL)) {
-//					sim().addOutput(Actors.OPERATOR.name(), Outputs.UAV_FOUND);
-//					nextState(States.UAV_IN_AIR,1);
-//				}
+			case ALARM:
+				//Decide to go to normal
+				if ( !isAlarm() )
+					nextState(States.NORMAL, 1);
+				
+				//Send any commands from the Operator to the UAV
+				
 				break;
 			default:
 				break;
 		}
-		setObservables();
     }
 
 	private void setObservables(){
-		if(_unacknowledged_paths_completed > 0){
-			sim().addObservation(Outputs.OGUI_PATH_COMPLETE, this.name());
-		}
-		IData state = Outputs.OGUI_IDLE;
-		switch((States)state()){
-		case UAV_LOST:
-			state = Outputs.OGUI_LOST;
-			break;
-		case UAV_CRASHING:
-			state = Outputs.OGUI_CRASHING;
-			break;
-		case UAV_IN_AIR:
-			state = Outputs.OGUI_IN_AIR;
-			break;
-		case UAV_LANDING:
-			state = Outputs.OGUI_LANDING;
-			break;
-		case UAV_TAKING_OFF:
-			state = Outputs.OGUI_TAKING_OFF;
-			break;
-		default:
-		}
-		sim().addObservation(state, this.name());
+		sim().addObservation(_uav_battery, this.name());
+		sim().addObservation(_uav_flight_plan, this.name());
+		sim().addObservation(_uav_hag, this.name());
+		sim().addObservation(_uav_signal, this.name());
+		sim().addObservation(_uav_state, this.name());
+		
+		//Also make the flyby requests observable
+		sim().addObservations(_flyby_requests, this.name());
+		//TODO make end flyby commands observable
 	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
      */
+	private boolean isAlarm()
+	{
+		//Look at the UAV to determine if we should be alarmed
+		if ( _uav_signal == UAVSignal.Outputs.SIGNAL_LOST ) {
+			return true;
+		} else if ( isAirborne() ) {
+			if (_uav_battery == UAVBattery.Outputs.BATTERY_LOW ||
+					_uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
+				return true;
+			} else if ( _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY ) {
+				//TODO show an alert if end flyby has been received
+			}
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
+	private void parseUAVStateFromUAV(ArrayList<IData> observations) {
+		//TODO Make sure the operator gui is sending the UAV output
+		for( IData data : observations ) {
+			if ( data instanceof UAVRole.Outputs ) {
+				_uav_state = (WiSAR.Agents.UAVRole.Outputs) data;
+			} else if ( data instanceof UAVSignal.Outputs ) {
+				_uav_signal = (WiSAR.submodule.UAVSignal.Outputs) data;
+			} else if ( data instanceof UAVBattery.Outputs ) {
+				_uav_battery = (WiSAR.submodule.UAVBattery.Outputs) data;
+			} else if (data instanceof UAVFlightPlan.Outputs ) {
+				if( data == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO || 
+						data == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES ) {
+					_uav_flight_plan = (WiSAR.submodule.UAVFlightPlan.Outputs) data;
+				}
+			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
+				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;
+			}
+			break;
+		}
+	}
+	
+	private boolean isAirborne()
+	{
+		switch( _uav_state ) {
+			case UAV_FLYING_FLYBY:
+			case UAV_FLYING_NORMAL:
+			case UAV_LOITERING:
+			case UAV_LANDING:
+			case UAV_TAKE_OFF:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	private void handleOPInputs(ArrayList<IData> input)
+	{
+		for(IData data : input) {
+			if ( data instanceof OperatorRole.Outputs ) {
+				switch((OperatorRole.Outputs) data) {
+					case OP_FLYBY_START_F:
+					case OP_FLYBY_START_T:
+						sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), data);
+						sim().addOutput(Actors.UAV.name(), data);
+						break;
+					case OP_FLYBY_END:
+					case OP_LAND:
+					case OP_LOITER:
+					case OP_MODIFY_FLIGHT_PLAN:
+					case OP_NEW_FLIGHT_PLAN:
+					case OP_RESUME:
+					case OP_TAKE_OFF:
+						//Send the data to the UAV
+						sim().addOutput(Actors.UAV.name(), data);
+						break;
+				}
+				
+			}
+		}
+	}
+	
+	private void handleFlybyRequests(ArrayList<IData> input)
+	{
+		for(IData data : input) {
+			if ( data instanceof VideoOperatorRole.Outputs ) {
+				switch((VideoOperatorRole.Outputs) data) {
+					//TODO add case for Flyby request
+					//TODO add case for ending a FLYBY
+					default:
+						//Send the data to the UAV
+						sim().addOutput(Actors.UAV.name(), data);
+						break;
+				}
+				
+			} else if ( data instanceof MissionManagerRole.Outputs ) {
+				switch((MissionManagerRole.Outputs) data) {
+					//TODO add case for Flyby request
+					default:
+						//Send the data to the UAV
+						sim().addOutput(Actors.UAV.name(), data);
+						break;
+				}
+			}
+		}
+	}
 }
