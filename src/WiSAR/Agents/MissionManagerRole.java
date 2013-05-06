@@ -47,17 +47,17 @@ public class MissionManagerRole extends Actor {
 		 */
 		MM_SEARCH_AOI_COMPLETE,
 		MM_SEARCH_FAILED,
-		MM_TARGET_SIGHTING_FALSE,
-		MM_TARGET_SIGHTING_TRUE,
+		MM_TARGET_SIGHTING_F,
+		MM_TARGET_SIGHTING_T,
 		
 		
 		/**
 		 * VGUI
 		 */
-		MM_FLYBY_TP,
-		MM_FLYBY_FP,
-		MM_ANOMALY_TP_VERIFIED,
-		MM_ANOMALY_FP_VERIFIED,
+		MM_FLYBY_T,
+		MM_FLYBY_F,
+		MM_ANOMALY_VERIFIED_T,
+		MM_ANOMALY_VERIFIED_F,
 		
 		/**
 		 * Observable
@@ -246,10 +246,10 @@ public class MissionManagerRole extends Actor {
 					 * Decide if the anomaly needs a flyby or not
 					 */
 					//If it is a True Positive anomaly then handle it the following way
-					if ( current_task.data().contains(Outputs.MM_ANOMALY_TP_VERIFIED) ) {
+					if ( current_task.data().contains(Outputs.MM_ANOMALY_VERIFIED_T) ) {
 						//TODO Add non-determinism to this decision instead of always doing a flyby of true positives
-						current_task.data().add(Outputs.MM_FLYBY_TP);
-					} else if ( current_task.data().contains(Outputs.MM_ANOMALY_FP_VERIFIED) ) {
+						current_task.data().add(Outputs.MM_FLYBY_T);
+					} else if ( current_task.data().contains(Outputs.MM_ANOMALY_VERIFIED_F) ) {
 						//TODO Add non-determinism to this decision instead of never doing a flyby of false positives
 						//Never do a flyby of false positives
 					}
@@ -321,11 +321,11 @@ public class MissionManagerRole extends Actor {
 				break;
 			case RX_VO:
 				if(input.contains(VideoOperatorRole.Outputs.VO_END)) {
-					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_TRUE)){
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_TRUE);
+					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_T)){
+						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_T);
 					}
-					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_FALSE)){
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_FALSE);
+					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_F)){
+						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_F);
 					}
 					nextState(States.IDLE, 1);
 				}
@@ -422,9 +422,12 @@ public class MissionManagerRole extends Actor {
 				doNextTask();
 				break;
 			case POKE_VGUI:
-				if ( vgui_observations.contains(VideoGUIRole.Outputs.VGUI_ACCESSIBLE) ) {
-					nextState(States.TX_VGUI, 1);
-				}
+				/**
+				 * Always assume that the GUI is available for now
+				 */
+//				if ( vgui_observations.contains(VideoGUIRole.Outputs.VGUI_ACCESSIBLE) ) {
+				nextState(States.TX_VGUI, 1);
+//				}
 				break;
 			case TX_VGUI:
 				//No interruptions
@@ -435,7 +438,10 @@ public class MissionManagerRole extends Actor {
 				break;
 			case OBSERVING_VGUI:
 				//Handle observations from the vgui
-				if ( vgui_observations.contains(VideoGUIRole.Outputs.VGUI_ACCESSIBLE) ) {
+				/**
+				 * Always assume that the GUI is available for now
+				 */
+//				if ( vgui_observations.contains(VideoGUIRole.Outputs.VGUI_ACCESSIBLE) ) {
 					for( IData observation : vgui_observations ) {
 						//Only accept one verify task at a time
 						if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_TRUE ) {
@@ -446,7 +452,7 @@ public class MissionManagerRole extends Actor {
 							break;
 						}
 					}
-				}
+//				}
 				
 				boolean pokes = handlePokes(input);
 				

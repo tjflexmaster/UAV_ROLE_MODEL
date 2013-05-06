@@ -18,62 +18,123 @@ public class OperatorGUIRole extends Actor {
 	
     public enum Outputs implements IData
     {
-		ACK_OP_GUI,
-		DEPARTING,
-		GOOD_PATH,
-		RETURNING,
-		LOITERING,
-		LANDED,
-		TAKE_OFF,
-		RETURN, 
-		LOITER, 
-		LAND, 
-		LOW_BATTERY, 
-		NO_PATH, 
-		UAV_LOST, 
-		IN_AIR, 
-		UAV_BAD_HAG, 
-		LANDING, 
-		BAD_PATH, 
-		ACK_OGUI, 
+    	//TODO Pass the output from the UAV directly to the operator
+//    	/**
+//    	 * Output UAV State
+//    	 */
+//    	OGUI_UAV_READY,
+//    	OGUI_UAV_FLYING_NORMAL,
+//    	OGUI_UAV_FLYING_FLYBY,
+//    	OGUI_UAV_TAKE_OFF,
+//    	OGUI_UAV_LOITERING,
+//    	OGUI_UAV_LANDING,
+//    	OGUI_UAV_LANDED,
+//    	OGUI_UAV_CRASHED,
+//    	
+//    	/**
+//    	 * Output Battery
+//    	 */
+//    	OGUI_BATTERY_OK,
+//    	OGUI_BATTERY_LOW,
+//    	
+//    	/**
+//    	 * Output Signal
+//    	 */
+//    	OGUI_SIGNAL_OK,
+//    	OGUI_SIGNAL_LOST,
+//    	
+//    	/**
+//   	 * Output HAG
+//   	 */
+//   	OGUI_HAG_OK,
+//   	OGUI_HAG_LOW,
+//   	
+//   	/**
+//   	 * Output FlightPlan
+//   	 */
+//   	OGUI_FLIGHT_PLAN_NO,
+//   	OGUI_FLIGHT_PLAN_YES,
+//   	OGUI_FLIGHT_PLAN_COMPLETE,
+    	
+    	/**
+    	 * Output Flyby Request
+    	 */
+    	OGUI_FLYBY_REQ_T,
+    	OGUI_FLYBY_REQ_F,
+    	
+
+    	
+    	/**
+    	 * Output Bad Path
+    	 */
+    	//TODO Do not implement this unless we decide to add it back into the model
+    	
+    	/**
+    	 * Output GUI State
+    	 */
+    	OGUI_NORMAL,
+    	OGUI_ALARM,
+    	
+    	
+//		ACK_OP_GUI,
+//		DEPARTING,
+//		GOOD_PATH,
+//		RETURNING,
+//		LOITERING,
+//		LANDED,
+//		TAKE_OFF,
+//		RETURN, 
+//		LOITER, 
+//		LAND, 
+//		LOW_BATTERY, 
+//		NO_PATH, 
+//		UAV_LOST, 
+//		IN_AIR, 
+//		UAV_BAD_HAG, 
+//		LANDING, 
+//		BAD_PATH, 
+//		ACK_OGUI, 
 		
-		/**
-		 * UAV outputs
-		 */
-		OGUI_PATH_NEW,
-		OGUI_PATH_END,
-		UAV_FOUND, 
-		RESUME_PATH,
+//		/**
+//		 * UAV outputs
+//		 */
+//		OGUI_PATH_NEW,
+//		OGUI_PATH_END,
+//		UAV_FOUND, 
+//		RESUME_PATH,
 		
-		/**
-		 * VGUI outputs
-		 */
-		OGUI_FLYBY_T,
-		OGUI_FLYBY_F, 
-		OGUI_FLYBY_END, 
+//		/**
+//		 * VGUI outputs
+//		 */
+//		OGUI_FLYBY_T,
+//		OGUI_FLYBY_F, 
+//		OGUI_FLYBY_END, 
 		
-		/**
-		 * OP outputs
-		 */
-		OGUI_PATH_COMPLETE,
-		OGUI_IDLE,
-		OGUI_TAKING_OFF,
-		OGUI_IN_AIR,
-		OGUI_LANDING,
-		OGUI_CRASHING,
-		OGUI_LOST,
-		OGUI_PATH_NO
+//		/**
+//		 * OP outputs
+//		 */
+//		OGUI_PATH_COMPLETE,
+//		OGUI_IDLE,
+//		OGUI_TAKING_OFF,
+//		OGUI_IN_AIR,
+//		OGUI_LANDING,
+//		OGUI_CRASHING,
+//		OGUI_LOST,
+//		OGUI_PATH_NO
     }
    
     public enum States implements IStateEnum
     {
-        UAV_IDLE,
-        RX_OP,
-        UAV_TAKING_OFF,
-        UAV_IN_AIR,
-        UAV_LANDING,
-        UAV_CRASHING,
-        UAV_LOST
+//        UAV_IDLE,
+//        RX_OP,
+//        UAV_TAKING_OFF,
+//        UAV_IN_AIR,
+//        UAV_LANDING,
+//        UAV_CRASHING,
+//        UAV_LOST
+    	NORMAL,
+    	ALARM,
+    	AUDIBLE_ALARM
     }
     
 	public OperatorGUIRole()

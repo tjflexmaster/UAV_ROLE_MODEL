@@ -57,8 +57,8 @@ public class VideoOperatorRole extends Actor
 		/**
 		 * For the MM
 		 */
-		VO_TARGET_SIGHTING_TRUE,
-		VO_TARGET_SIGHTING_FALSE,
+		VO_TARGET_SIGHTING_T,
+		VO_TARGET_SIGHTING_F
 		
 		
 	} /**

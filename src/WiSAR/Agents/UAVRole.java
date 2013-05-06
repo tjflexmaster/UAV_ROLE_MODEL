@@ -29,25 +29,30 @@ public class UAVRole extends Actor  {
     {
     	UAV_READY,
     	UAV_TAKE_OFF,
-    	UAV_FLYING,
+    	UAV_FLYING_NORMAL,
+    	UAV_FLYING_FLYBY,
     	UAV_LOITERING,
     	UAV_LANDING,
     	UAV_LANDED,
     	UAV_CRASHED,
     	
-    	UAV_SIGNAL_OK,
-    	UAV_SIGNAL_LOST,
+//    	UAV_SIGNAL_OK,
+//    	UAV_SIGNAL_LOST,
     	
+//    	UAV_FLIGHT_PLAN_YES,
+//    	UAV_FLIGHT_PLAN_NO,
     	
-    	UAV_HAG_OK,
-    	UAV_HAG_LOW,
+//    	UAV_HAG_OK,
+//    	UAV_HAG_LOW,
     	
-    	UAV_PATH_OK,
+//    	UAV_PATH_OK,
     	
-    	/**
-    	 * GUI Outputs
-    	 */
-    	UAV_PATH_BAD,
+
+//    	/**
+//    	 * GUI Outputs
+//    	 */
+//    	UAV_PATH_COMPLETE,
+//    	UAV_PATH_BAD,
     	
     	/**
     	 * Output to VGUI
@@ -56,13 +61,14 @@ public class UAVRole extends Actor  {
     	UAV_FEED_GOOD,
     	UAV_FEED_BAD,
     	UAV_FEED_INACTIVE,
+
     	
-    	/**
-    	 * Output to battery
-    	 */
-    	ACTIVATE_BATTERY,
-    	DEACTIVATE_BATTERY,
-    	RESET_BATTERY
+//    	/**
+//    	 * Output to battery
+//    	 */
+//    	ACTIVATE_BATTERY,
+//    	DEACTIVATE_BATTERY,
+//    	RESET_BATTERY
     }
     
     public enum States implements IStateEnum
