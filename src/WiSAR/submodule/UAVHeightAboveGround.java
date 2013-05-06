@@ -4,11 +4,8 @@ import java.util.ArrayList;
 
 import WiSAR.Actors;
 import WiSAR.Durations;
-import WiSAR.Agents.OperatorGUIRole;
-import WiSAR.Agents.UAVRole;
+import WiSAR.Agents.OperatorRole;
 import WiSAR.Events.HAGEvent;
-import WiSAR.submodule.UAVBattery.Outputs;
-import WiSAR.submodule.UAVFlightPlan.States;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -17,7 +14,7 @@ import CUAS.Simulator.Simulator;
 public class UAVHeightAboveGround extends Actor {
 
 	public enum Outputs implements IData {
-		HAG_DANGEROUS,
+		HAG_LOW,
 		HAG_NONE,
 		HAG_GOOD, 
 		HAG_CRASHED
@@ -26,7 +23,7 @@ public class UAVHeightAboveGround extends Actor {
 	public enum States implements IStateEnum{
 		INACTIVE,
 		GOOD,
-		DANGEROUS,
+		LOW,
 		CRASHED
 	}
 
@@ -47,9 +44,12 @@ public class UAVHeightAboveGround extends Actor {
         state(nextState());
         
         switch((States)state()){
-    	default:
-    		nextState(null,0);
-    		break;
+	        case LOW:
+	        	nextState(States.CRASHED, sim().duration(WiSAR.Durations.HAG_DANGER_TO_CRASH_DUR.range()));
+	        	break;
+	    	default:
+	    		nextState(null,0);
+	    		break;
         }
         
         setObservations();
@@ -60,19 +60,19 @@ public class UAVHeightAboveGround extends Actor {
         ArrayList<IData> input = sim().getInput(this.name());
         switch((States)state()){
         case INACTIVE:
-        	if(input.contains(UAVRole.Outputs.UAV_TAKE_OFF)){
+        	if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
         		nextState(States.GOOD,1);
         	}
         	break;
         case GOOD:
         	if(input.contains(HAGEvent.Outputs.EHAG_DANGEROUS)){
-        		nextState(States.DANGEROUS,1);
+        		nextState(States.LOW,1);
         	}
         	break;
-        case DANGEROUS:
+        case LOW:
         	if(input.contains(HAGEvent.Outputs.EHAG_CRASHED)){
         		nextState(States.CRASHED,1);
-        	} else if(input.contains(OperatorGUIRole.Outputs.OGUI_ADJUST_PATH)){
+        	} else if(input.contains(OperatorRole.Outputs.OP_MODIFY_FLIGHT_PLAN)){
         		nextState(States.GOOD,sim().duration(Durations.UAV_ADJUST_PATH.range()));
         	}
         	break;
@@ -93,8 +93,8 @@ public class UAVHeightAboveGround extends Actor {
 			case GOOD:
 				_state = Outputs.HAG_GOOD;
 				break;
-			case DANGEROUS:
-				_state = Outputs.HAG_DANGEROUS;
+			case LOW:
+				_state = Outputs.HAG_LOW;
 				break;
 			case CRASHED:
 				_state = Outputs.HAG_CRASHED;

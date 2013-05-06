@@ -23,18 +23,6 @@ public class OperatorRole extends Actor {
 	
 	PriorityQueue<IData> tasks;
 	
-	/**
-	 * private assumptions
-	 */
-	
-	private enum Assumptions{
-		LANDED,
-		FLYING,
-		LANDING,
-		
-	}
-	Assumptions uav_state;
-	
 	ArrayList<IData> _uav_observations;
 	ArrayList<IData> _gui_observations;
 	
@@ -49,11 +37,9 @@ public class OperatorRole extends Actor {
 	int _sent_search_aoi = 0;
 	int _completed_search_aoi = 0;
 	
-	Outputs current_output;
 	/**
 	 *  STATE VARS
 	 */
-	
 	public enum Outputs implements IData
 	{
 		/**
@@ -82,14 +68,6 @@ public class OperatorRole extends Actor {
 		OP_FLYBY_START_T,
 		OP_FLYBY_START_F,
 		OP_FLYBY_END,
-		
-//		/**
-//		 * OGUI Outputs
-//		 */
-//		END_SEARCH, 
-//		OP_SEARCH_AOI_COMPLETE_ACK,
-//		OP_PATH_NEW,
-//		OP_PATH_END,
 		
 		/**
 		 * Output to UAV
@@ -157,8 +135,6 @@ public class OperatorRole extends Actor {
 		name( Actors.OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		_uav_state = UAVRole.Outputs.UAV_READY;
-		uav_state = Assumptions.LANDED;
-		current_output = null;
 		tasks = new PriorityQueue<IData>();
 	}
 	
@@ -433,7 +409,7 @@ public class OperatorRole extends Actor {
 				parseUAVStateFromGUI(_gui_observations);
 				
 				//If we are in alarm mode then only look at the following alarm items
-				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_ALARM) ) {
+				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
 					
 					if ( _uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
@@ -446,7 +422,7 @@ public class OperatorRole extends Actor {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
 					}
 					
-				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_NORMAL ) ) {
+				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_NORMAL ) ) {
 					if ( _uav_state == UAVRole.Outputs.UAV_LANDED ) {
 						tasks.add(Outputs.OP_POST_FLIGHT);
 					} else if ( _uav_state == UAVRole.Outputs.UAV_READY ) {
@@ -459,19 +435,20 @@ public class OperatorRole extends Actor {
 						tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
 					}
 					
-					//Only queue up a single flyby
-					if ( !tasks.contains(Outputs.OP_FLYBY_START_F) || !tasks.contains(Outputs.OP_FLYBY_START_T) ) {
-						//If no flyby is queued up then grab the first flyby and queue it up
-						for(IData data : _gui_observations) {
-							if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F ) {
-								tasks.add(Outputs.OP_FLYBY_START_F);
-								break;
-							} else if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T ) {
-								tasks.add(Outputs.OP_FLYBY_START_T);
-								break;
-							}
-						}
-					}
+					//TODO Handle Flyby requests
+//					//Only queue up a single flyby
+//					if ( !tasks.contains(Outputs.OP_FLYBY_START_F) || !tasks.contains(Outputs.OP_FLYBY_START_T) ) {
+//						//If no flyby is queued up then grab the first flyby and queue it up
+//						for(IData data : _gui_observations) {
+//							if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F ) {
+//								tasks.add(Outputs.OP_FLYBY_START_F);
+//								break;
+//							} else if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T ) {
+//								tasks.add(Outputs.OP_FLYBY_START_T);
+//								break;
+//							}
+//						}
+//					}
 						
 					//TODO Look at any other important input
 					
@@ -523,7 +500,7 @@ public class OperatorRole extends Actor {
 				 */
 				
 				//If the GUI has an alarm while working on a task then abandon that task and immediately create a task for the alarm.
-				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_ALARM) ) {
+				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
 					
 					if ( _uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
@@ -554,7 +531,7 @@ public class OperatorRole extends Actor {
 				if ( input.contains(VideoOperatorRole.Outputs.VO_POKE) ) {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.OP_ACK);
 					nextState(States.RX_VO,1);
-				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_ALARM) ) {
+				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
 					if ( _uav_battery == UAVBattery.Outputs.BATTERY_LOW ) {
 						tasks.add(Outputs.OP_LAND);
 						doNextTask();

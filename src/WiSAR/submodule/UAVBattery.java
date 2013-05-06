@@ -9,6 +9,7 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorGUIRole;
+import WiSAR.Agents.OperatorRole;
 import WiSAR.Agents.UAVRole;
 
 
@@ -91,19 +92,19 @@ public class UAVBattery extends Actor {
 		 * The battery can be activated and deactivated,
 		 * It can also be reset back to fresh.
 		 */
-		if ( input.contains(UAVRole.Outputs.RESET_BATTERY) ) {
+		if ( input.contains(OperatorRole.Outputs.OP_POST_FLIGHT) ) {
 			resetBattery();
 		}
 		
 		switch( (States)state() ){
 			case INACTIVE:
-				if(input.contains(OperatorGUIRole.Outputs.TAKE_OFF)){
+				if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
 					nextState(States.ACTIVE, 1);
 				}
 				break;
 			case ACTIVE: // If the battery is active then if the UAV issues the cmd to deactivate the battery then it goes to inactive
 			case LOW:
-				if(input.contains(UAVRole.Outputs.DEACTIVATE_BATTERY)){
+				if(input.contains(UAVRole.Outputs.UAV_LANDED)){
 					nextState(States.INACTIVE, 1);
 				}
 				break;
