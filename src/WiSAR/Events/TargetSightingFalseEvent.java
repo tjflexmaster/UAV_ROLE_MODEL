@@ -25,10 +25,10 @@ public class TargetSightingFalseEvent extends Event {
 	protected boolean eventPossible() {
 		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
 		ArrayList<IData> vgui_data = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
-		if(uav_data.contains(UAVVideoFeed.Outputs.VF_SIGNAL_OK) && vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)){
-		if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE) 
+		if(uav_data.contains(UAVVideoFeed.Outputs.VF_SIGNAL_OK)
 				&& vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)
-				&& !uav_data.contains(UAVSignal.Outputs.SIGNAL_LOST)){
+				&& uav_data.contains(UAVRole.Outputs.UAV_FLYING_NORMAL) 
+					&& !uav_data.contains(UAVSignal.Outputs.SIGNAL_LOST)){
 			return true;
 		}
 		return false;

@@ -648,7 +648,6 @@ public class OperatorRole extends Actor {
 			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
 				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;
 			}
-			break;
 		}
 	}
 }

@@ -18,10 +18,5 @@ public enum Actors {
 	UAV_HAG,
 	UAV_SIGNAL,
 	UAV_VIDEO_FEED,
-<<<<<<< Upstream, based on master
-	FLYBY_ANOMALY
-=======
-	UAV_PATH
->>>>>>> 45392e2 implemented the UAV subActors and integrated them with the whole.
-	
+	FLYBY_ANOMALY	
 }

@@ -8,11 +8,8 @@ import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.UAVRole;
 import WiSAR.Agents.VideoGUIRole;
-<<<<<<< Upstream, based on master
 import WiSAR.submodule.UAVVideoFeed;
-=======
 import WiSAR.submodule.UAVSignal;
->>>>>>> 7f3b80c Added the qualifier that A target sighting event cannot go active while the signal is out of range.
 
 public class TargetSightingTrueEvent extends Event {
 
@@ -28,13 +25,10 @@ public class TargetSightingTrueEvent extends Event {
 	protected boolean eventPossible() {
 		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
 		ArrayList<IData> vgui_data = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
-<<<<<<< Upstream, based on master
-		if(uav_data.contains(UAVVideoFeed.Outputs.VF_SIGNAL_OK) && vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)){
-=======
-		if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)
+		if(uav_data.contains(UAVVideoFeed.Outputs.VF_SIGNAL_OK)
 				&& vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)
-				&& !uav_data.contains(UAVSignal.Outputs.SIGNAL_LOST)){
->>>>>>> 7f3b80c Added the qualifier that A target sighting event cannot go active while the signal is out of range.
+				&& uav_data.contains(UAVRole.Outputs.UAV_FLYING_NORMAL) 
+					&& !uav_data.contains(UAVSignal.Outputs.SIGNAL_LOST)){
 			return true;
 		}
 		return false;

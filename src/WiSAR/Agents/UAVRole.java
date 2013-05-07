@@ -13,10 +13,7 @@ import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
-<<<<<<< Upstream, based on master
-=======
 import WiSAR.submodule.UAVSignal;
->>>>>>> 45392e2 implemented the UAV subActors and integrated them with the whole.
 import WiSAR.submodule.UAVVideoFeed;
 
 public class UAVRole extends Actor  {
@@ -75,13 +72,9 @@ public class UAVRole extends Actor  {
     	_sub_actors.add(new UAVBattery());
     	_sub_actors.add(new UAVFlightPlan());
     	_sub_actors.add(new UAVHeightAboveGround());
-<<<<<<< Upstream, based on master
     	_sub_actors.add(new UAVVideoFeed());
     	_sub_actors.add(new FlybyAnomaly());
-=======
     	_sub_actors.add(new UAVSignal());
-    	_sub_actors.add(new UAVVideoFeed());
->>>>>>> 45392e2 implemented the UAV subActors and integrated them with the whole.
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
