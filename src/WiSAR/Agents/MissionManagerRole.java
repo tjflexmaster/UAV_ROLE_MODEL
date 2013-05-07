@@ -52,10 +52,10 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * VGUI
 		 */
-		MM_FLYBY_T,
-		MM_FLYBY_F,
-		MM_ANOMALY_VERIFIED_T,
-		MM_ANOMALY_VERIFIED_F,
+		MM_FLYBY_REQ_T,
+		MM_FLYBY_REQ_F,
+		MM_ANOMALY_DISMISSED_T,
+		MM_ANOMALY_DISMISSED_F,
 		
 		/**
 		 * Observable
@@ -204,16 +204,7 @@ public class MissionManagerRole extends Actor {
 			case END_VGUI:
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_END);
-				if ( tasks.peek() != null ) {
-					//If it is a True Positive anomaly then handle it the following way
-					if ( tasks.peek() == Outputs.MM_ANOMALY_VERIFIED_T ) {
-						//TODO Add non-determinism to this decision instead of always doing a flyby of true positives
-						tasks.add(Outputs.MM_FLYBY_T);
-					} else if ( tasks.peek() == Outputs.MM_ANOMALY_VERIFIED_F ) {
-						//TODO Add non-determinism to this decision instead of never doing a flyby of false positives
-						//Never do a flyby of false positives
-					}
-				}
+				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), tasks.poll());
 				nextState(States.IDLE, 1);
 				break;
 			default:
@@ -395,18 +386,23 @@ public class MissionManagerRole extends Actor {
 				/**
 				 * Always assume that the GUI is available for now
 				 */
-//				if ( vgui_observations.contains(VideoGUIRole.Outputs.VGUI_ACCESSIBLE) ) {
-					for( IData observation : vgui_observations ) {
-						//Only accept one verify task at a time
-						if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_TRUE ) {
-							tasks.add(Outputs.MM_ANOMALY_VERIFIED_T);
-							break;
-						} else if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_FALSE ) {
-							tasks.add(Outputs.MM_ANOMALY_VERIFIED_F);
-							break;
-						}
+				//Only handle a single request at a time
+				for( IData observation : vgui_observations ) {
+					//Only accept one verify task at a time
+					if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_TRUE ) {
+						if ( isAnomaly(true) )
+							tasks.add(Outputs.MM_FLYBY_REQ_T);
+						else
+							tasks.add(Outputs.MM_ANOMALY_DISMISSED_T);
+						break;
+					} else if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_FALSE ) {
+						if ( isAnomaly(false) )
+							tasks.add(Outputs.MM_FLYBY_REQ_F);
+						else
+							tasks.add(Outputs.MM_ANOMALY_DISMISSED_F);
+						break;
 					}
-//				}
+				}
 				
 				boolean pokes = handlePokes(input);
 				
@@ -426,6 +422,7 @@ public class MissionManagerRole extends Actor {
 	 */
 	private void doNextTask()
 	{
+		//TODO Shouldn't there be more code in here?
 		if ( !tasks.isEmpty() ) {
 			Outputs task = (Outputs) tasks.poll(); //Grab the First thing we remember to do
 		}
@@ -460,5 +457,23 @@ public class MissionManagerRole extends Actor {
 		}
 		
 		return accepted_poke;
+	}
+	
+	private boolean isAnomaly(boolean true_positive)
+	{
+		
+		int likely;
+		if ( true_positive ) {
+			likely = sim().duration(Durations.MM_DETECT_TP.range());
+		} else {
+			likely = sim().duration(Durations.MM_DETECT_FP.range());
+		}
+		
+		int percent = (int) (Math.random() * 100);
+		if ( percent <= likely ) {
+				return true;
+		}
+		
+		return false;
 	}
 }

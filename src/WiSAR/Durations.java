@@ -35,6 +35,8 @@ public enum Durations {
 	MM_DEFAULT_TX_DUR(new Range(300, 600)),
 	MM_VERIFY_ANOMALY_DUR(new Range(300, 900)),
 	MM_IDLE_DUR(new Range(60, 300)),
+	MM_DETECT_FP(new Range(30, 30)),
+	MM_DETECT_TP(new Range(50, 50)),
 	
 	/**
 	 * Operator assumptions
