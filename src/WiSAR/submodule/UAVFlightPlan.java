@@ -87,47 +87,44 @@ public class UAVFlightPlan extends Actor {
 				if(uav.contains(UAVRole.Outputs.UAV_LOITERING)){
 					nextState(States.YES_PATH,1);
 				}else{
-					_pause_time = sim().getTime();
-					nextState(States.PAUSED,1);
+					pause();
 				}
 			}
 			break;
 		case YES_PATH:
 			//TODO assert that the UAV is flying
 			//replace path
-			if(input.contains(OperatorRole.Outputs.OP_NEW_FLIGHT_PLAN)){
-				_start_time = sim().getTime();
-				_path_dur = sim().duration(Durations.UAV_FLIGHT_PLAN_DUR.range());
-				nextState(States.COMPLETE,_path_dur);
-			}
 			//TODO handle end path
+			//if the signal is lost
+			if(uav.contains(UAVSignal.Outputs.SIGNAL_LOST)){
+				pause();
+			}
 			//adjust path
-			else if(input.contains(OperatorRole.Outputs.OP_MODIFY_FLIGHT_PLAN)){
+			if(input.contains(OperatorRole.Outputs.OP_MODIFY_FLIGHT_PLAN)){
 				_path_dur = getTimeRemaining() + sim().duration(Durations.UAV_ADJUST_PATH.range());
 				nextState(States.COMPLETE,_path_dur);
 			} 
 			//land
 			else if(input.contains(OperatorRole.Outputs.OP_LAND)){
-				_pause_time = sim().getTime();
-				nextState(States.PAUSED,1);
+				pause();
 			}
 			//pause path
 			else if(input.contains(OperatorRole.Outputs.OP_LOITER)){
-				_pause_time = sim().getTime();
-				nextState(States.PAUSED,1);
+				pause();
 			}
 			//execute a flyby
 			else if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_F)
 					|| input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)){
-				_pause_time = sim().getTime();
-				nextState(States.PAUSED,1);
+				pause();
 			}
 			break;
 		case PAUSED:
 			//two ways to get out of the paused state, 
 				//if currently loitering and the OGUI issues the cmd to resume
 			if(input.contains(OperatorRole.Outputs.OP_RESUME)
-					|| uav.contains(UAVRole.Outputs.UAV_LOITERING)){
+					|| uav.contains(UAVRole.Outputs.UAV_LOITERING)
+					|| uav.contains(UAVSignal.Outputs.SIGNAL_RESUMED)){
+				resume();
 				nextState(States.YES_PATH,1);
 			//else if the UAV has been issued the cmd to take off. Or the land has been aborted
 			}else if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
@@ -137,6 +134,7 @@ public class UAVFlightPlan extends Actor {
 		case RESUME_AFTER_TAKE_OFF:
 			//once the UAV has made it airborn resume path
 			if(uav.contains(UAVRole.Outputs.UAV_LOITERING) || uav.contains(UAVRole.Outputs.UAV_FLYING_NORMAL)){
+				resume();
 				nextState(States.YES_PATH,1);
 			}
 			break;
@@ -144,6 +142,11 @@ public class UAVFlightPlan extends Actor {
 			break;
 		}
 		input.clear();
+	}
+
+	private void pause() {
+		_pause_time = sim().getTime();
+		nextState(States.PAUSED,1);
 	}
 	private void resume() {
 		_path_dur -= (_pause_time - _start_time);

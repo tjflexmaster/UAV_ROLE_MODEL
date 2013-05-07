@@ -116,10 +116,16 @@ public class UAVVideoFeed extends Actor {
 	}
 	
 	public enum States implements IStateEnum{
-		NONE,
+		IDLE,
 		OK,
 		BAD,
 	}
+	
+	public UAVVideoFeed(){
+		name(Actors.UAV_VIDEO_FEED.name());
+		nextState(States.IDLE,1);
+	}
+	
 	@Override
 	public void processNextState() {
 
@@ -146,7 +152,7 @@ public class UAVVideoFeed extends Actor {
 		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
 		
 		switch((States)state()){
-		case NONE:
+		case IDLE:
 			if(uav.contains(UAVRole.Outputs.UAV_TAKE_OFF)){
 				nextState(States.OK,1);
 			}else{
@@ -161,13 +167,13 @@ public class UAVVideoFeed extends Actor {
 				nextState(States.BAD,1);
 			}else if(uav.contains(UAVRole.Outputs.UAV_LANDED)
 					|| uav.contains(UAVRole.Outputs.UAV_CRASHED)){
-				nextState(States.NONE,1);
+				nextState(States.IDLE,1);
 			}
 			break;
 		case BAD:
 			if(uav.contains(UAVRole.Outputs.UAV_LANDED)
 					|| uav.contains(UAVRole.Outputs.UAV_CRASHED)){
-				nextState(States.NONE,1);
+				nextState(States.IDLE,1);
 			}
 			break;
 		}
@@ -177,7 +183,7 @@ public class UAVVideoFeed extends Actor {
 	private void setObservations() {
 		IData _state = Outputs.VF_SIGNAL_NONE;
 		switch((States)state()){
-		case NONE:
+		case IDLE:
 			_state = Outputs.VF_SIGNAL_NONE;
 			break;
 		case OK:

@@ -13,6 +13,10 @@ import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
+<<<<<<< Upstream, based on master
+=======
+import WiSAR.submodule.UAVSignal;
+>>>>>>> 45392e2 implemented the UAV subActors and integrated them with the whole.
 import WiSAR.submodule.UAVVideoFeed;
 
 public class UAVRole extends Actor  {
@@ -71,8 +75,13 @@ public class UAVRole extends Actor  {
     	_sub_actors.add(new UAVBattery());
     	_sub_actors.add(new UAVFlightPlan());
     	_sub_actors.add(new UAVHeightAboveGround());
+<<<<<<< Upstream, based on master
     	_sub_actors.add(new UAVVideoFeed());
     	_sub_actors.add(new FlybyAnomaly());
+=======
+    	_sub_actors.add(new UAVSignal());
+    	_sub_actors.add(new UAVVideoFeed());
+>>>>>>> 45392e2 implemented the UAV subActors and integrated them with the whole.
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -201,6 +210,7 @@ public class UAVRole extends Actor  {
 		}
 		handleFlightPlanObservations();
 		handleHAGObservations();
+		handleSignalObservations();
 		
 		switch ( (States) state() ) {
 			case UAV_READY:
@@ -328,6 +338,7 @@ public class UAVRole extends Actor  {
 		}//end switch
 	}
 	
+
 	/**
 	 * Make these things on the UAV observable
 	 */
@@ -376,6 +387,13 @@ public class UAVRole extends Actor  {
 		}
 	}
 
+	private void handleSignalObservations() {
+		ArrayList<IData> observations = sim().getObservations(Actors.UAV_SIGNAL.name());
+		if(observations.size() > 0){
+			_signal = observations.get(0);
+		}
+		
+	}
 	private void handleFlightPlanObservations() {
 		ArrayList<IData> observations = sim().getObservations(Actors.UAV_FLIGHT_PLAN.name());
 		if ( observations.size() > 0 ) {
