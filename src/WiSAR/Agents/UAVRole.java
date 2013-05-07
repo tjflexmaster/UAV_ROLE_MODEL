@@ -287,16 +287,14 @@ public class UAVRole extends Actor  {
 					else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 						_dur = sim().duration(Durations.UAV_LANDING_DUR.range());
 						nextState(States.UAV_LANDED,_dur);
-					}
-					
-					if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+					} else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
 							input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
 						_flyby = true;
 						nextState(States.UAV_FLYING, 1);
-					}
-					
-					if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+					}else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
 						_flyby = false;
+					} else if ( input.contains(OperatorRole.Outputs.OP_NEW_FLIGHT_PLAN)){
+						nextState(States.UAV_FLYING,1);
 					}
 				}
 				break;
