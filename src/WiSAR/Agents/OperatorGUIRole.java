@@ -7,6 +7,7 @@ import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
+import WiSAR.IPriority;
 import WiSAR.Agents.OperatorRole;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
@@ -52,6 +53,7 @@ public class OperatorGUIRole extends Actor {
 		nextState(States.NORMAL, 1);
 		_flyby_end_cmd = null;
 		_flyby_requests = new ArrayList<IData>();
+		_uav_state = UAVRole.Outputs.UAV_READY;
 	}
 
    @Override

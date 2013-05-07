@@ -1,8 +1,6 @@
 package WiSAR.Agents;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import CUAS.Simulator.IData;
@@ -10,7 +8,9 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
+import WiSAR.DataPriorityComparator;
 import WiSAR.Durations;
+import WiSAR.IPriority;
 import WiSAR.MemoryObject;
 import WiSAR.Agents.OperatorRole.Outputs;
 
@@ -18,8 +18,11 @@ public class MissionManagerRole extends Actor {
 
 	//INTERNAL VARS
 	PriorityQueue<IData> tasks;
+	boolean _search_active = true;
+	int _total_search_aoi = 0;
+	int _complete_search_aoi = 0;
 	
-	public enum Outputs implements IData
+	public enum Outputs implements IData, IPriority
 	{
 		/**
 		 * Basic Communication
@@ -32,30 +35,31 @@ public class MissionManagerRole extends Actor {
 		 * Video Operator
 		 */
 		
-		MM_TARGET_DESCRIPTION,
-		MM_TERMINATE_SEARCH,
+		MM_TARGET_DESCRIPTION(3),
+		MM_TERMINATE_SEARCH_VO(1),
 		
 		/**
 		 * Operator
 		 */
-		MM_NEW_SEARCH_AOI,
+		MM_NEW_SEARCH_AOI(3),
+		MM_TERMINATE_SEARCH_OP(1),
 		 
 		/**
 		 * ParentSearch
 		 */
-		MM_SEARCH_AOI_COMPLETE,
-		MM_SEARCH_FAILED,
-		MM_TARGET_SIGHTING_F,
-		MM_TARGET_SIGHTING_T,
+		MM_SEARCH_AOI_COMPLETE(5),
+		MM_SEARCH_FAILED(5),
+		MM_TARGET_SIGHTING_F(2),
+		MM_TARGET_SIGHTING_T(2),
 		
 		
 		/**
 		 * VGUI
 		 */
-		MM_FLYBY_REQ_T,
-		MM_FLYBY_REQ_F,
-		MM_ANOMALY_DISMISSED_T,
-		MM_ANOMALY_DISMISSED_F,
+		MM_FLYBY_REQ_T(10),
+		MM_FLYBY_REQ_F(10),
+		MM_ANOMALY_DISMISSED_T(12),
+		MM_ANOMALY_DISMISSED_F(12),
 		
 		/**
 		 * Observable
@@ -64,7 +68,25 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * global outputs
 		 */
-		MM_BUSY
+		MM_BUSY;
+
+		private int _priority;
+		
+		Outputs()
+		{
+			_priority = 1000;
+		}
+		
+		Outputs(int priority)
+		{
+			_priority = priority;
+		}
+		
+		@Override
+		public int priority()
+		{
+			return _priority;
+		}
 	}
 	
 	/**
@@ -115,7 +137,7 @@ public class MissionManagerRole extends Actor {
 	{
 		name(Actors.MISSION_MANAGER.name());
 		nextState(States.IDLE, 1);
-		tasks = new PriorityQueue<IData>();
+		tasks = new PriorityQueue<IData>(5, new DataPriorityComparator());
 	}
 	
 	
@@ -138,7 +160,7 @@ public class MissionManagerRole extends Actor {
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
 			case IDLE:
-				nextState(States.OBSERVING_VGUI, sim().duration(Durations.MM_IDLE_DUR.range()));
+				nextState(null, 0);
 				break;
 			case POKE_PS:
 				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_POKE);
@@ -151,8 +173,8 @@ public class MissionManagerRole extends Actor {
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
-				//TODO handle extra stuff that PS might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_END);
+				sim().addOutput(Actors.PARENT_SEARCH.name(), tasks.poll());
 				nextState(States.IDLE, 1);
 				break;
 			case POKE_OP:
@@ -165,8 +187,8 @@ public class MissionManagerRole extends Actor {
 				nextState(States.END_OP, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
 			case END_OP:
-				//TODO handle extra stuff that OP might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_END);
+				sim().addOutput(Actors.OPERATOR.name(), tasks.poll());
 				nextState(States.IDLE, 1);
 				break;
 			case POKE_VO:
@@ -179,8 +201,8 @@ public class MissionManagerRole extends Actor {
 				nextState(States.END_VO, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
 			case END_VO:
-				//TODO handle extra stuff that VO might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
+				sim().addOutput(Actors.VIDEO_OPERATOR.name(), tasks.poll());
 				nextState(States.IDLE, 1);
 				break;
 			case RX_PS:
@@ -241,8 +263,8 @@ public class MissionManagerRole extends Actor {
 				if ( input.contains(ParentSearch.Outputs.PS_END) ) {
 					//Look for the inputs
 					if ( input.contains(ParentSearch.Outputs.PS_TERMINATE_SEARCH) ) {
-						tasks.add(Outputs.MM_TERMINATE_SEARCH);
-						tasks.add(Outputs.MM_TERMINATE_SEARCH);
+						tasks.add(Outputs.MM_TERMINATE_SEARCH_VO);
+						tasks.add(Outputs.MM_TERMINATE_SEARCH_OP);
 					} else {
 						if ( input.contains(ParentSearch.Outputs.PS_TARGET_DESCRIPTION) ) {
 							tasks.add(Outputs.MM_TARGET_DESCRIPTION);
@@ -260,10 +282,10 @@ public class MissionManagerRole extends Actor {
 						//Pass this data to the PS
 						tasks.add(Outputs.MM_SEARCH_AOI_COMPLETE);
 					}
-					if ( input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_FAILED)) {
-						//Pass this data to the PS
-						tasks.add(Outputs.MM_SEARCH_FAILED);
-					}
+//					if ( input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_FAILED)) {
+//						//Pass this data to the PS
+//						tasks.add(Outputs.MM_SEARCH_FAILED);
+//					}
 					nextState(States.IDLE, 1);
 				}
 				break;
@@ -303,7 +325,6 @@ public class MissionManagerRole extends Actor {
 				break;
 			case TX_PS:
 				//No interruptions
-				//TODO Handle interruptions
 				break;
 			case END_PS:
 				//Do the next task immediately if there is one
@@ -422,9 +443,36 @@ public class MissionManagerRole extends Actor {
 	 */
 	private void doNextTask()
 	{
-		//TODO Shouldn't there be more code in here?
 		if ( !tasks.isEmpty() ) {
-			Outputs task = (Outputs) tasks.poll(); //Grab the First thing we remember to do
+			Outputs task = (Outputs) tasks.peek();
+			switch(task) {
+				case MM_ANOMALY_DISMISSED_F:
+				case MM_ANOMALY_DISMISSED_T:
+				case MM_FLYBY_REQ_F:
+				case MM_FLYBY_REQ_T:
+					nextState(States.POKE_VGUI, 1);
+					break;
+				case MM_NEW_SEARCH_AOI:
+				case MM_TERMINATE_SEARCH_OP:
+					nextState(States.POKE_OP, 1);
+					break;
+				case MM_TARGET_DESCRIPTION:
+				case MM_TERMINATE_SEARCH_VO:
+					nextState(States.POKE_VO, 1);
+					break;
+				case MM_SEARCH_AOI_COMPLETE:
+				case MM_TARGET_SIGHTING_F:
+				case MM_TARGET_SIGHTING_T:
+					nextState(States.POKE_PS, 1);
+					break;
+			}
+		} else {
+			//If we have no tasks but we are waiting on input then watch the VGUI
+			if ( _search_active && 
+					_total_search_aoi > _complete_search_aoi &&
+					state() == States.IDLE) {
+				nextState(States.OBSERVING_VGUI, 1);
+			}
 		}
 	}
 	

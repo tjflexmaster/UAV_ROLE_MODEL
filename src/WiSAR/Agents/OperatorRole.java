@@ -7,7 +7,9 @@ import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import WiSAR.Actors;
+import WiSAR.DataPriorityComparator;
 import WiSAR.Durations;
+import WiSAR.IPriority;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -35,7 +37,7 @@ public class OperatorRole extends Actor {
 	/**
 	 *  STATE VARS
 	 */
-	public enum Outputs implements IData
+	public enum Outputs implements IData, IPriority
 	{
 		/**
 		 * BAsic communication
@@ -48,26 +50,44 @@ public class OperatorRole extends Actor {
 		/**
 		 * MM Outputs
 		 */
-		OP_SEARCH_AOI_COMPLETE,
-		OP_SEARCH_AOI_FAILED,
+		OP_SEARCH_AOI_COMPLETE(10),
+//		OP_SEARCH_AOI_FAILED,
 		
 		/**
 		 * OGUI Outputs
 		 */
-		OP_TAKE_OFF,
-		OP_LOITER, 
-		OP_RESUME,
-		OP_LAND,
-		OP_NEW_FLIGHT_PLAN,
-		OP_MODIFY_FLIGHT_PLAN,
-		OP_FLYBY_START_T,
-		OP_FLYBY_START_F,
-		OP_FLYBY_END,
+		OP_TAKE_OFF(1),
+		OP_LOITER(2), 
+		OP_RESUME(2),
+		OP_LAND(5),
+		OP_NEW_FLIGHT_PLAN(11),
+		OP_MODIFY_FLIGHT_PLAN(2),
+		OP_FLYBY_START_T(15),
+		OP_FLYBY_START_F(15),
+		OP_FLYBY_END(15),
 		
 		/**
 		 * Output to UAV
 		 */
-		OP_POST_FLIGHT
+		OP_POST_FLIGHT(7);
+		
+		private int _priority;
+		
+		Outputs()
+		{
+			_priority = 1000;
+		}
+		
+		Outputs(int priority)
+		{
+			_priority = priority;
+		}
+		
+		@Override
+		public int priority()
+		{
+			return _priority;
+		}
 	}
 	
 	public enum States implements IStateEnum
@@ -101,25 +121,6 @@ public class OperatorRole extends Actor {
 		POST_FLIGHT_COMPLETE
 	}
 
-	//Default Values
-//	DataType _search_state = DataType.SEARCH_NONE;
-	
-	//UAV Related States
-//	RoleState _uav_state = RoleState.UAV_READY;
-////	DataType _uav_state = DataType.UAV_READY;
-//	DataType _bat_state = DataType.UAV_BAT_OK;
-//	DataType _path_state = DataType.UAV_PATH_OK;
-//	DataType _hag_state = DataType.UAV_HAG_OK;
-//	DataType _signal_state = DataType.UAV_SIGNAL_OK;
-//	DataType _plan_state = DataType.UAV_FLIGHT_PLAN_NO;
-	
-	//Bad Path Internal Vars
-//	int _bad_path_start_time = 0;
-//	int _bad_path_allowance_threshold = Simulator.getInstance().duration(Duration.PILOT_BAD_PATH_THRESHOLD.name()); //How long do we allow for a bad path before landing the UAV?
-	
-	//Signal Lost Vars
-//	boolean _reset_flight_plan = false;
-	
 	/**
 	 * END STATE VARS
 	 */
@@ -130,7 +131,7 @@ public class OperatorRole extends Actor {
 		name( Actors.OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		_uav_state = UAVRole.Outputs.UAV_READY;
-		tasks = new PriorityQueue<IData>();
+		tasks = new PriorityQueue<IData>(5, new DataPriorityComparator());
 	}
 	
 	@Override
@@ -312,7 +313,7 @@ public class OperatorRole extends Actor {
 					if(input.contains(MissionManagerRole.Outputs.MM_NEW_SEARCH_AOI)){
 						tasks.add(Outputs.OP_NEW_FLIGHT_PLAN);
 						_total_search_aoi++;
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH) ) {
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_OP) ) {
 						_search_active = false;
 						switch(_uav_state) {
 							case UAV_FLYING_NORMAL:
@@ -600,7 +601,7 @@ public class OperatorRole extends Actor {
 					nextState(States.LAUNCH_UAV, 1);
 					break;
 				case OP_SEARCH_AOI_COMPLETE:
-				case OP_SEARCH_AOI_FAILED:
+//				case OP_SEARCH_AOI_FAILED:
 					nextState(States.POKE_MM, 1);
 					break;
 				case OP_POST_FLIGHT:

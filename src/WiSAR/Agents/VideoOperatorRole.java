@@ -228,7 +228,7 @@ public class VideoOperatorRole extends Actor
 					{
 						nextState(States.IDLE,1);
 					}
-					else if(input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH))
+					else if(input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_VO))
 					{
 						_search_active = false;
 						nextState(States.IDLE,1);
@@ -310,9 +310,6 @@ public class VideoOperatorRole extends Actor
 						}
 					}//end outerloop
 				}
-				
-				//TODO Check to see if we need to observe the gui as the default
-				nextState(States.OBSERVING_NORMAL, 1);
 				
 				//If there are any tasks then do those
 				doNextTask();
