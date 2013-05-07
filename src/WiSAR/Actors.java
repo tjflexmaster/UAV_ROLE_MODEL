@@ -17,6 +17,6 @@ public enum Actors {
 	UAV_FLIGHT_PLAN,
 	UAV_HAG,
 	UAV_SIGNAL,
-	UAV_PATH
+	UAV_VIDEO_FEED,
 	
 }

@@ -12,6 +12,7 @@ import WiSAR.Durations;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
+import WiSAR.submodule.UAVVideoFeed;
 
 public class UAVRole extends Actor  {
 	
@@ -36,13 +37,15 @@ public class UAVRole extends Actor  {
     	UAV_LANDED,
     	UAV_CRASHED,
     	
-    	/**
-    	 * Output to VGUI
-    	 */
-    	UAV_FEED_ACTIVE,
-    	UAV_FEED_GOOD,
-    	UAV_FEED_BAD,
-    	UAV_FEED_INACTIVE,
+    	//Do not send any other output about the UAV, the sub-actors will send that information
+    	//Changing this breaks the OperatorGUI
+//    	/**
+//    	 * Output to VGUI
+//    	 */
+//    	UAV_FEED_ACTIVE,
+//    	UAV_FEED_GOOD,
+//    	UAV_FEED_BAD,
+//    	UAV_FEED_INACTIVE,
     }
     
     public enum States implements IStateEnum
@@ -66,6 +69,7 @@ public class UAVRole extends Actor  {
     	_sub_actors.add(new UAVBattery());
     	_sub_actors.add(new UAVFlightPlan());
     	_sub_actors.add(new UAVHeightAboveGround());
+    	_sub_actors.add(new UAVVideoFeed());
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -283,22 +287,22 @@ public class UAVRole extends Actor  {
 		switch((States) state() ) {
 			case UAV_FLYING:
 		    	_state = Outputs.UAV_FLYING_NORMAL;
-		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
+//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_READY:
 		    	_state = Outputs.UAV_READY;
 		    	break;
 		    case UAV_TAKE_OFF:
 		    	_state = Outputs.UAV_TAKE_OFF;
-		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
+//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LOITERING:
 		    	_state = Outputs.UAV_LOITERING;
-		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
+//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LANDING:
 		    	_state = Outputs.UAV_LANDING;
-		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
+//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LANDED:
 		    	_state = Outputs.UAV_LANDED;
