@@ -81,13 +81,22 @@ public class FlybyAnomaly extends Actor {
 			if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_F)){
 				target = false;
 				nextState(States.ANOMALY_NOT_SEEN,1);
+<<<<<<< Upstream, based on master
 			}else if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_F)){
+=======
+			}else if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)){
+>>>>>>> 81e367f partial of the UAVFlyby subactor.
 				target = true;
 				nextState(States.ANOMALY_NOT_SEEN,1);
 			}
 			break;
 		case ANOMALY_NOT_SEEN:
+<<<<<<< Upstream, based on master
 			if( !isFlybyMode(uav) ){
+=======
+			if(input.contains(OperatorRole.Outputs.OP_LAND)){
+				pauseSearch();
+>>>>>>> 81e367f partial of the UAVFlyby subactor.
 				nextState(States.PAUSED,1);
 			}
 			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
@@ -95,16 +104,29 @@ public class FlybyAnomaly extends Actor {
 			}
 			break;
 		case PAUSED:
+<<<<<<< Upstream, based on master
 			if( isFlybyMode(uav) ){
+=======
+			if(input.contains(OperatorRole.Outputs.OP_RESUME)){
+				if(_dur > 0){
+					nextState(States.ANOMALY_NOT_SEEN,1);
+				}else{
+					nextState(States.ANOMALY_SEEN,1);
+				}
+			} else if(uav.contains(UAVRole.Outputs.UAV_FLYING_FLYBY)){
+>>>>>>> 81e367f partial of the UAVFlyby subactor.
 				if(_dur > 0){
 					nextState(States.ANOMALY_NOT_SEEN,1);
 				}else{
 					nextState(States.ANOMALY_SEEN,1);
 				}
 			}
+<<<<<<< Upstream, based on master
 			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
 				nextState(States.IDLE,1);
 			}
+=======
+>>>>>>> 81e367f partial of the UAVFlyby subactor.
 			break;
 		case ANOMALY_SEEN:
 			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
@@ -117,8 +139,13 @@ public class FlybyAnomaly extends Actor {
 	
 	private void pauseSearch()
 	{
+<<<<<<< Upstream, based on master
 		//Change the time by the amount of time used
 		_dur -= (_pause_time - _start_time);
+=======
+		//Change the time till anomaly sighting by the time already passed
+		_dur -= (sim().getTime() - _start_time);
+>>>>>>> 81e367f partial of the UAVFlyby subactor.
 	}
 	
 	private int getRemainingTime()
