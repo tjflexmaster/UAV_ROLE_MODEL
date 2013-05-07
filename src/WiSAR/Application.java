@@ -22,8 +22,8 @@ public class Application {
 			
 			Simulator.getInstance().addEvent(new NewSearchAOIEvent(1));
 			Simulator.getInstance().addEvent(new SearchTargetDescriptionEvent(1));
-			Simulator.getInstance().addEvent(new TargetSightingTrueEvent(1));
-			Simulator.getInstance().addEvent(new TargetSightingFalseEvent(3));
+//			Simulator.getInstance().addEvent(new TargetSightingTrueEvent(1));
+//			Simulator.getInstance().addEvent(new TargetSightingFalseEvent(3));
 			//Load a Scenario
 //			Scenario.scenario1();
 //			Scenario.scenario3();

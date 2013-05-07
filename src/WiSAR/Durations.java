@@ -8,6 +8,7 @@ public enum Durations {
 	 */
 	EVENT_TARGET_SIGHTED_DUR(new Range(60,1800)),
 	HAG_DANGER_TO_CRASH_DUR(new Range(100,1800)),
+	EVENT_SIGNAL_LOST_DUR(new Range(60,1800)),
 	
 	/**
 	 * Parent Search Time Assumptions

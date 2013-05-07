@@ -162,8 +162,10 @@ public class OperatorGUIRole extends Actor {
 				}
 			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
 				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;
+			}else{
+				//ignore video feed
+				//break;
 			}
-			break;
 		}
 	}
 	
