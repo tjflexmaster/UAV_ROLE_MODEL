@@ -9,38 +9,39 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Events.TargetSightingFalseEvent;
 import WiSAR.Events.TargetSightingTrueEvent;
+import WiSAR.submodule.UAVBattery;
+import WiSAR.submodule.UAVFlightPlan;
+import WiSAR.submodule.UAVHeightAboveGround;
+import WiSAR.submodule.UAVSignal;
+import WiSAR.submodule.UAVVideoFeed;
 
 public class VideoGUIRole extends Actor {
 
 	boolean target_true;
+	ArrayList<IData> _visible_anomalies;
+	ArrayList<IData> _verification_requests;
+	UAVRole.Outputs _uav_state;
+	UAVVideoFeed.Outputs _uav_video_feed;
+	Outputs _vgui_mode;
    
     public enum Outputs implements IData
     {
     	/**
     	 * Observables
     	 */
-    	VGUI_FLYBY,
+    	VGUI_FLYBY_T,
+    	VGUI_FLYBY_F,
     	VGUI_NORMAL,
     	
         /**
          * For the VideoOperator or MissionManager
          */
-    	VGUI_ACK,
-        VGUI_STREAM_ENDED,
-        VGUI_STREAM_STARTED, 
-        VGUI_BAD_STREAM,
         VGUI_FALSE_POSITIVE, 
         VGUI_TRUE_POSITIVE,
-        VGUI_ACCESSIBLE,
         
         /**
          * GUI to GUI ouputs
          */
-        VGUI_REQUEST_FLYBY_T,
-        VGUI_REQUEST_FLYBY_F, 
-        VGUI_NO_STREAM,
-        VGUI_FLYBY_T, 
-        VGUI_FLYBY_F, 
         VGUI_VALIDATION_REQ_TRUE, 
         VGUI_VALIDATION_REQ_FALSE,
        
@@ -48,22 +49,23 @@ public class VideoGUIRole extends Actor {
    
     public enum States implements IStateEnum
     {
-        IDLE,
         STREAMING_NORMAL,
         STREAMING_FLYBY,
-        INACCESSIBLE,
     }
     
 	public VideoGUIRole()
 	{
 		name( Actors.VIDEO_OPERATOR_GUI.name() );
-		nextState(States.IDLE, 1);
-		
+		nextState(States.STREAMING_NORMAL, 1);
+		_visible_anomalies = new ArrayList<IData>();
+		_verification_requests = new ArrayList<IData>();
+		_vgui_mode = Outputs.VGUI_NORMAL;
 	}
 
    @Override
     public void processNextState() {//Is our next state now?
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+        	setObservations();
             return;
         }
         state(nextState());
@@ -72,6 +74,9 @@ public class VideoGUIRole extends Actor {
 	        	nextState(null,0);
 	        	break;
         }
+        
+        //Set observables
+        setObservations();
     }
 
 	@Override
@@ -79,80 +84,119 @@ public class VideoGUIRole extends Actor {
 		
 		//Pull Input and any observations that need to be made from the simulator
 		ArrayList<IData> input = sim().getInput(this.name());
-		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
+		ArrayList<IData> uav_observations = sim().getObservations(Actors.UAV.name());
+		parseUAVStateFromUAV(uav_observations);
+		
 		switch ( (States) state() ) {
-			case IDLE:
-				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)){
-					nextState(States.STREAMING_NORMAL,1);
-				}
-				break;
 			case STREAMING_NORMAL:
+				
+				//Handle False Anomalies
 				if(input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE)){
-					//TODO implement behavior till receiving input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE_END
+					_visible_anomalies.add(Outputs.VGUI_FALSE_POSITIVE);
+				} else if ( input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_END) ) {
+					_visible_anomalies.remove(Outputs.VGUI_FALSE_POSITIVE);
 				}
+				
+				//Handle True Anomalies
 				if(input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_TRUE)){
-					//TODO implement behavior till receiving input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_TRUE_END
+					_visible_anomalies.add(Outputs.VGUI_TRUE_POSITIVE);
+				} else if ( input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_END) ) {
+					_visible_anomalies.remove(Outputs.VGUI_TRUE_POSITIVE);
 				}
-				if (input.contains(VideoOperatorRole.Outputs.VO_POKE)) {
-					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.VGUI_ACK);
-				}
-				//end flyby
-				else if(input.contains(VideoOperatorRole.Outputs.VO_END)){
+					
+				//Handle all VO input
+				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
 					if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_T);
-						nextState(States.STREAMING_NORMAL,1);
+						_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_TRUE);
 					} else if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_F);
-						nextState(States.STREAMING_NORMAL,1);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_LIKELY_ANOMALY_DETECTED_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_T);
-						nextState(States.STREAMING_NORMAL,1);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_LIKELY_ANOMALY_DETECTED_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), Outputs.VGUI_REQUEST_FLYBY_F);
-						nextState(States.STREAMING_NORMAL,1);
+						_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_FALSE);
+					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_T) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_T);
+					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_F) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_F);
 					}
 				}
-				//TODO start flyby
-				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
-					nextState(States.INACCESSIBLE,1);
-				} else if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
-					nextState(States.IDLE,1);
+				
+				//Handle the MM inputs
+				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
+					if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_F) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_F);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_T) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_T);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_F) ) {
+						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_FALSE);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_T) ) {
+						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_TRUE);
+					}
+				}
+				
+				//Handle OGUI inputs
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ) {
+					_vgui_mode = Outputs.VGUI_FLYBY_F;
+					nextState(States.STREAMING_FLYBY, 1);
+				} else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_T) ) {
+					_vgui_mode = Outputs.VGUI_FLYBY_T;
+					nextState(States.STREAMING_FLYBY, 1);
 				}
 				break;
 			case STREAMING_FLYBY:
-				if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
-					nextState(States.STREAMING_NORMAL,1);
+				//Stay in this state until we receive a message to leave the state
+				
+				
+				//Handle the MM inputs
+				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
+					if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_F) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_F);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_T) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_T);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_F) ) {
+						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_FALSE);
+					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_T) ) {
+						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_TRUE);
+					}
 				}
-				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_INACTIVE)){
-					nextState(States.INACCESSIBLE,1);
+				
+				//Handle all VO input
+				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
+					if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED);
+						nextState(States.STREAMING_NORMAL,1);
+						_vgui_mode = Outputs.VGUI_NORMAL;
+					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS) ) {
+						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS);
+						nextState(States.STREAMING_NORMAL,1);
+						_vgui_mode = Outputs.VGUI_NORMAL;
+					}
 				}
-				break;
-			case INACCESSIBLE:
-				if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE)){
-					nextState(States.STREAMING_NORMAL,1);
-				}
+				
+				//TODO Watch for FlybyAnomalies so we can make that data observable
 				break;
 			default:
 				break;
 		}
-		setObservations();
     }
-
-	private void setObservations() {
-		IData _state = Outputs.VGUI_NO_STREAM;
-		switch((States)state()){
-		case STREAMING_FLYBY:
-			_state = Outputs.VGUI_FLYBY;
-			break;
-		case STREAMING_NORMAL:
-			_state = Outputs.VGUI_NORMAL;
-			break;
-		}
-		sim().addObservation(_state, this.name());
-		
-	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
      */
+	private void setObservations() {
+		sim().addObservation(_vgui_mode, this.name());
+		sim().addObservations(_verification_requests, this.name());
+		if ( _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_OK )
+			sim().addObservations(_visible_anomalies, this.name());
+		sim().addObservation(_uav_video_feed, this.name());
+		
+	}
+	
+	private void parseUAVStateFromUAV(ArrayList<IData> observations) {
+		//TODO Make sure the operator gui is sending the UAV output
+		for( IData data : observations ) {
+			if ( data instanceof UAVRole.Outputs ) {
+				_uav_state = (UAVRole.Outputs) data;
+			} else if ( data instanceof UAVVideoFeed.Outputs ) {
+				_uav_video_feed = (UAVVideoFeed.Outputs) data;
+			}
+			break;
+		}
+	}
 }
