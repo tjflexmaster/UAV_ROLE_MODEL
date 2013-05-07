@@ -436,19 +436,6 @@ public class OperatorRole extends Actor {
 					}
 					
 					//TODO Handle Flyby requests
-//					//Only queue up a single flyby
-//					if ( !tasks.contains(Outputs.OP_FLYBY_START_F) || !tasks.contains(Outputs.OP_FLYBY_START_T) ) {
-//						//If no flyby is queued up then grab the first flyby and queue it up
-//						for(IData data : _gui_observations) {
-//							if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_F ) {
-//								tasks.add(Outputs.OP_FLYBY_START_F);
-//								break;
-//							} else if ( data == OperatorGUIRole.Outputs.OGUI_FLYBY_REQ_T ) {
-//								tasks.add(Outputs.OP_FLYBY_START_T);
-//								break;
-//							}
-//						}
-//					}
 						
 					//TODO Look at any other important input
 					

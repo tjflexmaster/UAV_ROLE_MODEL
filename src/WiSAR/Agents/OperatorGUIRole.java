@@ -122,8 +122,7 @@ public class OperatorGUIRole extends Actor {
 		sim().addObservation(_uav_signal, this.name());
 		sim().addObservation(_uav_state, this.name());
 		
-		//Also make the flyby requests observable
-		sim().addObservations(_flyby_requests, this.name());
+		//TODO make flyby requests observable
 		//TODO make end flyby commands observable
 	}
 

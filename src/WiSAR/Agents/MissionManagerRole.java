@@ -3,6 +3,7 @@ package WiSAR.Agents;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
@@ -11,15 +12,12 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.MemoryObject;
+import WiSAR.Agents.OperatorRole.Outputs;
 
 public class MissionManagerRole extends Actor {
 
 	//INTERNAL VARS
-	/**
-	 * This represents the memory of the MM.  He should never have more than 5 things in this todo list.
-	 */
-	ArrayDeque<MemoryObject> _memory = new ArrayDeque<MemoryObject>();
-	MemoryObject current_task = null;
+	PriorityQueue<IData> tasks;
 	
 	public enum Outputs implements IData
 	{
@@ -117,6 +115,7 @@ public class MissionManagerRole extends Actor {
 	{
 		name(Actors.MISSION_MANAGER.name());
 		nextState(States.IDLE, 1);
+		tasks = new PriorityQueue<IData>();
 	}
 	
 	
@@ -146,77 +145,42 @@ public class MissionManagerRole extends Actor {
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_PS:
-//				switch((Outputs) current_task) {
-//					case MM_SEARCH_AOI_COMPLETE:
-//					case MM_SEARCH_FAILED:
-//						duration = sim().duration(Durations.MM_TX_SEARCH_COMPLETE_PS_DUR.range());
-//						break;
-//					case MM_TARGET_SIGHTING_FALSE:
-//					case MM_TARGET_SIGHTING_TRUE:
-//						duration = sim().duration(Durations.MM_TX_SIGHTING_PS_DUR.range());
-//						break;
-//				}
 				//TODO change duration based on the data being sent
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				nextState(States.END_PS, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
 			case END_PS:
 				//Send the Data and End Msg and move into an idle state
-				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
+				//TODO handle extra stuff that PS might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_END);
-				if ( current_task != null && current_task.receiver() != null )
-					sim().addOutputs(current_task.receiver(), current_task.data());
 				nextState(States.IDLE, 1);
 				break;
-				
 			case POKE_OP:
 				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_POKE);
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_OP:
-//				switch((Outputs) current_task) {
-//					case MM_NEW_SEARCH_AOI:
-//						duration = sim().duration(Durations.MM_TX_AOI_OP_DUR.range());
-//						break;
-//					case MM_SEARCH_TERMINATED_OP:
-//						duration = sim().duration(Durations.MM_TX_TERMINATE_SEARCH_DUR.range());
-//						break;
-//				}
 				//TODO change duration based on the data being sent
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				nextState(States.END_OP, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
 			case END_OP:
-				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
+				//TODO handle extra stuff that OP might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.OPERATOR.name(), Outputs.MM_END);
-				if ( current_task != null && current_task.receiver() != null )
-					sim().addOutputs(current_task.receiver(), current_task.data());
 				nextState(States.IDLE, 1);
 				break;
-				
 			case POKE_VO:
 				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_POKE);
 				nextState(States.IDLE, sim().duration(Durations.MM_POKE_DUR.range()));
 				break;
 			case TX_VO:
-//				switch((Outputs) current_task) {
-//					case MM_TARGET_DESCRIPTION:
-//						duration = sim().duration(Durations.MM_TX_TARGET_DESCRIPTION_DUR.range());
-//						break;
-//					case MM_SEARCH_TERMINATED_VO:
-//						duration = sim().duration(Durations.MM_TX_TERMINATE_SEARCH_DUR.range());
-//						break;
-//				}
 				//TODO change duration based on the data being sent
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				nextState(States.END_VO, sim().duration(Durations.MM_DEFAULT_TX_DUR.range()));
 				break;
-			
 			case END_VO:
-				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
+				//TODO handle extra stuff that VO might want to know (see VO.PNS.ENDGUI)
 				sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.MM_END);
-				if ( current_task != null && current_task.receiver() != null )
-					sim().addOutputs(current_task.receiver(), current_task.data());
 				nextState(States.IDLE, 1);
 				break;
 			case RX_PS:
@@ -225,7 +189,6 @@ public class MissionManagerRole extends Actor {
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				nextState(States.IDLE, sim().duration(Durations.MM_RX_DUR.range()));
 				break;
-				
 			case OBSERVING_VGUI:
 				nextState(States.IDLE, sim().duration(Durations.MM_OBSERVE_VGUI.range()));
 				break;
@@ -241,24 +204,18 @@ public class MissionManagerRole extends Actor {
 			case END_VGUI:
 				sim().addObservation(Outputs.MM_BUSY, Actors.MISSION_MANAGER.name());
 				sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_END);
-				if ( current_task != null && current_task.receiver() != null ) {
-					/**
-					 * Decide if the anomaly needs a flyby or not
-					 */
+				if ( tasks.peek() != null ) {
 					//If it is a True Positive anomaly then handle it the following way
-					if ( current_task.data().contains(Outputs.MM_ANOMALY_VERIFIED_T) ) {
+					if ( tasks.peek() == Outputs.MM_ANOMALY_VERIFIED_T ) {
 						//TODO Add non-determinism to this decision instead of always doing a flyby of true positives
-						current_task.data().add(Outputs.MM_FLYBY_T);
-					} else if ( current_task.data().contains(Outputs.MM_ANOMALY_VERIFIED_F) ) {
+						tasks.add(Outputs.MM_FLYBY_T);
+					} else if ( tasks.peek() == Outputs.MM_ANOMALY_VERIFIED_F ) {
 						//TODO Add non-determinism to this decision instead of never doing a flyby of false positives
 						//Never do a flyby of false positives
 					}
-					
-					sim().addOutputs(current_task.receiver(), current_task.data());
 				}
 				nextState(States.IDLE, 1);
 				break;
-				
 			default:
 				//Stay as we are
 				nextState(null, 0);
@@ -293,14 +250,14 @@ public class MissionManagerRole extends Actor {
 				if ( input.contains(ParentSearch.Outputs.PS_END) ) {
 					//Look for the inputs
 					if ( input.contains(ParentSearch.Outputs.PS_TERMINATE_SEARCH) ) {
-						addTask(States.POKE_VO, Actors.VIDEO_OPERATOR.name(), Outputs.MM_TERMINATE_SEARCH);
-						addTask(States.POKE_OP, Actors.OPERATOR.name(), Outputs.MM_TERMINATE_SEARCH);
+						tasks.add(Outputs.MM_TERMINATE_SEARCH);
+						tasks.add(Outputs.MM_TERMINATE_SEARCH);
 					} else {
 						if ( input.contains(ParentSearch.Outputs.PS_TARGET_DESCRIPTION) ) {
-							addTask(States.POKE_VO, Actors.VIDEO_OPERATOR.name(), Outputs.MM_TARGET_DESCRIPTION);
+							tasks.add(Outputs.MM_TARGET_DESCRIPTION);
 						}
 						if ( input.contains(ParentSearch.Outputs.PS_NEW_SEARCH_AOI) ) {
-							addTask(States.POKE_OP, Actors.OPERATOR.name(), Outputs.MM_NEW_SEARCH_AOI);
+							tasks.add(Outputs.MM_NEW_SEARCH_AOI);
 						}
 					}
 					nextState(States.IDLE, 1);
@@ -310,11 +267,11 @@ public class MissionManagerRole extends Actor {
 				if(input.contains(OperatorRole.Outputs.OP_END)){
 					if(input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_COMPLETE)) {
 						//Pass this data to the PS
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_SEARCH_AOI_COMPLETE);
+						tasks.add(Outputs.MM_SEARCH_AOI_COMPLETE);
 					}
 					if ( input.contains(OperatorRole.Outputs.OP_SEARCH_AOI_FAILED)) {
 						//Pass this data to the PS
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_SEARCH_FAILED);
+						tasks.add(Outputs.MM_SEARCH_FAILED);
 					}
 					nextState(States.IDLE, 1);
 				}
@@ -322,10 +279,10 @@ public class MissionManagerRole extends Actor {
 			case RX_VO:
 				if(input.contains(VideoOperatorRole.Outputs.VO_END)) {
 					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_T)){
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_T);
+						tasks.add(Outputs.MM_TARGET_SIGHTING_T);
 					}
 					if(input.contains(VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_F)){
-						addTask(States.POKE_PS, Actors.PARENT_SEARCH.name(), Outputs.MM_TARGET_SIGHTING_F);
+						tasks.add(Outputs.MM_TARGET_SIGHTING_F);
 					}
 					nextState(States.IDLE, 1);
 				}
@@ -342,9 +299,6 @@ public class MissionManagerRole extends Actor {
 					if ( input.contains(ParentSearch.Outputs.PS_POKE) ) {
 						sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_ACK);
 						nextState(States.RX_PS, 1);
-						//return the current_task back to memory
-						_memory.addFirst(current_task);
-						current_task = null;
 					} 
 					if(input.contains(OperatorRole.Outputs.OP_POKE)) {
 						//Dont accept Operator pokes while poking PS
@@ -445,10 +399,10 @@ public class MissionManagerRole extends Actor {
 					for( IData observation : vgui_observations ) {
 						//Only accept one verify task at a time
 						if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_TRUE ) {
-							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_VERIFIED_T);
+							tasks.add(Outputs.MM_ANOMALY_VERIFIED_T);
 							break;
 						} else if ( observation == VideoGUIRole.Outputs.VGUI_VALIDATION_REQ_FALSE ) {
-							addTask(States.POKE_VGUI, Actors.VIDEO_OPERATOR_GUI.name(), Outputs.MM_ANOMALY_VERIFIED_F);
+							tasks.add(Outputs.MM_ANOMALY_VERIFIED_F);
 							break;
 						}
 					}
@@ -467,26 +421,13 @@ public class MissionManagerRole extends Actor {
 		}
 	}
 	
-	private void addTask(States state, String receiver, IData data)
-	{
-		MemoryObject obj = new MemoryObject(state, receiver, data);
-		_memory.addFirst(obj);
-		//Replace something from memory with this data
-		//TODO Remove something from memory and make a note of it
-	}
-	
 	/**
 	 * Remove this task from memory and act on it
 	 */
 	private void doNextTask()
 	{
-		if ( !_memory.isEmpty() ) {
-			current_task = _memory.removeFirst(); //Grab the First thing we remember to do
-			nextState(current_task.state(), 1);
-		} else {
-			//Go Idle if we have nothing else to do
-			if ( state() != States.IDLE )
-				nextState(States.IDLE, 1);
+		if ( !tasks.isEmpty() ) {
+			Outputs task = (Outputs) tasks.poll(); //Grab the First thing we remember to do
 		}
 	}
 	

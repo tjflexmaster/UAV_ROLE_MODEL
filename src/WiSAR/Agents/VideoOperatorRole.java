@@ -104,13 +104,7 @@ public class VideoOperatorRole extends Actor
 
         //Update to the next state
         state(nextState());
-
         //Now determine what our next state will be
-
-        //Each state has a designated duration
-
-        //If a state isn't included then it doesn't deviate from the default
-        //ICommunicate role; 
         IData output;
         //TODO handle outputing BUSY_VO
         switch((States)nextState()) {
@@ -160,6 +154,7 @@ public class VideoOperatorRole extends Actor
 	        	else{
 	        		//TODO handle different outputs
 	        	}
+	        	sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_END);
 	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case END_MM:
@@ -167,6 +162,7 @@ public class VideoOperatorRole extends Actor
 	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_END);
 	        	if(output != null)
 	        		sim().addOutput(Actors.MISSION_MANAGER.name(), output);
+	        	sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_END);
 	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case END_OPERATOR:
@@ -175,6 +171,7 @@ public class VideoOperatorRole extends Actor
 	        		sim().addOutput(Actors.OPERATOR.name(), output);
 	        	else if(output == Outputs.VO_STREAM_ENDED)
 	        		sim().addOutput(Actors.OPERATOR.name(), output);
+	        	sim().addOutput(Actors.OPERATOR.name(), Outputs.VO_END);
 	        	nextState(States.OBSERVING_NORMAL,1);
 	        	break;
 	        case IDLE:
@@ -183,7 +180,7 @@ public class VideoOperatorRole extends Actor
 					nextState(null,0);
 					break;
 	        	}
-	        	switch((Outputs)current_task){
+	        	switch((Outputs) current_task){
 		    		/**
 		    		 * For the GUI
 		    		 */
