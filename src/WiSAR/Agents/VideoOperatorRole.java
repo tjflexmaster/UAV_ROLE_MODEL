@@ -14,6 +14,7 @@ import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorRole.Outputs;
 import WiSAR.Agents.OperatorRole.States;
+import WiSAR.submodule.UAVVideoFeed;
 
 import java.util.PriorityQueue;
 
@@ -43,10 +44,10 @@ public class VideoOperatorRole extends Actor
 		 */
 		VO_POSSIBLE_ANOMALY_DETECTED_T, 
 		VO_POSSIBLE_ANOMALY_DETECTED_F, 
-		VO_LIKELY_ANOMALY_DETECTED_T,
-		VO_LIKELY_ANOMALY_DETECTED_F,
-		VO_FLYBY_END_T,
-		VO_FLYBY_END_F,
+//		VO_LIKELY_ANOMALY_DETECTED_T,
+//		VO_LIKELY_ANOMALY_DETECTED_F,
+		VO_FLYBY_END_SUCCESS,
+		VO_FLYBY_END_FAILED,
 		VO_FLYBY_REQ_T,
 		VO_FLYBY_REQ_F,
 		
@@ -282,7 +283,7 @@ public class VideoOperatorRole extends Actor
 					if ( video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE) ) {
 						switch( analyzeAnomaly(false) ) {
 							case 0:
-								tasks.add(Outputs.VO_LIKELY_ANOMALY_DETECTED_F);
+								tasks.add(Outputs.VO_FLYBY_REQ_F);
 							case 1:
 								tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
 							default:
@@ -294,7 +295,7 @@ public class VideoOperatorRole extends Actor
 					if ( video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) ) {
 						switch( analyzeAnomaly(true) ) {
 							case 0:
-								tasks.add(Outputs.VO_LIKELY_ANOMALY_DETECTED_T);
+								tasks.add(Outputs.VO_FLYBY_REQ_T);
 							case 1:
 								tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
 							default:
@@ -312,7 +313,6 @@ public class VideoOperatorRole extends Actor
 				break;
 			case OBSERVING_FLYBY:
 				video_feed = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
-				uav_observations = sim().getInput(Actors.UAV.name());
 				
 				if (input.contains(MissionManagerRole.Outputs.MM_POKE)) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.VO_ACK);
@@ -321,12 +321,12 @@ public class VideoOperatorRole extends Actor
 				} 
 				
 				//TODO Look for the UAVVideoFeed output
-				if ( video_feed.contains() ) {
+				if ( video_feed.contains(UAVVideoFeed.Outputs.VF_SIGNAL_BAD) ) {
 					tasks.add(Outputs.VO_BAD_STREAM);
 				} else {
 					//Look for the flyby anomaly, once we see it then we make a decision on if it is real or not
 					//TODO Look at the video feed for the flyby anomaly
-					if ( uav_observations.contains(o))
+					if ( video_feed.contains(o))
 						if ( isTarget(true_positive) ) {
 							//TODO send that the target is spotted
 						}
@@ -400,12 +400,10 @@ public class VideoOperatorRole extends Actor
 			switch(task) {
 				case VO_FLYBY_REQ_F:
 				case VO_FLYBY_REQ_T:
-				case VO_FLYBY_END_T:
-				case VO_FLYBY_END_F:
+				case VO_FLYBY_END_SUCCESS:
+				case VO_FLYBY_END_FAILED:
 				case VO_POSSIBLE_ANOMALY_DETECTED_T:
 				case VO_POSSIBLE_ANOMALY_DETECTED_F:
-				case VO_LIKELY_ANOMALY_DETECTED_T:
-				case VO_LIKELY_ANOMALY_DETECTED_F:
 					nextState(States.POKE_GUI, 1);
 					break;
 				case VO_BAD_STREAM:
