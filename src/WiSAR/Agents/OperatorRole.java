@@ -174,8 +174,8 @@ public class OperatorRole extends Actor {
 				break;
 			case LAUNCH_UAV:
 				//Give command to the GUI to take off
-				assert _uav_observations.contains(UAVRole.Outputs.UAV_READY) : "Only launch a UAV that is ready to be launched";
-				assert _uav_observations.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES) : "Only launch a UAV that has a flight plan";
+				//assert _uav_observations.contains(UAVRole.Outputs.UAV_READY) : "Only launch a UAV that is ready to be launched";
+				//assert _uav_observations.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES) : "Only launch a UAV that has a flight plan";
 				
 				//Assumption: The UGUI is working and the pilot can communicate as needed
 				//Launch the UAV and then wait for it to leave the take off state
@@ -204,7 +204,7 @@ public class OperatorRole extends Actor {
 				if ( task == Outputs.OP_NEW_FLIGHT_PLAN ) {
 					_sent_search_aoi++;
 				}
-				sim().addOutput(Actors.MISSION_MANAGER.name(), task);
+				sim().addOutput(Actors.OPERATOR_GUI.name(), task);
 				nextState(States.OBSERVING_GUI, 3);
 				break;
 			case FLYBY_GUI:
@@ -312,6 +312,7 @@ public class OperatorRole extends Actor {
 				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
 					if(input.contains(MissionManagerRole.Outputs.MM_NEW_SEARCH_AOI)){
 						tasks.add(Outputs.OP_NEW_FLIGHT_PLAN);
+						tasks.add(Outputs.OP_TAKE_OFF);
 						_total_search_aoi++;
 					} else if ( input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_OP) ) {
 						_search_active = false;
