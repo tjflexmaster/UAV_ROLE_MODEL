@@ -22,7 +22,12 @@ public class MissionManagerRole extends Actor {
 	int _total_search_aoi = 0;
 	int _complete_search_aoi = 0;
 	
+<<<<<<< Upstream, based on master
 	public enum Outputs implements IData, IPriority
+=======
+	
+	public enum Outputs implements IData
+>>>>>>> 1653701 Removed infinite loop in MM that happens when the MM isn't waiting on anything to review.
 	{
 		/**
 		 * Basic Communication
@@ -160,7 +165,11 @@ public class MissionManagerRole extends Actor {
 		//If a state isn't included then it doesn't deviate from the default
 		switch((States) nextState()) {
 			case IDLE:
+<<<<<<< Upstream, based on master
 				nextState(null, 0);
+=======
+				//nextState(States.OBSERVING_VGUI, sim().duration(Durations.MM_IDLE_DUR.range()));
+>>>>>>> 1653701 Removed infinite loop in MM that happens when the MM isn't waiting on anything to review.
 				break;
 			case POKE_PS:
 				sim().addOutput(Actors.PARENT_SEARCH.name(), Outputs.MM_POKE);
@@ -253,7 +262,11 @@ public class MissionManagerRole extends Actor {
 				//First check for Parent Search Commands
 				//Once we have accepted an input then we
 				boolean result = handlePokes(input);
-				
+				if((vgui_observations.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) 
+						|| vgui_observations.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F))
+						&& tasks.isEmpty()){
+					nextState(States.OBSERVING_VGUI, sim().duration(Durations.MM_IDLE_DUR.range()));
+				}
 				//If there are no pokes then do next task
 				if ( !result )
 					doNextTask();
