@@ -12,14 +12,14 @@ import WiSAR.submodule.UAVHeightAboveGround;
 public class HAGEvent extends Event {
 
 	public enum Outputs implements IData{
-		EHAG_DANGEROUS,
+		EHAG_LOW,
 		EHAG_CRASHED
 	}
 	
 	@Override
 	protected boolean eventPossible() {
 		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
-		if(uav.contains(UAVRole.Outputs.UAV_FLYING) || uav.contains(UAVRole.Outputs.UAV_LOITERING)){
+		if(uav.contains(UAVRole.Outputs.UAV_FLYING_NORMAL) || uav.contains(UAVRole.Outputs.UAV_LOITERING)){
 			return true;
 		}
 		return false;
@@ -27,7 +27,7 @@ public class HAGEvent extends Event {
 
 	@Override
 	protected void activateEvent() {
-		sim().addOutput(Actors.UAV.name(), Outputs.EHAG_DANGEROUS);
+		sim().addOutput(Actors.UAV.name(), Outputs.EHAG_LOW);
 
 	}
 
@@ -35,7 +35,7 @@ public class HAGEvent extends Event {
 	protected void finishEvent() {
 		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
 		//check if the UAV has adjusted it's path sufficiently or not.
-		if(uav.contains(UAVHeightAboveGround.Outputs.HAG_DANGEROUS))
+		if(uav.contains(UAVHeightAboveGround.Outputs.HAG_LOW))
 			sim().addOutput(Actors.UAV.name(), Outputs.EHAG_CRASHED);
 	}
 

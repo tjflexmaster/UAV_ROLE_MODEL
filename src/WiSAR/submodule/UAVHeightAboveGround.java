@@ -65,7 +65,7 @@ public class UAVHeightAboveGround extends Actor {
         	}
         	break;
         case GOOD:
-        	if(input.contains(HAGEvent.Outputs.EHAG_DANGEROUS)){
+        	if(input.contains(HAGEvent.Outputs.EHAG_LOW)){
         		nextState(States.LOW,1);
         	}
         	break;
