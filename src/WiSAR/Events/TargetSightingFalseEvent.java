@@ -9,6 +9,7 @@ import WiSAR.Durations;
 import WiSAR.Agents.UAVRole;
 import WiSAR.Agents.VideoGUIRole;
 import WiSAR.submodule.UAVVideoFeed;
+import WiSAR.submodule.UAVSignal;
 
 public class TargetSightingFalseEvent extends Event {
 
@@ -25,6 +26,9 @@ public class TargetSightingFalseEvent extends Event {
 		ArrayList<IData> uav_data = sim().getObservations(Actors.UAV.name());
 		ArrayList<IData> vgui_data = sim().getObservations(Actors.VIDEO_OPERATOR_GUI.name());
 		if(uav_data.contains(UAVVideoFeed.Outputs.VF_SIGNAL_OK) && vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)){
+		if(uav_data.contains(UAVRole.Outputs.UAV_FEED_ACTIVE) 
+				&& vgui_data.contains(VideoGUIRole.Outputs.VGUI_NORMAL)
+				&& !uav_data.contains(UAVSignal.Outputs.SIGNAL_LOST)){
 			return true;
 		}
 		return false;
