@@ -77,6 +77,12 @@ public enum Durations {
 	VO_TX_OPERATOR_STREAM_ENDED(new Range(60, 1800)),
 	VO_TX_OPERATOR_LOOK_CLOSER(new Range(60, 1800)), 
 	VO_FLYBY_DUR(new Range(60,1800)),
+	VO_DETECT_POSSIBLE_FP(new Range(20, 20)),
+	VO_DETECT_POSSIBLE_TP(new Range(40, 40)),
+	VO_DETECT_LIKELY_FP(new Range(10, 10)),
+	VO_DETECT_LIKELY_TP(new Range(30, 30)),
+	VO_BELIEVE_FLYBY_FP(new Range(10, 10)),
+	VO_BELIEVE_FLYBY_TP(new Range(90, 90)),
 	
 	/**
 	 * VideoGUI assumptions
