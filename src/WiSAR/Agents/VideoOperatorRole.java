@@ -14,6 +14,7 @@ import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorRole.Outputs;
 import WiSAR.Agents.OperatorRole.States;
+import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVVideoFeed;
 
 import java.util.PriorityQueue;
@@ -274,35 +275,40 @@ public class VideoOperatorRole extends Actor
 					break;
 				} 
 				
-				//TODO Look for the UAVVideoFeed output
-				if ( video_feed.contains() ) {
+				if ( video_feed.contains(UAVVideoFeed.Outputs.VF_SIGNAL_BAD) ) {
 					//Bad stream means we cannot see the anomalies
 					tasks.add(Outputs.VO_BAD_STREAM);
 				} else {
-					//TODO randomly pick 2 out of all visible anomalies
-					if ( video_feed.contains(VideoGUIRole.Outputs.VGUI_FALSE_POSITIVE) ) {
-						switch( analyzeAnomaly(false) ) {
-							case 0:
-								tasks.add(Outputs.VO_FLYBY_REQ_F);
-							case 1:
-								tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
-							default:
-								//Do nothing
-								break;
+					//Handle a single Anomaly at a time
+					outerloop:
+					for(IData data : video_feed) {
+						if ( data instanceof VideoGUIRole.Outputs ) {
+							switch( (VideoGUIRole.Outputs) data ) {
+								case VGUI_FALSE_POSITIVE:
+									switch( analyzeAnomaly(false) ) {
+										case 0:
+											tasks.add(Outputs.VO_FLYBY_REQ_F);
+										case 1:
+											tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F);
+										default:
+											//Do nothing
+											break;
+									}
+									break outerloop;
+								case VGUI_TRUE_POSITIVE:
+									switch( analyzeAnomaly(true) ) {
+										case 0:
+											tasks.add(Outputs.VO_FLYBY_REQ_T);
+										case 1:
+											tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
+										default:
+											//Do nothing
+											break;
+									}
+									break outerloop;
+							}
 						}
-					}
-					//TODO randomly pick 2 out of all visible anomalies
-					if ( video_feed.contains(VideoGUIRole.Outputs.VGUI_TRUE_POSITIVE) ) {
-						switch( analyzeAnomaly(true) ) {
-							case 0:
-								tasks.add(Outputs.VO_FLYBY_REQ_T);
-							case 1:
-								tasks.add(Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T);
-							default:
-								//Do nothing
-								break;
-						}
-					}
+					}//end outerloop
 				}
 				
 				//TODO Check to see if we need to observe the gui as the default
@@ -320,16 +326,26 @@ public class VideoOperatorRole extends Actor
 					break;
 				} 
 				
-				//TODO Look for the UAVVideoFeed output
 				if ( video_feed.contains(UAVVideoFeed.Outputs.VF_SIGNAL_BAD) ) {
 					tasks.add(Outputs.VO_BAD_STREAM);
 				} else {
 					//Look for the flyby anomaly, once we see it then we make a decision on if it is real or not
 					//TODO Look at the video feed for the flyby anomaly
-					if ( video_feed.contains(o))
-						if ( isTarget(true_positive) ) {
-							//TODO send that the target is spotted
+					if ( video_feed.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F) ) {
+						if ( isTarget(false) ) {
+							tasks.add(Outputs.VO_TARGET_SIGHTING_F);
+							sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END_SUCCESS);
+						} else {
+							sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END_FAILED);
 						}
+					} else if ( video_feed.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T) ) {
+						if ( isTarget(true) ) {
+							tasks.add(Outputs.VO_TARGET_SIGHTING_T);
+							sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END_SUCCESS);
+						} else {
+							sim().addOutput(Actors.VIDEO_OPERATOR_GUI.name(), Outputs.VO_FLYBY_END_FAILED);
+						}
+					}
 					
 				}
 				

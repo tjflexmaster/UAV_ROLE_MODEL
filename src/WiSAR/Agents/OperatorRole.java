@@ -26,6 +26,7 @@ public class OperatorRole extends Actor {
 	UAVFlightPlan.Outputs _uav_flight_plan;
 	UAVBattery.Outputs _uav_battery;
 	
+	boolean _flyby_mode = false;
 	boolean _search_active = false;
 	int _total_search_aoi = 0;
 	int _sent_search_aoi = 0;
@@ -331,10 +332,6 @@ public class OperatorRole extends Actor {
 				if ( input.contains(VideoOperatorRole.Outputs.VO_END) ) {
 					//TODO Handle the Bad Stream output
 					
-					//TODO Handle the end flyby stuff from the
-//					if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
-//						tasks.add(Outputs.OP_RESUME);
-//					}
 					//Go Idle first in case more information needs to be sent
 					nextState(States.IDLE, 1);
 				}
@@ -346,13 +343,14 @@ public class OperatorRole extends Actor {
 				
 				switch(_uav_state) {
 					case UAV_FLYING_NORMAL:
-					case UAV_FLYING_FLYBY:
 					case UAV_LOITERING:
 					case UAV_LANDING:
 						nextState(States.OBSERVING_GUI, 1);
 						break;
 					case UAV_LANDED:
 						nextState(States.POST_FLIGHT, 1);
+					case UAV_FLYING_FLYBY:
+						nextState(States.FLYBY_GUI, 1);
 						break;
 				}
 				break;
@@ -411,12 +409,20 @@ public class OperatorRole extends Actor {
 					if ( _uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
 					}
+					
 					if ( _uav_battery == UAVBattery.Outputs.BATTERY_LOW ) {
 						tasks.add(Outputs.OP_LAND);
 					}
 					
 					if ( _uav_signal == UAVSignal.Outputs.SIGNAL_LOST ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
+					}
+					
+					//Handle the results from the flyby
+					if ( _gui_observations.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED) ) {
+						tasks.add(Outputs.OP_FLYBY_END);
+					} else if ( _gui_observations.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS) ) {
+						tasks.add(Outputs.OP_FLYBY_END);
 					}
 					
 				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_NORMAL ) ) {
@@ -432,7 +438,22 @@ public class OperatorRole extends Actor {
 						tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
 					}
 					
-					//TODO Handle Flyby requests
+					//If we don't have a flyby request in our task queue then see if we need to add one
+					if ( !tasks.contains(Outputs.OP_FLYBY_START_F) && !tasks.contains(Outputs.OP_FLYBY_START_T) ) {
+						for(int i=0; i < _gui_observations.size(); i++) {
+							if ( _gui_observations.get(i) == VideoOperatorRole.Outputs.VO_FLYBY_REQ_F ||
+									 _gui_observations.get(i) == MissionManagerRole.Outputs.MM_FLYBY_REQ_F ) {
+								tasks.add(Outputs.OP_FLYBY_START_F);
+								break;
+							}
+							
+							if ( _gui_observations.get(i) == VideoOperatorRole.Outputs.VO_FLYBY_REQ_T ||
+									 _gui_observations.get(i) == MissionManagerRole.Outputs.MM_FLYBY_REQ_T ) {
+								tasks.add(Outputs.OP_FLYBY_START_T);
+								break;
+							}
+						}
+					}
 						
 					//TODO Look at any other important input
 					
@@ -475,7 +496,6 @@ public class OperatorRole extends Actor {
 				
 				break;
 			case TX_GUI:
-				//TODO The operator is observing the GUI while using it, if it changes then he should respond to those changes instead of continuing what he is doing.
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
 				parseUAVStateFromGUI(_gui_observations);
 				
@@ -524,6 +544,12 @@ public class OperatorRole extends Actor {
 					/**
 					 * Assumptions: UAV will not lose signal nor experience HAG during FLYBY
 					 */
+					//Handle the results from the flyby
+					if ( _gui_observations.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED) ) {
+						tasks.add(Outputs.OP_FLYBY_END);
+					} else if ( _gui_observations.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS) ) {
+						tasks.add(Outputs.OP_FLYBY_END);
+					}
 				}
 				break;
 			case POST_FLIGHT:
@@ -555,6 +581,8 @@ public class OperatorRole extends Actor {
 			switch(task) {
 				case OP_FLYBY_START_F:
 				case OP_FLYBY_START_T:
+					//TODO Make sure this launches the UAV if it is on the ground
+					
 					if ( _uav_state == UAVRole.Outputs.UAV_FLYING_NORMAL || _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY || _uav_state == UAVRole.Outputs.UAV_LOITERING ) {
 						nextState(States.FLYBY_GUI, 1);
 					} else {

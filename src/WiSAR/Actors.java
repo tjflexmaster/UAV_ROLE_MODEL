@@ -18,5 +18,6 @@ public enum Actors {
 	UAV_HAG,
 	UAV_SIGNAL,
 	UAV_VIDEO_FEED,
+	FLYBY_ANOMALY
 	
 }

@@ -9,6 +9,7 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Events.TargetSightingFalseEvent;
 import WiSAR.Events.TargetSightingTrueEvent;
+import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -133,15 +134,16 @@ public class VideoGUIRole extends Actor {
 				//Handle OGUI inputs
 				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ) {
 					_vgui_mode = Outputs.VGUI_FLYBY_F;
+					_visible_anomalies.clear();
 					nextState(States.STREAMING_FLYBY, 1);
 				} else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_T) ) {
 					_vgui_mode = Outputs.VGUI_FLYBY_T;
+					_visible_anomalies.clear();
 					nextState(States.STREAMING_FLYBY, 1);
 				}
 				break;
 			case STREAMING_FLYBY:
 				//Stay in this state until we receive a message to leave the state
-				
 				
 				//Handle the MM inputs
 				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
@@ -169,7 +171,16 @@ public class VideoGUIRole extends Actor {
 					}
 				}
 				
-				//TODO Watch for FlybyAnomalies so we can make that data observable
+				//Handle FlybyAnomaly
+				if ( _visible_anomalies.isEmpty() && _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_OK ) {
+					if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F) ) {
+						_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F);
+					} else if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T) ) {
+						_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T);
+					}
+				} else if ( _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_NONE ) {
+					_visible_anomalies.clear();
+				}
 				break;
 			default:
 				break;

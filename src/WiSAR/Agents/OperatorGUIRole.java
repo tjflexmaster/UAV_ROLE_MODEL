@@ -27,12 +27,10 @@ public class OperatorGUIRole extends Actor {
 	UAVBattery.Outputs _uav_battery;
 	
 	ArrayList<IData> _flyby_requests;
-	//TODO make end flyby commands appear observable
+	IData _flyby_end_cmd;
 	
     public enum Outputs implements IData
     {
-    	//TODO Pass the output from the UAV directly to the operator
-    	
     	/**
     	 * Output GUI State
     	 */
@@ -52,6 +50,8 @@ public class OperatorGUIRole extends Actor {
 	{
 		name( Actors.OPERATOR_GUI.name() );
 		nextState(States.NORMAL, 1);
+		_flyby_end_cmd = null;
+		_flyby_requests = new ArrayList<IData>();
 	}
 
    @Override
@@ -90,8 +90,7 @@ public class OperatorGUIRole extends Actor {
 		//Handle Inputs
 		ArrayList<IData> input = sim().getInput(this.name());
 		handleOPInputs(input);
-		//TODO Handle Flyby Requests and end flyby commands
-		
+		handleFlybyRequests(input);
 		
 		switch ( (States) state() ) {
 			case NORMAL:
@@ -99,16 +98,11 @@ public class OperatorGUIRole extends Actor {
 				if ( isAlarm() )
 					nextState(States.ALARM, 1);
 				
-				//Send any commands from the Operator to the UAV
-				
 				break;
 			case ALARM:
 				//Decide to go to normal
 				if ( !isAlarm() )
 					nextState(States.NORMAL, 1);
-				
-				//Send any commands from the Operator to the UAV
-				
 				break;
 			default:
 				break;
@@ -122,8 +116,9 @@ public class OperatorGUIRole extends Actor {
 		sim().addObservation(_uav_signal, this.name());
 		sim().addObservation(_uav_state, this.name());
 		
-		//TODO make flyby requests observable
-		//TODO make end flyby commands observable
+		sim().addObservations(_flyby_requests, this.name());
+		if ( _flyby_end_cmd != null )
+			sim().addObservation(_flyby_end_cmd, this.name());
 	}
 
     /**
@@ -138,8 +133,9 @@ public class OperatorGUIRole extends Actor {
 			if (_uav_battery == UAVBattery.Outputs.BATTERY_LOW ||
 					_uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 				return true;
-			} else if ( _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY ) {
-				//TODO show an alert if end flyby has been received
+			} else if ( _flyby_end_cmd != null ) {
+				//We are in alarm state if there is  flyby end cmd
+				return true;
 			}
 			
 		}
@@ -150,7 +146,6 @@ public class OperatorGUIRole extends Actor {
 	
 	
 	private void parseUAVStateFromUAV(ArrayList<IData> observations) {
-		//TODO Make sure the operator gui is sending the UAV output
 		for( IData data : observations ) {
 			if ( data instanceof UAVRole.Outputs ) {
 				_uav_state = (WiSAR.Agents.UAVRole.Outputs) data;
@@ -195,6 +190,9 @@ public class OperatorGUIRole extends Actor {
 						sim().addOutput(Actors.UAV.name(), data);
 						break;
 					case OP_FLYBY_END:
+						sim().addOutput(Actors.UAV.name(), data);
+						_flyby_end_cmd = null;
+						break;
 					case OP_LAND:
 					case OP_LOITER:
 					case OP_MODIFY_FLIGHT_PLAN:
@@ -215,20 +213,25 @@ public class OperatorGUIRole extends Actor {
 		for(IData data : input) {
 			if ( data instanceof VideoOperatorRole.Outputs ) {
 				switch((VideoOperatorRole.Outputs) data) {
-					//TODO add case for Flyby request
-					//TODO add case for ending a FLYBY
+					case VO_FLYBY_REQ_T:
+					case VO_FLYBY_REQ_F:
+						_flyby_requests.add(data);
+						break;
+					case VO_FLYBY_END_SUCCESS:
+					case VO_FLYBY_END_FAILED:
+						
+						break;
 					default:
-						//Send the data to the UAV
-						sim().addOutput(Actors.UAV.name(), data);
 						break;
 				}
 				
 			} else if ( data instanceof MissionManagerRole.Outputs ) {
 				switch((MissionManagerRole.Outputs) data) {
-					//TODO add case for Flyby request
+					case MM_FLYBY_REQ_F:
+					case MM_FLYBY_REQ_T:
+						_flyby_requests.add(data);
+						break;
 					default:
-						//Send the data to the UAV
-						sim().addOutput(Actors.UAV.name(), data);
 						break;
 				}
 			}

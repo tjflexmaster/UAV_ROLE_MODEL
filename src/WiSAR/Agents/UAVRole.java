@@ -9,6 +9,7 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -20,9 +21,9 @@ public class UAVRole extends Actor  {
 	private IData _battery;
 	private IData _signal;
 	private IData _hag;
-	private IData _path;
 	private int _dur;
 	private int _take_off_time;
+	private boolean _flyby;
 	
 	protected ArrayList<IActor> _sub_actors = new ArrayList<IActor>();
 	
@@ -64,12 +65,14 @@ public class UAVRole extends Actor  {
     {
     	name(Actors.UAV.name());
     	nextState(States.UAV_READY, 1);
+    	_flyby = false;
     	
     	//Add children
     	_sub_actors.add(new UAVBattery());
     	_sub_actors.add(new UAVFlightPlan());
     	_sub_actors.add(new UAVHeightAboveGround());
     	_sub_actors.add(new UAVVideoFeed());
+    	_sub_actors.add(new FlybyAnomaly());
     	
     	//Duplicate input to all sub actors
     	for(IActor sub : _sub_actors) {
@@ -205,6 +208,16 @@ public class UAVRole extends Actor  {
 				if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
 					nextState(States.UAV_TAKE_OFF,1);
 				}
+				
+				//Handle Flyby Cmds
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+						input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
+					_flyby = true;
+				}
+				
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+					_flyby = false;
+				}
 				break;
 			case UAV_TAKE_OFF:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD ) {
@@ -225,6 +238,15 @@ public class UAVRole extends Actor  {
 					_dur -= sim().getTime() - _take_off_time;
 					nextState(States.UAV_LOITERING,_dur);
 				}
+				
+				//Handle Flyby Cmds
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+						input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
+					_flyby = true;
+				}
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+					_flyby = false;
+				}
 				break;
 			case UAV_FLYING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
@@ -239,6 +261,16 @@ public class UAVRole extends Actor  {
 					_dur = sim().duration(Durations.UAV_ADJUST_PATH.range());
 					nextState(States.UAV_LOITERING,_dur);
 				}
+				
+				//Handle Flyby Commands
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+						input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
+					_flyby = true;
+				}
+				
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+					_flyby = false;
+				}
 				break;
 			case UAV_LOITERING:
 				if ( _battery == UAVBattery.Outputs.BATTERY_DEAD || _hag == UAVHeightAboveGround.Outputs.HAG_CRASHED) {
@@ -248,11 +280,20 @@ public class UAVRole extends Actor  {
 					if(input.contains(OperatorRole.Outputs.OP_RESUME)){
 						nextState(States.UAV_FLYING,1);
 					}
-					//TODO handle flyby
 					//Handle Land cmd
 					else if(input.contains(OperatorRole.Outputs.OP_LAND)){
 						_dur = sim().duration(Durations.UAV_LANDING_DUR.range());
 						nextState(States.UAV_LANDED,_dur);
+					}
+					
+					if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+							input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
+						_flyby = true;
+						nextState(States.UAV_FLYING, 1);
+					}
+					
+					if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+						_flyby = false;
 					}
 				}
 				break;
@@ -268,6 +309,16 @@ public class UAVRole extends Actor  {
 						}
 					}
 				}	
+				
+				//Handle receiving Flyby Cmds
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ||
+						input.contains(OperatorRole.Outputs.OP_FLYBY_START_T)) {
+					_flyby = true;
+				}
+				
+				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_END) ) {
+					_flyby = false;
+				}
 				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
@@ -286,23 +337,22 @@ public class UAVRole extends Actor  {
 		IData _state = Outputs.UAV_READY;
 		switch((States) state() ) {
 			case UAV_FLYING:
-		    	_state = Outputs.UAV_FLYING_NORMAL;
-//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
+				if ( _flyby )
+					_state = Outputs.UAV_FLYING_FLYBY;
+				else
+					_state = Outputs.UAV_FLYING_NORMAL;
 		    	break;
 		    case UAV_READY:
 		    	_state = Outputs.UAV_READY;
 		    	break;
 		    case UAV_TAKE_OFF:
 		    	_state = Outputs.UAV_TAKE_OFF;
-//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LOITERING:
 		    	_state = Outputs.UAV_LOITERING;
-//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LANDING:
 		    	_state = Outputs.UAV_LANDING;
-//		    	sim().addObservation(Outputs.UAV_FEED_ACTIVE, this.name());
 		    	break;
 		    case UAV_LANDED:
 		    	_state = Outputs.UAV_LANDED;
@@ -313,11 +363,6 @@ public class UAVRole extends Actor  {
 		}
 		sim().addObservation(_state, this.name());
 	
-//		sim().addObservation(_battery, this.name());
-//		sim().addObservation(_flight_plan, this.name());
-//		sim().addObservation(_hag, this.name());
-//		sim().addObservation(_path, this.name());
-//		sim().addObservation(_signal, this.name());
 	}
 	
 	/**

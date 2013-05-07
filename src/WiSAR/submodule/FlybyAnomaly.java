@@ -9,6 +9,8 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorGUIRole;
+import WiSAR.Agents.OperatorRole;
+import WiSAR.Agents.UAVRole;
 import WiSAR.Agents.VideoGUIRole;
 
 public class FlybyAnomaly extends Actor {
@@ -19,8 +21,8 @@ public class FlybyAnomaly extends Actor {
 	private int _pause_time = 0;
 	private boolean _initialized = false;
 	public enum Outputs implements IData{
-		FBAN_TRUE,
-		FBAN_FALSE
+		FLYBY_ANOMALY_T,
+		FLYBY_ANOMALY_F,
 	}
 	public enum States implements IStateEnum{
 		IDLE,
@@ -32,7 +34,7 @@ public class FlybyAnomaly extends Actor {
 	
 	public FlybyAnomaly(){
 		name(Actors.FLYBY_ANOMALY.name());
-		nextState(States.ANOMALY_NOT_SEEN,1);
+		nextState(States.IDLE,1);
 	}
 
 	@Override
@@ -49,62 +51,63 @@ public class FlybyAnomaly extends Actor {
         
         state(nextState());
         switch((States)nextState()){
-        case ANOMALY_NOT_SEEN:
-        	_start_time = sim().getTime();
-        	nextState(States.ANOMALY_SEEN,getRemainingTime());
-        	break;
-        case PAUSED:
-        	_pause_time = sim().getTime();
-        	pauseSearch();
-        	nextState(null,0);
-        	break;
-        case END_FLYBY:
-        	nextState(States.IDLE,1);
-        	_initialized = false;
-        	break;
-    	default:
-    		nextState(null,0);
+	        case ANOMALY_NOT_SEEN:
+	        	_start_time = sim().getTime();
+	        	nextState(States.ANOMALY_SEEN,getRemainingTime());
+	        	break;
+	        case PAUSED:
+	        	_pause_time = sim().getTime();
+	        	pauseSearch();
+	        	nextState(null,0);
+	        	break;
+	        case END_FLYBY:
+	        	nextState(States.IDLE,1);
+	        	_initialized = false;
+	        	break;
+	    	default:
+	    		nextState(null,0);
         }
+        
 		setObservations();
 	}
 
 	@Override
 	public void processInputs() {
 		ArrayList<IData> input = sim().getInput(this.name());
-		
+		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
 		
 		switch((States)state()){
 		case IDLE:
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_F)){
+			if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_F)){
 				target = false;
 				nextState(States.ANOMALY_NOT_SEEN,1);
-			}else if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_T)){
+			}else if(input.contains(OperatorRole.Outputs.OP_FLYBY_START_F)){
 				target = true;
 				nextState(States.ANOMALY_NOT_SEEN,1);
 			}
 			break;
 		case ANOMALY_NOT_SEEN:
-			if(input.contains(OperatorGUIRole.Outputs.DEPARTING)){
+			if( !isFlybyMode(uav) ){
 				nextState(States.PAUSED,1);
 			}
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_END)){
+			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
 				nextState(States.IDLE,1);
 			}
 			break;
 		case PAUSED:
-			if(input.contains(OperatorGUIRole.Outputs.RETURNING)){
+			if( isFlybyMode(uav) ){
 				if(_dur > 0){
 					nextState(States.ANOMALY_NOT_SEEN,1);
 				}else{
 					nextState(States.ANOMALY_SEEN,1);
 				}
 			}
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_END)){
+			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
 				nextState(States.IDLE,1);
 			}
 			break;
 		case ANOMALY_SEEN:
-			if(input.contains(OperatorGUIRole.Outputs.OGUI_FLYBY_END)){
+			if(input.contains(OperatorRole.Outputs.OP_FLYBY_END)){
 				nextState(States.IDLE,1);
 			}
 			break;
@@ -114,7 +117,7 @@ public class FlybyAnomaly extends Actor {
 	
 	private void pauseSearch()
 	{
-		//Change the battery duration by the amount that the battery used
+		//Change the time by the amount of time used
 		_dur -= (_pause_time - _start_time);
 	}
 	
@@ -126,13 +129,32 @@ public class FlybyAnomaly extends Actor {
 	private void resetFlybyTime(){
 		_dur = sim().duration(Durations.FLYBY_FIND_ANOMALY.range());
 	}
+	
 	private void setObservations(){
 		if(state() == States.ANOMALY_SEEN){
 			if(target){
-				sim().addObservation(Outputs.FBAN_TRUE, this.name());
+				sim().addObservation(Outputs.FLYBY_ANOMALY_T, this.name());
 			}else{
-				sim().addObservation(Outputs.FBAN_FALSE, this.name());
+				sim().addObservation(Outputs.FLYBY_ANOMALY_F, this.name());
 			}
+		}
+	}
+	
+	private boolean isFlybyMode(ArrayList<IData> uav_observations)
+	{
+		UAVRole.Outputs uav_state = UAVRole.Outputs.UAV_READY;
+		for( IData data : uav_observations ) {
+			if ( data instanceof UAVRole.Outputs ) {
+				uav_state = (UAVRole.Outputs) data;
+				break;
+			}
+		}
+		
+		switch( uav_state ) {
+			case UAV_FLYING_FLYBY:
+				return true;
+			default:
+				return false;
 		}
 	}
 }
