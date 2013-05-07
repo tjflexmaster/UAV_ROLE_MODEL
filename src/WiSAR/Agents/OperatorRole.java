@@ -1,19 +1,13 @@
 package WiSAR.Agents;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
-import CUAS.Simulator.Simulator;
-import NewModel.Roles.RoleState;
 import WiSAR.Actors;
 import WiSAR.Durations;
-import WiSAR.MemoryObject;
-import WiSAR.Agents.MissionManagerRole.Outputs;
-import WiSAR.Agents.MissionManagerRole.States;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -335,9 +329,12 @@ public class OperatorRole extends Actor {
 				break;
 			case RX_VO:
 				if ( input.contains(VideoOperatorRole.Outputs.VO_END) ) {
-					if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
-						tasks.add(Outputs.OP_RESUME);
-					}
+					//TODO Handle the Bad Stream output
+					
+					//TODO Handle the end flyby stuff from the
+//					if(input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END)){
+//						tasks.add(Outputs.OP_RESUME);
+//					}
 					//Go Idle first in case more information needs to be sent
 					nextState(States.IDLE, 1);
 				}
