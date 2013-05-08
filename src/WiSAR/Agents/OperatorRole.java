@@ -404,7 +404,6 @@ public class OperatorRole extends Actor {
 			case OBSERVING_GUI:
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
 				parseUAVStateFromGUI(_gui_observations);
-				
 				//If we are in alarm mode then only look at the following alarm items
 				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
 					

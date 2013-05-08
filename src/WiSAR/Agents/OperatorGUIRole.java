@@ -9,6 +9,8 @@ import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.IPriority;
 import WiSAR.Agents.OperatorRole;
+import WiSAR.Agents.UAVRole.Outputs;
+import WiSAR.Agents.UAVRole.States;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -59,6 +61,7 @@ public class OperatorGUIRole extends Actor {
    @Override
     public void processNextState() {
         if ( nextStateTime() != Simulator.getInstance().getTime() ) {
+        	setObservables();
             return;
         }
         state(nextState());
@@ -99,7 +102,6 @@ public class OperatorGUIRole extends Actor {
 				//Decide to go to alarm or stay in normal
 				if ( isAlarm() )
 					nextState(States.ALARM, 1);
-				
 				break;
 			case ALARM:
 				//Decide to go to normal
@@ -117,6 +119,20 @@ public class OperatorGUIRole extends Actor {
 		sim().addObservation(_uav_hag, this.name());
 		sim().addObservation(_uav_signal, this.name());
 		sim().addObservation(_uav_state, this.name());
+		
+		IData _state = Outputs.OGUI_STATE_NORMAL;
+		switch((States) state() ) {
+			case NORMAL:
+				_state = Outputs.OGUI_STATE_NORMAL;
+				break;
+			case ALARM:
+				_state = Outputs.OGUI_STATE_ALARM;
+				break;
+			case AUDIBLE_ALARM:
+				_state = Outputs.OGUI_STATE_ALARM;
+				break;
+		}
+		sim().addObservation(_state , this.name());
 		
 		sim().addObservations(_flyby_requests, this.name());
 		if ( _flyby_end_cmd != null )
@@ -162,7 +178,7 @@ public class OperatorGUIRole extends Actor {
 				}
 			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
 				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;
-			}else{
+			} else {
 				//ignore video feed
 				//break;
 			}
@@ -207,7 +223,6 @@ public class OperatorGUIRole extends Actor {
 						sim().addOutput(Actors.UAV.name(), data);
 						break;
 				}
-				
 			}
 		}
 	}
