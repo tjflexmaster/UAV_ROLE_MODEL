@@ -1,0 +1,8 @@
+target=WiSAR.Application
+
+report.console.property_violation=error,trace,snapshot
+#listener=gov.nasa.jpf.listener.ErrorTraceGenerator
+#listener=gov.nasa.jpf.listener.EndlessLoopDetector
+classpath=/Users/egm/Documents/github/UAV_ROLE_MODEL/bin
+sourcepath=/Users/egm/Documents/github/UAV_ROLE_MODEL/src
+

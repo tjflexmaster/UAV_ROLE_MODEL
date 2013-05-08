@@ -16,6 +16,7 @@ public class Application {
 //		Simulator simulator = new Simulator(Mode.MIN, WiSARDurations.durations(), new DefaultTeam());
 //		Simulator simulator = new Simulator();
 		try {
+			Simulator.getInstance().setEnvironment(Simulator.Environment.PRODUCTION);
 			Simulator.getInstance().setup(Mode.MIN, new DefaultTeam());
 			//Load Duration Assumptions
 			

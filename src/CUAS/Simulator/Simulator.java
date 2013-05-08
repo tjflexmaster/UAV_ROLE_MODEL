@@ -181,9 +181,11 @@ public class Simulator {
 	{
 		assert isReady() : "The Simulator was not setup properly";
 		_running = true;
-		if( debug() ) 
+		Scanner readUserInput = null;
+		if( debug() ) {
 			System.out.println("Started Simulation...");
-		Scanner readUserInput = new Scanner(System.in);
+			readUserInput = new Scanner(System.in);
+		}
 		
 		try {
 			int time_to_run = 0;
