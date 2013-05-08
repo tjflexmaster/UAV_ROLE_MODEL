@@ -6,6 +6,7 @@ import java.util.Random;
 public class DurationGenerator {
 	
 	private Mode _mode = Mode.MIN;
+	private Random _random = null;
 	
 	public enum Mode
 	{
@@ -19,11 +20,18 @@ public class DurationGenerator {
 	public DurationGenerator()
 	{
 		initializeDefaults();
+		initializeRandom();
 	}
 	
 	public DurationGenerator(Mode mode)
 	{
 		_mode = mode;
+		initializeRandom();
+	}
+	
+	private void initializeRandom() {
+		_random = new Random();
+		_random.setSeed(0);		
 	}
 	
 	public int duration(Range range)
@@ -65,8 +73,7 @@ public class DurationGenerator {
 	
 	public int random(int min, int max)
 	{
-		Random rand = new Random();
-		return rand.nextInt(max - min + 1) + min;
+		return _random.nextInt(max - min + 1) + min;
 	}
 	
 	private void initializeDefaults()
