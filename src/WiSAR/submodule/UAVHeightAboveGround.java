@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Agents.OperatorRole;
+import WiSAR.Agents.UAVRole;
 import WiSAR.Events.HAGEvent;
 import CUAS.Simulator.Actor;
 import CUAS.Simulator.IData;
@@ -58,6 +59,7 @@ public class UAVHeightAboveGround extends Actor {
 	@Override
 	public void processInputs() {
         ArrayList<IData> input = sim().getInput(this.name());
+		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
         switch((States)state()){
         case INACTIVE:
         	if(input.contains(OperatorRole.Outputs.OP_TAKE_OFF)){
@@ -65,12 +67,17 @@ public class UAVHeightAboveGround extends Actor {
         	}
         	break;
         case GOOD:
-        	if(input.contains(HAGEvent.Outputs.EHAG_LOW)){
+        	if(uav.contains(UAVRole.Outputs.UAV_LANDED)){
+        		nextState(States.INACTIVE,1);
+        	} else if(input.contains(HAGEvent.Outputs.EHAG_LOW)){
         		nextState(States.LOW,1);
         	}
+        	
         	break;
         case LOW:
-        	if(input.contains(HAGEvent.Outputs.EHAG_CRASHED)){
+        	if(uav.contains(UAVRole.Outputs.UAV_LANDED)){
+        		nextState(States.INACTIVE,1);
+        	} else if(input.contains(HAGEvent.Outputs.EHAG_CRASHED)){
         		nextState(States.CRASHED,1);
         	} else if(input.contains(OperatorRole.Outputs.OP_MODIFY_FLIGHT_PLAN)){
         		nextState(States.GOOD,sim().duration(Durations.UAV_ADJUST_PATH.range()));

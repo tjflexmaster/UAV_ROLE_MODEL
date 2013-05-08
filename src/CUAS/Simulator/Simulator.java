@@ -226,7 +226,7 @@ public class Simulator {
 					if ( debug() )
 						System.out.println("Nothing to process: " + getTime());
 					int test = _event_manager.totalEventsRemaining();
-					assert test > 0 : "Terminated when there were still events left to be processed.";
+					assert test == 0 : "Terminated when there were still events left to be processed.";
 					_running = false;
 					
 				} else {

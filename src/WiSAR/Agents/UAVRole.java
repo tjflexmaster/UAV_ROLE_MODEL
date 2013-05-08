@@ -321,6 +321,11 @@ public class UAVRole extends Actor  {
 					_flyby = false;
 				}
 				break;
+			case UAV_LANDED:
+				if(input.contains(OperatorRole.Outputs.OP_POST_FLIGHT)){
+					nextState(States.UAV_READY,1);
+				}
+				break;
 			case UAV_CRASHED:
 				//Handle Nothing cause simulation should have ended.
 				break;

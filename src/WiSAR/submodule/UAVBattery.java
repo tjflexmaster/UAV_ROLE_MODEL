@@ -87,6 +87,7 @@ public class UAVBattery extends Actor {
 		
 		//Pull Input and any observations that need to be made from the simulator
 		ArrayList<IData> input = sim().getInput(this.name());
+		ArrayList<IData> uav = sim().getObservations(Actors.UAV.name());
 				
 		/**
 		 * The battery can be activated and deactivated,
@@ -104,7 +105,7 @@ public class UAVBattery extends Actor {
 				break;
 			case ACTIVE: // If the battery is active then if the UAV issues the cmd to deactivate the battery then it goes to inactive
 			case LOW:
-				if(input.contains(UAVRole.Outputs.UAV_LANDED)){
+				if(uav.contains(UAVRole.Outputs.UAV_LANDED)){
 					nextState(States.INACTIVE, 1);
 				}
 				break;

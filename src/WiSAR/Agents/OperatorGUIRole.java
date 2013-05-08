@@ -19,7 +19,7 @@ import WiSAR.submodule.UAVSignal;
 public class OperatorGUIRole extends Actor {
  
 	int flight_paths = 0;
-	int _unacknowledged_paths_completed = 0;
+	int _paths_completed = 0;
 	
 	ArrayList<IData> _uav_observations;
 	
@@ -120,6 +120,11 @@ public class OperatorGUIRole extends Actor {
 		sim().addObservation(_uav_signal, this.name());
 		sim().addObservation(_uav_state, this.name());
 		
+		//add as many completed paths signals as there are completed paths
+		for(int i = 0; i < _paths_completed; i++){
+			sim().addObservation(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE, this.name());
+		}
+		
 		IData _state = Outputs.OGUI_STATE_NORMAL;
 		switch((States) state() ) {
 			case NORMAL:
@@ -175,6 +180,8 @@ public class OperatorGUIRole extends Actor {
 				if( data == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_NO || 
 						data == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES ) {
 					_uav_flight_plan = (WiSAR.submodule.UAVFlightPlan.Outputs) data;
+				}else if( data == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE){
+					_paths_completed++;
 				}
 			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
 				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;

@@ -1,6 +1,7 @@
 package WiSAR.Agents;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 
 import CUAS.Simulator.Actor;
@@ -22,6 +23,7 @@ public class OperatorRole extends Actor {
 	ArrayList<IData> _uav_observations;
 	ArrayList<IData> _gui_observations;
 	
+	OperatorGUIRole.Outputs  _gui_state;
 	UAVRole.Outputs _uav_state;
 	UAVSignal.Outputs _uav_signal;
 	UAVHeightAboveGround.Outputs _uav_hag;
@@ -33,6 +35,7 @@ public class OperatorRole extends Actor {
 	int _total_search_aoi = 0;
 	int _sent_search_aoi = 0;
 	int _completed_search_aoi = 0;
+	boolean _gui_alert = false;
 	
 	/**
 	 *  STATE VARS
@@ -257,6 +260,9 @@ public class OperatorRole extends Actor {
 					}
 				}
 				
+				_uav_observations = sim().getObservations(Actors.UAV.name());
+				parseUAVStateFromUAV(_uav_observations);
+				
 				//Third act based on what we know about the UAV state
 				if ( !accepted_poke ) {
 					switch(_uav_state) {
@@ -268,6 +274,7 @@ public class OperatorRole extends Actor {
 							nextState(States.OBSERVING_GUI, 1);
 							break;
 						case UAV_LANDED:
+							tasks.add(Outputs.OP_POST_FLIGHT);
 							nextState(States.POST_FLIGHT, 1);
 							break;
 					}
@@ -435,8 +442,19 @@ public class OperatorRole extends Actor {
 						}
 					}
 					
-					if ( _gui_observations.contains(UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE) ) {
-						tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
+					if ( _completed_search_aoi < _sent_search_aoi ) {
+						Iterator<IData> iter = _gui_observations.iterator();
+						int c = 0;
+						while(iter.hasNext()){
+							if(iter.next() == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_COMPLETE){
+								c++;
+							}
+						}
+						while(c > _completed_search_aoi){
+							_completed_search_aoi++;
+							tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
+						}
+						
 					}
 					
 					//If we don't have a flyby request in our task queue then see if we need to add one
@@ -505,7 +523,7 @@ public class OperatorRole extends Actor {
 				 */
 				
 				//If the GUI has an alarm while working on a task then abandon that task and immediately create a task for the alarm.
-				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
+				if ( _gui_alert ) {
 					
 					if ( _uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
@@ -566,7 +584,7 @@ public class OperatorRole extends Actor {
 				//Do nothing for states not mentioned
 				break;
 		}
-		
+		_gui_alert = false;
 	}
 
 	
@@ -647,6 +665,11 @@ public class OperatorRole extends Actor {
 				}
 			} else if ( data instanceof UAVHeightAboveGround.Outputs ) {
 				_uav_hag = (WiSAR.submodule.UAVHeightAboveGround.Outputs) data;
+			} else if( data instanceof OperatorGUIRole.Outputs ) {
+				if(_gui_state != OperatorGUIRole.Outputs.OGUI_STATE_ALARM && data == OperatorGUIRole.Outputs.OGUI_STATE_ALARM){
+					_gui_alert = true;
+				}
+				_gui_state = (WiSAR.Agents.OperatorGUIRole.Outputs) data;
 			}
 		}
 	}
