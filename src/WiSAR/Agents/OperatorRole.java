@@ -167,6 +167,10 @@ public class OperatorRole extends Actor {
 			case END_MM:
 				sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_END);
 				sim().addOutput(Actors.MISSION_MANAGER.name(), tasks.poll());
+
+				if(_completed_search_aoi == _sent_search_aoi){
+					tasks.add(Outputs.OP_LAND);
+				}
 				nextState(States.IDLE, 1);
 				break;
 			case RX_MM:
@@ -452,7 +456,8 @@ public class OperatorRole extends Actor {
 						}
 						while(c > _completed_search_aoi){
 							_completed_search_aoi++;
-							tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE);
+							tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE); 
+							//tasks.add(Outputs.OP_LAND);
 						}
 						
 					}
