@@ -17,7 +17,7 @@ public class Application {
 //		Simulator simulator = new Simulator();
 		try {
 			Simulator.getInstance().setEnvironment(Simulator.Environment.PRODUCTION);
-			Simulator.getInstance().setup(Mode.MIN, new DefaultTeam());
+			Simulator.getInstance().setup(Mode.MIN_OR_MAX, new DefaultTeam());
 			//Load Duration Assumptions
 			
 			
