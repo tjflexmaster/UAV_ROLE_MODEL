@@ -16,7 +16,7 @@ public enum Durations {
 	PS_POKE_MM_DUR(new Range(60, 1800)),
 	PS_TX_TERMINATE_MM_DUR(new Range(60, 300)),
 	PS_TX_AOI_MM_DUR(new Range(600, 1800)),
-	PS_RX_MM_DUR(new Range(1800, 1800)),
+	PS_RX_MM_DUR(new Range(1900, 1900)),
 	PS_TX_TARGET_DESCRIPTION(new Range(300, 1800)),
 	
 	/**
@@ -29,7 +29,7 @@ public enum Durations {
 	MM_TX_AOI_OP_DUR(new Range(300, 900)),
 	MM_TX_TARGET_DESCRIPTION_DUR(new Range(300, 900)),
 	MM_TX_TERMINATE_SEARCH_DUR(new Range(60, 300)),
-	MM_RX_DUR(new Range(1800, 1800)),
+	MM_RX_DUR(new Range(1900, 1900)),
 	MM_TX_END_FEED(new Range(300, 1800)),
 	MM_OBSERVE_VGUI(new Range(300, 600)),
 	MM_TX_FLYBY(new Range(200, 300)),
@@ -44,7 +44,7 @@ public enum Durations {
 	 */
 	OPERATOR_POKE_MM_DUR(new Range(60, 1800)),
 	OPERATOR_TX_MM_DUR(new Range(60, 1800)),
-	OPERATOR_RX_MM_DUR(new Range(1800, 1800)),
+	OPERATOR_RX_MM_DUR(new Range(1900, 1900)),
 	OPERATOR_OBSERVE_UAV_DUR(new Range(60, 1800)),
 	OPERATOR_OBSERVE_UGUI_DUR(new Range(60, 1800)),
 	OPERATOR_LAUNCH_UAV_DUR(new Range(60, 1800)),
@@ -70,7 +70,7 @@ public enum Durations {
 	/**
 	 * VideoOperator assumptions
 	 */
-	VO_RX_MM_DUR(new Range(60, 1800)),
+	VO_RX_MM_DUR(new Range(1900, 1900)),
 	VO_POKE_VGUI_DUR(new Range(60, 1800)),
 	VO_POKE_MM_DUR(new Range(60, 1800)),
 	VO_POKE_OPERATOR_DUR(new Range(60, 1800)),
@@ -92,9 +92,9 @@ public enum Durations {
 	 */
 	VGUI_RETURN_TO_IDLE(new Range(60, 1800)),
 	VGUI_START_STREAM(new Range(60, 1800)),
-	VGUI_RX_DUR(new Range(60, 1800)), 
+	VGUI_RX_DUR(new Range(1900, 1900)), 
 	
-	OGUI_RX_DUR(new Range(60, 1800)), 
+	OGUI_RX_DUR(new Range(1900, 1900)), 
 	
 	UAV_ADJUST_PATH(new Range(60, 1800)), 
 	UAV_PREPARATION_DUR(new Range(60, 1800)),
