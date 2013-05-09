@@ -233,7 +233,8 @@ public class Simulator {
 					
 				} else {
 					_timer.time(next_time);
-					System.out.println("At time: " + next_time);
+					if(debug())
+						System.out.println("At time: " + next_time);
 					//First Process Events
 					_event_manager.processNextState();
 					_event_manager.processInputs();
