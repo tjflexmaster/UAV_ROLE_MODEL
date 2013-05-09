@@ -64,7 +64,7 @@ public enum Durations {
 	UAV_BATTERY_DUR(new Range(1500, 1800)),
 	UAV_LOW_BATTERY_THRESHOLD_DUR(new Range(300, 300)),
 	UAV_LANDING_DUR(new Range(60, 1800)),
-	UAV_FLIGHT_PLAN_DUR(new Range(60, 1800)),
+	UAV_FLIGHT_PLAN_DUR(new Range(600, 1800)),
 	
 	
 	/**

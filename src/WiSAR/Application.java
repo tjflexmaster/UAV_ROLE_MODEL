@@ -16,14 +16,14 @@ public class Application {
 //		Simulator simulator = new Simulator(Mode.MIN, WiSARDurations.durations(), new DefaultTeam());
 //		Simulator simulator = new Simulator();
 		try {
-			Simulator.getInstance().setEnvironment(Simulator.Environment.PRODUCTION);
-			Simulator.getInstance().setup(Mode.MIN_OR_MAX, new DefaultTeam());
+			Simulator.getInstance().setEnvironment(Simulator.Environment.DEBUG);
+			Simulator.getInstance().setup(Mode.MIN, new DefaultTeam());
 			//Load Duration Assumptions
 			
 			
 			Simulator.getInstance().addEvent(new NewSearchAOIEvent(1));
 			Simulator.getInstance().addEvent(new SearchTargetDescriptionEvent(1));
-//			Simulator.getInstance().addEvent(new TargetSightingTrueEvent(1));
+			Simulator.getInstance().addEvent(new TargetSightingTrueEvent(1));
 //			Simulator.getInstance().addEvent(new TargetSightingFalseEvent(3));
 			//Load a Scenario
 //			Scenario.scenario1();
