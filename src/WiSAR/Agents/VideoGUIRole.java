@@ -91,101 +91,122 @@ public class VideoGUIRole extends Actor {
 		switch ( (States) state() ) {
 			case STREAMING_NORMAL:
 				
-				//Handle False Anomalies
-				if(input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE)){
-					_visible_anomalies.add(Outputs.VGUI_FALSE_POSITIVE);
-				} else if ( input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_END) ) {
-					_visible_anomalies.remove(Outputs.VGUI_FALSE_POSITIVE);
-				}
-				
-				//Handle True Anomalies
-				if(input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_TRUE)){
-					_visible_anomalies.add(Outputs.VGUI_TRUE_POSITIVE);
-				} else if ( input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_END) ) {
-					_visible_anomalies.remove(Outputs.VGUI_TRUE_POSITIVE);
-				}
+				handleAnomolyInputs(input);
 					
 				//Handle all VO input
-				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
-					if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
-						_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_TRUE);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F) ) {
-						_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_FALSE);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_T);
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_F);
-					}
-				}
+				handleVOInput(input);
 				
-				//Handle the MM inputs
-				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
-					if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_F);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_T);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_F) ) {
-						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_FALSE);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_T) ) {
-						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_TRUE);
-					}
-				}
+				handleMMInput(input);
 				
 				//Handle OGUI inputs
-				if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ) {
-					_vgui_mode = Outputs.VGUI_FLYBY_F;
-					_visible_anomalies.clear();
-					nextState(States.STREAMING_FLYBY, 1);
-				} else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_T) ) {
-					_vgui_mode = Outputs.VGUI_FLYBY_T;
-					_visible_anomalies.clear();
-					nextState(States.STREAMING_FLYBY, 1);
-				}
+				handleOGUIInput(input);
 				break;
 			case STREAMING_FLYBY:
 				//Stay in this state until we receive a message to leave the state
 				
 				//Handle the MM inputs
-				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
-					if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_F) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_F);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_T) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_T);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_F) ) {
-						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_FALSE);
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_T) ) {
-						_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_TRUE);
-					}
-				}
+				handleMMInput(input);
 				
 				//Handle all VO input
-				if(input.contains(VideoOperatorRole.Outputs.VO_END)){
-					if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED);
-						nextState(States.STREAMING_NORMAL,1);
-						_vgui_mode = Outputs.VGUI_NORMAL;
-					} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS) ) {
-						sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS);
-						nextState(States.STREAMING_NORMAL,1);
-						_vgui_mode = Outputs.VGUI_NORMAL;
-					}
-				}
+				handleFlyByVOInput(input);
 				
 				//Handle FlybyAnomaly
-				if ( _visible_anomalies.isEmpty() && _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_OK ) {
-					if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F) ) {
-						_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F);
-					} else if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T) ) {
-						_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T);
-					}
-				} else if ( _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_NONE ) {
-					_visible_anomalies.clear();
-				}
+				handleFlyByAnomalyInput(uav_observations);
 				break;
 			default:
 				break;
 		}
     }
+
+	private void handleAnomolyInputs(ArrayList<IData> input) {
+		//Handle False Anomalies
+		if(input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_FALSE)){
+			_visible_anomalies.add(Outputs.VGUI_FALSE_POSITIVE);
+			nextState(States.STREAMING_NORMAL,1);
+		} else if ( input.contains(TargetSightingFalseEvent.Outputs.TARGET_SIGHTED_END) ) {
+			_visible_anomalies.remove(Outputs.VGUI_FALSE_POSITIVE);
+		}
+		
+		//Handle True Anomalies
+		if(input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_TRUE)){
+			_visible_anomalies.add(Outputs.VGUI_TRUE_POSITIVE);
+			nextState(States.STREAMING_NORMAL,1);
+		} else if ( input.contains(TargetSightingTrueEvent.Outputs.TARGET_SIGHTED_END) ) {
+			_visible_anomalies.remove(Outputs.VGUI_TRUE_POSITIVE);
+		}
+	}
+
+	private void handleVOInput(ArrayList<IData> input) {
+		if(input.contains(VideoOperatorRole.Outputs.VO_END)){
+			if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_T) ) {
+				_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_TRUE);
+			} else if ( input.contains(VideoOperatorRole.Outputs.VO_POSSIBLE_ANOMALY_DETECTED_F) ) {
+				_verification_requests.add(Outputs.VGUI_VALIDATION_REQ_FALSE);
+			} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_T) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_T);
+			} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_REQ_F) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_REQ_F);
+			}
+			//possibly unnecesary due to state change from the VO
+//			nextState(States.STREAMING_NORMAL,1);
+		}
+	}
+
+	private void handleFlyByVOInput(ArrayList<IData> input) {
+		if(input.contains(VideoOperatorRole.Outputs.VO_END)){
+			if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_FAILED);
+				nextState(States.STREAMING_NORMAL,1);
+				_vgui_mode = Outputs.VGUI_NORMAL;
+			} else if ( input.contains(VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), VideoOperatorRole.Outputs.VO_FLYBY_END_SUCCESS);
+				nextState(States.STREAMING_NORMAL,1);
+				_vgui_mode = Outputs.VGUI_NORMAL;
+			}
+			//possibly not necessary due to state change from the VO
+//			nextState(States.STREAMING_FLYBY,1);
+		}
+	}
+	private void handleOGUIInput(ArrayList<IData> input) {
+		if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_F) ) {
+			_vgui_mode = Outputs.VGUI_FLYBY_F;
+			_visible_anomalies.clear();
+			nextState(States.STREAMING_FLYBY, 1);
+		} else if ( input.contains(OperatorRole.Outputs.OP_FLYBY_START_T) ) {
+			_vgui_mode = Outputs.VGUI_FLYBY_T;
+			_visible_anomalies.clear();
+			nextState(States.STREAMING_FLYBY, 1);
+		}
+	}
+
+	private void handleMMInput(ArrayList<IData> input) {
+		if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
+			if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_F) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_F);
+			} else if ( input.contains(MissionManagerRole.Outputs.MM_FLYBY_REQ_T) ) {
+				sim().addOutput(Actors.OPERATOR_GUI.name(), MissionManagerRole.Outputs.MM_FLYBY_REQ_T);
+			} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_F) ) {
+				_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_FALSE);
+			} else if ( input.contains(MissionManagerRole.Outputs.MM_ANOMALY_DISMISSED_T) ) {
+				_verification_requests.remove(Outputs.VGUI_VALIDATION_REQ_TRUE);
+			}
+		}
+	}
+
+
+	private void handleFlyByAnomalyInput(ArrayList<IData> uav_observations) {
+		if ( _visible_anomalies.isEmpty() && _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_OK ) {
+			if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F) ) {
+				_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_F);
+				nextState(state(),1);
+			} else if ( uav_observations.contains(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T) ) {
+				_visible_anomalies.add(FlybyAnomaly.Outputs.FLYBY_ANOMALY_T);
+				nextState(state(),1);
+			}
+		} else if ( _uav_video_feed == UAVVideoFeed.Outputs.VF_SIGNAL_NONE ) {
+			_visible_anomalies.clear();
+		}
+	}
 
     /**
      * /////////////////////////////PRIVATE HELPER METHODS///////////////////////////////////////////
@@ -207,7 +228,7 @@ public class VideoGUIRole extends Actor {
 			} else if ( data instanceof UAVVideoFeed.Outputs ) {
 				_uav_video_feed = (UAVVideoFeed.Outputs) data;
 			}
-			break;
+			
 		}
 	}
 }
