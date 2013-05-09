@@ -41,7 +41,7 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * Operator
 		 */
-		MM_NEW_SEARCH_AOI(3),
+		MM_NEW_SEARCH_AOI(4),
 		MM_TERMINATE_SEARCH_OP(1),
 		 
 		/**
