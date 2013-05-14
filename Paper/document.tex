@@ -348,7 +348,7 @@ language, Neha Rungta and her colleagues were able to correctly predict the
 collision. Such a model could have forewarned the air traffic controller of the
 collision.
 \par\noindent WiSAR, Wilderness Search and Rescue, is primarily concerned with
-the finding people who have become lost in rugged terrain. () Research has shown
+the finding people who have become lost in rugged terrain. Research has shown
 that UAVs, unmanned aerial vehicles, facilitate the work this group is doing. In
 principle the vehicle is used to search for victims in areas that would be
 difficult for ground teams to reach. Michael Goodrich and his colleagues tested
@@ -356,6 +356,48 @@ the effectiveness of these types of operations. They found that altitude and
 video clarity determined the success of the mission. Furthermore they supposed
 that these factors could be enhanced if the roles of the UAV operator and video
 operator were combined.
+
+\section{Results}
+
+\par\noindent We chose to use JPF, also known as Java Pathfinder, because it can
+explore all possible paths our simulation could have taken. In other words JPF
+would check all possible combinations of agent inputs to help us find errors.
+This tool was an essential part of our verification process. Using unhandled
+assertion statements in the code enhanced JPF’s ability to find instances when
+our code wasn’t acting in the intended way. JPF did its job. Right away it found
+multiple circumstances that would lead to an infinite loop. One of these loops
+involved an extremely improbable sequence of successive method calls that would
+have been nearly impossible to otherwise test for.
+\par\noindent Our model consisted of multiple state machines that took a
+non-deterministic amount of time to form outputs. We choses this implementation
+because no human would take exactly the same amount of time to do the same thing
+every time they did it. The events also non-deterministically chose whether or
+not to occur at any time during a given time frame. This allowed for a more
+realistic test of the system since events could happen at any time. These two
+factors, while necessary for the realism of the simulator, would have been
+incredibly difficult to test without a tool like JPF. Only JPF could have found
+all possible paths our simulator could have taken. Because of the incredible
+amount of non-determinism it took a long time for JPF to traverse every path.
+The time waited was only a small impediment in light of the amount of work it
+saved us.
+\par\noindent Creation of the model was not easy. The intricacies and nuances of
+the simulator made each class difficult to write. It was, however, easier than
+learning a new language, where many more intricacies and nuances would have to
+be overcome before modeling could begin. Furthermore, we can reuse much of what
+we created to perform verification of future models, and since we used Java more
+people can understand our work by simple examination. We aimed for a high level
+of abstraction. We didn’t want to simulate keyboard inputs or specific mouse
+clicks, but instead chose roles that significantly impacted the likelihood of
+positive sightings. This level of abstraction was achieved by definition of
+specific inputs and outputs for each role. The basic initialization of the
+search was the easiest part to model. It didn’t take very long to get everything
+sorted and the UAV into simulated air. This involved an event that began the
+search as well as giving each role the ability to process the commands it
+received to begin the search. Modeling the sub roles of the UAV was difficult.
+It took a while before we could simulate flights that included crashes, video
+anomalies, and new search areas. Most of these difficulties came from the
+complexity each new event gave to the whole system. Simply tracing the expected
+flow of data between the agents was a huge task.
 
 % Reminder: the "draftcls" or "draftclsnofoot", not "draft", class option
 % should be used if it is desired that the figures are to be displayed while
