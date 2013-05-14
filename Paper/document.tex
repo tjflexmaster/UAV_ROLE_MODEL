@@ -282,9 +282,11 @@
 
 \begin{document}
 % paper title
-\title{Modeling UASs for Role Fusion and HMI OptimizationMany UASs require multiple operators each fulfilling a specialized role, often including at least a pilot and a payload operator who must coordinate to accomplish some mission. It is desirable to decrease the ratio of humans to UASs, ultimately inverting it so that one or a handful of humans can manage many UASs. We propose to project a UAS mission plan into a human workflow model, representing potential task sequences for each human role as a so-called Directed Role Graph (DiRG). Nodes in the graph represent mission events. Events that can be reliably managed by autonomy can be completely delegated to automatic control, but a human must be responsible for events that cannot or should not delegated. Execution of one role can be suspended to perform another role when required by pending events, allowing a single human to adopt a pilot’s role when necessary but primarily performing the role of mission manager.
+\title{ Modeling UASs for Role Fusion and HMI OptimizationMany UASs require
+multiple operators each fulfilling a specialized role, often including at least
+a pilot and a payload operator who must coordinate to accomplish some mission. It is desirable to decrease the ratio of humans to UASs, ultimately inverting it so that one or a handful of humans can manage many UASs. We propose to project a UAS mission plan into a human workflow model, representing potential task sequences for each human role as a so-called Directed Role Graph (DiRG). Nodes in the graph represent mission events. Events that can be reliably managed by autonomy can be completely delegated to automatic control, but a human must be responsible for events that cannot or should not delegated. Execution of one role can be suspended to perform another role when required by pending events, allowing a single human to adopt a pilot’s role when necessary but primarily performing the role of mission manager.}
 
-
+\begin{abstract}
 Recent research has shown that wilderness search and rescue (WiSAR)
 can be aided through the use of unmanned arial systems (UASs). A
 single UAS, however, requires several human operators to manage the
@@ -329,6 +331,31 @@ Keywords goes here.
 
 \noindent\textbf{Problem Statement}: UASs require several human operators to monitor and administer.
 
+\section{Related Work}
+
+\par\noindent Creating digital models of the real world is important to
+many disciplines. From video games creators to NASA researchers, more people are
+obsessed with finding, producing, and examining these digital models in order 
+to better understand and verify real world events. Brahms is a robust
+modeling language that involves agents, geographies, and objects. These can also
+be thought of as the people involved, their environment, and the objects or
+tools they have to work with.
+\par\noindent NASA Ames Research Center is using Brahms to model interactions
+between operators and their aerial equipment. These complex models have given
+new understanding to both the instances studied and the language itself. In
+their study of the Uberlingen collision the model, produced using the Brahms
+language, Neha Rungta and her colleagues were able to correctly predict the
+collision. Such a model could have forewarned the air traffic controller of the
+collision.
+\par\noindent WiSAR, Wilderness Search and Rescue, is primarily concerned with
+the finding people who have become lost in rugged terrain. () Research has shown
+that UAVs, unmanned aerial vehicles, facilitate the work this group is doing. In
+principle the vehicle is used to search for victims in areas that would be
+difficult for ground teams to reach. Michael Goodrich and his colleagues tested
+the effectiveness of these types of operations. They found that altitude and
+video clarity determined the success of the mission. Furthermore they supposed
+that these factors could be enhanced if the roles of the UAV operator and video
+operator were combined.
 
 % Reminder: the "draftcls" or "draftclsnofoot", not "draft", class option
 % should be used if it is desired that the figures are to be displayed while
@@ -439,8 +466,20 @@ Systems Division for her help with JPF and Brahms.
 \bibitem{IEEEhowto:kopka}
 H.~Kopka and P.~W. Daly, \emph{A Guide to {\LaTeX}}, 3rd~ed.\hskip 1em plus
   0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
-\end{thebibliography}
 
+\bibitem{Brahms: A multiagent modelling environment for simulating work
+processes and practices}
+	http://www.dagstuhl.de/Materials/Files/07/07122/07122.SierhuisMaarten.Other.pdf
+	
+\bibitem{Aviation Safety: Modeling and Analyzing Complex
+Interactions between Humans and Automated Systems}
+	Neha's Article
+	
+\bibitem{Supporting Wilderness Search and Rescue using a Camera-Equipped Mini
+UAV}
+	http://onlinelibrary.wiley.com/doi/10.1002/rob.20226/pdf
+
+\end{thebibliography}
 
 % that's all folks
 \end{document} 
