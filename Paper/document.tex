@@ -279,42 +279,138 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor IEEEtran}
 
-
 \begin{document}
 % paper title
-\title{ Modeling UASs for Role Fusion and HMI OptimizationMany UASs require
-multiple operators each fulfilling a specialized role, often including at least
-a pilot and a payload operator who must coordinate to accomplish some mission. It is desirable to decrease the ratio of humans to UASs, ultimately inverting it so that one or a handful of humans can manage many UASs. We propose to project a UAS mission plan into a human workflow model, representing potential task sequences for each human role as a so-called Directed Role Graph (DiRG). Nodes in the graph represent mission events. Events that can be reliably managed by autonomy can be completely delegated to automatic control, but a human must be responsible for events that cannot or should not delegated. Execution of one role can be suspended to perform another role when required by pending events, allowing a single human to adopt a pilotâ€™s role when necessary but primarily performing the role of mission manager.}
+\title{Modeling UASs for Role Fusion and Human Machine Interface Optimization}
+
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+% \author{\IEEEauthorblockN{Authors Name/s per 1st Affiliation}
+% \IEEEauthorblockA{line 1 (of Affiliation): dept. name of organization\\
+% line 2: name of organization, acronyms acceptable\\
+% line 3: City, Country\\
+% line 4: e-mail address if desired}
+% \and
+% \IEEEauthorblockN{Authors Name/s per 2nd Affiliation}
+% \IEEEauthorblockA{line 1 (of Affiliation): dept. name of organization\\
+% line 2: name of organization, acronyms acceptable\\
+% line 3: City, Country\\
+% line 4: e-mail address if desired}}
+
+
+% avoiding spaces at the end of the author lines is not a problem with
+% conference papers because we don't use \thanks or \IEEEmembership
+
+
+% for over three affiliations, or if they all won't fit within the width
+% of the page, use this alternative format:
+%
+\author{\authorblockN{Michael Shell\authorrefmark{1},
+Homer Simpson\authorrefmark{2},
+James Kirk\authorrefmark{3},
+Montgomery Scott\authorrefmark{3} and
+Eldon Tyrell\authorrefmark{4}}
+\authorblockA{\authorrefmark{1}School of Electrical and Computer Engineering\\
+Georgia Institute of Technology,
+Atlanta, Georgia 30332--0250\\ Email: mshell@ece.gatech.edu}
+\authorblockA{\authorrefmark{2}Twentieth Century Fox, Springfield, USA\\
+Email: homer@thesimpsons.com}
+\authorblockA{\authorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
+Telephone: (800) 555--1212, Fax: (888) 555--1212}
+\authorblockA{\authorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
+
+
+% use only for invited papers
+%\specialpapernotice{(Invited Paper)}
+
+% make the title area
+\maketitle
+\thispagestyle{plain}
+
+
+% insert page header and footer here for IEEE PDF Compliant
+\fancypagestyle{plain}{
+\fancyhf{}	% clear all header and footer fields
+\fancyfoot[L]{}
+\fancyfoot[C]{}
+\fancyfoot[R]{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+}
+
+
+\pagestyle{fancy}{
+\fancyhf{}
+\fancyfoot[R]{}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+
 
 \begin{abstract}
-Recent research has shown that wilderness search and rescue (WiSAR)
+% Many UASs require
+% multiple operators each fulfilling a specialized role, often including at least
+% a pilot and a payload operator who must coordinate to accomplish some mission.
+% It is desirable to decrease the ratio of humans to UASs, ultimately inverting it
+% so that one or a handful of humans can manage many UASs. We propose to project a
+% UAS mission plan into a human workflow model, representing potential task
+% sequences for each human role as a so-called Directed Role Graph (DiRG). Nodes
+% in the graph represent mission events. Events that can be reliably managed by
+% autonomy can be completely delegated to automatic control, but a human must be
+% responsible for events that cannot or should not delegated. Execution of one
+% role can be suspended to perform another role when required by pending events,
+% allowing a single human to adopt a pilotâ€™s role when necessary but primarily
+% performing the role of mission manager.
+
+
+Recent research shows that wilderness search and rescue (WiSAR)
 can be aided through the use of unmanned arial systems (UASs). A
 single UAS, however, requires several human operators to manage the
 interface between the UAS vehicle and the larger search and rescue
-efforts on the ground and in the air that are coordinated by the
-central command center. For UASs to scale to real-world wilderness
+operation. For UASs to scale to real-world wilderness
 search and rescue scenarios, it is important to reduce operator
 workload and mitigate the effects of stress and fatigue through
 effective distributed control and augmented autonomy. A primary
-challenge in any effort to understand distributed control is in
-effectively modeling the various roles in the system from the humans,
-to the GUI, to the actual UAS in the physical environment. This paper
-discusses a Java model that explicitly formalizes the individual roles
-of the WiSAR UAS that can be model checked by Java Pathfinder to
-establish its intended behavior. The model is the basis for research
-on human machine interfaces to support combined human roles that
-reduce operator workload. In essence, by modeling each individual role
-in WiSAR, it is possible to then perform role fusion and show that the
-new UAS with combined roles, increased autonomy, and new interfaces is
-a correct implementation of the original system. The experience of
-this modeling activity suggests that modeling WiSAR or any system will
-be at least as hard as any solution to distributed control or role
-fusion.
+challenge in any effort to understand distributed control is
+effectively modeling the various roles in the system such as the human, GUI, and
+physical enviroment.  This paper discusses a Java model that explicitly
+formalizes the individual roles of the WiSAR UAS that can be model checked by
+Java Pathfinder to establish its intended behavior. The model is the basis for
+research on human machine interfaces to support combined human roles that reduce
+operator workload. In essence, by modeling each individual role in WiSAR, it is
+possible to perform role fusion and show that the new UAS is a correct
+implementation of the original system with the addition of combined
+roles, increased autonomy, and new interfaces. The experience of
+this modeling activity suggests that modeling WiSAR or any system will be at
+least as hard as any solution to distributed control or role fusion.
 \end{abstract}
+
+% \begin{abstract}
+% Modeling complex environments for the purpose of simulating changes to those
+% environments is a very challenging problem.  The modeling must have the proper
+% level of abstraction, and the model must be verifiable using a verification
+% tool.  Many of these tools require learning a new modeling/verification
+% language.
+% 
+% In this work we present a java based modeling framework which does discrete time
+% model simulation in the form of parallel state machines.  By defining the
+% framework as java interfaces all modeling can be done in java.  This contrasts
+% directly with modeling languages such as Brahms which uses a custom, strictly
+% defined grammar.  We feel that this approach makes the modeling framework more
+% robust in that it can fit a wider variety of discrete time domains while mapping
+% the model to the simulation in a very minimalistic way.
+% 
+% Another benefit of using a java based framework is that the models can be easily
+% ported into Java PathFinder for verification.  We validate this using a model of
+% Unmanned Aerial Vehicle Enabled Wilderness Search and Rescue (UAV-enabled
+% WiSAR).
+% \end{abstract}
 
 
 \begin{IEEEkeywords}
-Keywords goes here.
+UAS Modeling, HMI Optimization
 \end{IEEEkeywords}
 
 
@@ -326,14 +422,57 @@ Keywords goes here.
 % Will be ignored for other modes.
 \IEEEpeerreviewmaketitle
 
-
 \section{Introduction}
 
-\noindent\textbf{Problem Statement}: UASs require several human operators to monitor and administer.
+\noindent\textbf{Problem Statement}: UASs require several human operators to
+monitor and administer.
+
+In Unmanned Aerial Systems (UASs) the standard practice requires
+two human operators to control the Unmanned Aerial Vehicle (UAV).
+One operator controls flight while the other controls the payloads such as sensors, cameras,
+or weapons.  In addition to this a third human is responsible for overseeing
+task completion and interfacing with the command structure.  A preferred model
+would off-load a majority of this workload onto the UAS using augmented autonomy
+and enhanced user interfaces.
+
+The initial objectives for accomplishing this goal are to model a specific UAS,
+change the model to minimize operator workload, verify the effect of those changes, and
+introduce those changes into a graphical user interface.  The focus of this
+paper is on the completion of the first objective, modeling a specific UAS.
+
+The specific UAS modeled in this paper is the wilderness search and rescue
+(WiSAR) UAS developed at Brigham Young University.  The WiSAR UAS is fairly
+standard consisting of three humans, two GUIs, and a single UAV.
+
+The model explicity represents the various roles, within the WiSAR UAS, as a
+group of Mealy machines running in parallel.  The model is constructed in Java using a
+custom set of interfaces designed to simulate a discrete time environment,
+facilitate input/output between roles, and provide non-deterministic event
+handling.
+
+The model checking is performed using Java Pathfinder (JPF).  This is convenient
+because JPF runs the model checking on the compiled Java code.  This means
+that the model can be run directly by JPF without a complicated conversion
+process.
+
+
+%  Modeling UAV-enabled WiSAR with the proper amount of abstraction
+% is a challenging task in itself.  Creating an accurate model that can be easily verified makes this much more difficult.  There are
+% many tools available for model verification <insert a list of possible tools>,
+% many of these tools require learning custom modeling languages, are designed for
+% different domains, and use very strict grammars.  We believed that a modeling
+% framework which uses a common language, uses a minimal grammar,
+% and integrates with current verification tools would greatly help achieve our
+% goals.
+% 
+% This paper presents a UAV-enabled WiSAR model constructed using a novel java
+% based discrete time modeling framework which integrates directly with
+% JavaPathfinder (JPF).  By modeling UAV-enabled WiSAR we show that this modeling framework does not require learning a new language,
+% allows for modular abstraction of the model, and integrates directly with JPF.
 
 \section{Related Work}
 
-\par\noindent Creating digital models of the real world is important to
+	Creating digital models of the real world is important to
 many disciplines. From video games creators to NASA researchers, more people are
 obsessed with finding, producing, and examining these digital models in order 
 to better understand and verify real world events. Brahms is a robust
@@ -347,7 +486,7 @@ their study of the Uberlingen collision the model, produced using the Brahms
 language, Neha Rungta and her colleagues were able to correctly predict the
 collision. Such a model could have forewarned the air traffic controller of the
 collision.
-\par\noindent WiSAR, Wilderness Search and Rescue, is primarily concerned with
+\par\noindent Wilderness Search and Rescue is primarily concerned with
 the finding people who have become lost in rugged terrain. Research has shown
 that UAVs, unmanned aerial vehicles, facilitate the work this group is doing. In
 principle the vehicle is used to search for victims in areas that would be
@@ -356,6 +495,194 @@ the effectiveness of these types of operations. They found that altitude and
 video clarity determined the success of the mission. Furthermore they supposed
 that these factors could be enhanced if the roles of the UAV operator and video
 operator were combined.
+
+\section{WiSAR UAS Domain}
+Wilderness search and rescue represents search and rescue efforts in
+remote, varying, and dangerous terrains.  According to T.J. Setnicka \ref{}
+there are four core elements of a WiSAR operation.  
+
+\begin{figure}[h]
+	\begin{center}
+		\begin{math}
+			Locate \Rightarrow Reach \Rightarrow Stabilize \Rightarrow Evacuate
+		\end{math}
+	\end{center}
+	\caption{Core SAR Elements}
+\end{figure}
+
+The WiSAR UAS operates within this first element.  During the locate
+phase the incident commander (IC) developes a strategy to obtain information.  This
+strategy makes use of the available tactics to obtain this information.  One
+tactic may be using search dogs in a specific region or using a trained
+tracker on the target's trail.  The WiSAR UAS is one of these tactics.
+It consists of three humans: Mission Manager (MM), Operator (OP), and Video Operator(VO)
+working with the Operator GUI (OGUI), Video Operator GUI (VGUI) and the UAV.  This team
+coordinates its efforts with the Parent Search (PS) which represents the entire
+command structure for the search and rescue operation.
+These key roles, interfaces, and objects of the WiSAR UAS represent human to human
+interactions, human to UAV interactions, human GUI interactions, unpredictable
+problems, and varying task durations.
+
+
+% The PS will give the MM a
+% region which needs to be searched.  The MM will then direct the team in
+% accomplishing this search task.  During the task the OP directs the flight path
+% flown by the UAV.  The VO watches a video feed from the UAV looking for the
+% described target.  If the VO views a likely target then a flyby request is made
+% to the OP to fly over the anomaly in question until a decision can be made.  If
+% it is believed to be the desired target then the sighting is reported to the MM
+% who then reports to the PS.
+
+\section{Simulating the WiSAR UAS}
+In order to simulate critical aspects of the WiSAR UAS it became necessary to
+model all of the different roles, interfaces, and objects in a simplified way
+that would facilitate the desired interations.  We chose to do this using state
+machines.  We refer to these state machines as Actors.  Actors can be thought of
+as Mealy machines represented by equations
+\ref{eq:mealymachine}, \ref{eq:mealymachine2}.  Where $S$ is a set of states,
+$S_0$ the start state,  $\Sigma_{A}$ the set of all Actor inputs, $\lambda_{A}$
+the set of all Actor outputs, and $T$ a transition matrix which specifies the outputs
+for any state transition.
+
+\begin{equation}
+	Actor = (S, S_0, \Sigma_A, \Lambda_A, T)
+\label{eq:mealymachine}
+\end{equation}
+
+\begin{equation}
+	T : S \times \Sigma_A \Rightarrow S \times \Lambda_A
+\label{eq:mealymachine2}
+\end{equation}
+
+ it is
+necessary to simulate the passage of time. Each action’s duration is assigned a range
+spanning the minimum and maximum time required to complete. This inserts
+non-determinism into the system. The simulator uses these durations to control
+the interaction between Actors and Events. An Event is representative of an
+outside stimulus that gives inputs to Actors. Actors are representative of
+humans or objects such as the UAV or the GUI, anything that can change state or
+process information within the system.
+
+Events and Actors are both implemented as Mealy state machines. Each Actor
+implements the IActor interface with the methods: processNextState and
+processInputs. These two methods implement the state change within the Actor,
+generate outputs and process its inputs. The two methods are separated to
+provide the abstraction necessary to make the simulator act as though it were
+composed of multiple Mealy state machines running in parallel. There are two
+main differences between an Actor and an Event. First, Events have higher
+priority than actors.  Second, events have a method to determine if it can be
+processed given the conditions of the system.
+
+To eliminate pointless processing the simulator will only process times for
+which there is a change in the state of an actor or an event. The lowest valid
+next time for a change is 1 so if the next time is 0 then the simulator knows
+that nothing is left to process and will terminate the simulation. Otherwise it
+will jump to the next time step.
+
+The diagram below portrays the execution of a time step. The simulator first
+processes the next state of any events that undergo a state change in that time.
+The outputs of those events are stored in the Post Office to be accessed by the
+Actors when applicable. The Post Office stores the current inputs to each Actor
+as well as the inputs that are to be processed on the next time step. Between
+processNextState and processInputs the Post Office will load all the next state
+inputs into the current inputs making them visible to the Actors. This method of
+passing information makes it possible to provide the illusion of concurrency to
+each of the Actors in the model.
+
+ After processing the events, the Actors process their next state and update
+ their outputs in the Post Office. Once each Actor has evaluated its inputs and
+ made any changes the simulator checks if there are any future time-steps to
+ evaluate and if not it terminates the simulation.
+ 
+Both the main weakness and the main strength imposed by the methods used here is
+that there is no pre-existing framework. Languages such as Brahms are highly
+structured and so there is a significant amount of work already done for any
+system that uses that language. However, highly structured languages lack the
+flexibility to permit slight changes in the execution framework. In the system
+implemented here, such changes are fairly easily incorporated.
+
+
+\section{WiSAR UAS Model}
+We simplified the modeling process by using a custom simulator to represent the UAV-enabled WiSAR environment as parallel mealy machines. Within the simulator important aspects from the real environment are treated as either an actor or an event. This approach simplifies the model because there is no distinction between a human, a UAV, or the weather. Internal states, which change based on the input received by the other actors, represent all facets of the UAS.
+
+\subsection{Actors}
+
+Choosing the core actors was not a trivial task, because we were looking for a
+level of abstraction that gave results without adding unwanted complexity to the
+model. The final model simulates the following team of actors: the parent search
+(PS), mission manager (MM), UAV operator (OP), video operator (VO), operator GUI
+(OGUI), video operator GUI (VGUI), and the UAV.
+
+An example of the preferred level of abstraction is found in our modeling of
+weather. By treating weather as a core actor any number of conditions could have
+been represented as internal states. Then the other actors could observe and
+respond to the different outputs from the weather actor. Instead we decided to
+only model these weather outputs as events affecting the UAV. This reduces the
+number of actors, but prevents us from doing detailed analysis of weather
+effects on the entire system. In this instance we reduced the number of actors
+by abstracting this facet of the model.
+
+Another example was the addition of sub-actors to the UAV actor. Sub-actors are
+parts of a more complex actor, in this case the UAV. The sub-actors for UAV are
+the battery, flight plan, height above ground, and the signal. Their inputs and
+outputs are handled differently than a normal actor. These sub-actor’s inputs
+are linked within the simulator to the UAV. The UAV also has specific
+modifications that allow it to process all sub-actors before completing its own
+processing. This level of abstraction reduced the very complex UAV actor into
+multiple, simpler actors producing two significant results. Firstly, we verified
+the simulator will be capable of modeling anything we choose. Secondly, we
+verified that many of the tasks performed in the system represent a sequence of
+states.
+
+Depending on the desired level of abstraction sequences can be modeled using a
+large actor or multiple small actors. This, and our familiarity with java, makes
+us confident that we will be able to simulate the entire model with the desired
+abstraction levels.
+
+\subsection{Events}
+
+We used several different types of events in our model. The first class of event
+is the common event. These events are common and expected within a UAV-enabled
+WiSAR operation. Examples are receiving new search areas from the parent search
+or viewing an anomaly on the video GUI. Before anomalies appear on the video GUI
+the event class randomly determines, within a range, how long the anomaly is
+visible. The video GUI receives input when the anomaly becomes visible and when
+it is no longer visible. This allowed us to add non-determinism to the core of
+the model without complicating the actors.
+
+The second class of event is the uncommon event. These are events which are
+outside normal operation. They represent unforeseen problems that can occur at
+any time. In essence these types of events push the actors into state spaces
+that they would never reach during normal operation. Examples are low height
+above ground, loss of signal, and early low battery. If a low height above
+ground event is triggered the operator must modify the UAV flight plan before
+the UAV crashes. The sub-actor UAVHeightAboveGound receives the event input and
+changes its internal state. It then watches the UAV input to see which occurs
+first, a flight plan modification or low height above ground complete. If the
+flight plan modification is received, then the event’s input is ignored.
+Otherwise the UAV crashes.
+
+\subsection{Asserts}
+
+The more complicated the model the more things that can go wrong. Some errors
+are caused by coding bugs and some are flaws in the model. Flaws in the model
+are extremely valuable, but it can be challenging to tell them apart. To catch
+these errors we use java asserts. JPF automatically halts processing when it
+encounters a false assertion, allowing us to determine if the error is a bug or
+a flaw.
+
+In our model we have used asserts in two ways. The first is detection of
+undesired state. If an actor enters an undesirable state then an assertion halts
+the simulation. An example of this is the UAV\_CRASHED state. The second
+way we use asserts deal with inputs. Many operations are sequential requiring an
+existing state before they can be performed. By looking at inputs received we
+are able to tell if actors are out of sync with one another. An example of this
+is the OP\_TAKE\_OFF input for the UAV. If the UAV is already airborne and it
+receives this input we know that the operator is out of sync with the UAV.
+
+Asserts are critical to debugging and verifying the model and we found that
+having too many asserts is preferable to having too few.
+
 
 \section{Results}
 
@@ -508,20 +835,8 @@ Systems Division for her help with JPF and Brahms.
 \bibitem{IEEEhowto:kopka}
 H.~Kopka and P.~W. Daly, \emph{A Guide to {\LaTeX}}, 3rd~ed.\hskip 1em plus
   0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
-
-\bibitem{Brahms: A multiagent modelling environment for simulating work
-processes and practices}
-	http://www.dagstuhl.de/Materials/Files/07/07122/07122.SierhuisMaarten.Other.pdf
-	
-\bibitem{Aviation Safety: Modeling and Analyzing Complex
-Interactions between Humans and Automated Systems}
-	Neha's Article
-	
-\bibitem{Supporting Wilderness Search and Rescue using a Camera-Equipped Mini
-UAV}
-	http://onlinelibrary.wiley.com/doi/10.1002/rob.20226/pdf
-
 \end{thebibliography}
+
 
 % that's all folks
 \end{document} 
