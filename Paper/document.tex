@@ -307,19 +307,8 @@
 % for over three affiliations, or if they all won't fit within the width
 % of the page, use this alternative format:
 %
-\author{\authorblockN{Michael Shell\authorrefmark{1},
-Homer Simpson\authorrefmark{2},
-James Kirk\authorrefmark{3},
-Montgomery Scott\authorrefmark{3} and
-Eldon Tyrell\authorrefmark{4}}
-\authorblockA{\authorrefmark{1}School of Electrical and Computer Engineering\\
-Georgia Institute of Technology,
-Atlanta, Georgia 30332--0250\\ Email: mshell@ece.gatech.edu}
-\authorblockA{\authorrefmark{2}Twentieth Century Fox, Springfield, USA\\
-Email: homer@thesimpsons.com}
-\authorblockA{\authorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
-Telephone: (800) 555--1212, Fax: (888) 555--1212}
-\authorblockA{\authorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
+\author{TJ Gledhill, Jared Joseph Moore, Robert Ivie, Eric Mercer and Michael A.
+Goodrich}
 
 
 % use only for invited papers
@@ -366,7 +355,7 @@ Telephone: (800) 555--1212, Fax: (888) 555--1212}
 
 
 Recent research shows that wilderness search and rescue (WiSAR)
-can be aided through the use of unmanned arial systems (UASs). A
+can be aided through the use of unmanned aerial systems (UASs). A
 single UAS, however, requires several human operators to manage the
 interface between the UAS vehicle and the larger search and rescue
 operation. For UASs to scale to real-world wilderness
@@ -427,33 +416,34 @@ UAS Modeling, HMI Optimization
 \noindent\textbf{Problem Statement}: UASs require several human operators to
 monitor and administer.
 
-In Unmanned Aerial Systems (UASs) the standard practice requires
-two human operators to control the Unmanned Aerial Vehicle (UAV).
-One operator controls flight while the other controls the payloads such as sensors, cameras,
-or weapons.  In addition to this a third human is responsible for overseeing
-task completion and interfacing with the command structure.  A preferred model
-would off-load a majority of this workload onto the UAS using augmented autonomy
-and enhanced user interfaces.
+Unmanned Aerial Systems (UASs) most often require two human operators to 
+control the Unmanned Aerial Vehicle (UAV). One operator controls flight while the
+other controls the payloads such as sensors, cameras, or weapons.  In addition
+to this a third human is responsible for overseeing task completion and
+interfacing with the command structure.  It is preferable to relieve a
+majority of this workload using augmented autonomy and enhanced
+user interfaces.
 
-The initial objectives for accomplishing this goal are to model a specific UAS,
-change the model to minimize operator workload, verify the effect of those changes, and
-introduce those changes into a graphical user interface.  The focus of this
-paper is on the completion of the first objective, modeling a specific UAS.
+A viable plan to relieve workload requires specific steps. First, model a specific UAS.
+Second, change the model to minimize operator workload. Third, verify the effect
+of those changes. Last, introduce those changes into a graphical user interface.
+This paper focuses on the completion of the first objective, modeling a specific
+UAS.
 
-The specific UAS modeled in this paper is the wilderness search and rescue
+The specific UAS is the wilderness search and rescue
 (WiSAR) UAS developed at Brigham Young University.  The WiSAR UAS is fairly
 standard consisting of three humans, two GUIs, and a single UAV.
 
-The model explicity represents the various roles, within the WiSAR UAS, as a
-group of Mealy machines running in parallel.  The model is constructed in Java using a
-custom set of interfaces designed to simulate a discrete time environment,
+The model explicitly represents the various roles, which characterize the WiSAR UAS, as a
+group of Mealy machines running in parallel.  A custom set of Java interfaces constitute
+the model. These interfaces simulate a discrete time environment,
 facilitate input/output between roles, and provide non-deterministic event
 handling.
 
-The model checking is performed using Java Pathfinder (JPF).  This is convenient
-because JPF runs the model checking on the compiled Java code.  This means
-that the model can be run directly by JPF without a complicated conversion
-process.
+Java Pathfinder (JPF) checks the model. JPFÕs model checking is convenient
+because JPF runs on the compiled Java code without a complicated conversion
+process. You can find more information about how JPF functions, as well as a thorough
+explanation of the model later in this paper.
 
 
 %  Modeling UAV-enabled WiSAR with the proper amount of abstraction
@@ -472,34 +462,38 @@ process.
 
 \section{Related Work}
 
-	Creating digital models of the real world is important to
-many disciplines. From video games creators to NASA researchers, more people are
-obsessed with finding, producing, and examining these digital models in order 
-to better understand and verify real world events. Brahms is a robust
-modeling language that involves agents, geographies, and objects. These can also
-be thought of as the people involved, their environment, and the objects or
-tools they have to work with.
-\par\noindent NASA Ames Research Center is using Brahms to model interactions
+From video game creators to NASA researchers more people are
+obsessed with finding, producing, and examining digital models of the real world.
+Most want to better understand and verify real world events. Some people have
+chosen to use Brahms as their medium. Brahms is a robust
+modeling language that involves agent, geography, and object classes. These
+classes are used to represent the people involved, their environment, and
+the tools they have to work with.
+
+NASA Ames Research Center is using Brahms to model interactions
 between operators and their aerial equipment. These complex models have given
 new understanding to both the instances studied and the language itself. In
 their study of the Uberlingen collision the model, produced using the Brahms
 language, Neha Rungta and her colleagues were able to correctly predict the
 collision. Such a model could have forewarned the air traffic controller of the
 collision.
-\par\noindent Wilderness Search and Rescue is primarily concerned with
-the finding people who have become lost in rugged terrain. Research has shown
-that UAVs, unmanned aerial vehicles, facilitate the work this group is doing. In
-principle the vehicle is used to search for victims in areas that would be
+
+Wilderness Search and Rescue is primarily concerned with finding people
+who have become lost in rugged terrain. To further this goal they use
+unmanned aerial vehicles (UAVs), which facilitate the work this group is doing. In
+principle the vehicle searches for victims in areas that would be
 difficult for ground teams to reach. Michael Goodrich and his colleagues tested
-the effectiveness of these types of operations. They found that altitude and
-video clarity determined the success of the mission. Furthermore they supposed
+the effectiveness of these types of operations. They find that altitude and
+video clarity determined the success of the mission. Furthermore they suppose
 that these factors could be enhanced if the roles of the UAV operator and video
-operator were combined.
+operator were combined. By modeling this role fusion the group can verify
+new user interfaces before risking expensive equipment.
 
 \section{WiSAR UAS Domain}
-Wilderness search and rescue represents search and rescue efforts in
+
+WiSAR represents search and rescue efforts in
 remote, varying, and dangerous terrains.  According to T.J. Setnicka \ref{}
-there are four core elements of a WiSAR operation.  
+there are four core elements of a Wilderness Search and Rescue operation.  
 
 \begin{figure}[h]
 	\begin{center}
@@ -511,17 +505,20 @@ there are four core elements of a WiSAR operation.
 \end{figure}
 
 The WiSAR UAS operates within this first element.  During the locate
-phase the incident commander (IC) developes a strategy to obtain information.  This
-strategy makes use of the available tactics to obtain this information.  One
+phase the incident commander (IC) develops a strategy to obtain information, and
+coordinates the overlying Parent Search (PS). The information obtaining
+strategy makes use of the available tactics to be successful.  One
 tactic may be using search dogs in a specific region or using a trained
-tracker on the target's trail.  The WiSAR UAS is one of these tactics.
-It consists of three humans: Mission Manager (MM), Operator (OP), and Video Operator(VO)
+tracker on the target's trail.
+
+The WiSAR UAS is one of these tactics. It consists
+of three humans: Mission Manager (MM), Operator (OP), and Video Operator(VO)
 working with the Operator GUI (OGUI), Video Operator GUI (VGUI) and the UAV.  This team
-coordinates its efforts with the Parent Search (PS) which represents the entire
-command structure for the search and rescue operation.
-These key roles, interfaces, and objects of the WiSAR UAS represent human to human
-interactions, human to UAV interactions, human GUI interactions, unpredictable
-problems, and varying task durations.
+coordinates its efforts with the PS which represents the entire
+command structure for the search and rescue operation. The key roles, interfaces,
+and objects of the WiSAR UAS emanate from human to human
+interactions, human to UAV interactions, human to GUI interactions, unpredictable
+outside stimulus, and varying task durations.
 
 
 % The PS will give the MM a
@@ -534,11 +531,12 @@ problems, and varying task durations.
 % who then reports to the PS.
 
 \section{Simulating the WiSAR UAS}
-In order to simulate critical aspects of the WiSAR UAS it became necessary to
-model all of the different roles, interfaces, and objects in a simplified way
-that would facilitate the desired interations.  We chose to do this using state
-machines.  We refer to these state machines as Actors.  Actors can be thought of
-as Mealy machines represented by equations
+
+In order to simulate critical aspects of the WiSAR UAS it becomes necessary to
+model the different roles, interfaces, and objects in a way that facilitates
+the desired interactions, problems and task durations.  We simulate roles using state
+machines. Actor is the chosen alias for this state machine.  Actors specifically
+symbolize Mealy machines, a type of state machine, represented by equations
 \ref{eq:mealymachine}, \ref{eq:mealymachine2}.  Where $S$ is a set of states,
 $S_0$ the start state,  $\Sigma_{A}$ the set of all Actor inputs, $\lambda_{A}$
 the set of all Actor outputs, and $T$ a transition matrix which specifies the outputs
@@ -554,177 +552,244 @@ for any state transition.
 \label{eq:mealymachine2}
 \end{equation}
 
- it is
-necessary to simulate the passage of time. Each action’s duration is assigned a range
-spanning the minimum and maximum time required to complete. This inserts
-non-determinism into the system. The simulator uses these durations to control
-the interaction between Actors and Events. An Event is representative of an
-outside stimulus that gives inputs to Actors. Actors are representative of
-humans or objects such as the UAV or the GUI, anything that can change state or
-process information within the system.
+Events are Moore State machines that spontaneously change
+state provided the appropriate conditions of the simulation are
+met.
 
-Events and Actors are both implemented as Mealy state machines. Each Actor
-implements the IActor interface with the methods: processNextState and
-processInputs. These two methods implement the state change within the Actor,
-generate outputs and process its inputs. The two methods are separated to
-provide the abstraction necessary to make the simulator act as though it were
-composed of multiple Mealy state machines running in parallel. There are two
-main differences between an Actor and an Event. First, Events have higher
-priority than actors.  Second, events have a method to determine if it can be
-processed given the conditions of the system.
+Simulating the passage of time provides a metric whereby
+we can monitor the interactions between Actors in our model.
+Each action an Actor can take is assigned a range spanning
+the minimum and maximum time required to complete thereby
+inserting non-determinism into the system.
 
-To eliminate pointless processing the simulator will only process times for
-which there is a change in the state of an actor or an event. The lowest valid
-next time for a change is 1 so if the next time is 0 then the simulator knows
-that nothing is left to process and will terminate the simulation. Otherwise it
-will jump to the next time step.
+Each Actor implements the IActor interface with the
+methods: processNextState and processInputs. The processNextState
+method moves the actor into its next state, generating outputs
+and setting the next state to a default value and duration. The
+processInputs method then looks at its inputs and determines
+what the next state should be and when it should occur. This
+method also generates additional outputs.
 
-The diagram below portrays the execution of a time step. The simulator first
-processes the next state of any events that undergo a state change in that time.
-The outputs of those events are stored in the Post Office to be accessed by the
-Actors when applicable. The Post Office stores the current inputs to each Actor
-as well as the inputs that are to be processed on the next time step. Between
-processNextState and processInputs the Post Office will load all the next state
-inputs into the current inputs making them visible to the Actors. This method of
-passing information makes it possible to provide the illusion of concurrency to
-each of the Actors in the model.
+Each Event implements the IEvent interface. The IEvent
+interface is fairly similar to the IActor interface except it has
+the method getCount. This makes it possible to insert multiple
+events of the same type without having to instantiate entirely
+new objects. Events are also given higher priority than Actors
+ensuring that all applicable events execute prior to any actors
+on a given time-step.
 
- After processing the events, the Actors process their next state and update
- their outputs in the Post Office. Once each Actor has evaluated its inputs and
- made any changes the simulator checks if there are any future time-steps to
- evaluate and if not it terminates the simulation.
- 
-Both the main weakness and the main strength imposed by the methods used here is
-that there is no pre-existing framework. Languages such as Brahms are highly
-structured and so there is a significant amount of work already done for any
-system that uses that language. However, highly structured languages lack the
-flexibility to permit slight changes in the execution framework. In the system
-implemented here, such changes are fairly easily incorporated.
+Each actor has a method getNextStateTime. This returns
+the global time-step when the actor will change state. The
+simulator takes the minimum value of all the nextStateTimes
+and advances the global clock to that time. If however the time
+outputted is 0 then the simulator treats that as a signal that
+the model is done processing and terminates. This eliminates
+unnecessary processing by ensuring the simulator runs when
+the system is changing.
+
+Figure 2 portrays the execution of a time step. The simulator
+first processes the next state of any events that undergo a state change in that
+time. The outputs of those events are stored in the Post Office to be accessed
+by the Actors when applicable. The Post Office stores the current inputs to each
+Actor as well as the inputs that are to be processed on the
+next time step. Next the Simulator calls processNextState on
+each of the actors, updating their outputs in the Post Office.
+The Post Office will then load all the next state inputs into the
+current inputs making them visible to the actors. This method
+of passing information makes it possible to provide the illusion
+of concurrency to each of the actors in the model. The Actors
+then each call processInputs. Once each Actor has evaluated
+its inputs and made any changes the simulator checks if there
+are any future time-steps to evaluate and if not it terminates
+the imulation.
+
+The main weakness imposed by the methods we used here
+is that there is no framework already in place. This also is our
+main strength. Languages such as Brahms are highly structured
+and so there is a significant amount of work already done for
+any system that uses that language but by the same point if a
+slight change in the execution framework becomes necessary
+it is virtually impossible to implement. In our system such
+changes are fairly easily adapted.
 
 
 \section{WiSAR UAS Model}
-We simplified the modeling process by using a custom simulator to represent the UAV-enabled WiSAR environment as parallel mealy machines. Within the simulator important aspects from the real environment are treated as either an actor or an event. This approach simplifies the model because there is no distinction between a human, a UAV, or the weather. Internal states, which change based on the input received by the other actors, represent all facets of the UAS.
+
+This section describes how we modeled the WiSAR UAS
+using the framework that was previously mentioned. Due to
+the size of the model this section does not contain the full
+detail of the work that was done. Instead we have condensed the process into a
+few key concepts which are explained with real examples from the actual modeling process.
 
 \subsection{Actors}
 
-Choosing the core actors was not a trivial task, because we were looking for a
-level of abstraction that gave results without adding unwanted complexity to the
-model. The final model simulates the following team of actors: the parent search
-(PS), mission manager (MM), UAV operator (OP), video operator (VO), operator GUI
-(OGUI), video operator GUI (VGUI), and the UAV.
-
-An example of the preferred level of abstraction is found in our modeling of
-weather. By treating weather as a core actor any number of conditions could have
-been represented as internal states. Then the other actors could observe and
-respond to the different outputs from the weather actor. Instead we decided to
-only model these weather outputs as events affecting the UAV. This reduces the
-number of actors, but prevents us from doing detailed analysis of weather
-effects on the entire system. In this instance we reduced the number of actors
-by abstracting this facet of the model.
-
-Another example was the addition of sub-actors to the UAV actor. Sub-actors are
-parts of a more complex actor, in this case the UAV. The sub-actors for UAV are
-the battery, flight plan, height above ground, and the signal. Their inputs and
-outputs are handled differently than a normal actor. These sub-actor’s inputs
-are linked within the simulator to the UAV. The UAV also has specific
-modifications that allow it to process all sub-actors before completing its own
-processing. This level of abstraction reduced the very complex UAV actor into
-multiple, simpler actors producing two significant results. Firstly, we verified
-the simulator will be capable of modeling anything we choose. Secondly, we
-verified that many of the tasks performed in the system represent a sequence of
-states.
-
-Depending on the desired level of abstraction sequences can be modeled using a
-large actor or multiple small actors. This, and our familiarity with java, makes
-us confident that we will be able to simulate the entire model with the desired
-abstraction levels.
+Choosing the core actors was not a trivial task, because we
+were looking for a level of abstraction that gave results without
+adding unwanted complexity to the model. The final model
+simulates the following team of actors: the parent search (PS),
+mission manager (MM), UAV operator (OP), video operator
+(VO), operator GUI (OGUI), video operator GUI (VGUI), and
+the UAV.
+An example of the preferred level of abstraction is found
+in our modeling of weather. We decided to model the effects
+of weather as events on the UAV instead of creating a weather
+actor. This reduces the number of actors, but limits our analysis
+of weather effects on the entire system which we found
+acceptable.
+Another example was the addition of sub-actors to the UAV
+actor. Sub-actors are parts of a more complex actor, in this
+case the UAV. The sub-actors for UAV are the battery, flight
+plan, height above ground, and the signal. Their inputs and
+outputs are handled differently than a normal actor. These subactors inputs are
+linked within the simulator to the UAV. The UAV also has specific modifications
+that allow it to process all sub-actors before completing its own processing.
+This level of abstraction reduced the very complex UAV actor into multiple,
+simpler actors. This gave us confidence that this modeling
+framework is robust enough to model anything we may need.
+It also gave us a pattern for modeling the different levels of
+abstraction that we desire.
 
 \subsection{Events}
 
-We used several different types of events in our model. The first class of event
-is the common event. These events are common and expected within a UAV-enabled
-WiSAR operation. Examples are receiving new search areas from the parent search
-or viewing an anomaly on the video GUI. Before anomalies appear on the video GUI
-the event class randomly determines, within a range, how long the anomaly is
-visible. The video GUI receives input when the anomaly becomes visible and when
-it is no longer visible. This allowed us to add non-determinism to the core of
+We used events for several different abstractions. The first
+class of abstraction is the common event. These events are
+common and expected within the WiSAR UAS. Examples are
+receiving new search areas from the parent search or viewing
+an anomaly on the video GUI. Before anomalies appear on the
+video GUI the event class randomly determines, within a range,
+how long the anomaly is visible. The video GUI receives input
+when the anomaly becomes visible and when it is no longer
+visible. This allowed us to add non-determinism to the core of
 the model without complicating the actors.
-
-The second class of event is the uncommon event. These are events which are
-outside normal operation. They represent unforeseen problems that can occur at
-any time. In essence these types of events push the actors into state spaces
-that they would never reach during normal operation. Examples are low height
-above ground, loss of signal, and early low battery. If a low height above
-ground event is triggered the operator must modify the UAV flight plan before
-the UAV crashes. The sub-actor UAVHeightAboveGound receives the event input and
-changes its internal state. It then watches the UAV input to see which occurs
-first, a flight plan modification or low height above ground complete. If the
-flight plan modification is received, then the event’s input is ignored.
+The second class of abstraction is the uncommon event.
+These are events which are outside normal operation. They
+represent unforeseen problems that can occur at any time. In
+essence these types of events push the actors into state spaces
+that they would never reach during normal operation. Examples
+are low height above ground, loss of signal, and early low
+battery. If a low height above ground event is triggered the
+operator must modify the UAV flight plan before the UAV
+crashes. The sub-actor UAVHeightAboveGound receives the
+event input and changes its internal state. It then watches the
+UAV input to see which occurs first, a flight plan modification
+or low height above ground complete. If the flight plan
+modification is received, then the events input is ignored.
 Otherwise the UAV crashes.
 
 \subsection{Asserts}
 
-The more complicated the model the more things that can go wrong. Some errors
-are caused by coding bugs and some are flaws in the model. Flaws in the model
-are extremely valuable, but it can be challenging to tell them apart. To catch
-these errors we use java asserts. JPF automatically halts processing when it
-encounters a false assertion, allowing us to determine if the error is a bug or
-a flaw.
-
-In our model we have used asserts in two ways. The first is detection of
-undesired state. If an actor enters an undesirable state then an assertion halts
-the simulation. An example of this is the UAV\_CRASHED state. The second
-way we use asserts deal with inputs. Many operations are sequential requiring an
-existing state before they can be performed. By looking at inputs received we
-are able to tell if actors are out of sync with one another. An example of this
-is the OP\_TAKE\_OFF input for the UAV. If the UAV is already airborne and it
-receives this input we know that the operator is out of sync with the UAV.
-
-Asserts are critical to debugging and verifying the model and we found that
-having too many asserts is preferable to having too few.
-
+The more complicated the model the more things that can
+go wrong. Some errors are caused by coding bugs and some are
+flaws in the model. Flaws in the model are extremely valuable,
+but it can be challenging to tell them apart. To catch these
+errors we use java asserts. JPF automatically halts processing
+when it encounters a false assertion, allowing us to determine
+if the error is a bug or a flaw.
+In our model we have used asserts in two ways. The first is
+detection of undesired state. If an actor enters an undesirable
+state then an assertion halts the simulation. An example of
+this is the UAV\_CRASHED state. The second way we
+use asserts deal with inputs. Many operations are sequential
+requiring an existing state before they can be performed. By
+looking at inputs received we are able to tell if actors are
+out of sync with one another. An example of this is the
+OP\_TAKE\_OFF input for the UAV. If the UAV is already
+airborne and it receives this input we know that the operator
+is out of sync with the UAV.
+Asserts are critical to debugging and verifying the model
+and we found that having too many asserts is preferable to
+having too few.
 
 \section{Results}
 
-\par\noindent We chose to use JPF, also known as Java Pathfinder, because it can
-explore all possible paths our simulation could have taken. In other words JPF
-would check all possible combinations of agent inputs to help us find errors.
-This tool was an essential part of our verification process. Using unhandled
-assertion statements in the code enhanced JPF’s ability to find instances when
-our code wasn’t acting in the intended way. JPF did its job. Right away it found
-multiple circumstances that would lead to an infinite loop. One of these loops
-involved an extremely improbable sequence of successive method calls that would
-have been nearly impossible to otherwise test for.
-\par\noindent Our model consisted of multiple state machines that took a
-non-deterministic amount of time to form outputs. We choses this implementation
-because no human would take exactly the same amount of time to do the same thing
-every time they did it. The events also non-deterministically chose whether or
-not to occur at any time during a given time frame. This allowed for a more
-realistic test of the system since events could happen at any time. These two
-factors, while necessary for the realism of the simulator, would have been
-incredibly difficult to test without a tool like JPF. Only JPF could have found
-all possible paths our simulator could have taken. Because of the incredible
-amount of non-determinism it took a long time for JPF to traverse every path.
-The time waited was only a small impediment in light of the amount of work it
-saved us.
-\par\noindent Creation of the model was not easy. The intricacies and nuances of
-the simulator made each class difficult to write. It was, however, easier than
-learning a new language, where many more intricacies and nuances would have to
-be overcome before modeling could begin. Furthermore, we can reuse much of what
-we created to perform verification of future models, and since we used Java more
-people can understand our work by simple examination. We aimed for a high level
-of abstraction. We didn’t want to simulate keyboard inputs or specific mouse
-clicks, but instead chose roles that significantly impacted the likelihood of
-positive sightings. This level of abstraction was achieved by definition of
-specific inputs and outputs for each role. The basic initialization of the
-search was the easiest part to model. It didn’t take very long to get everything
-sorted and the UAV into simulated air. This involved an event that began the
-search as well as giving each role the ability to process the commands it
-received to begin the search. Modeling the sub roles of the UAV was difficult.
-It took a while before we could simulate flights that included crashes, video
-anomalies, and new search areas. Most of these difficulties came from the
-complexity each new event gave to the whole system. Simply tracing the expected
-flow of data between the agents was a huge task.
+In this section we present empirical results to demonstrate
+that WiSAR UAS is modeled effectively using the approach we
+have taken. We will demonstrate this using a brief case study
+extracted from WiSAR UAS. We will then give an analysis of
+the JPF results we obtained when we verified the model.
+
+\subsection{Case Study: Anomaly Detection}
+
+This scenario represents what should occur when the video
+operator believes they see the target on the video GUI. Periodically during a
+flight the UAV will fly over an anomaly. An anomaly can be either a false
+positive or a true positive. Meaning that it is either the desired target or it is not.
+If the video operator believes that it is the target then a flyby request
+is made through the video GUI. This request is then made
+visible to the operator through the operator GUI. When the
+operator decides to perform the flyby request he signals this
+through the operator GUI and begins to manually direct the
+UAV to the location of the anomaly. While the operator is
+directing the UAV the video operator closely examines the
+video stream until the anomaly is visible again. The video
+operator then decides if it is a true target sighting or a false
+positive. The video operator communicates this to the operator
+through the video GUI. If it was a target sighting then the
+video operator passes the information to the mission manager
+who then passes it to the parent search. This high level
+view communicates the basic structure of the communication
+between the different actors.
+
+\subsection{Model Construction}
+
+As mentioned in section V we use seven core actors in
+our model. The anomaly detection effects every single one of
+these actors. Because we already had the core actor classessetup before we
+defined this part of the model it was a simple process of adding additional
+states and transitions to our actors.
+For the anomalies themselves we created an anomaly event
+which sent output directly to the video GUI. We wanted to the
+operator to non-deterministically choose if an anomaly was
+not seen, seen as a possible target, seen as a likely target. We
+were able to acheive this by generating a random probability
+within a designated range. This means that when run by JPF
+each of those probabilities will be explored. A small portion
+of the model can be seen in figure 3.
+While constructing this portion of our model we used mock
+actors to represent some of the logic which belonged to the
+core classes. This allowed us to get the model working before
+we had finished coding. This proved to be very useful and we
+can see how it can be an effective tool for future verification.
+If we are not interested in the non-deterministic states of one
+actor, or a portion of that actors state space, that portion of the
+model can be replaced with a mock actor.
+We did run into a few issues while coding the model. One
+problem we found was inconsistency in our human memory
+modeling. Without a strict grammar it is possible to do the
+same thing in many different ways which leads to flaws in
+the model. We also found that if we did not move logic into
+sub-actors the complex actors began to be unmanageable. In
+some cases moving logic into a sub-actor can be a difficult
+task. Another problem we found was the lack of asserts for
+invalid states and inputs. These asserts are a crucial part of
+determining if the model is performing correctly yet we had
+no way of enforcing that these asserts were placed into the
+code.
+
+\subsection{JPF Results}
+
+After we had coded this portion of our model we began
+testing the model using JPF. We found that using JPF made
+it much easier to find bugs in the model. When we began
+to verify the model one of the first occurences
+discovered was infinite loops. This told us that something was
+wrong. Typically these bug are caused by a failure to send the
+correct output, in one case the infinite loop occurred when
+the actor would change states too early. We discovered that
+the default maximum duration for that state was set too low.
+This represented a flaw in our model.
+After we had fixed our bugs and changed some of our
+default maximum durations we found that JPF
+
+\section{Future Work}
+As stated previously this work is the basis for research on
+human machine interfaces to support combined human roles
+that reduce operator workload. To acheive this end we feel that
+the modeling framework we have presented would be more
+beneficial if it formalized some of the practices we found to
+be useful while modeling. We would also like the simulation
+to check the connectivity of the model before running the
+simulation to ensure that model is complete.
 
 % Reminder: the "draftcls" or "draftclsnofoot", not "draft", class option
 % should be used if it is desired that the figures are to be displayed while
@@ -788,10 +853,6 @@ flow of data between the agents was a huge task.
 % \end{tabular}
 % \end{center}
 % \end{table}
-
-
-\section{Conclusion}
-The conclusion goes here.
 
 
 % conference papers do not normally have an appendix
