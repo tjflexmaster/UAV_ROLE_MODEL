@@ -72,7 +72,8 @@ public class OperatorRole extends Actor {
 		/**
 		 * Output to UAV
 		 */
-		OP_POST_FLIGHT(7);
+		OP_POST_FLIGHT(7),
+		OP_POST_FLIGHT_COMPLETE;
 		
 		private int _priority;
 		
@@ -224,8 +225,7 @@ public class OperatorRole extends Actor {
 				nextState(States.POST_FLIGHT_COMPLETE, sim().duration(Durations.OPERATOR_POST_FLIGHT_LAND_DUR.range()) );
 				break;
 			case POST_FLIGHT_COMPLETE:
-				task = (Outputs) tasks.poll();
-				sim().addOutput(Actors.UAV.name(), task);
+				sim().addOutput(Actors.UAV.name(), Outputs.OP_POST_FLIGHT_COMPLETE);
 				nextState(States.IDLE, 1);
 				break;
 			default:

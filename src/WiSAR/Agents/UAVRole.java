@@ -322,7 +322,7 @@ public class UAVRole extends Actor  {
 				}
 				break;
 			case UAV_LANDED:
-				if(input.contains(OperatorRole.Outputs.OP_POST_FLIGHT)){
+				if(input.contains(OperatorRole.Outputs.OP_POST_FLIGHT_COMPLETE)){
 					nextState(States.UAV_READY,1);
 				}
 				break;
