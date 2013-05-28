@@ -232,6 +232,9 @@ public class OperatorGUIRole extends Actor {
 				}
 			}
 		}
+		if(!input.isEmpty()){
+			nextState(state(),1);
+		}
 	}
 	
 	private void handleFlybyRequests(ArrayList<IData> input)
