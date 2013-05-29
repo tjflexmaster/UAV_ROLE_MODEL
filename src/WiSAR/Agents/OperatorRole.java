@@ -225,6 +225,7 @@ public class OperatorRole extends Actor {
 				nextState(States.POST_FLIGHT_COMPLETE, sim().duration(Durations.OPERATOR_POST_FLIGHT_LAND_DUR.range()) );
 				break;
 			case POST_FLIGHT_COMPLETE:
+				assert tasks.poll() == Outputs.OP_POST_FLIGHT : "entered post flight complete stage without task post_flight_complete being in the tasks";
 				sim().addOutput(Actors.UAV.name(), Outputs.OP_POST_FLIGHT_COMPLETE);
 				nextState(States.IDLE, 1);
 				break;
