@@ -246,10 +246,12 @@ public class OperatorRole extends Actor {
 		ArrayList<IData> input = sim().getInput(this.name());
 		
 		switch((States) state() ) {
+		
 			case IDLE:
+				
 				boolean accepted_poke = false;
 				//First accept MM poke
-				if (input.contains(MissionManagerRole.Outputs.MM_POKE)) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.OP_ACK);
 					nextState(States.RX_MM,1);
 					accepted_poke = true;
@@ -282,18 +284,21 @@ public class OperatorRole extends Actor {
 							tasks.add(Outputs.OP_POST_FLIGHT);
 							nextState(States.POST_FLIGHT, 1);
 							break;
+						default:
+							break;
 					}
 					
 					//If there are any tasks then do those
 					doNextTask();
 				}
-				
 				break;
+				
 			case POKE_MM:
+				
 				mm_observations = sim().getObservations(Actors.MISSION_MANAGER.name());
 				
 				//Always respond to an ACK_MM
-				if (input.contains(MissionManagerRole.Outputs.MM_ACK)) {
+				if ( input.contains(MissionManagerRole.Outputs.MM_ACK )) {
 					nextState(States.TX_MM, 1);
 				} else if ( input.contains(MissionManagerRole.Outputs.MM_BUSY) || 
 						mm_observations.contains(MissionManagerRole.Outputs.MM_BUSY)) {
@@ -310,23 +315,30 @@ public class OperatorRole extends Actor {
 					}
 				}
 				break;
+				
 			case TX_MM:
+				
 				//No interruptions
 				break;
+				
 			case END_MM:
+				
 				//Immediately perform next task instead of going idle first
 				doNextTask();
 				break;
+				
 			case RX_MM:
+				
 				//Look for end of TX
 				//Whatever the Pilot does next it should be on the next time step so that it does not
 				//appear that he is receiving after the MM stopped transmitting.
 				if ( input.contains(MissionManagerRole.Outputs.MM_END) ) {
-					if(input.contains(MissionManagerRole.Outputs.MM_NEW_SEARCH_AOI)){
+					if(input.contains(MissionManagerRole.Outputs.MM_NEW_SEARCH_AOI) ){
 						tasks.add(Outputs.OP_NEW_FLIGHT_PLAN);
 						tasks.add(Outputs.OP_TAKE_OFF);
 						_total_search_aoi++;
-					} else if ( input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_OP) ) {
+					}
+					else if ( input.contains(MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_OP) ) {
 						_search_active = false;
 						switch(_uav_state) {
 							case UAV_FLYING_NORMAL:
@@ -335,6 +347,8 @@ public class OperatorRole extends Actor {
 							case UAV_TAKE_OFF:
 								tasks.add(Outputs.OP_LAND);
 								break;
+							default:
+								break;
 						}
 						
 					}
@@ -342,7 +356,9 @@ public class OperatorRole extends Actor {
 					nextState(States.IDLE, 1);
 				}
 				break;
+				
 			case RX_VO:
+				
 				if ( input.contains(VideoOperatorRole.Outputs.VO_END) ) {
 					//TODO Handle the Bad Stream output
 					
@@ -350,7 +366,9 @@ public class OperatorRole extends Actor {
 					nextState(States.IDLE, 1);
 				}
 				break;
+				
 			case LAUNCH_UAV:
+				
 				//Technically the pilot is observing the UAV here so we can update the uav state
 				_uav_observations = sim().getObservations(Actors.UAV.name());
 				parseUAVStateFromUAV(_uav_observations);
@@ -366,9 +384,13 @@ public class OperatorRole extends Actor {
 					case UAV_FLYING_FLYBY:
 						nextState(States.FLYBY_GUI, 1);
 						break;
+					default:
+						break;
 				}
 				break;
+				
 			case OBSERVING_UAV:
+				
 				//Update the operator observations
 				_uav_observations = sim().getObservations(Actors.UAV.name());
 				parseUAVStateFromUAV(_uav_observations);
@@ -376,7 +398,8 @@ public class OperatorRole extends Actor {
 				//Check the state of the UAV
 				if ( _uav_state == UAVRole.Outputs.UAV_LANDED ) {
 					tasks.add(Outputs.OP_POST_FLIGHT);
-				} else if ( _uav_state == UAVRole.Outputs.UAV_READY ) {
+				}
+				else if ( _uav_state == UAVRole.Outputs.UAV_READY ) {
 					if ( _search_active ) {
 						if ( _uav_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES ) {
 							tasks.add(Outputs.OP_TAKE_OFF);
@@ -413,7 +436,9 @@ public class OperatorRole extends Actor {
 					doNextTask();
 				}
 				break;
+				
 			case OBSERVING_GUI:
+				
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
 				parseUAVStateFromGUI(_gui_observations);
 				//If we are in alarm mode then only look at the following alarm items
@@ -438,10 +463,14 @@ public class OperatorRole extends Actor {
 						tasks.add(Outputs.OP_FLYBY_END);
 					}
 					
-				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_NORMAL ) ) {
+				}
+				else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_NORMAL ) ) {
+					
 					if ( _uav_state == UAVRole.Outputs.UAV_LANDED ) {
 						tasks.add(Outputs.OP_POST_FLIGHT);
-					} else if ( _uav_state == UAVRole.Outputs.UAV_READY ) {
+					}
+					
+					else if ( _uav_state == UAVRole.Outputs.UAV_READY ) {
 						if ( _uav_flight_plan == UAVFlightPlan.Outputs.UAV_FLIGHT_PLAN_YES ) {
 							tasks.add(Outputs.OP_TAKE_OFF);
 						}
@@ -460,7 +489,6 @@ public class OperatorRole extends Actor {
 							tasks.add(Outputs.OP_SEARCH_AOI_COMPLETE); 
 							//tasks.add(Outputs.OP_LAND);
 						}
-						
 					}
 					
 					//If we don't have a flyby request in our task queue then see if we need to add one
@@ -471,7 +499,6 @@ public class OperatorRole extends Actor {
 								tasks.add(Outputs.OP_FLYBY_START_F);
 								break;
 							}
-							
 							if ( _gui_observations.get(i) == VideoOperatorRole.Outputs.VO_FLYBY_REQ_T ||
 									 _gui_observations.get(i) == MissionManagerRole.Outputs.MM_FLYBY_REQ_T ) {
 								tasks.add(Outputs.OP_FLYBY_START_T);
@@ -492,6 +519,7 @@ public class OperatorRole extends Actor {
 					nextState(States.RX_MM,1);
 					accepted_poke_ob_gui = true;
 				}
+				
 				//Second accept VO poke
 				if ( input.contains(VideoOperatorRole.Outputs.VO_POKE) ) {
 					if ( !accepted_poke_ob_gui ) {
@@ -508,26 +536,26 @@ public class OperatorRole extends Actor {
 					doNextTask();
 				}
 				break;
+				
 			case POKE_GUI:
+				
 				//Check the GUI output to make sure it is accessible
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
-				
-				
 				/**
 				 * Added Assumption that the GUI is always working.  If it is not then things will fail fast.
 				 * We can add this later if wanted.
 				 */
 				nextState(States.TX_GUI, 1);
-				
 				break;
+				
 			case TX_GUI:
+				
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
 				parseUAVStateFromGUI(_gui_observations);
 				
 				/**
 				 * Assumption is that the Operator is busy while performing tasks on the GUI.
 				 */
-				
 				//If the GUI has an alarm while working on a task then abandon that task and immediately create a task for the alarm.
 				if ( _gui_alert ) {
 					
@@ -537,18 +565,20 @@ public class OperatorRole extends Actor {
 					if ( _uav_battery == UAVBattery.Outputs.BATTERY_LOW ) {
 						tasks.add(Outputs.OP_LAND);
 					}
-					
 					if ( _uav_signal == UAVSignal.Outputs.SIGNAL_LOST ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
 					}
-					
 					doNextTask();
 				}
 				break;
+				
 			case END_GUI:
+				
 				//Do nothing here, we want to observe the GUI in a few time steps to make sure our changes fixed things
 				break;
+				
 			case FLYBY_GUI:
+				
 				//During FLYBY mode the operator is doing a lot of control of the UAV trying to get it to locate the anomaly.
 				//Flyby mode will continue until the Video Operator reports that the anomaly has been verified.
 				//The operator is using the GUI so he can update what is going on.  There should not be HAG issues in this mode
@@ -560,7 +590,9 @@ public class OperatorRole extends Actor {
 				if ( input.contains(VideoOperatorRole.Outputs.VO_POKE) ) {
 					sim().addOutput(Actors.VIDEO_OPERATOR.name(), Outputs.OP_ACK);
 					nextState(States.RX_VO,1);
-				} else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
+				}
+				
+				else if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
 					if ( _uav_battery == UAVBattery.Outputs.BATTERY_LOW ) {
 						tasks.add(Outputs.OP_LAND);
 						doNextTask();
@@ -577,15 +609,18 @@ public class OperatorRole extends Actor {
 					}
 				}
 				break;
+				
 			case POST_FLIGHT:
+				
 				//Operator is moving the UAV into a Ready state and is busy
 				break;
+				
 			case POST_FLIGHT_COMPLETE:
+				
 				//Immediately perform next task instead of going idle first
 				doNextTask();
 				break;
 
-			
 			default:
 				//Do nothing for states not mentioned
 				break;
@@ -607,8 +642,9 @@ public class OperatorRole extends Actor {
 				case OP_FLYBY_START_F:
 				case OP_FLYBY_START_T:
 					//TODO Make sure this launches the UAV if it is on the ground
-					
-					if ( _uav_state == UAVRole.Outputs.UAV_FLYING_NORMAL || _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY || _uav_state == UAVRole.Outputs.UAV_LOITERING ) {
+					if ( _uav_state == UAVRole.Outputs.UAV_FLYING_NORMAL
+							|| _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY
+							|| _uav_state == UAVRole.Outputs.UAV_LOITERING ) {
 						nextState(States.FLYBY_GUI, 1);
 					} else {
 						assert false : "Attempting to do a FLYBY while UAV is not flying";
@@ -618,17 +654,31 @@ public class OperatorRole extends Actor {
 				case OP_LAND:
 				case OP_LOITER:
 				case OP_RESUME:
-					nextState(States.POKE_GUI, 1);
+					if ( _uav_state == UAVRole.Outputs.UAV_FLYING_NORMAL
+							|| _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY
+							|| _uav_state == UAVRole.Outputs.UAV_LOITERING ) {
+						nextState(States.POKE_GUI, 1);
+					} else {
+						assert false : "Attempting to resume while UAV is not flying";
+					}
 					break;
 				case OP_TAKE_OFF:
 					assert _uav_state == UAVRole.Outputs.UAV_READY : "UAV was not in the READY state when it took off";
 					nextState(States.LAUNCH_UAV, 1);
 					break;
 				case OP_SEARCH_AOI_COMPLETE:
-//				case OP_SEARCH_AOI_FAILED:
-					nextState(States.POKE_MM, 1);
+					if ( _uav_state == UAVRole.Outputs.UAV_FLYING_NORMAL
+							|| _uav_state == UAVRole.Outputs.UAV_FLYING_FLYBY
+							|| _uav_state == UAVRole.Outputs.UAV_LOITERING ) {
+						nextState(States.POKE_MM, 1);
+					} else {
+						assert false : "Attempting to complete search, but UAV wasn't flying";
+					}
 					break;
+//					case OP_SEARCH_AOI_FAILED:
 				case OP_POST_FLIGHT:
+					//TODO Make sure this never happens if the search is complete
+					assert _uav_state == UAVRole.Outputs.UAV_LANDED : "UAV wasn't landed when post flight was performed";
 					nextState(States.POST_FLIGHT, 1);
 					break;
 				default:

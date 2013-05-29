@@ -152,8 +152,8 @@ public class ParentSearch extends Actor {
 					nextState(States.RX_MM, 1);
 				} else if ( _total_search_aoi > _sent_search_aoi ) {
 					nextState(States.POKE_MM, 1);
-				} else if(new_description){
-					nextState(States.POKE_MM,1);
+				} else if( new_description ){
+					nextState(States.POKE_MM, 1);
 				}
 				
 				//TODO Handle more input values
