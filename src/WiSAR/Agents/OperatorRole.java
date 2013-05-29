@@ -417,7 +417,7 @@ public class OperatorRole extends Actor {
 				_gui_observations = sim().getObservations(Actors.OPERATOR_GUI.name());
 				parseUAVStateFromGUI(_gui_observations);
 				//If we are in alarm mode then only look at the following alarm items
-				if ( _gui_observations.contains(OperatorGUIRole.Outputs.OGUI_STATE_ALARM) ) {
+				if ( _gui_alert ) {
 					
 					if ( _uav_hag == UAVHeightAboveGround.Outputs.HAG_LOW ) {
 						tasks.add(Outputs.OP_MODIFY_FLIGHT_PLAN);
