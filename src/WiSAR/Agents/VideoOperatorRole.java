@@ -417,13 +417,16 @@ public class VideoOperatorRole extends Actor
 				case VO_FLYBY_END_FAILED:
 				case VO_POSSIBLE_ANOMALY_DETECTED_T:
 				case VO_POSSIBLE_ANOMALY_DETECTED_F:
+					assert _search_active == true : "VO is using the vogui during an inactive search";
 					nextState(States.POKE_GUI, 1);
 					break;
 				case VO_BAD_STREAM:
+					assert _search_active == true : "VO is complaining about a bad stream during an inactive search";
 					nextState(States.POKE_OPERATOR, 1);
 					break;
 				case VO_TARGET_SIGHTING_T:
 				case VO_TARGET_SIGHTING_F:
+					assert _search_active == true : "VO is claims a new sighting during an inactive search";
 					nextState(States.POKE_MM, 1);
 					break;
 				default:

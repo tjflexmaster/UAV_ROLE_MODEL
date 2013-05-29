@@ -675,7 +675,7 @@ public class OperatorRole extends Actor {
 						assert false : "Attempting to complete search, but UAV wasn't flying";
 					}
 					break;
-//					case OP_SEARCH_AOI_FAILED:
+//				case OP_SEARCH_AOI_FAILED:
 				case OP_POST_FLIGHT:
 					//TODO Make sure this never happens if the search is complete
 					assert _uav_state == UAVRole.Outputs.UAV_LANDED : "UAV wasn't landed when post flight was performed";
