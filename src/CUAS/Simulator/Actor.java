@@ -27,8 +27,7 @@ public abstract class Actor extends State implements IActor {
 	 * this method is processed.  This implies that the role is immediately
 	 * placed into its new state.
 	 */
-	public abstract void processNextState();
-	
+	public abstract void processNextState();	
 	
 	/**
 	 * This method contains the logic which the actor executes when global state
@@ -43,7 +42,6 @@ public abstract class Actor extends State implements IActor {
 	{
 		return _name;
 	}
-	
 	
 	/**
 	 * Only the class itself can set it's name

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
+import CUAS.Simulator.Transition;
 import WiSAR.Actors;
 import WiSAR.Durations;
 import WiSAR.Events.NewSearchAOIEvent;
@@ -47,15 +48,30 @@ public class ParentSearch extends Actor {
 	{
 		IDLE,
 		POKE_MM,
+		POKE_AOI_MM,
+		POKE_DESC_MM,
 		TX_MM,
 		END_MM,
 		RX_MM
 	}
 	
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
+	
 	public ParentSearch()
 	{
 		name( Actors.PARENT_SEARCH.name() );
 		nextState(States.IDLE, 1);
+		
+		//define transitions
+		Transitions.add(new Transition(States.IDLE, NewSearchAOIEvent.Outputs.NEW_SEARCH_AOI, States.POKE_AOI_MM, Outputs.PS_POKE));
+		Transitions.add(new Transition(States.POKE_AOI_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_NEW_SEARCH_AOI));
+		Transitions.add(new Transition(States.IDLE, SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION, States.POKE_AOI_MM, Outputs.PS_POKE));
+		Transitions.add(new Transition(States.POKE_DESC_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_TARGET_DESCRIPTION));
+		Transitions.add(new Transition(States.TX_MM, null, States.IDLE, Outputs.PS_END));
+		Transitions.add(new Transition(States.IDLE, MissionManagerRole.Outputs.MM_POKE, States.RX_MM, Outputs.PS_ACK));
 		
 	}
 	
@@ -144,7 +160,7 @@ public class ParentSearch extends Actor {
 		switch((States) state() ) {
 			case IDLE:
 				//IF the parent search is idle then watch for
-				if(input.contains(SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION)){
+				if( input.contains(SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION) ){
 					new_description = true;
 				}
 				if ( input.contains(MissionManagerRole.Outputs.MM_POKE) ) {
@@ -185,7 +201,7 @@ public class ParentSearch extends Actor {
 					}
 					
 					//TODO Add Search Failed to the Mission Manager
-					if (input.contains(MissionManagerRole.Outputs.MM_SEARCH_FAILED)) {
+					if ( input.contains(MissionManagerRole.Outputs.MM_SEARCH_FAILED) ) {
 						_received_search_aoi = _sent_search_aoi;
 					}
 					

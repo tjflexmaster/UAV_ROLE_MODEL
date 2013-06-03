@@ -1,7 +1,5 @@
 package CUAS.Simulator;
 
-
-
 /**
  * This interface is attached to all Actors.  The simulator will call the following methods
  * during the simulation.
