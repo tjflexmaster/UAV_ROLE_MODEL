@@ -9,6 +9,7 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.Transition;
 import WiSAR.submodule.FlybyAnomaly;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
@@ -60,13 +61,22 @@ public class UAVRole extends Actor  {
         UAV_LANDED,
         UAV_CRASHED,
     }
-      
+	
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
     
     public UAVRole()
     {
     	name(Actors.UAV.name());
     	nextState(States.UAV_READY, 1);
     	_flyby = false;
+
+		//define transitions
+		//rx AOI
+    	//Transitions.add(new Transition(States.UAV_READY, OperatorGUIRole.Outputs.OP_NEW_FLIGHT_PLAN, States.UAV_READY));
+    	//Transitions.add(new Transition(States.UAV_READY, OperatorGUIRole.Outputs.OP_TAKE_OFF, States.UAV_TAKE_OFF, Outputs.UAV_TAKE_OFF));
     	
     	//Add children
     	_sub_actors.add(new UAVBattery());

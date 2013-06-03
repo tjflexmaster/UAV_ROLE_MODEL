@@ -12,6 +12,7 @@ import WiSAR.DataPriorityComparator;
 import WiSAR.Durations;
 import WiSAR.IPriority;
 import WiSAR.MemoryObject;
+import WiSAR.Transition;
 import WiSAR.Agents.OperatorRole.Outputs;
 
 public class MissionManagerRole extends Actor {
@@ -27,7 +28,7 @@ public class MissionManagerRole extends Actor {
 		/**
 		 * Basic Communication
 		 */
-		MM_POKE, 
+		MM_POKE,
 		MM_ACK,
 		MM_END,
 		
@@ -110,6 +111,10 @@ public class MissionManagerRole extends Actor {
 		 * Communicate with OP
 		 */
 		POKE_OP,
+		POKE_AOI_OP,
+		POKE_TERM_OP,
+		TX_AOI_OP,
+		TX_TERM_OP,
 		TX_OP,
 		END_OP,
 		RX_OP,
@@ -118,6 +123,10 @@ public class MissionManagerRole extends Actor {
 		 * Communicate with VO
 		 */
 		POKE_VO,
+		POKE_DESC_VO,
+		POKE_TERM_VO,
+		TX_DESC_VO,
+		TX_TERM_VO,
 		TX_VO,
 		END_VO,
 		RX_VO,
@@ -132,12 +141,42 @@ public class MissionManagerRole extends Actor {
 		
 	}
 	
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
 	
 	public MissionManagerRole()
 	{
 		name(Actors.MISSION_MANAGER.name());
 		nextState(States.IDLE, 1);
 		tasks = new PriorityQueue<IData>(5, new DataPriorityComparator());
+		
+		//define transitions
+		//rx & tx AOI
+		Transitions.add(new Transition(States.IDLE, ParentSearch.Outputs.PS_POKE, States.RX_PS, Outputs.MM_ACK));
+		Transitions.add(new Transition(States.RX_PS, ParentSearch.Outputs.PS_NEW_SEARCH_AOI, States.POKE_AOI_OP, Outputs.MM_POKE));
+		Transitions.add(new Transition(States.POKE_AOI_OP, OperatorRole.Outputs.OP_ACK, States.TX_AOI_OP, Outputs.MM_NEW_SEARCH_AOI));
+		Transitions.add(new Transition(States.TX_AOI_OP, null, States.RX_PS, Outputs.MM_END));
+		//rx & tx DESC
+		Transitions.add(new Transition(States.RX_PS, ParentSearch.Outputs.PS_TARGET_DESCRIPTION, States.POKE_DESC_VO, Outputs.MM_POKE));
+		Transitions.add(new Transition(States.POKE_DESC_VO, VideoOperatorRole.Outputs.VO_ACK, States.TX_VO, Outputs.MM_TARGET_DESCRIPTION));
+		Transitions.add(new Transition(States.TX_DESC_VO, null, States.IDLE, Outputs.MM_END));
+		//observe VGUI
+		Transitions.add(new Transition(States.IDLE, null, States.OBSERVING_VGUI, null));
+		Transitions.add(new Transition(States.OBSERVING_VGUI, null, States.IDLE, null));
+		//rx COMP
+		Transitions.add(new Transition(States.IDLE, OperatorRole.Outputs.OP_POKE, States.RX_OP, Outputs.MM_ACK));
+		Transitions.add(new Transition(States.RX_OP, OperatorRole.Outputs.OP_SEARCH_AOI_COMPLETE, States.IDLE, Outputs.MM_SEARCH_AOI_COMPLETE));
+		//rx SIGHT
+		Transitions.add(new Transition(States.IDLE, VideoOperatorRole.Outputs.VO_POKE, States.RX_VO, Outputs.MM_ACK));
+		Transitions.add(new Transition(States.RX_VO, VideoOperatorRole.Outputs.VO_TARGET_SIGHTING_T, States.IDLE, Outputs.MM_TARGET_SIGHTING_T));
+		//rx & tx TERM
+		Transitions.add(new Transition(States.RX_PS, ParentSearch.Outputs.PS_TERMINATE_SEARCH, States.POKE_TERM_OP, Outputs.MM_POKE));
+		Transitions.add(new Transition(States.POKE_TERM_OP, OperatorRole.Outputs.OP_ACK, States.TX_OP, Outputs.MM_TERMINATE_SEARCH_OP));
+		Transitions.add(new Transition(States.TX_TERM_OP, null, States.POKE_TERM_VO, Outputs.MM_END));
+		Transitions.add(new Transition(States.POKE_TERM_VO, VideoOperatorRole.Outputs.VO_ACK, States.TX_VO, Outputs.MM_TERMINATE_SEARCH_VO));
+		Transitions.add(new Transition(States.TX_TERM_VO, null, States.IDLE, Outputs.MM_END));
 	}
 	
 	

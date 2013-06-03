@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import CUAS.Simulator.IData;
 import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Actor;
-import CUAS.Simulator.Transition;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.Transition;
 import WiSAR.Events.NewSearchAOIEvent;
 import WiSAR.Events.SearchTargetDescriptionEvent;
 import WiSAR.Events.TerminateSearchEvent;
@@ -50,6 +50,7 @@ public class ParentSearch extends Actor {
 		POKE_MM,
 		POKE_AOI_MM,
 		POKE_DESC_MM,
+		POKE_TERM_MM,
 		TX_MM,
 		END_MM,
 		RX_MM
@@ -70,8 +71,11 @@ public class ParentSearch extends Actor {
 		Transitions.add(new Transition(States.POKE_AOI_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_NEW_SEARCH_AOI));
 		Transitions.add(new Transition(States.IDLE, SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION, States.POKE_AOI_MM, Outputs.PS_POKE));
 		Transitions.add(new Transition(States.POKE_DESC_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_TARGET_DESCRIPTION));
+		//Transitions.add(new Transition(States.IDLE, , States.POKE_TERM_MM, Outputs.PS_POKE));
+		//Transitions.add(new Transition(States.POKE_TERM_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_TERMINATE_SEARCH));
 		Transitions.add(new Transition(States.TX_MM, null, States.IDLE, Outputs.PS_END));
 		Transitions.add(new Transition(States.IDLE, MissionManagerRole.Outputs.MM_POKE, States.RX_MM, Outputs.PS_ACK));
+		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE, States.IDLE, null));
 		
 	}
 	
@@ -121,10 +125,10 @@ public class ParentSearch extends Actor {
 				if ( _total_search_aoi > _sent_search_aoi ) {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_NEW_SEARCH_AOI);
 					_sent_search_aoi++;
-				} else if(new_description){
+				} else if (new_description) {
 					new_description = false;
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_TARGET_DESCRIPTION);
-				}else{
+				} else {
 					sim().addOutput(Actors.MISSION_MANAGER.name(), Outputs.PS_TERMINATE_SEARCH);
 				}
 				sim().addOutput(Actors.MISSION_MANAGER.name(),Outputs.PS_END);

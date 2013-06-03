@@ -11,6 +11,7 @@ import WiSAR.Actors;
 import WiSAR.DataPriorityComparator;
 import WiSAR.Durations;
 import WiSAR.IPriority;
+import WiSAR.Transition;
 import WiSAR.submodule.UAVBattery;
 import WiSAR.submodule.UAVFlightPlan;
 import WiSAR.submodule.UAVHeightAboveGround;
@@ -129,13 +130,28 @@ public class OperatorRole extends Actor {
 	 * END STATE VARS
 	 */
 	
-
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
+	
 	public OperatorRole()
 	{
 		name( Actors.OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		_uav_state = UAVRole.Outputs.UAV_READY;
 		tasks = new PriorityQueue<IData>(5, new DataPriorityComparator());
+
+		//define transitions
+		//rx & tx AOI
+		Transitions.add(new Transition(States.IDLE, MissionManagerRole.Outputs.MM_POKE, States.RX_MM, Outputs.OP_ACK));
+		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_NEW_SEARCH_AOI, States.LAUNCH_UAV, Outputs.OP_NEW_FLIGHT_PLAN));
+		Transitions.add(new Transition(States.LAUNCH_UAV, UAVRole.Outputs.UAV_READY, States.OBSERVING_GUI, Outputs.OP_TAKE_OFF));
+		//observe UAV
+		Transitions.add(new Transition(States.OBSERVING_GUI, null, States.OBSERVING_UAV, null));
+		Transitions.add(new Transition(States.OBSERVING_UAV, null, States.OBSERVING_GUI, null));
+		//rx & tx TERM
+		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_OP, States.TX_GUI, Outputs.OP_LAND));
 	}
 	
 	@Override

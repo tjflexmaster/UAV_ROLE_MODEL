@@ -8,6 +8,7 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.IPriority;
+import WiSAR.Transition;
 import WiSAR.Agents.OperatorRole;
 import WiSAR.Agents.UAVRole.Outputs;
 import WiSAR.Agents.UAVRole.States;
@@ -48,6 +49,11 @@ public class OperatorGUIRole extends Actor {
     	ALARM,
     	AUDIBLE_ALARM
     }
+	
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
     
 	public OperatorGUIRole()
 	{
@@ -56,6 +62,11 @@ public class OperatorGUIRole extends Actor {
 		_flyby_end_cmd = null;
 		_flyby_requests = new ArrayList<IData>();
 		_uav_state = UAVRole.Outputs.UAV_READY;
+
+		//define transitions
+		//rx & tx AOI
+		//Transitions.add(new Transition(States.NORMAL, OperatorRole.Outputs.OP_NEW_FLIGHT_PLAN, States.NORMAL, Outputs.OP_NEW_FLIGHT_PLAN));
+		//Transitions.add(new Transition(States.NORMAL, OperatorRole.Outputs.OP_TAKE_OFF, States.NORMAL, Outputs.OP_TAKE_OFF));
 	}
 
    @Override

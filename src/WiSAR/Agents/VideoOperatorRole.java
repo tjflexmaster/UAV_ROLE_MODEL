@@ -12,6 +12,7 @@ import CUAS.Simulator.IStateEnum;
 import CUAS.Simulator.Simulator;
 import WiSAR.Actors;
 import WiSAR.Durations;
+import WiSAR.Transition;
 import WiSAR.Agents.OperatorRole.Outputs;
 import WiSAR.Agents.OperatorRole.States;
 import WiSAR.submodule.FlybyAnomaly;
@@ -84,12 +85,24 @@ public class VideoOperatorRole extends Actor
 	    END_OPERATOR,
 	}
 	
+	/**
+	 * Initiate Transitions
+	 */
+	public ArrayList<Transition> Transitions = new ArrayList<Transition>();
+	
 	public VideoOperatorRole()
 	{
 		name( Actors.VIDEO_OPERATOR.name() );
 		nextState(States.IDLE, 1);
 		tasks = new PriorityQueue<IData>();
 		_search_active = true;
+
+		//define transitions
+		//rx DESC
+		Transitions.add(new Transition(States.IDLE, MissionManagerRole.Outputs.MM_POKE, States.RX_MM, null));
+		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_TARGET_DESCRIPTION, States.OBSERVING_NORMAL, null));
+		//rx TERM
+		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_TERMINATE_SEARCH_VO, States.IDLE, null));
 	}
 	
 	/**
