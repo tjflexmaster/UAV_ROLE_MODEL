@@ -31,6 +31,7 @@ public class Simulator {
 		_event_manager = new EventManager();
 		_timer.time(0);
 		_post_office = new PostOffice();
+		printer = new Printer();
 	}
 	
 	public static Simulator getInstance() {
@@ -50,6 +51,7 @@ public class Simulator {
 	private DurationGenerator _duration_generator = null;
 	private Environment _env = Environment.DEBUG;
 	private PostOffice _post_office = null;
+	private Printer printer = null;
 	
 	private boolean _running = false;
 	
@@ -59,6 +61,7 @@ public class Simulator {
 		setTeam(team);
 	}
 	
+
 	public boolean isReady()
 	{
 		if ( _team != null && _duration_generator != null ) 
@@ -88,6 +91,12 @@ public class Simulator {
 		assert isReady() : "getNextStateTime(): The Simulator was not setup properly";
 		return _team.getNextStateTime(getTime());
 	}
+	
+	//debuging
+	public void printStateChange(String name, String state){
+		printer.addStateChange(name, state);
+	}
+	
 	
 	public void addOutput(String actor_name, IData input){
 		_post_office.addOutput(input, actor_name);
@@ -207,6 +216,7 @@ public class Simulator {
 					if(time_to_run <= next_time){
 						boolean needCommand = true;
 						while (needCommand) {
+							printer.printSectionA();
 							System.out.println("Enter Command: ");
 							String input = readUserInput.nextLine();
 							if (input.isEmpty()) {
@@ -254,8 +264,10 @@ public class Simulator {
 					if (debug())
 						System.out.println("Updating States...");
 					_team.processInputs();
-					if (debug())
+					if (debug()){
 						System.out.println("Updating Finished\n");
+						printer.increment();
+					}
 				}
 			}//end while
 			if (debug())
@@ -264,8 +276,10 @@ public class Simulator {
 			if (debug())
 				System.out.println("Simulation Failed: " + e.getMessage());
 		}
-		if (debug())
+		if (debug()){
 			System.out.println("Ended Simulation");
+			printer.printToFileA();
+		}
 		
 	}
 	

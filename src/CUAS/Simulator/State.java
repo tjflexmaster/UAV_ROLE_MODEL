@@ -56,6 +56,7 @@ public abstract class State {
 				name = class_name.substring(class_name.lastIndexOf('.')+1, class_name.indexOf('@'));
 			}
 			System.out.println("State(" + name + "): " + state.name());
+			sim().printStateChange(name, _next_state.name());
 		}
 		_state = state;
 	}
