@@ -2,6 +2,6 @@ package Actors;
 
 import Utilities.Actor;
 
-public class MissionManager implements Actor {
+public class MissionManager extends Actor {
 
 }

@@ -1,7 +1,14 @@
 package Utilities;
 
-public interface Actor {
+public abstract class Actor {
 	
-	int nextTime = -1;
+	/**
+	 * the simulator's delta clock uses this variable
+	 */
+	public int nextTime = -1;
+
+	public void update(int currentTime) {
+		
+	}
 	
 }

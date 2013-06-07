@@ -2,6 +2,6 @@ package Actors;
 
 import Utilities.Actor;
 
-public class VideoOperator implements Actor {
+public class VideoOperator extends Actor {
 
 }

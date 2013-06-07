@@ -2,6 +2,6 @@ package Actors;
 
 import Utilities.Actor;
 
-public class OperatorGui implements Actor{
+public class OperatorGui extends Actor{
 	
 }

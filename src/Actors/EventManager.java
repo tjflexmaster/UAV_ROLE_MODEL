@@ -2,6 +2,6 @@ package Actors;
 
 import Utilities.*;
 
-public class EventManager implements Actor {
+public class EventManager extends Actor {
 	
 }
