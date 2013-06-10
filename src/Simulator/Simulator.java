@@ -13,7 +13,7 @@ public class Simulator {
 	public static void main(String[] args) {
 		//initialize simulation variables
 		int currentTime = 0;
-		ArrayList<Data> outputs = initializeOutputs();
+		ArrayList<UDO> outputs = initializeOutputs();
 		ArrayList<Actor> actors = initializeActors(outputs);
 		
 		//run the simulator until the clock is empty
@@ -42,8 +42,8 @@ public class Simulator {
 	 * we may be able to use another class instead of this method
 	 * @return
 	 */
-	private static ArrayList<Data> initializeOutputs() {
-		ArrayList<Data> outputs = new ArrayList<Data>();
+	private static ArrayList<UDO> initializeOutputs() {
+		ArrayList<UDO> outputs = new ArrayList<UDO>();
 		//add outputs
 		return outputs;
 	}
@@ -54,7 +54,7 @@ public class Simulator {
 	 * @param outputs 
 	 * @return
 	 */
-	private static ArrayList<Actor> initializeActors(ArrayList<Data> outputs) {
+	private static ArrayList<Actor> initializeActors(ArrayList<UDO> outputs) {
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		//add actors
 		return actors;

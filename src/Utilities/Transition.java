@@ -7,10 +7,10 @@ package Utilities;
 public class Transition {
 	
 	public State _startState;
-	public Data _input;
+	public UDO _input;
 	public int _time;
 	public State _nextState;
-	public Data _output;
+	public UDO _output;
 
 	/**
 	 * a transition is used by an agent (state machine) to formally define state transitions 
@@ -20,7 +20,7 @@ public class Transition {
 	 * @param output the output the transition produces
 	 * todo add a duration that represents how long it takes to move between states
 	 */
-	public Transition (State startState, Data input, State nextState, Data output) {
+	public Transition (State startState, UDO input, State nextState, UDO output) {
 		
 		_startState = startState;
 		_input = input;
@@ -37,7 +37,7 @@ public class Transition {
 	 * @param output the output the transition produces
 	 * todo add a duration that represents how long it takes to move between states
 	 */
-	public Transition(State startState, int time, State nextState, Data output) {
+	public Transition(State startState, int time, State nextState, UDO output) {
 		
 		_startState = startState;
 		_time = time; 
