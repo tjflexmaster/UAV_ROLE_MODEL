@@ -66,17 +66,6 @@ public class ParentSearch extends Actor {
 		name( Actors.PARENT_SEARCH.name() );
 		nextState(States.IDLE, 1);
 		
-		//define transitions
-		Transitions.add(new Transition(States.IDLE, NewSearchAOIEvent.Outputs.NEW_SEARCH_AOI, States.POKE_AOI_MM, Outputs.PS_POKE));
-		Transitions.add(new Transition(States.POKE_AOI_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_NEW_SEARCH_AOI));
-		Transitions.add(new Transition(States.IDLE, SearchTargetDescriptionEvent.Outputs.NEW_SEARCH_TARGET_DESCRIPTION, States.POKE_AOI_MM, Outputs.PS_POKE));
-		Transitions.add(new Transition(States.POKE_DESC_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_TARGET_DESCRIPTION));
-		//Transitions.add(new Transition(States.IDLE, , States.POKE_TERM_MM, Outputs.PS_POKE));
-		//Transitions.add(new Transition(States.POKE_TERM_MM, MissionManagerRole.Outputs.MM_ACK, States.TX_MM, Outputs.PS_TERMINATE_SEARCH));
-		Transitions.add(new Transition(States.TX_MM, null, States.IDLE, Outputs.PS_END));
-		Transitions.add(new Transition(States.IDLE, MissionManagerRole.Outputs.MM_POKE, States.RX_MM, Outputs.PS_ACK));
-		Transitions.add(new Transition(States.RX_MM, MissionManagerRole.Outputs.MM_SEARCH_AOI_COMPLETE, States.IDLE, null));
-		
 	}
 	
 	@Override
