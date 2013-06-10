@@ -7,12 +7,6 @@ public class State {
 	 * this is the name of the state
 	 */
 	String name;
-	
-	/**
-	 * this is the maximum time it will take for an actor to change to this state
-	 */
-	public int maxTimeTilAppearance;
-	public int timeTilAppearance;
 
 	/**
 	 * @param name
@@ -21,8 +15,6 @@ public class State {
 	public State(String _name, int _maxTimeTilAppearance) {
 		
 		name = _name;
-		maxTimeTilAppearance = _maxTimeTilAppearance;
-		timeTilAppearance = _maxTimeTilAppearance;
 		
 	}
 	
