@@ -1,5 +1,13 @@
 package Utilities;
 
+/**
+ * THIS CLASS IS DEPRECATED DO NOT USE IT
+ * 
+ * Use UDO instead
+ * 
+ * @author TJ-ASUS
+ *
+ */
 public class Data {
 	
 	/**
