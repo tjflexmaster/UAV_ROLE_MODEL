@@ -2,28 +2,36 @@ package Utilities;
 
 public class UDO {
 
-	private boolean active;
-	private boolean temp;
-	private String name;
+	private boolean _active;
+	private boolean _temp;
+	private String _name;
 	
-	public UDO(String _name){
-		name = _name;
-		active = false;
-		temp = false;
+	public UDO(String name){
+		
+		_name = _name;
+		_active = false;
+		_temp = false;
+		
 	}
 
 	public boolean isActive() {
-		return active;
+		
+		return _active;
+		
 	}
 
 	public void setActive() {
-		temp = true;
+		
+		_temp = true;
+		
 	}
 	
 	
 	public void processData(){
-		active = temp;
-		temp = false;
+		
+		_active = _temp;
+		_temp = false;
+		
 	}
 	
 }

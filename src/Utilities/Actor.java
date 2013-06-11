@@ -5,31 +5,92 @@ import java.util.ArrayList;
 public abstract class Actor {
 	
 	/**
-	 * the simulator's delta clock uses this variable
+	 * this variable represents the name we give to the actor
 	 */
-	private int nextTime = -1;
+	private String _name = "Actor";
 	
-	private State currentState;
-	private Transition currentTransition;
-	private ArrayList<State> states;
+	/**
+	 * the simulator's delta clock uses this variable
+	 * this variable represents the time until the actor makes the transition, which is saved as currentTransition
+	 */
+	private int _nextTime = -1;
 	
-	public void update(int currentTime) {
+	/**
+	 * this represents the current state of the actor (state machine)
+	 */
+	private State _currentState;
+	
+	/**
+	 * this represents the current transition the actor (state machine) is making
+	 * this can be preempted given the right inputs and current state 
+	 */
+	private Transition _currentTransition;
+	
+	/**
+	 * this is a formally defined list of states the actor (state machine) can make during the simulation
+	 */
+	private ArrayList<State> _states;
+	
+	/**
+	 * this method tells the actor to look at its current state and inputs
+	 * if appropriate a new transition will be scheduled
+	 * @return returns true if a new transition has been scheduled
+	 */
+	public boolean updateTransition() {
+		
+		return false;
 		
 	}
 	
-	public void processTransition(int currentTime){
-		if(getNextTime() == 0){
-			currentState = currentTransition.process();
-//			currentTransition = currentState.getNextTransition();
+	/**
+	 * this method tells the actor to process its current transition if appropriate
+	 * @return returns true if the current transition has been processed
+	 */
+	public boolean processTransition(){
+		
+		if(_nextTime == 0){
+			_currentState = _currentTransition.process();
+			return true;
 		}
+		
+		return false;
+		
 	}
 
+	/**
+	 * this method allows the simulator viewing access to this classes nextTime 
+	 * @return the time until the next transition
+	 */
 	public int getNextTime() {
-		return nextTime;
+		//should we delete this method and make nextTime public?
+		return _nextTime;
+		
 	}
 
+	/**
+	 * this method lets the simulator update the time to reflect a delta clock value
+	 * @param nextTime
+	 */
 	public void setNextTime(int nextTime) {
-		this.nextTime = nextTime;
+		//should we delete this method and make nextTime public?
+		this._nextTime = nextTime;
+		
+	}
+	
+	/**
+	 * this method returns the string representation of the actor
+	 */
+	public String toString() {
+		
+		String result = "";
+		
+		result += _name + "(" + _nextTime + "): ";
+		if (_currentTransition != null) {
+			result += _currentTransition.toString();
+		}
+		
+		return result;
+		
 	}
 	
 }

@@ -50,13 +50,17 @@ public class Transition {
 	
 	public String toString() {
 		
-		if ( _inputs == null ) {
-			return _curState + " X " + Integer.toString(_duration) + " -> " + _endState.toString() + " X " + _outputs.toString();
-		}
+		String result = "";
 		
-		else {
-			return _curState + " X " + _inputs.toString() + " -> " + _endState.toString() + " X " + _outputs.toString();
+		result += _curState + " X ";
+		if ( _inputs == null ) {
+			result += Integer.toString(_duration);
+		} else {
+			result += _inputs.toString();
 		}
+		result += " -> " + _endState.toString() + " X " + _outputs.toString();
+		
+		return result;
 		
 	}
 	

@@ -2,28 +2,43 @@ package Utilities;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author rob.ivie
+ * this class is still incomplete
+ */
 public abstract class State {
 	
 	/**
-	 * @author rob.ivie
 	 * this is the name of the state
 	 */
-	private String name;
-	private ArrayList<Transition> transitions;
+	private String _name;
+	
 	/**
-	 * @param name
-	 * this constructor is used for creating new states
+	 * this formally lists all of the transitions that can be made from this state
 	 */
-	public State(String _name) {
-		name = _name;
+	private ArrayList<Transition> _transitions;
+	
+	/**
+	 * this constructor is used for creating new states
+	 * @param name
+	 */
+	public State(String name) {
+		
+		_name = name;
+		
 	}
 	
 	public void addTransition(Transition t){
-		transitions.add(t);
+		
+		_transitions.add(t);
+		
 	}
 	
 	public String toString() {
-		return name;
+		
+		return _name;
+		
 	}
 	
 

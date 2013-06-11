@@ -1,6 +1,7 @@
 package Simulator;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import Utilities.*;
 
@@ -14,27 +15,41 @@ public class Simulator {
 		//initialize simulation variables
 		int currentTime = 0;
 		ArrayList<UDO> outputs = initializeOutputs();
-		ArrayList<Actor> actors = initializeActors(outputs);
+		ArrayList<Actor> clock = initializeClock(outputs);
+		Scanner scanner = new Scanner(System.in);
 		
 		//run the simulator until the clock is empty
 		do {
 			
-			//process actors
-			for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
+			//update actors next planned transition (currentTransition)
+			for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
 				
-				int nextTime = actors.get(actorsIndex).getNextTime();
-				actors.get(actorsIndex).update(currentTime);
-				if (nextTime != actors.get(actorsIndex).getNextTime()) {
-					actors = resetClock(actors, actors.get(actorsIndex));
+				if (clock.get(clockIndex).updateTransition()) {
+					clock = resetClock(clock, clock.get(clockIndex));
 				}
 				
 			}
 			
 			//tick the clock until a transition happens
-			currentTime += actors.get(0).getNextTime();
-			actors.get(0).setNextTime(0);
+			currentTime += clock.get(0).getNextTime();
+			clock.get(0).setNextTime(0);
 			
-		} while (isRunning(actors));
+			//communicate with the user
+			communicate(clock, scanner);
+			
+			//process all actors that have a next time equal to zero
+			for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
+				
+				if (clock.get(clockIndex).processTransition()) {
+					clock = resetClock(clock, clock.get(clockIndex));
+				}
+				
+			}
+			
+		} while (isRunning(clock));
+		
+		//close variables
+		scanner.close();
 	}
 
 	/**
@@ -54,50 +69,74 @@ public class Simulator {
 	 * @param outputs 
 	 * @return
 	 */
-	private static ArrayList<Actor> initializeActors(ArrayList<UDO> outputs) {
+	private static ArrayList<Actor> initializeClock(ArrayList<UDO> outputs) {
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		//TODO add actors
 		return actors;
 	}
-
+	
 	/**
-	 * reorder actors as you would a delta clock
-	 * @param actors 
-	 * @param actor
-	 * @return 
+	 * print current state of the simulator and take input from the user
+	 * @param clock the clock is passed so that it can be printed to the user
+	 * @param scanner the scanner is passed so that commands can be received
 	 */
-	private static ArrayList<Actor> resetClock(ArrayList<Actor> actors, Actor actor) {
-		actors.remove(actor);
+	private static void communicate(ArrayList<Actor> clock, Scanner scanner) {
 		
-		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			if (actors.get(actorsIndex).getNextTime() == -1) {
-				actors.add(actor);
-				break;
-			} else if (actors.get(actorsIndex).getNextTime() > actor.getNextTime()) {
-				actors.get(actorsIndex)
-						.setNextTime(actors.get(actorsIndex).getNextTime() - actor.getNextTime());
-				actors.add(actorsIndex, actor);
-				break;
-			} else if (actors.get(actorsIndex).getNextTime() < actor.getNextTime()) {
-				actor.setNextTime(actor.getNextTime() - actors.get(actorsIndex).getNextTime());
-			}
+		for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
+			System.out.println(clock.get(clockIndex).toString());
 		}
+		scanner.nextLine();
 		
-		return actors;
 	}
 
 	/**
-	 * this checks the actors to see if the clock is active
-	 * @param actors
+	 * reorder actors as you would a delta clock
+	 * @param clock 
+	 * @param actor
+	 * @return 
+	 */
+	private static ArrayList<Actor> resetClock(ArrayList<Actor> clock, Actor actor) {
+		clock.remove(actor);
+		
+		for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
+			//if this spot in the list (delta clock) is empty place the actor here
+			if (clock.get(clockIndex).getNextTime() == -1) {
+				clock.add(actor);
+				break;
+			}
+			//if the actor has less time then place it here and update next actor's nextTime
+			else if (clock.get(clockIndex).getNextTime() > actor.getNextTime()) {
+				clock.get(clockIndex).setNextTime(clock.get(clockIndex).getNextTime() - actor.getNextTime());
+				clock.add(clockIndex, actor);
+				break;
+			}
+			//if the actor has more time, then update its time and move to the next space
+			else if (clock.get(clockIndex).getNextTime() < actor.getNextTime()) {
+				actor.setNextTime(actor.getNextTime() - clock.get(clockIndex).getNextTime());
+			}
+			//if the list (delta clock) is full, then add actor to the end 
+			else if (clockIndex == clock.size() - 1) {
+				clock.add(actor);
+			}
+		}
+		
+		return clock;
+	}
+
+	/**
+	 * this checks to see if the clock is full
+	 * @param clock
 	 * @return
 	 */
-	private static boolean isRunning(ArrayList<Actor> actors) {
+	private static boolean isRunning(ArrayList<Actor> clock) {
+		
 		boolean result = false;
-		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			if (actors.get(actorsIndex).getNextTime() != -1) {
+		for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
+			if (clock.get(clockIndex).getNextTime() != -1) {
 				result = true;
 			}
 		}
+		
 		return result;
 	}
 	
