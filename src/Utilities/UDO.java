@@ -26,7 +26,9 @@ public class UDO {
 		
 	}
 	
-	
+	/**
+	 * updates the data status
+	 */
 	public void processData(){
 		
 		_active = _temp;
