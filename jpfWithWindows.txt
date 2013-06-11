@@ -1,0 +1,43 @@
+get mercurial
+	http://cbes.javaforge.com/update
+import jpf-core using mercurial
+	file->import->Mercurial->Clone Existing Mercurial Repository
+	leave all default settings, you may get a build error, just rebuild once the import is complete
+	if you have an error regarding javac
+		then go to window->preferences->java->installed JREs
+		if you are selected on a JRE instead of JDK1.6.xxxx then add the JDK and select it
+		rebuild
+create jpf folder in your projects folder
+copy jpf-core(just built) into the jpf folder
+create .jpf folder in your home folder using the mkdir cmd from the cli
+create file site.properties in the .jpf folder
+	populate the file with your version of the follwing
+		# JPF site configuration
+		jpf.home = ${user.home}/projects/jpf
+		# can only expand system properties
+		jpf-core = ${user.home}/projects/jpf/jpf-core
+		# annotation properties extension
+		jpf-aprop = ${jpf.home}/jpf-aprop
+		extensions+=,${jpf-aprop}
+		# numeric extension
+		jpf-numeric = ${jpf.home}/jpf-numeric
+		extensions+=,${jpf-numeric}
+		# concurrent extension
+		#jpf-concurrent = ${jpf.home}/jpf-concurrent
+		#extensions+=,${jpf-concurrent}
+		jpf-shell = ${jpf.home}/jpf-shell
+		extensions+=,${jpf-shell}
+		jpf-awt = ${jpf.home}/jpf-awt
+		extensions+=,${jpf-awt}
+		jpf-awt-shell = ${jpf.home}/jpf-awt-shell
+		extensions+=,${jpf-awt-shell}
+install the eclipse plugin
+	http://babelfish.arc.nasa.gov/trac/jpf/raw-attachment/wiki/install/eclipse-plugin/update/
+In the WiSAR folder open the Application.jpf folder and edit to make the classpath and sourcepath match your computer
+	target=WiSAR.Application
+	cg.enumerate_random = true
+	classpath=C:\\Users\\jared.moore\\git\\UAV_ROLE_MODEL\\bin
+	sourcepath=C:\\Users\\jared.moore\\git\\UAV_ROLE_MODEL\\src
+Right click on Application.jpf click verify
+	if site.properties does not exist and you've already created it, update the reference
+		Window->Preferences->JPF Preferences->path to site.properties(probably already accurate but refresh it)

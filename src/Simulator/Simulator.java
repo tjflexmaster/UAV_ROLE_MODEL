@@ -22,17 +22,17 @@ public class Simulator {
 			//process actors
 			for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
 				
-				int nextTime = actors.get(actorsIndex).nextTime;
+				int nextTime = actors.get(actorsIndex).getNextTime();
 				actors.get(actorsIndex).update(currentTime);
-				if (nextTime != actors.get(actorsIndex).nextTime) {
+				if (nextTime != actors.get(actorsIndex).getNextTime()) {
 					actors = resetClock(actors, actors.get(actorsIndex));
 				}
 				
 			}
 			
 			//tick the clock until a transition happens
-			currentTime += actors.get(0).nextTime;
-			actors.get(0).nextTime = 0;
+			currentTime += actors.get(0).getNextTime();
+			actors.get(0).setNextTime(0);
 			
 		} while (isRunning(actors));
 	}
@@ -44,7 +44,7 @@ public class Simulator {
 	 */
 	private static ArrayList<UDO> initializeOutputs() {
 		ArrayList<UDO> outputs = new ArrayList<UDO>();
-		//add outputs
+		//TODO add outputs
 		return outputs;
 	}
 
@@ -56,7 +56,7 @@ public class Simulator {
 	 */
 	private static ArrayList<Actor> initializeActors(ArrayList<UDO> outputs) {
 		ArrayList<Actor> actors = new ArrayList<Actor>();
-		//add actors
+		//TODO add actors
 		return actors;
 	}
 
@@ -70,15 +70,16 @@ public class Simulator {
 		actors.remove(actor);
 		
 		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			if (actors.get(actorsIndex).nextTime == -1) {
+			if (actors.get(actorsIndex).getNextTime() == -1) {
 				actors.add(actor);
 				break;
-			} else if (actors.get(actorsIndex).nextTime > actor.nextTime) {
-				actors.get(actorsIndex).nextTime -= actor.nextTime;
+			} else if (actors.get(actorsIndex).getNextTime() > actor.getNextTime()) {
+				actors.get(actorsIndex)
+						.setNextTime(actors.get(actorsIndex).getNextTime() - actor.getNextTime());
 				actors.add(actorsIndex, actor);
 				break;
-			} else if (actors.get(actorsIndex).nextTime < actor.nextTime) {
-				actor.nextTime -= actors.get(actorsIndex).nextTime;
+			} else if (actors.get(actorsIndex).getNextTime() < actor.getNextTime()) {
+				actor.setNextTime(actor.getNextTime() - actors.get(actorsIndex).getNextTime());
 			}
 		}
 		
@@ -93,7 +94,7 @@ public class Simulator {
 	private static boolean isRunning(ArrayList<Actor> actors) {
 		boolean result = false;
 		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			if (actors.get(actorsIndex).nextTime != -1) {
+			if (actors.get(actorsIndex).getNextTime() != -1) {
 				result = true;
 			}
 		}
