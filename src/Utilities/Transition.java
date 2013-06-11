@@ -13,7 +13,8 @@ public class Transition {
 	private int _duration;
 	private State _endState;
 	private ArrayList<UDO> _outputs;
-	private State _curState;
+	private int _priority;
+	//private State _curState;
 
 	/**
 	 * a transition is used by an agent (state machine) to formally define state transitions 
@@ -21,15 +22,17 @@ public class Transition {
 	 * @param endState the new state the agent will move to
 	 * @param output the output the transition produces
 	 * @param curState the current state of the actor
+	 * @param priority the priority level of the transition
 	 * todo add a duration that represents how long it takes to move between states
 	 */
-	public Transition (ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, State curState, int duration) {
+	public Transition (ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, int duration, int priority) {// State curState, int duration) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		_curState = curState;
+		//_curState = curState;
 		_duration = duration;
+		_priority = priority;
 		
 	}
 
@@ -70,6 +73,9 @@ public class Transition {
 		return _duration;
 	}
 	
+	public int getPriority(){
+		return _priority;
+	}
 	public String toString() {
 		
 		if ( _inputs == null ) {

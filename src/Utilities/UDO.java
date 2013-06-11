@@ -20,7 +20,9 @@ public class UDO {
 		temp = true;
 	}
 	
-	
+	/**
+	 * updates the data status
+	 */
 	public void processData(){
 		active = temp;
 		temp = false;
