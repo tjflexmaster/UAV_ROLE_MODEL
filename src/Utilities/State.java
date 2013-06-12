@@ -12,16 +12,16 @@ public class State {
 	/**
 	 * this is the name of the state
 	 */
-	private String name;
+	private String _name;
 	private ArrayList<Transition> transitions;
 	
 	/**
 	 * this constructor is used for creating new states
 	 * @param name
 	 */
-	public State(String _name) {
+	public State(String name) {
 		
-		name = name;
+		_name = name;
 		
 	}
 	
@@ -48,7 +48,7 @@ public class State {
 	
 	public String toString() {
 		
-		return name;
+		return _name;
 		
 	}
 
@@ -77,10 +77,10 @@ public class State {
 		if (getClass() != obj.getClass())
 			return false;
 		State other = (State) obj;
-		if (name == null) {
-			if (other.name != null)
+		if (_name == null) {
+			if (other._name != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!_name.equals(other._name))
 			return false;
 		return true;
 	}

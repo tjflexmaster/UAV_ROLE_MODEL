@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import Utilities.*;
+import Actors.*;
 
 public class Simulator {
 	
@@ -71,7 +72,15 @@ public class Simulator {
 	 */
 	private static ArrayList<Actor> initializeClock(ArrayList<UDO> outputs) {
 		ArrayList<Actor> actors = new ArrayList<Actor>();
-		//TODO add actors
+		
+		actors.add(new EventManager(outputs));
+		actors.add(new MissionManager(outputs));
+		actors.add(new Operator(outputs));
+		actors.add(new OperatorGui(outputs));
+		actors.add(new UAV(outputs));
+		actors.add(new VideoOperator(outputs));
+		actors.add(new VideoOperatorGui(outputs));
+		
 		return actors;
 	}
 	

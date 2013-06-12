@@ -8,7 +8,7 @@ public class UDO {
 	
 	public UDO(String name){
 		
-		_name = _name;
+		_name = name;
 		_active = false;
 		_temp = false;
 		

@@ -16,11 +16,6 @@ public abstract class Actor {
 	private int _nextTime = -1;
 	
 	/**
-	 * this represents the current state of the actor (state machine)
-	 */
-	private State _currentState;
-	
-	/**
 	 * this represents the current transition the actor (state machine) is making
 	 * this can be preempted given the right inputs and current state 
 	 */
@@ -30,6 +25,11 @@ public abstract class Actor {
 	 * this is a formally defined list of states the actor (state machine) can make during the simulation
 	 */
 	private ArrayList<State> _states;
+	
+	/**
+	 * this represents the current state of the actor (state machine)
+	 */
+	private State _currentState;
 	
 	/**
 	 * this method tells the actor to look at its current state and inputs
