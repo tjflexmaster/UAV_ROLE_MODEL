@@ -19,16 +19,12 @@ public class State {
 	 * this constructor is used for creating new states
 	 * @param name
 	 */
-	public State(String name) {
+	public State(String _name) {
 		
-		_name = name;
+		name = name;
 		
 	}
 	
-	public void addTransition(Transition t){
-		
-		_transitions.add(t);
-		
 	/**
 	 * This adds a transition to the system organizing the array list by highest priorities first
 	 * @param new_transition
@@ -52,7 +48,7 @@ public class State {
 	
 	public String toString() {
 		
-		return _name;
+		return name;
 		
 	}
 

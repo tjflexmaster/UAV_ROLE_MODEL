@@ -25,7 +25,7 @@ public class Transition {
 	 * @param priority the priority level of the transition
 	 * todo add a duration that represents how long it takes to move between states
 	 */
-	public Transition (ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, State curState, int duration) {
+	public Transition (ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, int duration, int priority) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -82,7 +82,7 @@ public class Transition {
 		
 		String result = "";
 		
-		result += _curState + " X ";
+		//result += _curState + " X ";
 		if ( _inputs == null ) {
 			result += Integer.toString(_duration);
 		} else {
