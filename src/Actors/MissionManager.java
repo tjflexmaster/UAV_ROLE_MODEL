@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 import Utilities.Actor;
 import Utilities.UDO;
+import Utilities.UDOList;
 
 public class MissionManager extends Actor {
 
-	public MissionManager(ArrayList<UDO> outputs) {
+	public MissionManager(UDOList outputs) {
 		// TODO Auto-generated constructor stub
 	}
 

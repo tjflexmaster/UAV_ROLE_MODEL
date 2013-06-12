@@ -6,7 +6,7 @@ import Utilities.*;
 
 public class EventManager extends Actor {
 
-	public EventManager(ArrayList<UDO> outputs) {
+	public EventManager(UDOList outputs) {
 		// TODO Auto-generated constructor stub
 	}
 	

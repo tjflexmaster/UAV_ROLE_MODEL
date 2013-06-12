@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 import Utilities.Actor;
 import Utilities.UDO;
+import Utilities.UDOList;
 
 public class OperatorGui extends Actor{
 
-	public OperatorGui(ArrayList<UDO> outputs) {
+	public OperatorGui(UDOList outputs) {
 		// TODO Auto-generated constructor stub
 	}
 	
