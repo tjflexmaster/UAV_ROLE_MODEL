@@ -1,6 +1,7 @@
-package Utilities;
+package Simulator;
 
 import java.util.ArrayList;
+
 
 import Actors.*;
 
@@ -18,7 +19,12 @@ public class ActorsList extends ArrayList<Actor> {
 	 */
 	private static final long serialVersionUID = 682275625652767731L;
 
+	/**
+	 * initialize all of the actors that will be used during the simulation
+	 * @param outputs
+	 */
 	public ActorsList(UDOList outputs) {
+		
 		this.add(new EventManager(outputs));
 		this.add(new MissionManager(outputs));
 		this.add(new Operator(outputs));
@@ -26,6 +32,7 @@ public class ActorsList extends ArrayList<Actor> {
 		this.add(new VideoOperator(outputs));
 		this.add(new VideoOperatorGui(outputs));
 		this.add(new UAV(outputs));
+		
 	}
 
 }

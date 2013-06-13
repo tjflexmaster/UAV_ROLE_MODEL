@@ -1,4 +1,4 @@
-package Utilities;
+package Simulator;
 
 public class UDO {
 
@@ -27,13 +27,21 @@ public class UDO {
 	}
 	
 	/**
+	 * return a copy of the name of the UDO  
+	 */
+	public String getName() {
+		
+		return _name;
+		
+	}
+	
+	/**
 	 * updates the data status
 	 */
-	public void processData(){
+	public void processData() {
 		
 		_active = _temp;
 		_temp = false;
 		
 	}
-	
 }

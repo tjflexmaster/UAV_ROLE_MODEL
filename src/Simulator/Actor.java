@@ -1,6 +1,7 @@
-package Utilities;
+package Simulator;
 
 import java.util.ArrayList;
+
 
 public abstract class Actor {
 	
@@ -36,11 +37,7 @@ public abstract class Actor {
 	 * if appropriate a new transition will be scheduled
 	 * @return returns true if a new transition has been scheduled
 	 */
-	public boolean updateTransition() {
-		
-		return false;
-		
-	}
+	public abstract boolean updateTransition();
 	
 	/**
 	 * this method tells the actor to process its current transition if appropriate
@@ -49,7 +46,7 @@ public abstract class Actor {
 	public boolean processTransition(){
 		
 		if(_nextTime == 0){
-			_currentState = _currentTransition.process();
+			setCurrentState(_currentTransition.process());
 			return true;
 		}
 		
@@ -113,5 +110,13 @@ public abstract class Actor {
 		State new_state = new State(state);
 		new_state.addTransition(new Transition(inputs,outputs,endState,duration,priority));
 		_states.add(new_state);
+	}
+
+	public State getCurrentState() {
+		return _currentState;
+	}
+
+	public void setCurrentState(State _currentState) {
+		this._currentState = _currentState;
 	}
 }

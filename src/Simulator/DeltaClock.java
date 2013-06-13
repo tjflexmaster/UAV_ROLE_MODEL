@@ -1,13 +1,23 @@
-package Utilities;
+package Simulator;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class DeltaClock {
-	
-	static int currentTime = 0;
 
-	public void run(ActorsList clock, Scanner scanner) {
+public class DeltaClock {
+
+	/**
+	 * this method does most of the processing of the simulator
+	 * @param clock is a list of all the actors
+	 * 		this list will be reordered by actor.nextTime as a delta clock is ordered 
+	 * @param 
+	 */
+	public void run(ActorsList clock) {
+		
+		//the scanner is used to communicate with the user running the simulation
+		Scanner scanner = new Scanner(System.in);
+		
+		int currentTime = 0;
 		
 		do {
 			
@@ -25,6 +35,7 @@ public class DeltaClock {
 			clock.get(0).setNextTime(0);
 			
 			//communicate with the user
+			communicate(currentTime);
 			
 			//process all actors that have a next time equal to zero
 			for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
@@ -36,6 +47,9 @@ public class DeltaClock {
 			}
 			
 		} while (isRunning(clock));
+		
+		//close the scanner once the simulation is complete
+		scanner.close();
 		
 	}
 
@@ -71,6 +85,15 @@ public class DeltaClock {
 		}
 		
 		return clock;
+	}
+	
+	/**
+	 * this method prints swim lanes and accepts user commands
+	 * @param currentTime 
+	 */
+	private void communicate(int currentTime) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
