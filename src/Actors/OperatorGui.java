@@ -9,7 +9,7 @@ public class OperatorGui extends Actor{
 	}
 
 	@Override
-	public boolean updateTransition() {
+	public boolean updateTransition(int currentTime) {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -24,7 +24,7 @@ public class DeltaClock {
 			//update actors next planned transition (currentTransition)
 			for (int clockIndex = 0; clockIndex < clock.size(); clockIndex++) {
 				
-				if (clock.get(clockIndex).updateTransition()) {
+				if (clock.get(clockIndex).updateTransition(currentTime)) {
 					clock = resetClock(clock, clock.get(clockIndex));
 				}
 				

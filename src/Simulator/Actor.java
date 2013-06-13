@@ -25,7 +25,7 @@ public abstract class Actor {
 	/**
 	 * this is a formally defined list of states the actor (state machine) can make during the simulation
 	 */
-	private ArrayList<State> _states;
+	protected ArrayList<State> _states;
 	
 	/**
 	 * this represents the current state of the actor (state machine)
@@ -35,9 +35,10 @@ public abstract class Actor {
 	/**
 	 * this method tells the actor to look at its current state and inputs
 	 * if appropriate a new transition will be scheduled
+	 * @param currentTime 
 	 * @return returns true if a new transition has been scheduled
 	 */
-	public abstract boolean updateTransition();
+	public abstract boolean updateTransition(int currentTime);
 	
 	/**
 	 * this method tells the actor to process its current transition if appropriate
@@ -97,7 +98,7 @@ public abstract class Actor {
 		_states.add(new State(name));
 	}
 	
-	public void addTransition(String state, ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, int duration, int priority){
+	public void addTransition(String state, ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, Duration duration, int priority){
 		//find the state and add the transition to it
 		for(int index = 0; index < _states.size(); index++){
 			State temp = _states.get(index);
