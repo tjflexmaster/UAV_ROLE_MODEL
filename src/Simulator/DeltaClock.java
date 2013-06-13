@@ -12,7 +12,7 @@ public class DeltaClock {
 	 * 		this list will be reordered by actor.nextTime as a delta clock is ordered 
 	 * @param 
 	 */
-	public void run(ActorsList actors) {
+	public void run(Team actors) {
 		
 		//the scanner is used to communicate with the user running the simulation
 		Scanner scanner = new Scanner(System.in);
@@ -59,7 +59,7 @@ public class DeltaClock {
 	 * @param actor
 	 * @return 
 	 */
-	private static ActorsList resetClock(ActorsList actors, Actor actor) {
+	private static Team resetClock(Team actors, Actor actor) {
 		actors.remove(actor);
 		
 		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {

@@ -1,10 +1,13 @@
 package Actors;
 
-import Simulator.*;
+import java.util.ArrayList;
+
+import Simulator.Actor;
+import Simulator.UDO;
 
 public class MissionManager extends Actor {
 
-	public MissionManager(UDOList outputs) {
+	public MissionManager(ArrayList<UDO> outputs) {
 		// TODO Auto-generated constructor stub
 	}
 

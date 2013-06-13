@@ -1,10 +1,14 @@
 package Actors;
 
-import Simulator.*;
+import java.util.ArrayList;
+
+import Simulator.Actor;
+import Simulator.State;
+import Simulator.UDO;
 
 public class EventManager extends Actor {
 
-	public EventManager(UDOList outputs) {
+	public EventManager(ArrayList<UDO> data) {
 		
 		State idle = new State("idle");
 		State active = new State("active");

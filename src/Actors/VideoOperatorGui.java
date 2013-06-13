@@ -1,10 +1,13 @@
 package Actors;
 
-import Simulator.*;
+import java.util.ArrayList;
+
+import Simulator.Actor;
+import Simulator.UDO;
 
 public class VideoOperatorGui extends Actor {
 
-	public VideoOperatorGui(UDOList outputs) {
+	public VideoOperatorGui(ArrayList<UDO> outputs) {
 		// TODO Auto-generated constructor stub
 	}
 

@@ -1,5 +1,7 @@
 package Simulator;
 
+import java.util.ArrayList;
+
 public class Simulator {
 	
 	/**
@@ -9,8 +11,7 @@ public class Simulator {
 	 */
 	public static void main(String[] args) {
 		//initialize simulation variables
-		UDOList outputs = new UDOList();
-		ActorsList actors = new ActorsList(outputs);
+		Team actors = new Team();
 		DeltaClock clock = new DeltaClock();
 		
 		//run the simulator until the clock is empty
