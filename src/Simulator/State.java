@@ -31,22 +31,53 @@ public class State {
 	 * @param new_transition
 	 * @return returns if the addition was successful
 	 */
-	public boolean addTransition(Transition new_transition){
+	public State addTransition(Transition new_transition){
 		if(transitions.contains(new_transition)){
-			return false;
+			return this;
 		}
 		for(int index = 0; index < transitions.size(); index++){
 			Transition temp = transitions.get(index);
 			if(temp.getPriority() < new_transition.getPriority()){
 				transitions.add(new_transition);
-				return true;
+				return this;
 			}
 		}
 		transitions.add(new_transition);
-		return true;
+		return this;
 	}
 	
+
+	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
+		Transition new_transition = new Transition(inputs,outputs,endState,duration,priority);
+		if(transitions.contains(new_transition)){
+			return this;
+		}
+		for(int index = 0; index < transitions.size(); index++){
+			Transition temp = transitions.get(index);
+			if(temp.getPriority() < new_transition.getPriority()){
+				transitions.add(new_transition);
+				return this;
+			}
+		}
+		transitions.add(new_transition);
+		return this;
+	}
 	
+	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, int duration, int priority) {
+		Transition new_transition = new Transition(inputs,outputs,endState,new Duration(duration),priority);
+		if(transitions.contains(new_transition)){
+			return this;
+		}
+		for(int index = 0; index < transitions.size(); index++){
+			Transition temp = transitions.get(index);
+			if(temp.getPriority() < new_transition.getPriority()){
+				transitions.add(new_transition);
+				return this;
+			}
+		}
+		transitions.add(new_transition);
+		return this;
+	}
 	public String toString() {
 		
 		return _name;
@@ -85,4 +116,5 @@ public class State {
 			return false;
 		return true;
 	}
+
 }

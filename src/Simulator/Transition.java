@@ -9,10 +9,10 @@ import java.util.ArrayList;
  */
 public class Transition {
 	
-	private ArrayList<UDO> _inputs;
+	private UDO[] _inputs;
 	private Duration _duration;
 	private State _endState;
-	private ArrayList<UDO> _outputs;
+	private UDO[] _outputs;
 	private int _priority;
 	//private State _curState;
 
@@ -26,7 +26,7 @@ public class Transition {
 	 * @param priority the priority level of the transition
 	 * todo add a duration that represents how long it takes to move between states
 	 */
-	public Transition (ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, Duration duration, int priority) {
+	public Transition (UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority) {
 		
 		_inputs = inputs;
 		_outputs = outputs;

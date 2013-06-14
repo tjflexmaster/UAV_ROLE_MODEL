@@ -11,6 +11,11 @@ public class Duration {
 		_maximum = maximum;
 		
 	}
+	
+	public Duration(int duration){
+		
+		_minimum = _maximum = duration;
+	}
 
 	public String getMaximum() {
 		// TODO Auto-generated method stub
