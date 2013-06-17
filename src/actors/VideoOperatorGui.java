@@ -1,9 +1,10 @@
-package Actors;
+package actors;
 
 import java.util.ArrayList;
 
-import Simulator.Actor;
-import Simulator.UDO;
+import simulator.Actor;
+import simulator.UDO;
+
 
 public class VideoOperatorGui extends Actor {
 

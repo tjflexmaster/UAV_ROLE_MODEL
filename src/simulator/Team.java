@@ -1,9 +1,8 @@
-package Simulator;
+package simulator;
 
 import java.util.ArrayList;
 
-
-import Actors.*;
+import actors.*;
 
 /**
  * 
@@ -21,13 +20,17 @@ public class Team extends ArrayList<Actor> {
 
 	/**
 	 * initialize all of the actors that will be used during the simulation
+	 * assigns the actors the inputs and outputs they will be using (can this be moved inside the actor? -rob)
 	 * @param outputs
 	 */
 	public Team() {
 		ArrayList<UDO> inputs = new ArrayList<UDO>();
 		ArrayList<UDO> outputs = new ArrayList<UDO>();
-		this.add(new EventManager(outputs, inputs));
+		
+		this.add(new ParentSearch(outputs, inputs));
+		
 		//TODO actor_io and fill with MM inputs.add(UDO.MM.PS_POKE_MM);
+		inputs.clear();
 		outputs.clear();
 		inputs.add(UDO.PS_POKE_MM);
 		inputs.add(UDO.VO_POKE_MM);
@@ -72,21 +75,30 @@ public class Team extends ArrayList<Actor> {
 		outputs.add(UDO.MM_BUSY_PS);
 		outputs.add(UDO.MM_BUSY_OP);
 		outputs.add(UDO.MM_BUSY_VO);
-		
 		this.add(new MissionManager(inputs, outputs));
+		
 		//TODO actor_io and fill with OP 
+		inputs.clear();
 		outputs.clear();
 		this.add(new Operator(outputs));
+		
 		//TODO actor_io and fill with OGUI
+		inputs.clear();
 		outputs.clear();
 		this.add(new OperatorGui(outputs));
+		
 		//TODO actor_io and fill with VO
+		inputs.clear();
 		outputs.clear();
 		this.add(new VideoOperator(outputs));
+		
 		//TODO actor_io and fill with VGUI
+		inputs.clear();
 		outputs.clear();
 		this.add(new VideoOperatorGui(outputs));
+		
 		//TODO actor_io and fill with UAV
+		inputs.clear();
 		outputs.clear();
 		this.add(new UAV(outputs));
 		

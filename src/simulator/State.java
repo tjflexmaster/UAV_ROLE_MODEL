@@ -1,12 +1,11 @@
-package Simulator;
+package simulator;
 
 import java.util.ArrayList;
 
-
 /**
+ * this class represents a the state of an actor (state machine)
+ * @author tjr team
  * 
- * @author rob.ivie
- * this class is still incomplete
  */
 public class State {
 	
@@ -21,13 +20,11 @@ public class State {
 	 * @param name
 	 */
 	public State(String name) {
-		
 		_name = name;
-		
 	}
 	
 	/**
-	 * This adds a transition to the system organizing the array list by highest priorities first
+	 * this adds a transition to the system organizing the array list by highest priorities first
 	 * @param new_transition
 	 * @return returns if the addition was successful
 	 */
@@ -35,57 +32,58 @@ public class State {
 		if(transitions.contains(new_transition)){
 			return this;
 		}
-		for(int index = 0; index < transitions.size(); index++){
-			Transition temp = transitions.get(index);
-			if(temp.getPriority() < new_transition.getPriority()){
-				transitions.add(new_transition);
-				return this;
-			}
-		}
-		transitions.add(new_transition);
-		return this;
-	}
-	
-
-	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
-		Transition new_transition = new Transition(inputs,outputs,endState,duration,priority);
-		if(transitions.contains(new_transition)){
-			return this;
-		}
-		for(int index = 0; index < transitions.size(); index++){
-			Transition temp = transitions.get(index);
-			if(temp.getPriority() < new_transition.getPriority()){
-				transitions.add(new_transition);
-				return this;
-			}
-		}
-		transitions.add(new_transition);
-		return this;
-	}
-	
-	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, int duration, int priority) {
-		Transition new_transition = new Transition(inputs,outputs,endState,new Duration(duration),priority);
-		if(transitions.contains(new_transition)){
-			return this;
-		}
-		for(int index = 0; index < transitions.size(); index++){
-			Transition temp = transitions.get(index);
-			if(temp.getPriority() < new_transition.getPriority()){
-				transitions.add(new_transition);
-				return this;
-			}
-		}
-		transitions.add(new_transition);
-		return this;
-	}
-	public String toString() {
 		
-		return _name;
+		for(int index = 0; index < transitions.size(); index++){
+			Transition temp = transitions.get(index);
+			if(temp.getPriority() < new_transition.getPriority()){
+				transitions.add(new_transition);
+				return this;
+			}
+		}
+		transitions.add(new_transition);
 		
+		return this;
 	}
 
 	/**
-	 * This finds the first possible transition from the array list, most state classes will overide this method
+	 * this functions as the other addTransition method,
+	 * except that it create the transition instead of taking one as a parameter 
+	 * @param inputs
+	 * @param outputs
+	 * @param endState
+	 * @param duration
+	 * @param priority
+	 * @return
+	 */
+	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
+		Transition new_transition = new Transition(inputs,outputs,endState,duration,priority);
+		
+		if(transitions.contains(new_transition)){
+			return this;
+		}
+		
+		for(int index = 0; index < transitions.size(); index++){
+			Transition temp = transitions.get(index);
+			if(temp.getPriority() < new_transition.getPriority()){
+				transitions.add(new_transition);
+				return this;
+			}
+		}
+		
+		transitions.add(new_transition);
+		return this;
+	}
+	
+	/**
+	 * this method works like a normal toString method
+	 * @return return the string representation of this state
+	 */
+	public String toString() {
+		return _name;
+	}
+
+	/**
+	 * this finds the first possible transition from the array list, most state classes will overide this method
 	 * @return	the next possible transition with the highest priority, null if none are possible
 	 */
 	public Transition getNextTransition(){
@@ -94,11 +92,12 @@ public class State {
 				return transition;
 			}
 		}
+		
 		return null;
 	}
 	
 	/**
-	 * overided the equals method to return true if the names of the two states match
+	 * override the equals method to return true if the names of the two states match
 	 */
 	@Override
 	public boolean equals(Object obj) {

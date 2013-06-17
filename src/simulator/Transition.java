@@ -1,11 +1,9 @@
-package Simulator;
-
-import java.util.ArrayList;
-
-
+package simulator;
 
 /**
- * @author rob.ivie
+ * this class is a models all transitions in the simulation 
+ * @author tjr team
+ * 
  */
 public class Transition {
 	
@@ -14,7 +12,6 @@ public class Transition {
 	private State _endState;
 	private UDO[] _outputs;
 	private int _priority;
-	//private State _curState;
 
 
 	/**
@@ -31,29 +28,15 @@ public class Transition {
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		//_curState = curState;
 		_duration = duration;
 		_priority = priority;
 		
 	}
-
-//	/**
-//	 * a transition is used by an agent (state machine) to formally define state transitions 
-//	 * @param startState the state an agent must be in before it can make the transition
-//	 * @param time the necessary input an agent needs before it can make the transition
-//	 * @param nextState the new state the agent will move to
-//	 * @param output the output the transition produces
-//	 * todo add a duration that represents how long it takes to move between states
-//	 */
-//	public Transition(int time, State nextState, ArrayList<UDO> outputs) {
-//		
-//		
-//		_time = time; 
-//		_nextState = nextState;
-//		_outputs = outputs;
-//		
-//	}
 	
+	/**
+	 * 
+	 * @return return whether the transition can be made based on the state of the UDOs
+	 */
 	public boolean isPossible(){
 		for(UDO input : _inputs){
 			if(!input.isActive()){
@@ -63,37 +46,49 @@ public class Transition {
 		return true;
 	}
 	
-	public State process(){
+	/**
+	 * 
+	 * @return the new state of the actor after the transition is processes 
+	 */
+	public State makeTransition(){
 		for(UDO output : _outputs){
-			output.setActive();
+			output.prime();
 		}
 		return _endState;
 	}
 	
+	/**
+	 * 
+	 * @return returns the expected time until the transition is processed (a duration)
+	 */
 	public Duration getDuration(){
-		
 		return _duration;
-		
 	}
 	
+	/**
+	 * 
+	 * @return return the prioritized value of the transition
+	 */
 	public int getPriority(){
 		return _priority;
 	}
 	
+	/**
+	 * 
+	 * @return return a string representation of the transition
+	 */
 	public String toString() {
-		
 		String result = "";
 		
 		//result += _curState + " X ";
 		if ( _inputs == null ) {
-			result += _duration.getMaximum();
+			result += _duration.toString();
 		} else {
 			result += _inputs.toString();
 		}
 		result += " -> " + _endState.toString() + " X " + _outputs.toString();
 		
 		return result;
-		
 	}
 	
 }

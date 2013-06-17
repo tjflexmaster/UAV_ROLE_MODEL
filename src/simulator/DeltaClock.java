@@ -1,7 +1,8 @@
-package Simulator;
+package simulator;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+
 
 
 public class DeltaClock {
@@ -10,7 +11,6 @@ public class DeltaClock {
 	 * this method does most of the processing of the simulator
 	 * @param clock is a list of all the actors
 	 * 		this list will be reordered by actor.nextTime as a delta clock is ordered 
-	 * @param 
 	 */
 	public void run(Team actors) {
 		

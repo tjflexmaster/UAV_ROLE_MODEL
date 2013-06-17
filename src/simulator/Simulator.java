@@ -1,6 +1,4 @@
-package Simulator;
-
-import java.util.ArrayList;
+package simulator;
 
 public class Simulator {
 	

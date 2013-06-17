@@ -1,8 +1,18 @@
-package Simulator;
+package simulator;
 
 public enum UDO {
 	
-	/*	Mission Manager */
+	/* Parent Search Outputs */
+	
+	PS_POKE_MM,
+	PS_END_MM,
+	PS_TERMINATE_SEARCH_MM,
+	PS_TARGET_DESCRIPTION_MM,
+	PS_NEW_SEARCH_AOI,
+	PS_BUSY_MM,
+	PS_ACK_MM,
+	
+	/* Mission Manager Outputs */
 	
 	MM_POKE_PS,
 	MM_POKE_VO,
@@ -31,7 +41,7 @@ public enum UDO {
 	MM_BUSY_OP,
 	MM_BUSY_VO,
 
-	/*	Video Operator	*/
+	/* Video Operator Outputs */
 
 	VO_POKE_MM,
 	VO_END_MM,
@@ -51,12 +61,14 @@ public enum UDO {
 	VO_ACK_MM,
 	VO_BUSY_MM,
 
-	/*	Video Operator Gui	*/
+	/* Video Operator Gui Outputs */
 	
 	VGUI_FALSE_POSITIVE,
 	VGUI_TRUE_POSITIVE,
 	VGUI_VALIDATION_REQ_T,
 	VGUI_VALIDATION_REQ_F,
+	VGUI_VALIDATION_REQ_T_MM,
+	VGUI_VALIDATION_REQ_F_MM,
 	VO_FLYBY_REQ_T_OGUI,
 	VO_FLYBY_REQ_F_OGUI,
 	VO_FLYBY_END_FAILED_OGUI,
@@ -65,41 +77,54 @@ public enum UDO {
 	MM_FLYBY_REQ_T_OGUI,
 	VGUI_NORMAL,
 	VGUI_FLYBY_T,
-	VGUI_FLYBY_F;
+	VGUI_FLYBY_F,
 	
-	/* UAV Operator */
+	/* UAV Operator Outputs */
 	
-	/* UAV Operator Gui */
+	 OP_POKE_MM,
+	 OP_END_MM,
+	 OP_SEARCH_AOI_COMPLETE_MM,
+	 OP_BUSY_MM;
+	
+	/* UAV Operator Gui Outputs */
 	
 
 	private boolean _active;
-	private boolean _temp;
+	private boolean _primed;
 	
 	private UDO(){
 		this._active = false;
-		this._temp = false;
+		this._primed = false;
 		
 	}
 
+	/**
+	 * this method is used to tell if a UDO is active
+	 * @return return the state of the UDO
+	 */
 	public boolean isActive() {
 		
 		return _active;
 		
 	}
 
-	public void setActive() {
+	/**
+	 * primes the UDO, actors will soon be able to respond to it
+	 */
+	public void prime() {
 		
-		_temp = true;
+		_primed = true;
 		
 	}
 	
 	/**
 	 * updates the data status
+	 * works to activate or deactivate the UDO based on the temp status
 	 */
 	public void processData() {
 		
-		_active = _temp;
-		_temp = false;
+		_active = _primed;//activates or deactivates the UDO 
+		_primed = false;
 		
 	}
 }

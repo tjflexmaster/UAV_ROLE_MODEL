@@ -1,8 +1,13 @@
-package Simulator;
+package simulator;
 
 import java.util.ArrayList;
 
-
+/**
+ * this abstract class is extended by the actors of the simulation
+ * it contains the variables and methods that compose an actor
+ * @author tjr team
+ *
+ */
 public abstract class Actor {
 	
 	/**
@@ -45,14 +50,12 @@ public abstract class Actor {
 	 * @return returns true if the current transition has been processed
 	 */
 	public boolean processTransition(){
-		
 		if(_nextTime == 0){
-			setCurrentState(_currentTransition.process());
+			setCurrentState(_currentTransition.makeTransition());
 			return true;
 		}
 		
 		return false;
-		
 	}
 
 	/**
@@ -62,7 +65,6 @@ public abstract class Actor {
 	public int getNextTime() {
 		//should we delete this method and make nextTime public?
 		return _nextTime;
-		
 	}
 
 	/**
@@ -72,14 +74,13 @@ public abstract class Actor {
 	public void setNextTime(int nextTime) {
 		//should we delete this method and make nextTime public?
 		this._nextTime = nextTime;
-		
 	}
 	
 	/**
-	 * this method returns the string representation of the actor
+	 * this method works like a normal toSTring method
+	 * @return return the string representation of the actor
 	 */
 	public String toString() {
-		
 		String result = "";
 		
 		result += _name + "(" + _nextTime + "): ";
@@ -88,16 +89,25 @@ public abstract class Actor {
 		}
 		
 		return result;
-		
 	}
 	
-	
-	//constructor classes
-	
+	/**
+	 * builds a state for the actor
+	 * @param name
+	 */
 	public void addState(String name){
 		_states.add(new State(name));
 	}
 	
+	/*
+	 * builds a transition for the actor
+	 * @param state
+	 * @param inputs
+	 * @param outputs
+	 * @param endState
+	 * @param duration
+	 * @param priority
+	 *
 	public void addTransition(String state, ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, Duration duration, int priority){
 		//find the state and add the transition to it
 		for(int index = 0; index < _states.size(); index++){
@@ -111,8 +121,12 @@ public abstract class Actor {
 		State new_state = new State(state);
 		new_state.addTransition(new Transition(inputs,outputs,endState,duration,priority));
 		_states.add(new_state);
-	}
+	}*/
 
+	/**
+	 * 
+	 * @return return the current state of the actor
+	 */
 	public State getCurrentState() {
 		return _currentState;
 	}
