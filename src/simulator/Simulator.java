@@ -1,5 +1,7 @@
 package simulator;
 
+import java.util.Scanner;
+
 public class Simulator {
 	
 	/**
@@ -10,10 +12,25 @@ public class Simulator {
 	public static void main(String[] args) {
 		//initialize simulation variables
 		Team actors = new Team();
-		DeltaClock clock = new DeltaClock();
+		DeltaClock clock = new DeltaClock(actors);
+		Scanner scanner = new Scanner(System.in);
 		
 		//run the simulator until the clock is empty
-		clock.run(actors);
+		while (clock.tick() != -1) {
+			System.out.println(clock.toString());
+			getUserCommand();
+		}
+		
+		//close the scanner once the simulation is complete
+		scanner.close();
+	}
+	
+	/**
+	 * this method prints swim lanes and accepts user commands
+	 * @param currentTime 
+	 */
+	private static void getUserCommand() {
+		// TODO Auto-generated method stub
 		
 	}
 	

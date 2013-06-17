@@ -1,17 +1,15 @@
 package actors;
 
-import java.util.ArrayList;
-
 import simulator.*;
 
 public class ParentSearch extends Actor {
 
-	public ParentSearch(ArrayList<UDO> inputs, ArrayList<UDO> outputs) {
+	public ParentSearch() {
 		
 	}
 	
 	@Override
-	public boolean updateTransition(int currentTime) {
+	public boolean hasNewTransition(int currentTime) {
 		// TODO Auto-generated method stub
 		return false;
 	}

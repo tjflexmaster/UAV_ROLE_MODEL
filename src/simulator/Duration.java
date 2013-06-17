@@ -1,10 +1,13 @@
 package simulator;
 
-public class Duration {
+public enum Duration {
 	
 	/* Parent Search Durations */
 	
 	/* Mission Manager Durations */
+	
+	MM_POKE_PS(5,20),
+	MM_POKE_TO_TX_PS(5);
 	
 	/* Video Operator Outputs */
 	
@@ -19,10 +22,10 @@ public class Duration {
 
 	/**
 	 * creates a bounded duration
-	 * @param minimum represents the minimum bound of the duration
-	 * @param maximum represents the maximum bound of the duration
+	 * @param minimum represents the minimum bound of the duration in seconds
+	 * @param maximum represents the maximum bound of the duration in seconds
 	 */
-	public Duration(int minimum, int maximum) {
+	Duration(int minimum, int maximum) {
 		
 		_minimum = minimum;
 		_maximum = maximum;
@@ -31,9 +34,9 @@ public class Duration {
 	
 	/**
 	 * creates a fixed duration
-	 * @param duration
+	 * @param duration represents the fixed time duration in seconds
 	 */
-	public Duration(int duration){
+	Duration(int duration){
 		
 		_minimum = duration;
 		_maximum = duration;

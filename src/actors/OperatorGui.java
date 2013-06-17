@@ -1,19 +1,15 @@
 package actors;
 
-import java.util.ArrayList;
-
-import simulator.Actor;
-import simulator.UDO;
-
+import simulator.*;
 
 public class OperatorGui extends Actor{
 
-	public OperatorGui(ArrayList<UDO> outputs) {
+	public OperatorGui() {
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public boolean updateTransition(int currentTime) {
+	public boolean hasNewTransition(int currentTime) {
 		// TODO Auto-generated method stub
 		return false;
 	}

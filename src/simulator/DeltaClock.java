@@ -1,116 +1,85 @@
 package simulator;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-
-
-
 public class DeltaClock {
 
+	private int _currentTime = 0;
+	private Team _actors = new Team();
+
 	/**
-	 * this method does most of the processing of the simulator
-	 * @param clock is a list of all the actors
-	 * 		this list will be reordered by actor.nextTime as a delta clock is ordered 
+	 * this method builds a delta clock of actors, that ticks their nextTime value
+	 * @param actors specifies the team of actors that will be used in this clock
 	 */
-	public void run(Team actors) {
-		
-		//the scanner is used to communicate with the user running the simulation
-		Scanner scanner = new Scanner(System.in);
-		
-		int currentTime = 0;
-		
-		do {
-			
-			//update actors next planned transition (currentTransition)
-			for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-				
-				if (actors.get(actorsIndex).updateTransition(currentTime)) {
-					actors = resetClock(actors, actors.get(actorsIndex));
-				}
-				
-			}
-			
-			//tick the clock until a transition happens
-			currentTime += actors.get(0).getNextTime();
-			actors.get(0).setNextTime(0);
-			
-			//communicate with the user
-			communicate(currentTime);
-			
-			//process all actors that have a next time equal to zero
-			for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-				
-				if (actors.get(actorsIndex).processTransition()) {
-					actors = resetClock(actors, actors.get(actorsIndex));
-				}
-				
-			}
-			
-		} while (isRunning(actors));
-		
-		//close the scanner once the simulation is complete
-		scanner.close();
-		
+	public DeltaClock(Team actors) {
+		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
+			addActor(actors.get(actorsIndex));
+		}
 	}
 
 	/**
-	 * reorder actors as you would a delta clock
-	 * @param clock 
-	 * @param actor
+	 * this checks to see if the clock is full and advances the time
+	 * @param clock
+	 * @return return true if the clock is still ticking, else return false
+	 */
+	public int tick() {
+		//check all actors to see if they are making a transition
+		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
+			_actors.remove(actorsIndex);
+			if (_actors.get(actorsIndex).makingTransition()) {
+				addActor(_actors.get(actorsIndex));
+			}
+		}
+		
+		//update next planned transition (currentTransition) of all actors
+		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
+			Actor nextActor = _actors.remove(actorsIndex);
+			if (nextActor.hasNewTransition(_currentTime)) {
+				addActor(_actors.get(actorsIndex));
+			}
+		}
+		
+		//tick the clock until a transition happens
+		_currentTime += _actors.get(0).getNextTime();
+		_actors.get(0).setNextTime(0);
+		
+		return _currentTime;
+	}
+
+	/**
+	 * places new actor in delta clock order
+	 * @param actor specifies the actor to that will be added to this clock
 	 * @return 
 	 */
-	private static Team resetClock(Team actors, Actor actor) {
-		actors.remove(actor);
-		
-		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
+	private void addActor(Actor actor) {
+		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
 			//if this spot in the list (delta clock) is empty place the actor here
-			if (actors.get(actorsIndex).getNextTime() == -1) {
-				actors.add(actor);
+			if (_actors.get(actorsIndex).getNextTime() == -1) {
+				_actors.add(actor);
 				break;
 			}
 			//if the actor has less time then place it here and update next actor's nextTime
-			else if (actors.get(actorsIndex).getNextTime() > actor.getNextTime()) {
-				actors.get(actorsIndex).setNextTime(actors.get(actorsIndex).getNextTime() - actor.getNextTime());
-				actors.add(actorsIndex, actor);
+			else if (_actors.get(actorsIndex).getNextTime() > actor.getNextTime()) {
+				_actors.get(actorsIndex).setNextTime(_actors.get(actorsIndex).getNextTime() - actor.getNextTime());
+				_actors.add(actorsIndex, actor);
 				break;
 			}
 			//if the actor has more time, then update its time and move to the next space
-			else if (actors.get(actorsIndex).getNextTime() < actor.getNextTime()) {
-				actor.setNextTime(actor.getNextTime() - actors.get(actorsIndex).getNextTime());
+			else if (_actors.get(actorsIndex).getNextTime() < actor.getNextTime()) {
+				actor.setNextTime(actor.getNextTime() - _actors.get(actorsIndex).getNextTime());
 			}
 			//if the list (delta clock) is full, then add actor to the end 
-			else if (actorsIndex == actors.size() - 1) {
-				actors.add(actor);
+			else if (actorsIndex == _actors.size() - 1) {
+				_actors.add(actor);
 			}
 		}
-		
-		return actors;
-	}
-	
-	/**
-	 * this method prints swim lanes and accepts user commands
-	 * @param currentTime 
-	 */
-	private void communicate(int currentTime) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	/**
-	 * this checks to see if the clock is full
-	 * @param clock
-	 * @return
+	 * this method works like a normal toString method
+	 * @return return a string representation of the clock
 	 */
-	private static boolean isRunning(ArrayList<Actor> actors) {
-		
-		boolean result = false;
-		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			if (actors.get(actorsIndex).getNextTime() != -1) {
-				result = true;
-			}
-		}
+	public String toString() {
+		String result = "";
 		
 		return result;
 	}
-
 }

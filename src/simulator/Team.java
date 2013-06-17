@@ -24,12 +24,12 @@ public class Team extends ArrayList<Actor> {
 	 * @param outputs
 	 */
 	public Team() {
-		ArrayList<UDO> inputs = new ArrayList<UDO>();
+/*		ArrayList<UDO> inputs = new ArrayList<UDO>();
 		ArrayList<UDO> outputs = new ArrayList<UDO>();
 		
-		this.add(new ParentSearch(outputs, inputs));
+*/		this.add(new ParentSearch());
 		
-		//TODO actor_io and fill with MM inputs.add(UDO.MM.PS_POKE_MM);
+/*		//TODO actor_io and fill with MM inputs.add(UDO.MM.PS_POKE_MM);
 		inputs.clear();
 		outputs.clear();
 		inputs.add(UDO.PS_POKE_MM);
@@ -75,33 +75,32 @@ public class Team extends ArrayList<Actor> {
 		outputs.add(UDO.MM_BUSY_PS);
 		outputs.add(UDO.MM_BUSY_OP);
 		outputs.add(UDO.MM_BUSY_VO);
-		this.add(new MissionManager(inputs, outputs));
+*/		this.add(new MissionManager());
 		
-		//TODO actor_io and fill with OP 
+/*		//TODO actor_io and fill with OP 
 		inputs.clear();
 		outputs.clear();
-		this.add(new Operator(outputs));
+*/		this.add(new Operator());
 		
-		//TODO actor_io and fill with OGUI
+/*		//TODO actor_io and fill with OGUI
 		inputs.clear();
 		outputs.clear();
-		this.add(new OperatorGui(outputs));
+*/		this.add(new OperatorGui());
 		
-		//TODO actor_io and fill with VO
+/*		//TODO actor_io and fill with VO
 		inputs.clear();
 		outputs.clear();
-		this.add(new VideoOperator(outputs));
+*/		this.add(new VideoOperator());
 		
-		//TODO actor_io and fill with VGUI
+/*		//TODO actor_io and fill with VGUI
 		inputs.clear();
 		outputs.clear();
-		this.add(new VideoOperatorGui(outputs));
+*/		this.add(new VideoOperatorGui());
 		
-		//TODO actor_io and fill with UAV
+/*		//TODO actor_io and fill with UAV
 		inputs.clear();
 		outputs.clear();
-		this.add(new UAV(outputs));
-		
+*/		this.add(new UAV());	
 	}
 
 }
