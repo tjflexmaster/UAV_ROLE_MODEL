@@ -1,5 +1,7 @@
 package simulator;
 
+import team.*;
+
 /**
  * this class is a models all transitions in the simulation 
  * @author tjr team

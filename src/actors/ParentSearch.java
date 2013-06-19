@@ -1,10 +1,13 @@
 package actors;
 
+import java.util.HashMap;
+
 import simulator.*;
+import team.UDO;
 
 public class ParentSearch extends Actor {
 
-	public ParentSearch() {
+	public ParentSearch(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		
 	}
 	

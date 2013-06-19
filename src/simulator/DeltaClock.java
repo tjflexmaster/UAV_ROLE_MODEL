@@ -1,5 +1,7 @@
 package simulator;
 
+import team.*;
+
 public class DeltaClock {
 
 	private int _currentTime = 0;

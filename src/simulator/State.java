@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.ArrayList;
 
+import team.*;
+
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team

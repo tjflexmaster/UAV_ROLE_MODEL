@@ -1,10 +1,13 @@
 package actors;
 
+import java.util.HashMap;
+
 import simulator.*;
+import team.*;
 
 public class MissionManager extends Actor {
 
-	public MissionManager() {
+	public MissionManager(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 
 		//state names
 		State IDLE = new State("IDLE");

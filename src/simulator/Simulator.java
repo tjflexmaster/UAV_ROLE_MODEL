@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.Scanner;
 
+import team.*;
+
 public class Simulator {
 	
 	/**
