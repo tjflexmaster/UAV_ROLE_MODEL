@@ -25,17 +25,15 @@ public class DeltaClock {
 	public int tick() {
 		//check all actors to see if they are making a transition
 		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			_actors.remove(actorsIndex);
 			if (_actors.get(actorsIndex).makingTransition()) {
-				addActor(_actors.get(actorsIndex));
+				addActor(_actors.remove(actorsIndex));
 			}
 		}
 		
 		//update next planned transition (currentTransition) of all actors
 		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			Actor nextActor = _actors.remove(actorsIndex);
-			if (nextActor.hasNewTransition(_currentTime)) {
-				addActor(_actors.get(actorsIndex));
+			if (_actors.get(actorsIndex).hasNewTransition(_currentTime)) {
+				addActor(_actors.remove(actorsIndex));
 			}
 		}
 		

@@ -29,6 +29,11 @@ public class Team extends ArrayList<Actor> {
 		//initialize inputs and outputs
 		HashMap<String,UDO> inputs = new HashMap<String,UDO>();
 		HashMap<String,UDO> outputs = new HashMap<String,UDO>();
+		
+		//add Event Manager, with its inputs and outputs, to the team
+		inputs.clear();
+		outputs.clear();
+		this.add(new EventManager(inputs, outputs));
 
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();

@@ -2,6 +2,10 @@ package team;
 
 public enum Duration {
 	
+	/* Event Manager Durations */
+	
+	EM_START_SEARCH_PS(1),
+	
 	/* Parent Search Durations */
 	
 	/* Mission Manager Durations */

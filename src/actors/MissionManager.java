@@ -8,7 +8,6 @@ import team.*;
 public class MissionManager extends Actor {
 
 	public MissionManager(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
-
 		//state names
 		State IDLE = new State("IDLE");
 		//comm with PS

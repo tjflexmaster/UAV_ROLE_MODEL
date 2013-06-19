@@ -2,6 +2,10 @@ package team;
 
 public enum UDO {
 	
+	/* Event Manager Outputs */
+	
+	EM_START_SEARCH_PS,
+	
 	/* Parent Search Outputs */
 	
 	PS_POKE_MM,

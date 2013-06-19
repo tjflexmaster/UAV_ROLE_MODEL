@@ -20,7 +20,7 @@ public class Simulator {
 		//run the simulator until the clock is empty
 		while (clock.tick() != -1) {
 			System.out.println(clock.toString());
-			getUserCommand();
+			getUserCommand(scanner);
 		}
 		
 		//close the scanner once the simulation is complete
@@ -29,11 +29,14 @@ public class Simulator {
 	
 	/**
 	 * this method prints swim lanes and accepts user commands
+	 * @param scanner 
 	 * @param currentTime 
 	 */
-	private static void getUserCommand() {
-		// TODO Auto-generated method stub
-		
+	private static String getUserCommand(Scanner scanner) {
+		System.out.println("---------------------------------------------");
+		System.out.println("Press Enter to advance to the next clock tick");
+		String userCommand = scanner.nextLine();
+		return userCommand;
 	}
 	
 }

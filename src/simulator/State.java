@@ -2,8 +2,6 @@ package simulator;
 
 import java.util.ArrayList;
 
-import team.*;
-
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
@@ -15,7 +13,7 @@ public class State {
 	 * this is the name of the state
 	 */
 	private String _name;
-	private ArrayList<Transition> transitions;
+	private ArrayList<Transition> _transitions;
 	
 	/**
 	 * this constructor is used for creating new states
@@ -23,6 +21,7 @@ public class State {
 	 */
 	public State(String name) {
 		_name = name;
+		_transitions = new ArrayList<Transition>();
 	}
 	
 	/**
@@ -31,48 +30,19 @@ public class State {
 	 * @return returns if the addition was successful
 	 */
 	public State addTransition(Transition new_transition){
-		if(transitions.contains(new_transition)){
+		if(_transitions.contains(new_transition)){
 			return this;
 		}
 		
-		for(int index = 0; index < transitions.size(); index++){
-			Transition temp = transitions.get(index);
+		for(int index = 0; index < _transitions.size(); index++){
+			Transition temp = _transitions.get(index);
 			if(temp.getPriority() < new_transition.getPriority()){
-				transitions.add(new_transition);
+				_transitions.add(new_transition);
 				return this;
 			}
 		}
-		transitions.add(new_transition);
+		_transitions.add(new_transition);
 		
-		return this;
-	}
-
-	/**
-	 * this functions as the other addTransition method,
-	 * except that it create the transition instead of taking one as a parameter 
-	 * @param inputs
-	 * @param outputs
-	 * @param endState
-	 * @param duration
-	 * @param priority
-	 * @return
-	 */
-	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
-		Transition new_transition = new Transition(inputs,outputs,endState,duration,priority);
-		
-		if(transitions.contains(new_transition)){
-			return this;
-		}
-		
-		for(int index = 0; index < transitions.size(); index++){
-			Transition temp = transitions.get(index);
-			if(temp.getPriority() < new_transition.getPriority()){
-				transitions.add(new_transition);
-				return this;
-			}
-		}
-		
-		transitions.add(new_transition);
 		return this;
 	}
 	
@@ -89,7 +59,7 @@ public class State {
 	 * @return	the next possible transition with the highest priority, null if none are possible
 	 */
 	public Transition getNextTransition(){
-		for(Transition transition : transitions){
+		for(Transition transition : _transitions){
 			if(transition.isPossible()){
 				return transition;
 			}
