@@ -1,6 +1,6 @@
 package simulator;
 
-import java.util.Scanner;
+import java.util.*;
 
 import team.*;
 
@@ -18,9 +18,19 @@ public class Simulator {
 		Scanner scanner = new Scanner(System.in);
 		
 		//run the simulator until the clock is empty
-		while (clock.tick() != -1) {
-			System.out.println(clock.toString());
-			getUserCommand(scanner);
+		while (clock.tick() != null) {
+			//update next planned transition of all actors
+			for (int index = 0; index < actors.size(); index++) {
+				if (actors.get(index).updateTransition()) {
+					clock.insert(actors.get(index));
+				}
+			}
+			
+			//fire all ready transitions
+			ArrayList<Actor> readyActors = clock.tick();
+			for (int index = 0; index < actors.size(); index++) {
+				readyActors.get(index).processTransition();
+			}
 		}
 		
 		//close the scanner once the simulation is complete

@@ -1,10 +1,11 @@
 package simulator;
 
+import java.util.ArrayList;
+
 import team.*;
 
 public class DeltaClock {
 
-	private int _currentTime = 0;
 	private Team _actors = new Team();
 
 	/**
@@ -13,35 +14,30 @@ public class DeltaClock {
 	 */
 	public DeltaClock(Team actors) {
 		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			addActor(actors.get(actorsIndex));
+			insert(actors.get(actorsIndex));
 		}
 	}
 
 	/**
 	 * this checks to see if the clock is full and advances the time
 	 * @param clock
-	 * @return return true if the clock is still ticking, else return false
+	 * @return return actors ready to transition, else return null
 	 */
-	public int tick() {
-		//check all actors to see if they are making a transition
-		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			if (_actors.get(actorsIndex).makingTransition()) {
-				addActor(_actors.remove(actorsIndex));
-			}
+	public ArrayList<Actor> tick() {
+		ArrayList<Actor> readyActors = new ArrayList<Actor>();
+		
+		if (_actors.isEmpty()) {
+			return null;//simulator sees null as a signal to terminate
+		} else {
+			_actors.get(0)._nextTime = 0;//advance time
 		}
 		
-		//update next planned transition (currentTransition) of all actors
-		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			if (_actors.get(actorsIndex).hasNewTransition(_currentTime)) {
-				addActor(_actors.remove(actorsIndex));
-			}
+		
+		while (readyActors.get(0)._nextTime == 0) {
+			readyActors.add(_actors.remove(0));//form list of actors that are ready to transition
 		}
 		
-		//tick the clock until a transition happens
-		_currentTime += _actors.get(0).getNextTime();
-		_actors.get(0).setNextTime(0);
-		
-		return _currentTime;
+		return readyActors;
 	}
 
 	/**
@@ -49,7 +45,7 @@ public class DeltaClock {
 	 * @param actor specifies the actor to that will be added to this clock
 	 * @return 
 	 */
-	private void addActor(Actor actor) {
+	public void insert(Actor actor) {
 		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
 			//if this spot in the list (delta clock) is empty place the actor here
 			if (_actors.get(actorsIndex).getNextTime() == -1) {
