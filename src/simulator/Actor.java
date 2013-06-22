@@ -43,7 +43,17 @@ public abstract class Actor {
 	 * @param currentTime 
 	 * @return returns true if a new transition has been scheduled
 	 */
-	public abstract boolean updateTransition();
+	public boolean updateTransition(){
+		if(_currentState == null){
+			return false;
+		}
+		Transition nextTransition = _currentState.getNextTransition();
+		if(nextTransition.equals(_currentTransition) || nextTransition._priority < _currentTransition._priority){
+			return false;
+		}
+		_currentTransition = nextTransition;
+		return true;
+	}
 	
 	/**
 	 * this method tells the actor to process its current transition if appropriate
