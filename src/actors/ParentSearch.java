@@ -14,7 +14,7 @@ public class ParentSearch extends Actor {
 		State IDLE = new State("IDLE");
 		State POKE_MM = new State("POKE_MM");
 		//state transitions
-		IDLE.addTransition(new Transition());
+		//IDLE.addTransition(new Transition());
 		//add states
 		_states.add(IDLE);
 		_states.add(POKE_MM);

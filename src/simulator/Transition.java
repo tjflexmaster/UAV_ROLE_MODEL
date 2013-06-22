@@ -59,21 +59,28 @@ public class Transition {
 	 */
 	public boolean isEnabled(){
 		for(UDO input : _inputs){
-			if(!input.isActive()){
-				return false;
+			if((input.get().getClass()!=Boolean.class)||(!(Boolean)input.get())){
+					return false;
 			}
 		}
+		deactivateInput();
 		return true;
 	}
+
+	public void deactivateInput() {
+		for(UDO input : _inputs){
+			input.set(null);
+		}
+	}
 	
-	public void setData(String)
 	/**
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
-	public State fire(){
+	public State fire(Boolean active){
+		
 		for(UDO output : _outputs){
-			output.activate();
+			output.set(active);
 		}
 		return _endState;
 	}

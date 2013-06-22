@@ -26,6 +26,7 @@ public class State {
 	
 	/**
 	 * this adds a transition to the system organizing the array list by highest priorities first
+	 * The higher the priority the higher the number
 	 * @param new_transition
 	 * @return returns if the addition was successful
 	 */
@@ -36,8 +37,8 @@ public class State {
 		
 		for(int index = 0; index < _transitions.size(); index++){
 			Transition temp = _transitions.get(index);
-			if(temp.getPriority() < new_transition.getPriority()){
-				_transitions.add(new_transition);
+			if(temp._priority < new_transition._priority){
+				_transitions.add(index,new_transition);
 				return this;
 			}
 		}
@@ -59,13 +60,16 @@ public class State {
 	 * @return	the next possible transition with the highest priority, null if none are possible
 	 */
 	public Transition getNextTransition(){
+		Transition next = null;
 		for(Transition transition : _transitions){
-			if(transition.isPossible()){
-				return transition;
+			if(transition.isEnabled() && next != null){
+				transition.deactivateInput();
+				next= transition;
 			}
+			transition.deactivateInput();
 		}
 		
-		return null;
+		return next;
 	}
 	
 	/**

@@ -51,7 +51,7 @@ public abstract class Actor {
 	 */
 	public boolean makingTransition(){
 		if(_nextTime == 0){
-			setCurrentState(_currentTransition.makeTransition());
+			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			return true;
 		}
 		

@@ -7,8 +7,6 @@ import team.*;
 
 public class MissionManager extends Actor {
 	
-	private HashMap<String, UDO> _inputs;
-	private HashMap<String>
 
 	public MissionManager(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//state names

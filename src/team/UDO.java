@@ -213,16 +213,4 @@ public enum UDO {
 		return _value;
 		
 	}
-	
-	public boolean isActive(){
-		return _active;
-	}
-	
-	public void activate(){
-		_active = true;
-	}
-	
-	public void deactivate(){
-		_active = false;
-	}
 }
