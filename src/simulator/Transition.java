@@ -11,10 +11,10 @@ public class Transition {
 	
 	private int _time;
 	private UDO[] _inputs;
-	private Duration _duration;
+	public Duration _duration;
 	private State _endState;
 	private UDO[] _outputs;
-	private int _priority;
+	public int _priority;
 
 
 	/**
@@ -57,7 +57,7 @@ public class Transition {
 	 * 
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
-	public boolean isPossible(){
+	public boolean isEnabled(){
 		for(UDO input : _inputs){
 			if(!input.isActive()){
 				return false;
@@ -66,32 +66,33 @@ public class Transition {
 		return true;
 	}
 	
+	public void setData(String)
 	/**
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
-	public State makeTransition(){
+	public State fire(){
 		for(UDO output : _outputs){
-			output.prime();
+			output.activate();
 		}
 		return _endState;
 	}
 	
-	/**
-	 * 
-	 * @return returns the expected time until the transition is processed (a duration)
-	 */
-	public Duration getDuration(){
-		return _duration;
-	}
-	
-	/**
-	 * 
-	 * @return return the prioritized value of the transition
-	 */
-	public int getPriority(){
-		return _priority;
-	}
+//	/**
+//	 * 
+//	 * @return returns the expected time until the transition is processed (a duration)
+//	 */
+//	public Duration getDuration(){
+//		return _duration;
+//	}
+//	
+//	/**
+//	 * 
+//	 * @return return the prioritized value of the transition
+//	 */
+//	public int getPriority(){
+//		return _priority;
+//	}
 	
 	/**
 	 * 

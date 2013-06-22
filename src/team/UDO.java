@@ -186,12 +186,21 @@ public enum UDO {
 	UAV_SIGNAL_OK_OGUI,
 	UAV_SIGNAL_RESUMED_OGUI;
 
-	private boolean _active;
-	private boolean _primed;
+	private Object _value;
+	private Boolean _active;
 	
 	private UDO(){
-		this._active = false;
-		this._primed = false;
+		_active = false;
+		_value = null;
+		
+	}
+	
+	/**
+	 * updates the data status
+	 * works to activate or deactivate the UDO based on the object status
+	 */
+	public void set(Object object) {
+		_value=object;
 		
 	}
 
@@ -199,29 +208,21 @@ public enum UDO {
 	 * this method is used to tell if a UDO is active
 	 * @return return the state of the UDO
 	 */
-	public boolean isActive() {
+	public Object get() {
 		
-		return _active;
-		
-	}
-
-	/**
-	 * primes the UDO, actors will soon be able to respond to it
-	 */
-	public void prime() {
-		
-		_primed = true;
+		return _value;
 		
 	}
 	
-	/**
-	 * updates the data status
-	 * works to activate or deactivate the UDO based on the temp status
-	 */
-	public void processData() {
-		
-		_active = _primed;//activates or deactivates the UDO 
-		_primed = false;
-		
+	public boolean isActive(){
+		return _active;
+	}
+	
+	public void activate(){
+		_active = true;
+	}
+	
+	public void deactivate(){
+		_active = false;
 	}
 }
