@@ -12,7 +12,7 @@ public class VideoOperator extends Actor {
 	}
 
 	@Override
-	public boolean hasNewTransition(int currentTime) {
+	public boolean updateTransition() {
 		// TODO Auto-generated method stub
 		return false;
 	}

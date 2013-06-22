@@ -43,13 +43,13 @@ public abstract class Actor {
 	 * @param currentTime 
 	 * @return returns true if a new transition has been scheduled
 	 */
-	public abstract boolean hasNewTransition(int currentTime);
+	public abstract boolean updateTransition();
 	
 	/**
 	 * this method tells the actor to process its current transition if appropriate
 	 * @return returns true if the current transition has been processed
 	 */
-	public boolean makingTransition(){
+	public boolean processTransition(){
 		if(_nextTime == 0){
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			return true;
@@ -77,6 +77,26 @@ public abstract class Actor {
 	}
 	
 	/**
+	 * builds a state for the actor
+	 * @param name
+	 */
+	public void addState(String name){
+		_states.add(new State(name));
+	}
+
+	/**
+	 * 
+	 * @return return the current state of the actor
+	 */
+	public State getCurrentState() {
+		return _currentState;
+	}
+
+	public void setCurrentState(State _currentState) {
+		this._currentState = _currentState;
+	}
+	
+	/**
 	 * this method works like a normal toSTring method
 	 * @return return the string representation of the actor
 	 */
@@ -89,49 +109,5 @@ public abstract class Actor {
 		}
 		
 		return result;
-	}
-	
-	/**
-	 * builds a state for the actor
-	 * @param name
-	 */
-	public void addState(String name){
-		_states.add(new State(name));
-	}
-	
-	/*
-	 * builds a transition for the actor
-	 * @param state
-	 * @param inputs
-	 * @param outputs
-	 * @param endState
-	 * @param duration
-	 * @param priority
-	 *
-	public void addTransition(String state, ArrayList<UDO> inputs, ArrayList<UDO> outputs, State endState, Duration duration, int priority){
-		//find the state and add the transition to it
-		for(int index = 0; index < _states.size(); index++){
-			State temp = _states.get(index);
-			if(temp.equals(state)){
-				temp.addTransition(new Transition(inputs,outputs,endState,duration,priority));
-				return;
-			}
-		}
-		//if the state doesn't exist yet, create a new state and add the transition
-		State new_state = new State(state);
-		new_state.addTransition(new Transition(inputs,outputs,endState,duration,priority));
-		_states.add(new_state);
-	}*/
-
-	/**
-	 * 
-	 * @return return the current state of the actor
-	 */
-	public State getCurrentState() {
-		return _currentState;
-	}
-
-	public void setCurrentState(State _currentState) {
-		this._currentState = _currentState;
 	}
 }

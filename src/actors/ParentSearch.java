@@ -20,9 +20,9 @@ public class ParentSearch extends Actor {
 		_states.add(POKE_MM);
 		
 	}
-	
+
 	@Override
-	public boolean hasNewTransition(int currentTime) {
+	public boolean updateTransition() {
 		// TODO Auto-generated method stub
 		return false;
 	}

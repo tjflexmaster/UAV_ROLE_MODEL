@@ -77,9 +77,9 @@ public class MissionManager extends Actor {
 		_states.add(TX_VGUI);
 		_states.add(END_VGUI);
 	}
-	
+
 	@Override
-	public boolean hasNewTransition(int currentTime) {
+	public boolean updateTransition() {
 		// TODO Auto-generated method stub
 		return false;
 	}
