@@ -41,22 +41,10 @@ public class MissionManager extends Actor {
 		State END_VGUI = new State("END_VGUI");
 		
 		//state transitions
-		//comm with PS
-		initializePSComm(inputs, outputs, IDLE, POKE_PS, TX_PS, RX_PS, RX_OP,
-				OBSERVING_VGUI);
-		
-		
-		//comm with OP
-		initializeOPComm(inputs, outputs, IDLE, POKE_OP, TX_OP, RX_OP);
-		
-		
-		//comm with VO
-		initializeVOComm(inputs, outputs, IDLE, RX_OP, POKE_VO, TX_VO, RX_VO);
-		
-		//comm with VGUI
-		
-		initializeObservingVGUI(inputs, outputs, IDLE, RX_OP, OBSERVING_VGUI);
-
+		initializePSComm(inputs, outputs, IDLE, POKE_PS, TX_PS, RX_PS, RX_OP, OBSERVING_VGUI);//comm with PS
+		initializeOPComm(inputs, outputs, IDLE, POKE_OP, TX_OP, RX_OP);//comm with OP
+		initializeVOComm(inputs, outputs, IDLE, RX_OP, POKE_VO, TX_VO, RX_VO);//comm with VO
+		initializeObservingVGUI(inputs, outputs, IDLE, RX_OP, RX_VO, RX_PS, OBSERVING_VGUI);//comm with VGUI
 		
 		//add states
 		_states.add(IDLE);
@@ -97,16 +85,27 @@ public class MissionManager extends Actor {
 	 * @param RX_OP
 	 * @param OBSERVING_VGUI
 	 */
-	private void initializeObservingVGUI(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State IDLE, State RX_OP,
-			State OBSERVING_VGUI) {
-		OBSERVING_VGUI.addTransition(new UDO[]{inputs.get(UDO.VGUI_VALIDATION_REQ_F_MM.name())}, 
-				new UDO[]{outputs.get(UDO.MM_FLYBY_REQ_F_VGUI.name())}, IDLE, null, 0);
-		OBSERVING_VGUI.addTransition(new UDO[]{inputs.get(UDO.VGUI_VALIDATION_REQ_T_MM.name())}, 
-				new UDO[]{outputs.get(UDO.MM_FLYBY_REQ_T_VGUI.name())}, IDLE, null, 0);
-		OBSERVING_VGUI.addTransition(new UDO[]{inputs.get(UDO.OP_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_OP.name())}, RX_OP, null, 0);
-		OBSERVING_VGUI.addTransition(new UDO[]{inputs.get(UDO.VO_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_VO.name())}, RX_OP, null, 0);
-		OBSERVING_VGUI.addTransition(new UDO[]{inputs.get(UDO.PS_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_PS.name())}, RX_OP, null, 0);
+	private void initializeObservingVGUI(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_OP, State RX_VO, State RX_PS, State OBSERVING_VGUI) {
+		OBSERVING_VGUI.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_VALIDATION_REQ_F_MM.name())}, 
+				new UDO[]{outputs.get(UDO.MM_FLYBY_REQ_F_VGUI.name())},
+				IDLE, null, 0);
+		OBSERVING_VGUI.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_VALIDATION_REQ_T_MM.name())}, 
+				new UDO[]{outputs.get(UDO.MM_FLYBY_REQ_T_VGUI.name())},
+				IDLE, null, 0);
+		OBSERVING_VGUI.addTransition(
+				new UDO[]{inputs.get(UDO.OP_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_OP.name())},
+				RX_OP, null, 0);
+		OBSERVING_VGUI.addTransition(
+				new UDO[]{inputs.get(UDO.VO_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_VO.name())},
+				RX_VO, null, 0);
+		OBSERVING_VGUI.addTransition(
+				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_PS.name())},
+				RX_PS, null, 0);
 	}
 
 	/**
@@ -118,17 +117,39 @@ public class MissionManager extends Actor {
 	 * @param TX_VO
 	 * @param RX_VO
 	 */
-	private void initializeVOComm(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State IDLE, State RX_OP,
-			State POKE_VO, State TX_VO, State RX_VO) {
-		IDLE.addTransition(new UDO[]{inputs.get(UDO.VO_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_VO.name())}, RX_OP, null, 0);
-		RX_VO.addTransition(new UDO[]{inputs.get(UDO.VO_END_MM.name())}, null, IDLE, null, -1);
-		RX_VO.addTransition(new UDO[]{inputs.get(UDO.VO_END_MM.name()), inputs.get(UDO.VO_TARGET_SIGHTING_F_MM.name())}, null, IDLE, null, -1);
-		RX_VO.addTransition(new UDO[]{inputs.get(UDO.VO_END_MM.name()), inputs.get(UDO.VO_TARGET_SIGHTING_T_MM.name())}, null, IDLE, null, -1);
-		POKE_VO.addTransition(new UDO[]{inputs.get(UDO.VO_ACK_MM.name())}, null, TX_VO, null, 0);
-		POKE_VO.addTransition(new UDO[]{inputs.get(UDO.VO_BUSY_MM)}, null, IDLE, null, 0);
-		POKE_VO.addTransition(new UDO[]{inputs.get(UDO.PS_POKE_MM.name())}, new UDO[]{outputs.get(UDO.OP_POKE_MM.name())}, null, null, 0);
-		POKE_VO.addTransition(new UDO[]{inputs.get(UDO.OP_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_BUSY_OP)}, null, null, 0);
+	private void initializeVOComm(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_OP, State POKE_VO, State TX_VO, State RX_VO) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.VO_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_VO.name())},
+				RX_OP, null, 0);
+		RX_VO.addTransition(
+				new UDO[]{inputs.get(UDO.VO_END_MM.name())},
+				null,
+				IDLE, null, -1);
+		RX_VO.addTransition(
+				new UDO[]{inputs.get(UDO.VO_END_MM.name()),inputs.get(UDO.VO_TARGET_SIGHTING_F_MM.name())},
+				null,
+				IDLE, null, -1);
+		RX_VO.addTransition(
+				new UDO[]{inputs.get(UDO.VO_END_MM.name()), inputs.get(UDO.VO_TARGET_SIGHTING_T_MM.name())},
+				null,
+				IDLE, null, -1);
+		POKE_VO.addTransition(
+				new UDO[]{inputs.get(UDO.VO_ACK_MM.name())},
+				null,
+				TX_VO, null, 0);
+		POKE_VO.addTransition(
+				new UDO[]{inputs.get(UDO.VO_BUSY_MM)},
+				null,
+				IDLE, null, 0);
+		POKE_VO.addTransition(
+				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.OP_POKE_MM.name())},
+				null, null, 0);
+		POKE_VO.addTransition(
+				new UDO[]{inputs.get(UDO.OP_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_BUSY_OP)},
+				null, null, 0);
 		//TODO implement the doNextTask method of the previous model for the end state
 	}
 
@@ -140,16 +161,35 @@ public class MissionManager extends Actor {
 	 * @param TX_OP
 	 * @param RX_OP
 	 */
-	private void initializeOPComm(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State IDLE, State POKE_OP,
-			State TX_OP, State RX_OP) {
-		IDLE.addTransition(new UDO[]{inputs.get(UDO.OP_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_OP.name())}, RX_OP, null, 0);
-		RX_OP.addTransition(new UDO[]{inputs.get(UDO.OP_END_MM.name())}, null, IDLE, null, -1);
-		RX_OP.addTransition(new UDO[]{inputs.get(UDO.OP_END_MM.name()), inputs.get(UDO.OP_SEARCH_AOI_COMPLETE_MM.name())}, null, IDLE, null, 0);
-		POKE_OP.addTransition(new UDO[]{inputs.get(UDO.OP_ACK_MM.name())}, null, TX_OP, null, 0);
-		POKE_OP.addTransition(new UDO[]{inputs.get(UDO.OP_BUSY_MM.name())}, null, IDLE, null, 0);
-		POKE_OP.addTransition(new UDO[]{inputs.get(UDO.PS_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_BUSY_PS.name())}, POKE_OP, null, 0);
-		POKE_OP.addTransition(new UDO[]{inputs.get(UDO.VO_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_BUSY_VO.name())}, POKE_OP, null, 0);
+	private void initializeOPComm(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_OP, State TX_OP, State RX_OP) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.OP_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_OP.name())},
+				RX_OP, null, 0);
+		RX_OP.addTransition(
+				new UDO[]{inputs.get(UDO.OP_END_MM.name())},
+				null,
+				IDLE, null, -1);
+		RX_OP.addTransition(
+				new UDO[]{inputs.get(UDO.OP_END_MM.name()), inputs.get(UDO.OP_SEARCH_AOI_COMPLETE_MM.name())},
+				null,
+				IDLE, null, 0);
+		POKE_OP.addTransition(
+				new UDO[]{inputs.get(UDO.OP_ACK_MM.name())},
+				null,
+				TX_OP, null, 0);
+		POKE_OP.addTransition(
+				new UDO[]{inputs.get(UDO.OP_BUSY_MM.name())},
+				null,
+				IDLE, null, 0);
+		POKE_OP.addTransition(
+				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_BUSY_PS.name())},
+				POKE_OP, null, 0);
+		POKE_OP.addTransition(
+				new UDO[]{inputs.get(UDO.VO_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_BUSY_VO.name())},
+				POKE_OP, null, 0);
 		//TODO implement the doNextTask method of the previous model for the end state
 	}
 
@@ -163,31 +203,61 @@ public class MissionManager extends Actor {
 	 * @param RX_OP
 	 * @param OBSERVING_VGUI
 	 */
-	private void initializePSComm(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State IDLE, State POKE_PS,
-			State TX_PS, State RX_PS, State RX_OP, State OBSERVING_VGUI) {
-		IDLE.addTransition(new UDO[]{inputs.get(UDO.VGUI_POSSIBLE_ANOMALY_DETECTED_F_MM.name())}, null, OBSERVING_VGUI, null, 0);
-		IDLE.addTransition(new UDO[]{inputs.get(UDO.VGUI_POSSIBLE_ANOMALY_DETECTED_T_MM.name())}, null, OBSERVING_VGUI, null, 0);
-		IDLE.addTransition(new UDO[]{inputs.get(UDO.PS_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_PS.name())}, RX_OP, null, 0);
-		//TODO implement the doNextTask method of the previous model for the idle state
+	private void initializePSComm(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_PS, State TX_PS, State RX_PS, State RX_OP, State OBSERVING_VGUI) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_POSSIBLE_ANOMALY_DETECTED_F_MM.name())},
+				null,
+				OBSERVING_VGUI,null, 0);
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_POSSIBLE_ANOMALY_DETECTED_T_MM.name())},
+				null,
+				OBSERVING_VGUI, null, 0);
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_PS.name())},
+				RX_OP, null, 0);
+		RX_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TERMINATE_SEARCH_MM.name())},
+				null,
+				IDLE, null, 0);
+		RX_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+				null,
+				IDLE, null, 0);
+		RX_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI.name())},
+				null,
+				IDLE, null, 0);
+		RX_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+				null,
+				IDLE, null, 0);
+		RX_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_END_MM.name())},
+				null,
+				IDLE, null, -1);
+		POKE_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_ACK_MM.name())},
+				null,
+				TX_PS, null, 0);
+		POKE_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_BUSY_MM.name())},
+				null,
+				IDLE, null, 0);
+		POKE_PS.addTransition(
+				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_ACK_PS.name())},
+				IDLE, null, 0);
+		POKE_PS.addTransition(
+				new UDO[]{inputs.get(UDO.OP_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_BUSY_OP.name())},
+				IDLE, null, 0);
+		POKE_PS.addTransition(
+				new UDO[]{inputs.get(UDO.VO_POKE_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_BUSY_VO.name())},
+				IDLE, null, 0);
+		//TODO implement the doNextTask method of the previous model for the idle and end states
 		//TODO implement memory for the received data
-		RX_PS.addTransition(new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TERMINATE_SEARCH_MM.name())}, null, IDLE, null, 0);
-		RX_PS.addTransition(new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())}, null, IDLE, null, 0);
-		RX_PS.addTransition(new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI.name())}, null, IDLE, null, 0);
-		RX_PS.addTransition(new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())}, null, IDLE, null, 0);
-		RX_PS.addTransition(new UDO[]{inputs.get(UDO.PS_END_MM.name())}, null, IDLE, null, -1);
-		POKE_PS.addTransition(new UDO[]{inputs.get(UDO.PS_ACK_MM.name())}, null, TX_PS, null, 0);
-		POKE_PS.addTransition(new UDO[]{inputs.get(UDO.PS_BUSY_MM.name())}, null, IDLE, null, 0);
-		POKE_PS.addTransition(new UDO[]{inputs.get(UDO.PS_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_ACK_PS.name())}, IDLE, null, 0);
-		POKE_PS.addTransition(new UDO[]{inputs.get(UDO.OP_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_BUSY_OP.name())}, IDLE, null, 0);
-		POKE_PS.addTransition(new UDO[]{inputs.get(UDO.VO_POKE_MM.name())}, new UDO[]{outputs.get(UDO.MM_BUSY_VO.name())}, IDLE, null, 0);
-		//TODO implement the doNextTask method of the previous model for the end state
-	}
-
-	@Override
-	public boolean updateTransition() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }
