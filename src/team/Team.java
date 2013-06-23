@@ -317,7 +317,6 @@ public class Team extends ArrayList<Actor> {
 		inputs.put(UDO.OGUI_LAND_UAV.name(),UDO.OGUI_LAND_UAV);
 		inputs.put(UDO.OGUI_NEW_FLIGHT_PLAN_UAV.name(),UDO.OGUI_NEW_FLIGHT_PLAN_UAV);
 		inputs.put(UDO.OGUI_LOITER_UAV.name(),UDO.OGUI_LOITER_UAV);
-
 		outputs.clear();
 		outputs.put(UDO.UAV_FLYING_NORMAL.name(),UDO.UAV_FLYING_NORMAL);
 		outputs.put(UDO.UAV_FLYING_FLYBY.name(),UDO.UAV_FLYING_FLYBY);
@@ -343,7 +342,7 @@ public class Team extends ArrayList<Actor> {
 		outputs.put(UDO.UAV_SIGNAL_LOST_OGUI.name(),UDO.UAV_SIGNAL_LOST_OGUI);
 		outputs.put(UDO.UAV_SIGNAL_OK_OGUI.name(),UDO.UAV_SIGNAL_OK_OGUI);
 		outputs.put(UDO.UAV_SIGNAL_RESUMED_OGUI.name(),UDO.UAV_SIGNAL_RESUMED_OGUI);
-		this.add(new UAV(inputs, outputs));	
+		this.add(new UAV(inputs, outputs));
 	}
 
 }

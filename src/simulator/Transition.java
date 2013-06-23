@@ -9,7 +9,6 @@ import team.*;
  */
 public class Transition {
 	
-	private int _time;
 	private UDO[] _inputs;
 	public Duration _duration;
 	private State _endState;
@@ -25,9 +24,10 @@ public class Transition {
 	 * @param curState the current state of the actor
 	 * @param priority the priority level of the transition
 	 * todo add a duration that represents how long it takes to move between states
+	 * @return 
 	 */
 	public Transition (UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority) {
-		_time = -1;
+		
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
@@ -36,34 +36,22 @@ public class Transition {
 	}
 	
 	/**
-	 * a transition is used by an agent (state machine) to formally define state transitions 
-	 * @param time the time the transition will be pursued
-	 * @param endState the new state the agent will move to
-	 * @param output the output the transition produces
-	 * @param curState the current state of the actor
-	 * @param priority the priority level of the transition
-	 * todo add a duration that represents how long it takes to move between states
-	 */
-	public Transition (int time, UDO[] outputs, State endState, Duration duration, int priority) {
-		_time = time;
-		_inputs = null;
-		_outputs = outputs;
-		_endState = endState;
-		_duration = duration;
-		_priority = priority;
-	}
-	
-	/**
-	 * 
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
 	public boolean isEnabled(){
 		for(UDO input : _inputs){
-			if((input.get().getClass()!=Boolean.class)||(!(Boolean)input.get())){
+			if(input.get().getClass()==Boolean.class){//handle boolean signals
+				if(!(Boolean)input.get()){
 					return false;
+				}
+			}else if(input.get().getClass()==Integer.class){//handle integer counters
+				input.update((Integer)input.get()-(Integer)UDO.DC_TIME_ELAPSED.get());
+				if((Integer)input.get()>0){
+					return false;
+				}
 			}
 		}
-		deactivateInput();
+		deactivateInput();//the transition can happen, new forget the inputs
 		return true;
 	}
 
@@ -85,38 +73,12 @@ public class Transition {
 		return _endState;
 	}
 	
-//	/**
-//	 * 
-//	 * @return returns the expected time until the transition is processed (a duration)
-//	 */
-//	public Duration getDuration(){
-//		return _duration;
-//	}
-//	
-//	/**
-//	 * 
-//	 * @return return the prioritized value of the transition
-//	 */
-//	public int getPriority(){
-//		return _priority;
-//	}
-	
 	/**
 	 * 
 	 * @return return a string representation of the transition
 	 */
 	public String toString() {
-		String result = "";
-		
-		//result += _curState + " X ";
-		if ( _inputs == null ) {
-			result += Integer.toString(_time);
-		} else {
-			result += _inputs.toString();
-		}
-		result += " -> " + _endState.toString() + " X " + _outputs.toString();
-		
-		return result;
+		return _inputs.toString() + " -> " + _endState.toString() + " X " + _outputs.toString();
 	}
 	
 }

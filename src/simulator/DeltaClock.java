@@ -29,9 +29,9 @@ public class DeltaClock {
 		if (_actors.isEmpty()) {
 			return null;//simulator sees null as a signal to terminate
 		} else {
+			UDO.DC_TIME_ELAPSED.update(new Integer(_actors.get(0)._nextTime));//inform actors of time elapse
 			_actors.get(0)._nextTime = 0;//advance time
 		}
-		
 		
 		while (readyActors.get(0)._nextTime == 0) {
 			readyActors.add(_actors.remove(0));//form list of actors that are ready to transition

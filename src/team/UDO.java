@@ -182,35 +182,47 @@ public enum UDO {
 	UAV_SIGNAL_NONE_OGUI,
 	UAV_SIGNAL_LOST_OGUI,
 	UAV_SIGNAL_OK_OGUI,
-	UAV_SIGNAL_RESUMED_OGUI, 
+	UAV_SIGNAL_RESUMED_OGUI,
 	
+	/* UAV Battery */
 	
+	UAVBAT_TIME_TIL_LOW_UAVBAT,
+	UAVBAT_TIME_TIL_DEAD,
 	
 	/* Events */
+	
 	EVENT_TARGET_SIGHTED_F_VGUI, 
 	EVENT_TARGET_SIGHTED_END_VGUI, 
 	EVENT_TARGET_SIGHTED_T_VGUI,
 	EVENT_FLYBY_ANOMALY_F,
 	EVENT_FLYBY_ANOMALY_T,
 	VF_SIGNAL_OK_VGUI, 
-	VF_SIGNAL_NONE_VGUI;
+	VF_SIGNAL_NONE_VGUI,
+	
+	/* Delta Clock */
+	
+	DC_TIME_ELAPSED;
 
 	private Object _value;
-	private Boolean _active;
 	
 	private UDO(){
-		_active = false;
 		_value = null;
-		
 	}
 	
 	/**
-	 * updates the data status
+	 * sets the data status
 	 * works to activate or deactivate the UDO based on the object status
 	 */
 	public void set(Object object) {
 		_value=object;
-		
+	}
+	
+	/**
+	 * updates the data status
+	 */
+	public UDO update(Object object) {
+		_value = object;
+		return this;
 	}
 
 	/**
@@ -218,8 +230,6 @@ public enum UDO {
 	 * @return return the state of the UDO
 	 */
 	public Object get() {
-		
 		return _value;
-		
 	}
 }

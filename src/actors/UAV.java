@@ -8,7 +8,20 @@ import team.UDO;
 public class UAV extends Actor {
 
 	public UAV(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
-		// TODO Auto-generated constructor stub
+		
+		/* UAV Battery */
+		inputs.clear();
+		outputs.clear();
+		inputs.put(UDO.UAVBAT_TIME_TIL_DEAD.name(), UDO.UAVBAT_TIME_TIL_DEAD);
+		inputs.put(UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.name(), UDO.UAVBAT_TIME_TIL_LOW_UAVBAT);
+		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
+		inputs.put(UDO.OP_POST_FLIGHT_COMPLETE_UAV.name(), UDO.OP_POST_FLIGHT_COMPLETE_UAV);
+		inputs.put(UDO.UAV_LANDED.name(), UDO.UAV_LANDED);
+		outputs.put(UDO.UAVBAT_TIME_TIL_DEAD.name(), UDO.UAVBAT_TIME_TIL_DEAD);
+		outputs.put(UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.name(), UDO.UAVBAT_TIME_TIL_LOW_UAVBAT);
+		outputs.put(UDO.UAV_BATTERY_OK_OGUI.name(), UDO.UAV_BATTERY_OK_OGUI);
+		outputs.put(UDO.UAV_BATTERY_DEAD_OGUI.name(), UDO.UAV_BATTERY_DEAD_OGUI);
+		outputs.put(UDO.UAV_BATTERY_OFF_OGUI.name(), UDO.UAV_BATTERY_OFF_OGUI);
 	}
 
 	@Override
