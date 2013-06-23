@@ -2,6 +2,9 @@ package simulator;
 
 import java.util.ArrayList;
 
+import team.Duration;
+import team.UDO;
+
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
@@ -30,7 +33,8 @@ public class State {
 	 * @param new_transition
 	 * @return returns if the addition was successful
 	 */
-	public State addTransition(Transition new_transition){
+	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
+		Transition new_transition = new Transition(inputs, outputs, endState, duration, priority);
 		if(_transitions.contains(new_transition)){
 			return this;
 		}

@@ -90,8 +90,8 @@ public abstract class Actor {
 	 * builds a state for the actor
 	 * @param name
 	 */
-	public void addState(String name){
-		_states.add(new State(name));
+	public void addState(State state){
+		_states.add(state);
 	}
 
 	/**
