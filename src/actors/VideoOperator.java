@@ -40,19 +40,20 @@ public class VideoOperator extends Actor {
 				OBSERVE_NORMAL, null, 0);
 
 		//add states
-		State idle = new State("IDLE");
-		State rx_mm = new State("RX_MM");
-		State observing_normal = new State("OBSERVING_NORMAL");
-		State observing_flyby = new State("OBSERVING_FLYBY");
-		State poke_gui = new State("POKE_GUI");
-		State tx_gui = new State("TX_GUI");
-		State end_gui = new State("END_GUI");
-		State poke_mm = new State("POKE_MM");
-		State tx_mm = new State("TX_MM");
-		State end_mm = new State("END_MM");
-		State poke_op = new State("POKE_OPERATOR");
-		State tx_op = new State("TX_OPERATOR");
-		State end_op = new State("END_OPERATOR");
+		State idle = new State("IDLE");this.addState(idle);
+		State rx_mm = new State("RX_MM");this.addState(rx_mm);
+		State observing_normal = new State("OBSERVING_NORMAL");this.addState(observing_normal);
+		State observing_flyby = new State("OBSERVING_FLYBY");this.addState(observing_flyby);
+		State poke_gui = new State("POKE_GUI");this.addState(poke_gui);
+		State tx_gui = new State("TX_GUI");this.addState(tx_gui);
+		State end_gui = new State("END_GUI");this.addState(end_gui);
+		State poke_mm = new State("POKE_MM");this.addState(poke_mm);
+		State tx_mm = new State("TX_MM");this.addState(tx_mm);
+		State end_mm = new State("END_MM");this.addState(end_mm);
+		State poke_op = new State("POKE_OPERATOR");this.addState(poke_op);
+		State tx_op = new State("TX_OPERATOR");this.addState(tx_op);
+		State end_op = new State("END_OPERATOR");this.addState(end_op);
+		
 		//idle state
 		intializeIdleState(inputs, outputs, idle, rx_mm, observing_normal);
 		initializeRXMMState(inputs, idle, rx_mm);
@@ -105,20 +106,6 @@ public class VideoOperator extends Actor {
 
 		initializeObservingFlybyState(inputs, outputs, rx_mm, observing_normal,
 				observing_flyby, poke_mm, poke_op);
-		
-		this.addState(idle);
-		this.addState(rx_mm);
-		this.addState(observing_normal);
-		this.addState(observing_flyby);
-		this.addState(poke_gui);
-		this.addState(tx_gui);
-		this.addState(end_gui);
-		this.addState(poke_mm);
-		this.addState(tx_mm);
-		this.addState(end_mm);
-		this.addState(poke_op);
-		this.addState(tx_op);
-		this.addState(end_op);
 	}
 
 	/**
