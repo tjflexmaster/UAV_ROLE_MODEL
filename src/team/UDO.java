@@ -16,8 +16,12 @@ public enum UDO {
 	//Internals
 	PS_NEW_SEARCH_AOI_PS,
 	PS_TARGET_DESCRIPTION_PS,
+	PS_TERMINATE_SEARCH_PS,
 	//Counters
 	UAVBAT_TIME_TIL_START_UAVBAT,
+	
+	/* internal PS */
+
 	
 	/* Mission Manager Data */
 	
@@ -136,6 +140,10 @@ public enum UDO {
 	//Internals
 	OP_NEW_SEARCH_AOI_OP,
 	
+	/* OP internal */
+	
+	OP_TAKE_OFF_OP,
+	
 	/* UAV Operator Gui Data */
 	
 	OGUI_STATE_NORMAL,
@@ -181,6 +189,7 @@ public enum UDO {
 	OGUI_FLYBY_REQ_F_OP,
 	OGUI_FLYBY_END_SUCCESS_OP,
 	OGUI_FLYBY_END_FAILED_OP,
+	OGUI_lANDED_OP,
 	
 	/* UAV Data */
 	
@@ -214,15 +223,19 @@ public enum UDO {
 	UAVBAT_TIME_TIL_LOW_UAVBAT,
 	UAVBAT_TIME_TIL_DEAD,
 	
+	/* UAV Video Feed */
+	
+	VF_SIGNAL_OK_VGUI, 
+	VF_SIGNAL_NONE_VGUI,
 	/* Event Data */
 	
 	EVENT_TARGET_SIGHTED_F_VGUI, 
 	EVENT_TARGET_SIGHTED_END_VGUI, 
 	EVENT_TARGET_SIGHTED_T_VGUI,
 	EVENT_FLYBY_ANOMALY_F,
-	EVENT_FLYBY_ANOMALY_T,
-	VF_SIGNAL_OK_VGUI, 
-	VF_SIGNAL_NONE_VGUI,
+	EVENT_FLYBY_ANOMALY_T, 
+	EVENT_TERMINATE_SEARCH_PS, 
+	EVENT_START_SEARCH_PS,
 	
 	/* Delta Clock Data */
 	
