@@ -3,19 +3,21 @@ package team;
 
 public enum UDO {
 	
-	/* Event Manager Outputs */
-	
-	EM_START_SEARCH_PS,
-	
 	/* Parent Search Outputs */
 	
 	PS_POKE_MM,
 	PS_END_MM,
 	PS_TERMINATE_SEARCH_MM,
 	PS_TARGET_DESCRIPTION_MM,
-	PS_NEW_SEARCH_AOI,
+	PS_NEW_SEARCH_AOI_MM,
 	PS_BUSY_MM,
 	PS_ACK_MM,
+	
+	/* internal PS */
+
+	PS_TERMINATE_SEARCH_PS,
+	PS_TARGET_DESCRIPTION_PS,
+	PS_NEW_SEARCH_AOI_PS,
 	
 	/* Mission Manager Outputs */
 	
@@ -126,6 +128,10 @@ public enum UDO {
 	OP_FLYBY_START_F_OGUI,
 	OP_TAKE_OFF_OGUI,
 	
+	/* OP internal */
+	
+	OP_TAKE_OFF_OP,
+	
 	/* UAV Operator Gui Outputs */
 	
 	OGUI_STATE_NORMAL,
@@ -171,6 +177,7 @@ public enum UDO {
 	OGUI_FLYBY_REQ_F_OP,
 	OGUI_FLYBY_END_SUCCESS_OP,
 	OGUI_FLYBY_END_FAILED_OP,
+	OGUI_lANDED_OP,
 	
 	/* UAV Outputs */
 	
@@ -204,6 +211,10 @@ public enum UDO {
 	UAVBAT_TIME_TIL_LOW_UAVBAT,
 	UAVBAT_TIME_TIL_DEAD,
 	
+	/* UAV Video Feed */
+	
+	VF_SIGNAL_OK_VGUI, 
+	VF_SIGNAL_NONE_VGUI,
 	/* Events */
 	
 	EVENT_TARGET_SIGHTED_F_VGUI, 
@@ -211,8 +222,9 @@ public enum UDO {
 	EVENT_TARGET_SIGHTED_T_VGUI,
 	EVENT_FLYBY_ANOMALY_F,
 	EVENT_FLYBY_ANOMALY_T,
-	VF_SIGNAL_OK_VGUI, 
-	VF_SIGNAL_NONE_VGUI,
+	EVENT_START_SEARCH_PS,
+	EVENT_TERMINATE_SEARCH_PS,
+	
 	
 	/* Delta Clock */
 	
