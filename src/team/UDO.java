@@ -1,5 +1,6 @@
 package team;
 
+
 public enum UDO {
 	
 	/* Event Manager Outputs */
@@ -66,7 +67,17 @@ public enum UDO {
 	VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI,
 	VO_ACK_MM,
 	VO_BUSY_MM,
-	VO_SIGNAL_BAD_VO,
+	VO_SIGNAL_BAD_VO, 
+	
+	/* Video Operator internal outputs */
+	VO_TARGET_SIGHTED_T_VO,
+	VO_TARGET_SIGHTED_F_VO,
+	VO_TARGET_DESCRIPTION_VO,
+	VO_BAD_STREAM_VO,
+	VO_FLYBY_REQ_F_VO,
+	VO_FLYBY_REQ_T_VO,
+	VO_POSSIBLE_ANOMALY_DETECTED_F_VO,
+	VO_POSSIBLE_ANOMALY_DETECTED_T_VO,
 
 	/* Video Operator Gui Outputs */
 	
@@ -87,6 +98,8 @@ public enum UDO {
 	VGUI_FLYBY_F,
 	VGUI_POSSIBLE_ANOMALY_DETECTED_F_MM,
 	VGUI_POSSIBLE_ANOMALY_DETECTED_T_MM,
+	VGUI_BAD_STREAM_VO,
+	
 	
 	/* UAV Operator Outputs */
 	
