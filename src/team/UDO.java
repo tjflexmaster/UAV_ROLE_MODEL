@@ -3,15 +3,21 @@ package team;
 
 public enum UDO {
 	
-	/* Parent Search Outputs */
+	/* Parent Search Data */
 	
+	//Outputs
 	PS_POKE_MM,
-	PS_END_MM,
-	PS_TERMINATE_SEARCH_MM,
 	PS_TARGET_DESCRIPTION_MM,
 	PS_NEW_SEARCH_AOI_MM,
+	PS_TERMINATE_SEARCH_MM,
+	PS_END_MM,
 	PS_BUSY_MM,
 	PS_ACK_MM,
+	//Internals
+	PS_NEW_SEARCH_AOI_PS,
+	PS_TARGET_DESCRIPTION_PS,
+	//Counters
+	UAVBAT_TIME_TIL_START_UAVBAT,
 	
 	/* internal PS */
 
@@ -19,7 +25,7 @@ public enum UDO {
 	PS_TARGET_DESCRIPTION_PS,
 	PS_NEW_SEARCH_AOI_PS,
 	
-	/* Mission Manager Outputs */
+	/* Mission Manager Data */
 	
 	MM_POKE_PS,
 	MM_POKE_VO,
@@ -49,8 +55,13 @@ public enum UDO {
 	MM_BUSY_PS,
 	MM_BUSY_OP,
 	MM_BUSY_VO,
+	//Internals
+	MM_POSSIBLE_ANOMALY_DETECTED_F_MM,
+	MM_TARGET_DESCRIPTION_MM,
+	MM_NEW_SEARCH_MM,
+	MM_TERMINATE_SEARCH_MM,
 
-	/* Video Operator Outputs */
+	/* Video Operator Data */
 
 	VO_POKE_MM,
 	VO_END_MM,
@@ -81,7 +92,7 @@ public enum UDO {
 	VO_POSSIBLE_ANOMALY_DETECTED_F_VO,
 	VO_POSSIBLE_ANOMALY_DETECTED_T_VO,
 
-	/* Video Operator Gui Outputs */
+	/* Video Operator Gui Data */
 	
 	VGUI_FALSE_POSITIVE_VO,
 	VGUI_TRUE_POSITIVE_VO,
@@ -103,7 +114,7 @@ public enum UDO {
 	VGUI_BAD_STREAM_VO,
 	
 	
-	/* UAV Operator Outputs */
+	/* UAV Operator Data */
 	
 	OP_POKE_MM,
 	OP_END_MM,
@@ -132,7 +143,7 @@ public enum UDO {
 	
 	OP_TAKE_OFF_OP,
 	
-	/* UAV Operator Gui Outputs */
+	/* UAV Operator Gui Data */
 	
 	OGUI_STATE_NORMAL,
 	OGUI_STATE_ALARM,
@@ -179,7 +190,7 @@ public enum UDO {
 	OGUI_FLYBY_END_FAILED_OP,
 	OGUI_lANDED_OP,
 	
-	/* UAV Outputs */
+	/* UAV Data */
 	
 	UAV_FLYING_NORMAL,
 	UAV_FLYING_FLYBY,
@@ -206,7 +217,7 @@ public enum UDO {
 	UAV_SIGNAL_OK_OGUI,
 	UAV_SIGNAL_RESUMED_OGUI,
 	
-	/* UAV Battery */
+	/* UAV Battery Data */
 	
 	UAVBAT_TIME_TIL_LOW_UAVBAT,
 	UAVBAT_TIME_TIL_DEAD,
@@ -215,18 +226,17 @@ public enum UDO {
 	
 	VF_SIGNAL_OK_VGUI, 
 	VF_SIGNAL_NONE_VGUI,
-	/* Events */
+	/* Event Data */
 	
 	EVENT_TARGET_SIGHTED_F_VGUI, 
 	EVENT_TARGET_SIGHTED_END_VGUI, 
 	EVENT_TARGET_SIGHTED_T_VGUI,
 	EVENT_FLYBY_ANOMALY_F,
 	EVENT_FLYBY_ANOMALY_T,
-	EVENT_START_SEARCH_PS,
-	EVENT_TERMINATE_SEARCH_PS,
+	VF_SIGNAL_OK_VGUI, 
+	VF_SIGNAL_NONE_VGUI,
 	
-	
-	/* Delta Clock */
+	/* Delta Clock Data */
 	
 	DC_TIME_ELAPSED;
 
