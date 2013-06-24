@@ -8,13 +8,17 @@ import team.UDO;
 public class OperatorGui extends Actor{
 
 	public OperatorGui(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public boolean updateTransition() {
-		// TODO Auto-generated method stub
-		return false;
+		//add states
+		State IDLE = new State("IDLE");_states.add(IDLE);
+		State NORMAL = new State("NORMAL");_states.add(NORMAL);
+		State ALARM = new State("ALARM");_states.add(ALARM);
+		
+		//add transitions
+		//start simulation
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OGUI)},
+				new UDO[]{outputs.get(UDO.OGUI_TAKE_OFF_UAV)},
+				NORMAL, null, 0);
 	}
 	
 }

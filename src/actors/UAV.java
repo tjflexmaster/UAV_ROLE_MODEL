@@ -8,6 +8,20 @@ import team.UDO;
 public class UAV extends Actor {
 
 	public UAV(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
+		//add states
+		State IDLE = new State("IDLE"); _states.add(IDLE);
+		State TAKE_OFF = new State("TAKE_OFF"); _states.add(TAKE_OFF);
+		State FLY_LOITER = new State("FLY_LOITER"); _states.add(FLY_LOITER);
+		
+		//add transitions
+		IDLE.addTransition(
+				new UDO[]{},
+				new UDO[]{},
+				TAKE_OFF, null, 0);
+		TAKE_OFF.addTransition(
+				new UDO[]{},
+				new UDO[]{},
+				FLY_LOITER, null, 0);
 		
 		/* UAV Battery */
 		inputs.clear();

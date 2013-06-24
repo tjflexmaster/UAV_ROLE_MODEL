@@ -51,7 +51,7 @@ public enum UDO {
 	//Internals
 	MM_POSSIBLE_ANOMALY_DETECTED_F_MM,
 	MM_TARGET_DESCRIPTION_MM,
-	MM_NEW_SEARCH_MM,
+	MM_NEW_SEARCH_AOI_MM,
 	MM_TERMINATE_SEARCH_MM,
 
 	/* Video Operator Data */
@@ -74,6 +74,8 @@ public enum UDO {
 	VO_ACK_MM,
 	VO_BUSY_MM,
 	VO_SIGNAL_BAD_VO,
+	//Internals
+	VO_TARGET_DESCRIPTION_VO,
 
 	/* Video Operator Gui Data */
 	
@@ -119,6 +121,8 @@ public enum UDO {
 	OP_MODIFY_FLIGHT_PLAN_OGUI,
 	OP_FLYBY_START_F_OGUI,
 	OP_TAKE_OFF_OGUI,
+	//Internals
+	OP_NEW_SEARCH_AOI_OP,
 	
 	/* UAV Operator Gui Data */
 	
