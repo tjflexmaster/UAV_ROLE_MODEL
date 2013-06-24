@@ -1,6 +1,7 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import team.Duration;
 import team.UDO;
@@ -60,20 +61,23 @@ public class State {
 	}
 
 	/**
-	 * this finds the first possible transition from the array list, most state classes will overide this method
+	 * Finds all possible transitions of the highest priority and randomly chooses one of them
 	 * @return	the next possible transition with the highest priority, null if none are possible
 	 */
 	public Transition getNextTransition(){
-		Transition next = null;
+		ArrayList<Transition> next = new ArrayList<Transition>();
 		for(Transition transition : _transitions){
 			if(transition.isEnabled() && next != null){
 				transition.deactivateInput();
-				next= transition;
+				if(next.size() == 0 || (next.get(0)._priority == transition._priority))
+					next.add(transition);
+			}else{
+				transition.deactivateInput();
 			}
-			transition.deactivateInput();
 		}
-		
-		return next;
+		Random rand = new Random();
+		int index = rand.nextInt(next.size());
+		return next.get(index);
 	}
 	
 	/**
