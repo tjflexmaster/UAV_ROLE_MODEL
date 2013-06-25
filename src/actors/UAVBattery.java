@@ -13,10 +13,10 @@ public class UAVBattery extends Actor {
 		State LOW = new State("LOW");
 		State DEAD = new State("DEAD");
 		
-		this.addState(INACTIVE);
-		this.addState(ACTIVE);
-		this.addState(LOW);
-		this.addState(DEAD);
+		addState(INACTIVE);
+		addState(ACTIVE);
+		addState(LOW);
+		addState(DEAD);
 
 		//addTransition(
 		//		inputs[],

@@ -9,20 +9,35 @@ public class VideoOperator extends Actor {
 	public VideoOperator(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 
 		//add states
-		State IDLE = new State("IDLE");this.addState(IDLE);
+		State IDLE = new State("IDLE");
 		//comm with mission manager
-		State RX_MM = new State("RX_MM");this.addState(RX_MM);
-		State POKE_MM = new State("POKE_MM");this.addState(POKE_MM);
-		State TX_MM = new State("TX_MM");this.addState(TX_MM);
+		State RX_MM = new State("RX_MM");
+		State POKE_MM = new State("POKE_MM");
+		State TX_MM = new State("TX_MM");
+		State END_MM = new State("END_MM");
 		//comm with operator
-		State POKE_OP = new State("POKE_OP");this.addState(POKE_OP);
-		State TX_OP = new State("TX_OP");this.addState(TX_OP);
-		State END_OP = new State("END_OP");this.addState(END_OP);
+		State POKE_OP = new State("POKE_OP");
+		State TX_OP = new State("TX_OP");
+		State END_OP = new State("END_OP");
 		//comm with video gui
-		State OBSERVE_NORMAL = new State("OBSERVE_NORMAL");this.addState(OBSERVE_NORMAL);
-		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY");this.addState(OBSERVE_FLYBY);
-		State POKE_GUI = new State("POKE_GUI");this.addState(POKE_GUI);
-		State TX_GUI = new State("TX_GUI");this.addState(TX_GUI);
+		State OBSERVING_NORMAL = new State("OBSERVE_NORMAL");
+		State OBSERVING_FLYBY = new State("OBSERVE_FLYBY");
+		State POKE_GUI = new State("POKE_GUI");
+		State TX_GUI = new State("TX_GUI");
+		State END_GUI = new State("END_GUI");
+		
+		addState(IDLE);
+		addState(RX_MM);
+		addState(POKE_MM);
+		addState(TX_MM);
+		addState(END_MM);
+		addState(POKE_OP);
+		addState(TX_OP);
+		addState(END_OP);
+		addState(OBSERVING_NORMAL);
+		addState(OBSERVING_FLYBY);
+		addState(POKE_GUI);
+		addState(TX_GUI);
 
 		//add transitions
 		//start simulation
@@ -37,234 +52,260 @@ public class VideoOperator extends Actor {
 		RX_MM.addTransition(
 				new UDO[]{inputs.get(UDO.MM_END_VO), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO)},
 				new UDO[]{outputs.get(UDO.VO_TARGET_DESCRIPTION_VO)},
-				OBSERVE_NORMAL, null, 0);
+				OBSERVING_NORMAL, null, 0);
 
 		//add states
-		State idle = new State("IDLE");this.addState(idle);
-		State rx_mm = new State("RX_MM");this.addState(rx_mm);
-		State observing_normal = new State("OBSERVING_NORMAL");this.addState(observing_normal);
-		State observing_flyby = new State("OBSERVING_FLYBY");this.addState(observing_flyby);
-		State poke_gui = new State("POKE_GUI");this.addState(poke_gui);
-		State tx_gui = new State("TX_GUI");this.addState(tx_gui);
-		State end_gui = new State("END_GUI");this.addState(end_gui);
-		State poke_mm = new State("POKE_MM");this.addState(poke_mm);
-		State tx_mm = new State("TX_MM");this.addState(tx_mm);
-		State end_mm = new State("END_MM");this.addState(end_mm);
-		State poke_op = new State("POKE_OPERATOR");this.addState(poke_op);
-		State tx_op = new State("TX_OPERATOR");this.addState(tx_op);
-		State end_op = new State("END_OPERATOR");this.addState(end_op);
 		
 		//idle state
-		intializeIdleState(inputs, outputs, idle, rx_mm, observing_normal);
-		initializeRXMMState(inputs, idle, rx_mm);
+		intializeIdleState(inputs, outputs, IDLE, RX_MM, OBSERVING_NORMAL);
+		initializeRXMMState(inputs, IDLE, RX_MM);
 		
-		poke_mm.addTransition(new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_T_VO.name())},
+		POKE_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_T_VO.name())},
 				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
-				tx_mm, null, 0);
-		poke_mm.addTransition(new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_F_VO.name())},
+				TX_MM, null, 0);
+		POKE_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_F_VO.name())},
 				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
-				tx_mm, null, 0);
+				TX_MM, null, 0);
 		
-		tx_mm.addTransition(new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
+		TX_MM.addTransition(
 				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
-				end_mm, null, 0);
-		tx_mm.addTransition(new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
+				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
+				END_MM , null, 0);
+		TX_MM.addTransition(
 				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
-				end_mm, null, 0);
+				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
+				END_MM, null, 0);
 		
-		end_mm.addTransition(new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO}, 
+		END_MM.addTransition(
+				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO}, 
 				new UDO[]{outputs.get(UDO.VO_TARGET_SIGHTING_F_MM.name()), outputs.get(UDO.VO_END_MM.name())},
-				idle, null, 0);
-		end_mm.addTransition(new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO}, 
+				IDLE, null, 0);
+		END_MM.addTransition(
+				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO}, 
 				new UDO[]{outputs.get(UDO.VO_TARGET_SIGHTING_T_MM.name()), outputs.get(UDO.VO_END_MM.name())}, 
-				idle, null, 0);
+				IDLE, null, 0);
 //		end_mm.addTransition(null,
 //				new UDO[]{outputs.get(UDO.VO_END_MM.name())},
 //				idle, null, 0);
 		
-		initializeObservingNormalState(inputs, outputs, rx_mm,
-				observing_normal, poke_gui, poke_op);
+		initializeObservingNormalState(inputs, outputs, RX_MM,
+				OBSERVING_NORMAL, POKE_GUI, POKE_OP);
 		
-		poke_op.addTransition(new UDO[]{inputs.get(UDO.OP_ACK_VO.name()), UDO.VO_BAD_STREAM_VO},
+		POKE_OP.addTransition(
+				new UDO[]{inputs.get(UDO.OP_ACK_VO.name()), UDO.VO_BAD_STREAM_VO},
 				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				tx_op, null, 0);
+				TX_OP, null, 0);
 		
-		tx_op.addTransition(new UDO[]{UDO.VO_BAD_STREAM_VO},
+		TX_OP.addTransition(
 				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				end_op, null, 0);
+				new UDO[]{UDO.VO_BAD_STREAM_VO},
+				END_OP, null, 0);
 		
-		end_op.addTransition(new UDO[]{UDO.VO_BAD_STREAM_VO},
+		END_OP.addTransition(
+				new UDO[]{UDO.VO_BAD_STREAM_VO},
 				new UDO[]{outputs.get(UDO.VO_BAD_STREAM_OP.name()), outputs.get(UDO.VO_END_OP.name())},
-				idle, null, 0);
+				IDLE, null, 0);
 
-		intializePokeGUIState(poke_gui, tx_gui);
+		intializePokeGUIState(POKE_GUI, TX_GUI);
 		
-		initializeTXGUIState(tx_gui);
+		initializeTXGUIState(TX_GUI);
 		
-		initializeEndGUIState(outputs, tx_gui, end_gui);
+		initializeEndGUIState(outputs, IDLE, END_GUI);
 		
 
-		initializeObservingFlybyState(inputs, outputs, rx_mm, observing_normal,
-				observing_flyby, poke_mm, poke_op);
+		initializeObservingFlybyState(inputs, outputs, RX_MM, OBSERVING_NORMAL,
+				OBSERVING_FLYBY, POKE_MM, POKE_OP);
+		
 	}
 
 	/**
 	 * @param inputs
 	 * @param outputs
-	 * @param idle
-	 * @param rx_mm
-	 * @param observing_normal
+	 * @param IDLE
+	 * @param RX_MM
+	 * @param OBSERVING_NORMAL
 	 */
 	private void intializeIdleState(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State idle, State rx_mm,
-			State observing_normal) {
-		idle.addTransition(new UDO[]{inputs.get(UDO.MM_POKE_VO.name())},
+			HashMap<String, UDO> outputs, State IDLE, State RX_MM,
+			State OBSERVING_NORMAL) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())},
-				rx_mm, null, 1);
-		idle.addTransition(new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
+				RX_MM, null, 1);
+		IDLE.addTransition(
+				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
 				new UDO[]{},
-				observing_normal, null, 0);
-		idle.addTransition(new UDO[]{},
+				OBSERVING_NORMAL, null, 0);
+		IDLE.addTransition(
 				new UDO[]{},
-				observing_normal, null, -1);
+				new UDO[]{},
+				OBSERVING_NORMAL, null, -1);
 	}
 
 	/**
 	 * @param inputs
-	 * @param idle
-	 * @param rx_mm
+	 * @param IDLE
+	 * @param RX_MM
 	 */
-	private void initializeRXMMState(HashMap<String, UDO> inputs, State idle,
-			State rx_mm) {
-		rx_mm.addTransition(new UDO[]{inputs.get(UDO.MM_END_VO.name())},
+	private void initializeRXMMState(HashMap<String, UDO> inputs, State IDLE,
+			State RX_MM) {
+		RX_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_END_VO.name())},
 				null,
-				idle, null, -1);
-		rx_mm.addTransition(new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
+				IDLE, null, -1);
+		RX_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
 				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
-				idle, null, 0);
-		rx_mm.addTransition(new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TERMINATE_SEARCH_VO.name())},
+				IDLE, null, 0);
+		RX_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TERMINATE_SEARCH_VO.name())},
 				null,
-				idle, null, 0);
+				IDLE, null, 0);
 	}
 
 	/**
 	 * @param inputs
 	 * @param outputs
-	 * @param rx_mm
-	 * @param observing_normal
-	 * @param poke_gui
-	 * @param poke_op
+	 * @param RX_MM
+	 * @param OBSERVING_NORMAL
+	 * @param POKE_GUI
+	 * @param POKE_OP
 	 */
 	private void initializeObservingNormalState(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State rx_mm, State observing_normal,
-			State poke_gui, State poke_op) {
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
+			HashMap<String, UDO> outputs, State RX_MM, State OBSERVING_NORMAL,
+			State POKE_GUI, State POKE_OP) {
+		OBSERVING_NORMAL.addTransition(
+				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
 				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())}, 
-				rx_mm, null, 0);
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
+				RX_MM, null, 0);
+		OBSERVING_NORMAL.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
 				new UDO[]{UDO.VO_BAD_STREAM_VO, outputs.get(UDO.VO_POKE_OP.name())},
-				poke_op, null, 0);
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
+				POKE_OP, null, 0);
+		OBSERVING_NORMAL.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
 				new UDO[]{UDO.VO_FLYBY_REQ_F_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				poke_gui, null, 0);
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
+				POKE_GUI, null, 0);
+		OBSERVING_NORMAL.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				poke_gui, null, 0);
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
+				POKE_GUI, null, 0);
+		OBSERVING_NORMAL.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
 				new UDO[]{UDO.VO_FLYBY_REQ_T_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				poke_gui, null, 0);
-		observing_normal.addTransition(new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
+				POKE_GUI, null, 0);
+		OBSERVING_NORMAL.addTransition(new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				poke_gui, null, 0);
+				POKE_GUI, null, 0);
 	}
 
 	/**
-	 * @param poke_gui
-	 * @param tx_gui
+	 * @param POKE_GUI
+	 * @param TX_GUI
 	 */
-	private void intializePokeGUIState(State poke_gui, State tx_gui) {
-		poke_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
+	private void intializePokeGUIState(State POKE_GUI, State TX_GUI) {
+		POKE_GUI.addTransition(
 				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				tx_gui, null, 0);
-		poke_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
+				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
+				TX_GUI, null, 0);
+		POKE_GUI.addTransition(
 				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				tx_gui, null, 0);
-		poke_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
+				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
+				TX_GUI, null, 0);
+		POKE_GUI.addTransition(
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				tx_gui, null, 0);
-		poke_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
+				TX_GUI, null, 0);
+		POKE_GUI.addTransition(
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				tx_gui, null, 0);
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
+				TX_GUI, null, 0);
 	}
 
 	/**
-	 * @param tx_gui
+	 * @param TX_GUI
 	 */
-	private void initializeTXGUIState(State tx_gui) {
-		tx_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
+	private void initializeTXGUIState(State TX_GUI) {
+		TX_GUI.addTransition(
 				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				tx_gui, null, 0);
-		tx_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
+				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
+				TX_GUI, null, 0);
+		TX_GUI.addTransition(
 				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				tx_gui, null, 0);
-		tx_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
+				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
+				TX_GUI, null, 0);
+		TX_GUI.addTransition(
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				tx_gui, null, 0);
-		tx_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
+				TX_GUI, null, 0);
+		TX_GUI.addTransition(
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				tx_gui, null, 0);
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
+				TX_GUI, null, 0);
 	}
 
 	/**
 	 * @param outputs
-	 * @param tx_gui
-	 * @param end_gui
+	 * @param IDLE
+	 * @param END_GUI
 	 */
 	private void initializeEndGUIState(HashMap<String, UDO> outputs,
-			State tx_gui, State end_gui) {
-		end_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
+			State IDLE, State END_GUI) {
+		END_GUI.addTransition(
+				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
 				new UDO[]{UDO.VO_FLYBY_REQ_F_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				tx_gui, null, 0);
-		end_gui.addTransition(new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
+				IDLE, null, 0);
+		END_GUI.addTransition(
+				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
 				new UDO[]{UDO.VO_FLYBY_REQ_T_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				tx_gui, null, 0);
-		end_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
+				IDLE, null, 0);
+		END_GUI.addTransition(
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				tx_gui, null, 0);
-		end_gui.addTransition(new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
+				IDLE, null, 0);
+		END_GUI.addTransition(
+				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
 				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				tx_gui, null, 0);
+				IDLE, null, 0);
 	}
 
 	/**
 	 * @param inputs
 	 * @param outputs
-	 * @param rx_mm
-	 * @param observing_normal
-	 * @param observing_flyby
-	 * @param poke_mm
+	 * @param RX_MM
+	 * @param OBSERVING_NORMAL
+	 * @param OBSERVING_FLYBY
+	 * @param POKE_MM
 	 * @param poke_op
 	 */
 	private void initializeObservingFlybyState(HashMap<String, UDO> inputs,
-			HashMap<String, UDO> outputs, State rx_mm, State observing_normal,
-			State observing_flyby, State poke_mm, State poke_op) {
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
+			HashMap<String, UDO> outputs, State RX_MM, State OBSERVING_NORMAL,
+			State OBSERVING_FLYBY, State POKE_MM, State poke_op) {
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
 				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())}, 
-				rx_mm, null, 0);
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
+				RX_MM, null, 0);
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
 				new UDO[]{UDO.VO_BAD_STREAM_VO, outputs.get(UDO.VO_POKE_OP.name())},
 				poke_op, null, 0);
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_FLYBY_END_FAILED_VGUI.name())},
-				observing_normal, null, 0);
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
+				OBSERVING_NORMAL, null, 0);
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_FLYBY_END_FAILED_VGUI.name())},
-				observing_normal, null, 0);
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
+				OBSERVING_NORMAL, null, 0);
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_FLYBY_END_SUCCESS_VGUI.name()), UDO.VO_TARGET_SIGHTED_F_VO},
-				poke_mm, null, 0);
-		observing_flyby.addTransition(new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
+				POKE_MM, null, 0);
+		OBSERVING_FLYBY.addTransition(
+				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_FLYBY_END_SUCCESS_VGUI.name()), UDO.VO_TARGET_SIGHTED_T_VO},
-				poke_mm, null, 0);
+				POKE_MM, null, 0);
 	}
 }

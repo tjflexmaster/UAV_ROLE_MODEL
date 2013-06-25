@@ -33,6 +33,7 @@ public class Team extends ArrayList<Actor> {
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
 		outputs.clear();
+		
 		this.add(new ParentSearch(inputs, outputs));
 
 		//add Mission Manager, with its inputs and outputs, to the team
