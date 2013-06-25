@@ -38,15 +38,17 @@ public class Transition {
 	/**
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
-	public boolean isEnabled(){
-		for(UDO input : _inputs){
-			if(input.get().getClass()==Boolean.class){//handle boolean signals
-				if(!(Boolean)input.get()){
+	public boolean isEnabled() {
+		for (UDO input : _inputs) {
+			if (input == null) {//handle null inputs
+				return true;
+			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
+				if (!(Boolean)input.get()) {
 					return false;
 				}
-			}else if(input.get().getClass()==Integer.class){//handle integer counters
+			} else if (input.get().getClass()==Integer.class) {//handle integer counters
 				input.update((Integer)input.get()-(Integer)UDO.DC_TIME_ELAPSED.get());
-				if((Integer)input.get()>0){
+				if ((Integer)input.get()>0) {
 					return false;
 				}
 			}
@@ -57,7 +59,11 @@ public class Transition {
 
 	public void deactivateInput() {
 		for(UDO input : _inputs){
-			input.set(null);
+			if (input == null) {//handle null inputs
+				//do nothing
+			} else {//handle all other methods
+				input.set(null);
+			}
 		}
 	}
 	
@@ -78,7 +84,16 @@ public class Transition {
 	 * @return return a string representation of the transition
 	 */
 	public String toString() {
-		return _inputs.toString() + " -> " + _endState.toString() + " X " + _outputs.toString();
+		String result = "(";
+		for(UDO input : _inputs) {
+			result += input.name() + " ";
+		}
+		result += ") -> " + _endState.toString() + " X (";
+		for(UDO output : _outputs) {
+			result += output.name();
+		}
+		result += ")";
+		return result;
 	}
 	
 }

@@ -51,27 +51,20 @@ public class State {
 		
 		return this;
 	}
-	
-	/**
-	 * this method works like a normal toString method
-	 * @return return the string representation of this state
-	 */
-	public String toString() {
-		return _name;
-	}
 
 	/**
 	 * Finds all possible transitions of the highest priority and randomly chooses one of them
 	 * @return	the next possible transition with the highest priority, null if none are possible
 	 */
-	public Transition getNextTransition(){
+	public Transition getNextTransition() {
 		ArrayList<Transition> next = new ArrayList<Transition>();
-		for(Transition transition : _transitions){
-			if(transition.isEnabled() && next != null){
+		for (Transition transition : _transitions) {
+			if (transition.isEnabled() && next != null) {
 				transition.deactivateInput();
-				if(next.size() == 0 || (next.get(0)._priority == transition._priority))
+				if( next.size() == 0 || (next.get(0)._priority == transition._priority)) {
 					next.add(transition);
-			}else{
+				}
+			} else {
 				transition.deactivateInput();
 			}
 		}
@@ -98,6 +91,14 @@ public class State {
 		} else if (!_name.equals(other._name))
 			return false;
 		return true;
+	}
+	
+	/**
+	 * this method works like a normal toString method
+	 * @return return the string representation of this state
+	 */
+	public String toString() {
+		return _name;
 	}
 
 }

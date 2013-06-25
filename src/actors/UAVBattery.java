@@ -8,20 +8,21 @@ import team.*;
 public class UAVBattery extends Actor {
 	
 	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
+		//initialize name
+		_name = "UAV_BATTERY";
+		
+		//initialize states
 		State INACTIVE = new State("INACTIVE");
-		addState(INACTIVE);
 		State ACTIVE = new State("ACTIVE");
-		addState(ACTIVE);
 		State LOW = new State("LOW");
-		addState(LOW);
 		State DEAD = new State("DEAD");
-		addState(DEAD);
 
+		//initialize transitions
 		//addTransition(
 		//		inputs[],
 		//		outputs[],
 		//		nextState, duration, priority);
-		INACTIVE.addTransition(
+		/*INACTIVE.addTransition(
 				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
 				new UDO[]{outputs.get(UDO.UAV_BATTERY_OK_OGUI.name())},
 				ACTIVE, null, 1);
@@ -40,6 +41,15 @@ public class UAVBattery extends Actor {
 		LOW.addTransition(new
 				UDO[]{inputs.get(UDO.UAV_LANDED)},
 				new UDO[]{outputs.get(UDO.UAV_BATTERY_OFF_OGUI.name())},
-				INACTIVE, null, 0);
+				INACTIVE, null, 0);*/
+		
+		//add states
+		addState(INACTIVE);
+		addState(ACTIVE);
+		addState(LOW);
+		addState(DEAD);
+		
+		//set current state
+		_currentState = INACTIVE;
 	}
 }

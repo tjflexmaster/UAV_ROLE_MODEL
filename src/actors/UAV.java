@@ -8,23 +8,17 @@ import team.UDO;
 public class UAV extends Actor {
 
 	public UAV(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
-		//add states
-		State IDLE = new State("IDLE"); 
-		addState(IDLE);
+		//initialize name
+		_name = "UAV";
+		
+		//initialize states
+		State IDLE = new State("IDLE");
 		State TAKE_OFF = new State("TAKE_OFF"); 
-		addState(TAKE_OFF);
 		State FLY_LOITER = new State("FLY_LOITER"); 
-		addState(FLY_LOITER);
 		
 		//add transitions
-		IDLE.addTransition(
-				new UDO[]{},
-				new UDO[]{},
-				TAKE_OFF, null, 0);
-		TAKE_OFF.addTransition(
-				new UDO[]{},
-				new UDO[]{},
-				FLY_LOITER, null, 0);
+		initializeIDLE(inputs, IDLE, TAKE_OFF);
+		initializeTAKE_OFF(TAKE_OFF, FLY_LOITER);
 		
 		/* UAV Battery */
 		inputs.clear();
@@ -32,13 +26,36 @@ public class UAV extends Actor {
 		inputs.put(UDO.UAVBAT_TIME_TIL_DEAD.name(), UDO.UAVBAT_TIME_TIL_DEAD);
 		inputs.put(UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.name(), UDO.UAVBAT_TIME_TIL_LOW_UAVBAT);
 		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
-		inputs.put(UDO.OP_POST_FLIGHT_COMPLETE_UAV.name(), UDO.OP_POST_FLIGHT_COMPLETE_UAV);
-		inputs.put(UDO.UAV_LANDED.name(), UDO.UAV_LANDED);
+		//inputs.put(UDO.OP_POST_FLIGHT_COMPLETE_UAV.name(), UDO.OP_POST_FLIGHT_COMPLETE_UAV);
+		//inputs.put(UDO.UAV_LANDED.name(), UDO.UAV_LANDED);
 		outputs.put(UDO.UAVBAT_TIME_TIL_DEAD.name(), UDO.UAVBAT_TIME_TIL_DEAD);
 		outputs.put(UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.name(), UDO.UAVBAT_TIME_TIL_LOW_UAVBAT);
-		outputs.put(UDO.UAV_BATTERY_OK_OGUI.name(), UDO.UAV_BATTERY_OK_OGUI);
-		outputs.put(UDO.UAV_BATTERY_DEAD_OGUI.name(), UDO.UAV_BATTERY_DEAD_OGUI);
-		outputs.put(UDO.UAV_BATTERY_OFF_OGUI.name(), UDO.UAV_BATTERY_OFF_OGUI);
+		//outputs.put(UDO.UAV_BATTERY_OK_OGUI.name(), UDO.UAV_BATTERY_OK_OGUI);
+		//outputs.put(UDO.UAV_BATTERY_DEAD_OGUI.name(), UDO.UAV_BATTERY_DEAD_OGUI);
+		//outputs.put(UDO.UAV_BATTERY_OFF_OGUI.name(), UDO.UAV_BATTERY_OFF_OGUI);
+		
+		//add states 
+		addState(IDLE);
+		addState(TAKE_OFF);
+		addState(FLY_LOITER);
+		
+		//initialize current state
+		_currentState = IDLE;
+	}
+
+	private void initializeTAKE_OFF(State TAKE_OFF, State FLY_LOITER) {
+		TAKE_OFF.addTransition(
+				null,
+				null,
+				FLY_LOITER, null, 0);
+	}
+
+	private void initializeIDLE(HashMap<String, UDO> inputs, State IDLE,
+			State TAKE_OFF) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV)},
+				null,
+				TAKE_OFF, null, 0);
 	}
 
 	@Override

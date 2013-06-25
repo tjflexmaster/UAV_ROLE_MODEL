@@ -14,11 +14,11 @@ public class Simulator {
 	public static void main(String[] args) {
 		//initialize simulation variables
 		Team actors = new Team();
-		DeltaClock clock = new DeltaClock(actors);
+		DeltaClock clock = new DeltaClock();
 		Scanner scanner = new Scanner(System.in);
 		
 		//run the simulator until the clock is empty
-		while (clock.tick() != null) {
+		do {
 			//update next planned transition of all actors
 			for (int index = 0; index < actors.size(); index++) {
 				if (actors.get(index).updateTransition()) {
@@ -31,7 +31,7 @@ public class Simulator {
 			for (int index = 0; index < actors.size(); index++) {
 				readyActors.get(index).processTransition();
 			}
-		}
+		} while (clock.tick() != null);
 		
 		//close the scanner once the simulation is complete
 		scanner.close();

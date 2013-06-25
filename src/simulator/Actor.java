@@ -22,12 +22,6 @@ public abstract class Actor {
 	protected int _nextTime = -1;
 	
 	/**
-	 * this represents the current transition the actor (state machine) is making
-	 * this can be preempted given the right inputs and current state 
-	 */
-	protected Transition _currentTransition = null;
-	
-	/**
 	 * this is a formally defined list of states the actor (state machine) can make during the simulation
 	 */
 	protected ArrayList<State> _states = new ArrayList<State>();
@@ -38,21 +32,30 @@ public abstract class Actor {
 	protected State _currentState = null;
 	
 	/**
+	 * this represents the current transition the actor (state machine) is making
+	 * this can be preempted given the right inputs and current state 
+	 */
+	protected Transition _currentTransition = null;
+	
+	/**
 	 * this method tells the actor to look at its current state and inputs
 	 * if appropriate a new transition will be scheduled
 	 * @param currentTime 
 	 * @return returns true if a new transition has been scheduled
 	 */
-	public boolean updateTransition(){
-		if(_currentState == null){
+	public boolean updateTransition() {
+		if (_currentState == null) {
 			return false;
 		}
 		Transition nextTransition = _currentState.getNextTransition();
-		if(nextTransition.equals(_currentTransition) || nextTransition._priority < _currentTransition._priority){
-			return false;
+		if (_currentTransition == null) {
+			_currentTransition = nextTransition;
+			return true;
+		} else if (_currentTransition._priority > nextTransition._priority) {
+			_currentTransition = nextTransition;
+			return true;
 		}
-		_currentTransition = nextTransition;
-		return true;
+		return false;
 	}
 	
 	/**
@@ -64,7 +67,6 @@ public abstract class Actor {
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			return true;
 		}
-		
 		return false;
 	}
 

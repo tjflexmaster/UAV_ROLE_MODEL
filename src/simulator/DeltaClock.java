@@ -12,10 +12,8 @@ public class DeltaClock {
 	 * this method builds a delta clock of actors, that ticks their nextTime value
 	 * @param actors specifies the team of actors that will be used in this clock
 	 */
-	public DeltaClock(Team actors) {
-		for (int actorsIndex = 0; actorsIndex < actors.size(); actorsIndex++) {
-			insert(actors.get(actorsIndex));
-		}
+	public DeltaClock() {
+		UDO.DC_TIME_ELAPSED.update(new Integer(0));
 	}
 
 	/**
@@ -33,7 +31,7 @@ public class DeltaClock {
 			_actors.get(0)._nextTime = 0;//advance time
 		}
 		
-		while (readyActors.get(0)._nextTime == 0) {
+		while (readyActors.get(0).getNextTime() == 0) {
 			readyActors.add(_actors.remove(0));//form list of actors that are ready to transition
 		}
 		
@@ -46,26 +44,22 @@ public class DeltaClock {
 	 * @return 
 	 */
 	public void insert(Actor actor) {
+		if (actor.getNextTime() == -1) {
+			return;
+		}
+		
 		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			//if this spot in the list (delta clock) is empty place the actor here
-			if (_actors.get(actorsIndex).getNextTime() == -1) {
-				_actors.add(actor);
-				break;
-			}
-			//if the actor has less time then place it here and update next actor's nextTime
-			else if (_actors.get(actorsIndex).getNextTime() > actor.getNextTime()) {
+			if (_actors.get(actorsIndex).getNextTime() >= actor.getNextTime()) {
 				_actors.get(actorsIndex).setNextTime(_actors.get(actorsIndex).getNextTime() - actor.getNextTime());
 				_actors.add(actorsIndex, actor);
 				break;
-			}
-			//if the actor has more time, then update its time and move to the next space
-			else if (_actors.get(actorsIndex).getNextTime() < actor.getNextTime()) {
+			} else {
 				actor.setNextTime(actor.getNextTime() - _actors.get(actorsIndex).getNextTime());
 			}
-			//if the list (delta clock) is full, then add actor to the end 
-			else if (actorsIndex == _actors.size() - 1) {
-				_actors.add(actor);
-			}
+		}
+		
+		if (!_actors.contains(actor)) {
+			_actors.add(actor);
 		}
 	}
 
@@ -74,8 +68,6 @@ public class DeltaClock {
 	 * @return return a string representation of the clock
 	 */
 	public String toString() {
-		String result = "";
-		
-		return result;
+		return _actors.toString();
 	}
 }

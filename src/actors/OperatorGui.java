@@ -8,16 +8,23 @@ import team.UDO;
 public class OperatorGui extends Actor{
 
 	public OperatorGui(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
-		//add states
+		//initialize name
+		_name = "OPERATOR_GUI";
+		//initialize states
 		State IDLE = new State("IDLE");
-		addState(IDLE);
 		State NORMAL = new State("NORMAL");
-		addState(NORMAL);
 		State ALARM = new State("ALARM");
+		
+		//initialize transitions
+		initializeIDLE(inputs, outputs, IDLE, NORMAL);
+		
+		//add states
+		addState(IDLE);
+		addState(NORMAL);
 		addState(ALARM);
 		
-		//add transitions
-		initializeIDLE(inputs, outputs, IDLE, NORMAL);
+		//initialize _currentState
+		_currentState = IDLE;
 	}
 	
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State NORMAL){
