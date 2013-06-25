@@ -9,13 +9,12 @@ public class UAVBattery extends Actor {
 	
 	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		State INACTIVE = new State("INACTIVE");
-		State ACTIVE = new State("ACTIVE");
-		State LOW = new State("LOW");
-		State DEAD = new State("DEAD");
-		
 		addState(INACTIVE);
+		State ACTIVE = new State("ACTIVE");
 		addState(ACTIVE);
+		State LOW = new State("LOW");
 		addState(LOW);
+		State DEAD = new State("DEAD");
 		addState(DEAD);
 
 		//addTransition(

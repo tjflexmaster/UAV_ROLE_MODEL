@@ -9,21 +9,36 @@ public class Operator extends Actor {
 
 	public Operator(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//add states
-		State IDLE = new State("IDLE");_states.add(IDLE);
-		State POST_FLIGHT = new State("POST_FLIGHT");_states.add(POST_FLIGHT);
-		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE");_states.add(POST_FLIGHT_COMPLETE);
-		State LAUNCH_UAV = new State("LAUNCH_UAV");_states.add(LAUNCH_UAV);
-		State OBSERVING_GUI = new State("OBSERVING_GUI");_states.add(OBSERVING_GUI);
-		State OBSERVING_UAV = new State("OBSERVING_UAV");_states.add(OBSERVING_UAV);
-		State POKE_MM = new State("POKE_MM");_states.add(POKE_MM);
-		State TX_MM = new State("TX_MM");_states.add(TX_MM);
-		State END_MM = new State("END_MM");_states.add(END_MM);
-		State RX_MM = new State("RX_MM");_states.add(RX_MM);
-		State RX_VO = new State("RX_VO");_states.add(RX_VO);
-		State OBSERVING_FLYBY = new State("OBSERVING_FLYBY");_states.add(OBSERVING_FLYBY);
-		State POKE_OGUI = new State("POKE_GUI");_states.add(POKE_OGUI);
-		State TX_OGUI = new State("TX_GUI");_states.add(TX_OGUI);
-		State END_OGUI = new State("END_GUI");_states.add(END_OGUI);
+		State IDLE = new State("IDLE");
+		addState(IDLE);
+		State POST_FLIGHT = new State("POST_FLIGHT");
+		addState(POST_FLIGHT);
+		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE");
+		addState(POST_FLIGHT_COMPLETE);
+		State LAUNCH_UAV = new State("LAUNCH_UAV");
+		addState(LAUNCH_UAV);
+		State OBSERVING_GUI = new State("OBSERVING_GUI");
+		addState(OBSERVING_GUI);
+		State OBSERVING_UAV = new State("OBSERVING_UAV");
+		addState(OBSERVING_UAV);
+		State POKE_MM = new State("POKE_MM");
+		addState(POKE_MM);
+		State TX_MM = new State("TX_MM");
+		addState(TX_MM);
+		State END_MM = new State("END_MM");
+		addState(END_MM);
+		State RX_MM = new State("RX_MM");
+		addState(RX_MM);
+		State RX_VO = new State("RX_VO");
+		addState(RX_VO);
+		State OBSERVING_FLYBY = new State("OBSERVING_FLYBY");
+		addState(OBSERVING_FLYBY);
+		State POKE_OGUI = new State("POKE_GUI");
+		addState(POKE_OGUI);
+		State TX_OGUI = new State("TX_GUI");
+		addState(TX_OGUI);
+		State END_OGUI = new State("END_GUI");
+		addState(END_OGUI);
 
 		//add transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVING_GUI);

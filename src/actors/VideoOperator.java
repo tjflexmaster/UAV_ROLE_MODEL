@@ -10,41 +10,38 @@ public class VideoOperator extends Actor {
 
 		//add states
 		State IDLE = new State("IDLE");
+		addState(IDLE);
 		//comm with mission manager
 		State RX_MM = new State("RX_MM");
+		addState(RX_MM);
 		State POKE_MM = new State("POKE_MM");
+		addState(POKE_MM);
 		State TX_MM = new State("TX_MM");
+		addState(TX_MM);
 		State END_MM = new State("END_MM");
+		addState(END_MM);
 		//comm with operator
 		State POKE_OP = new State("POKE_OP");
+		addState(POKE_OP);
 		State TX_OP = new State("TX_OP");
+		addState(TX_OP);
 		State END_OP = new State("END_OP");
+		addState(END_OP);
 		//comm with video gui
 		State OBSERVING_NORMAL = new State("OBSERVE_NORMAL");
-		State OBSERVING_FLYBY = new State("OBSERVE_FLYBY");
-		State POKE_GUI = new State("POKE_GUI");
-		State TX_GUI = new State("TX_GUI");
-		State END_GUI = new State("END_GUI");
-		
-		addState(IDLE);
-		addState(RX_MM);
-		addState(POKE_MM);
-		addState(TX_MM);
-		addState(END_MM);
-		addState(POKE_OP);
-		addState(TX_OP);
-		addState(END_OP);
 		addState(OBSERVING_NORMAL);
+		State OBSERVING_FLYBY = new State("OBSERVE_FLYBY");
 		addState(OBSERVING_FLYBY);
+		State POKE_GUI = new State("POKE_GUI");
 		addState(POKE_GUI);
+		State TX_GUI = new State("TX_GUI");
 		addState(TX_GUI);
+		State END_GUI = new State("END_GUI");
+		addState(END_GUI);
+		
 
 		//add transitions
 		//start simulation
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_VO)},
-				new UDO[]{outputs.get(UDO.VO_ACK_MM)},
-				RX_MM, null, 0);
 		RX_MM.addTransition(
 				null,
 				null,
@@ -130,6 +127,10 @@ public class VideoOperator extends Actor {
 	private void intializeIdleState(HashMap<String, UDO> inputs,
 			HashMap<String, UDO> outputs, State IDLE, State RX_MM,
 			State OBSERVING_NORMAL) {
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.MM_POKE_VO)},
+				new UDO[]{outputs.get(UDO.VO_ACK_MM)},
+				RX_MM, null, 0);
 		IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())},
 				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())},
