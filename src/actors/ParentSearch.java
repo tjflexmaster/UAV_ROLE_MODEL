@@ -2,7 +2,9 @@ package actors;
 
 import java.util.HashMap;
 
-import simulator.*;
+import simulator.Actor;
+import simulator.State;
+import team.Duration;
 import team.UDO;
 
 public class ParentSearch extends Actor {
@@ -20,8 +22,16 @@ public class ParentSearch extends Actor {
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
-		initializePOKE_MM(inputs, outputs, IDLE, POKE_MM);
-		
+
+		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
+		TX_MM.addTransition(
+				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				new UDO[]{outputs.get(UDO.PS_END_MM), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM)},
+				END_MM, Duration.NEXT, 0);
+		END_MM.addTransition(
+				null,
+				null,
+				IDLE,Duration.NEXT,0);
 		//add states
 		addState(IDLE);
 		addState(POKE_MM);
@@ -33,11 +43,30 @@ public class ParentSearch extends Actor {
 		_currentState = IDLE;
 	}
 
+	/**
+	 * @param inputs
+	 * @param outputs
+	 * @param IDLE
+	 * @param POKE_MM
+	 * @param TX_MM
+	 */
+	private void initializePokeMM(HashMap<String, UDO> inputs,
+			HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State TX_MM) {
+		POKE_MM.addTransition(
+				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				IDLE, Duration.PS_POKE_MM, 0);
+		POKE_MM.addTransition(
+				new UDO[]{inputs.get(UDO.MM_ACK_PS.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				TX_MM,Duration.NEXT,1);
+	}
+
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State RX_MM) {
 		IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
 				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
-				POKE_MM, null, 0);
+				POKE_MM, Duration.PS_SEND_DATA_PS, 0);
 		/*IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},
 				new UDO[]{outputs.get(UDO.PS_ACK_MM.name())},
@@ -64,15 +93,5 @@ public class ParentSearch extends Actor {
 				POKE_MM, null, 1);*/
 	}
 
-	private void initializePOKE_MM(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_MM) {
-		POKE_MM.addTransition(
-				new UDO[]{inputs.get(UDO.PS_NEW_SEARCH_AOI_PS), inputs.get(UDO.PS_TARGET_DESCRIPTION_PS)},
-				new UDO[]{outputs.get(UDO.PS_POKE_MM), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS)},
-				POKE_MM, null, 0);
-		POKE_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_ACK_PS), inputs.get(UDO.PS_NEW_SEARCH_AOI_PS), inputs.get(UDO.PS_TARGET_DESCRIPTION_PS)},
-				new UDO[]{outputs.get(UDO.PS_END_MM), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM)},
-				IDLE, null, 0);
-	}
 
 }

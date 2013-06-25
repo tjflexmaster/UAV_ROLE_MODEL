@@ -70,9 +70,9 @@ public class VideoOperator extends Actor {
 
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
 		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_VO)},
-				new UDO[]{outputs.get(UDO.VO_ACK_MM)},
-				RX_MM, null, 0);
+				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())},
+				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())},
+				RX_MM, Duration.ACK, 0);
 		/*IDLE.addTransition(
 				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
 				new UDO[]{},
@@ -87,15 +87,15 @@ public class VideoOperator extends Actor {
 		RX_MM.addTransition(
 				new UDO[]{inputs.get(UDO.MM_END_VO.name())},
 				null,
-				IDLE, null, -1);
+				IDLE, Duration.NEXT, -1);
 		RX_MM.addTransition(
 				null,
 				null,
-				RX_MM, null, 0);
+				IDLE, Duration.VO_RX_MM, 0);
 		RX_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_END_VO), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO)},
-				new UDO[]{outputs.get(UDO.VO_TARGET_DESCRIPTION_VO)},
-				OBSERVE_NORMAL, null, 0);
+				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
+				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
+				OBSERVE_NORMAL, Duration.NEXT, 0);
 		/*RX_MM.addTransition(
 				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
 				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
@@ -165,9 +165,9 @@ public class VideoOperator extends Actor {
 
 	private void initializeOBSERVE_NORMAL(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State RX_MM, State OBSERVE_NORMAL, State POKE_GUI, State POKE_OP) {
 		OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.VO_TARGET_DESCRIPTION_VO)},
+				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
 				new UDO[]{},
-				OBSERVE_NORMAL, null, 0);
+				OBSERVE_NORMAL, Duration.NEXT, 0);
 		/*OBSERVE_NORMAL.addTransition(
 				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
 				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())}, 

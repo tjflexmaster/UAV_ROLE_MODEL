@@ -1,6 +1,9 @@
 package simulator;
 
-import team.*;
+import java.util.Random;
+
+import team.Duration;
+import team.UDO;
 
 /**
  * this class is a models all transitions in the simulation 
@@ -10,10 +13,10 @@ import team.*;
 public class Transition {
 	
 	private UDO[] _inputs;
-	public Duration _duration;
+	private Duration _duration;
 	private State _endState;
 	private UDO[] _outputs;
-	public int _priority;
+	private int _priority;
 
 
 	/**
@@ -32,7 +35,7 @@ public class Transition {
 		_outputs = outputs;
 		_endState = endState;
 		_duration = duration;
-		_priority = priority;
+		set_priority(priority);
 	}
 	
 	/**
@@ -42,6 +45,8 @@ public class Transition {
 		for (UDO input : _inputs) {
 			if (input == null) {//handle null inputs
 				return true;
+			} else if(input.get() == null){
+				return false;
 			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
 				if (!(Boolean)input.get()) {
 					return false;
@@ -53,7 +58,7 @@ public class Transition {
 				}
 			}
 		}
-		deactivateInput();//the transition can happen, new forget the inputs
+		//deactivateInput();//the transition can happen, new forget the inputs
 		return true;
 	}
 
@@ -63,6 +68,16 @@ public class Transition {
 				//do nothing
 			} else {//handle all other methods
 				input.set(null);
+			}
+		}
+	}
+	
+	public void deactivateOutputs(){
+		for(UDO output : _outputs){
+			if(output == null){
+				
+			}else{
+				output.set(null);
 			}
 		}
 	}
@@ -79,6 +94,9 @@ public class Transition {
 		return _endState;
 	}
 	
+	public int getDuration(){
+		return _duration.getdur();
+	}
 	/**
 	 * 
 	 * @return return a string representation of the transition
@@ -94,6 +112,14 @@ public class Transition {
 		}
 		result += ")";
 		return result;
+	}
+
+	public int get_priority() {
+		return _priority;
+	}
+
+	public void set_priority(int _priority) {
+		this._priority = _priority;
 	}
 	
 }

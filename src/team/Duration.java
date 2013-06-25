@@ -1,5 +1,7 @@
 package team;
 
+import java.util.Random;
+
 public enum Duration {
 	
 	/* Event Manager Durations */
@@ -8,18 +10,29 @@ public enum Duration {
 	
 	/* Parent Search Durations */
 	
+	PS_SEND_DATA_PS(1,5),
+	PS_POKE_MM(5,20),
+	
 	/* Mission Manager Durations */
 	
 	MM_POKE_PS(5,20),
-	MM_POKE_TO_TX_PS(5);
+	MM_POKE_TO_TX_PS(5),
+	MM_RX_PS(20),
+	MM_POKE_VO(5,20),
 	
 	/* Video Operator Outputs */
 	
 	/* Video Operator Gui Outputs */
 	
 	/* UAV Operator Outputs */
+	OP_TX_OGUI(5,20),
 	
 	/* UAV Operator Gui Outputs*/
+	
+	/* General */
+	ACK(1),
+	NEXT(1), OP_RX_MM(20), VO_RX_MM(20);
+	
 	
 	int _minimum;
 	int _maximum;
@@ -61,6 +74,17 @@ public enum Duration {
 		}
 		
 		return result;
+	}
+
+	public int getdur() {
+//		if(_minimum == _maximum)
+//			return _maximum;
+//		else{
+//			Random rand = new Random();
+//			int dur = _minimum + rand.nextInt(_maximum-_minimum);
+//			return dur;
+//		}
+		return _maximum;
 	}
 
 }

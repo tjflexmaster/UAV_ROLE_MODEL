@@ -1,7 +1,6 @@
 package simulator;
 
 import java.util.ArrayList;
-
 /**
  * this abstract class is extended by the actors of the simulation
  * it contains the variables and methods that compose an actor
@@ -9,7 +8,7 @@ import java.util.ArrayList;
  *
  */
 public abstract class Actor {
-	
+	public boolean debug = true;
 	/**
 	 * this variable represents the name we give to the actor
 	 */
@@ -36,6 +35,7 @@ public abstract class Actor {
 	 * this can be preempted given the right inputs and current state 
 	 */
 	protected Transition _currentTransition = null;
+	private Transition _lastTransition = null;
 	
 	/**
 	 * this method tells the actor to look at its current state and inputs
@@ -48,11 +48,15 @@ public abstract class Actor {
 			return false;
 		}
 		Transition nextTransition = _currentState.getNextTransition();
+		if(nextTransition == null)
+			return false;
 		if (_currentTransition == null) {
 			_currentTransition = nextTransition;
+			_nextTime = _currentTransition.getDuration();
 			return true;
-		} else if (_currentTransition._priority > nextTransition._priority) {
+		} else if (_currentTransition.get_priority() < nextTransition.get_priority()) {
 			_currentTransition = nextTransition;
+			_nextTime = _currentTransition.getDuration();
 			return true;
 		}
 		return false;
@@ -64,7 +68,14 @@ public abstract class Actor {
 	 */
 	public boolean processTransition(){
 		if(_nextTime == 0){
+			if(debug){
+				System.out.println(this.toString());
+			}
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
+			if(_lastTransition != null)
+				_lastTransition.deactivateOutputs();
+			_lastTransition = _currentTransition;
+			_currentTransition = null;
 			return true;
 		}
 		return false;
@@ -115,7 +126,7 @@ public abstract class Actor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + _nextTime + "): ";
+		result += _name + "(" + _nextTime + "): " + _currentState.toString() + " X ";
 		if (_currentTransition != null) {
 			result += _currentTransition.toString();
 		}

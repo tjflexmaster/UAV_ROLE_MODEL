@@ -3,6 +3,7 @@ package actors;
 import java.util.HashMap;
 
 import simulator.*;
+import team.Duration;
 import team.UDO;
 
 public class Operator extends Actor {
@@ -33,10 +34,10 @@ public class Operator extends Actor {
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVE_GUI);
-		initializeRX_MM(inputs, outputs, RX_MM, TX_OGUI, IDLE);
+		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
 		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
 		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
-		initializeTX_OGUI(inputs, outputs, TX_OGUI, IDLE);
+		initializeTX_OGUI(inputs, outputs, TX_OGUI, END_OGUI);
 		initializePOST_FLIGHT(inputs, outputs, POST_FLIGHT, POST_FLIGHT_COMPLETE);
 		initializePOST_FLIGHT_COMPLETE(inputs, outputs, POST_FLIGHT_COMPLETE, IDLE);
 		
@@ -63,9 +64,9 @@ public class Operator extends Actor {
 
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_MM, State LAUNCH_UAV, State OBSERVE_GUI) {
 		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_OP)},
-				new UDO[]{outputs.get(UDO.OP_ACK_MM)},
-				RX_MM, null, 0);
+				new UDO[]{inputs.get(UDO.MM_POKE_OP.name())},
+				new UDO[]{outputs.get(UDO.OP_ACK_MM.name())},
+				RX_MM, Duration.ACK, 0);
 		/*IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OP)},
 				new UDO[]{outputs.get(UDO.OP_TAKE_OFF_OGUI)},
@@ -80,26 +81,26 @@ public class Operator extends Actor {
 				OBSERVE_GUI, null, 0);*/
 	}
 	
-	private void initializeRX_MM(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State RX_MM, State TX_OGUI, State IDLE){
-		RX_MM.addTransition(//return to IDLE if input is null
-				new UDO[]{inputs.get(UDO.MM_END_OP)},
-				null,
-				IDLE, null, 0);
+	private void initializeRX_MM(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State RX_MM, State POKE_OGUI, State IDLE){
 		RX_MM.addTransition(//wait for input
 				null,
 				null,
-				RX_MM, null, 0);
+				IDLE, Duration.OP_RX_MM, 0);
+		RX_MM.addTransition(//return to IDLE if input is null
+				new UDO[]{inputs.get(UDO.MM_END_OP.name())},
+				null,
+				IDLE, Duration.NEXT,1);
 		RX_MM.addTransition(//process new search area of interest
-				new UDO[]{inputs.get(UDO.MM_END_OP), inputs.get(UDO.MM_NEW_SEARCH_AOI_OP)},
-				new UDO[]{outputs.get(UDO.OP_NEW_SEARCH_AOI_OP)},
-				TX_OGUI, null, 0);
+				new UDO[]{inputs.get(UDO.MM_END_OP.name()), inputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
+				new UDO[]{outputs.get(UDO.OP_NEW_SEARCH_AOI_OP.name())},
+				POKE_OGUI, Duration.NEXT, 2);
 	}
 
-	private void initializeTX_OGUI(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State TX_OGUI, State IDLE) {
+	private void initializeTX_OGUI(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State TX_OGUI, State END_OGUI) {
 		TX_OGUI.addTransition(//transmit take off orders via operator gui
-				new UDO[]{inputs.get(UDO.OP_NEW_SEARCH_AOI_OP)},
-				new UDO[]{outputs.get(UDO.OP_TAKE_OFF_OGUI)},
-				IDLE, null, 0);
+				new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP},
+				new UDO[]{outputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
+				END_OGUI, Duration.OP_TX_OGUI, 0);
 	}
 
 	private void initializeOBSERVE_GUI(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {

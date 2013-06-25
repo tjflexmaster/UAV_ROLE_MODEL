@@ -3,6 +3,7 @@ package actors;
 import java.util.HashMap;
 
 import simulator.*;
+import team.Duration;
 import team.UDO;
 
 public class UAV extends Actor {
@@ -55,7 +56,7 @@ public class UAV extends Actor {
 		IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV)},
 				null,
-				TAKE_OFF, null, 0);
+				TAKE_OFF, Duration.NEXT, 0);
 	}
 
 	@Override

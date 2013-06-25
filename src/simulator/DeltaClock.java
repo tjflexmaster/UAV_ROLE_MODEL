@@ -6,14 +6,16 @@ import team.*;
 
 public class DeltaClock {
 
-	private Team _actors = new Team();
-
+	private ArrayList<Actor> _actors;
+	private int absoluteTime;
 	/**
 	 * this method builds a delta clock of actors, that ticks their nextTime value
 	 * @param actors specifies the team of actors that will be used in this clock
 	 */
 	public DeltaClock() {
 		UDO.DC_TIME_ELAPSED.update(new Integer(0));
+		_actors = new ArrayList<Actor>();
+		absoluteTime = 0;
 	}
 
 	/**
@@ -25,13 +27,14 @@ public class DeltaClock {
 		ArrayList<Actor> readyActors = new ArrayList<Actor>();
 		
 		if (_actors.isEmpty()) {
-			return null;//simulator sees null as a signal to terminate
+			return _actors;//simulator sees null as a signal to terminate
 		} else {
+			absoluteTime += _actors.get(0)._nextTime;
 			UDO.DC_TIME_ELAPSED.update(new Integer(_actors.get(0)._nextTime));//inform actors of time elapse
 			_actors.get(0)._nextTime = 0;//advance time
 		}
 		
-		while (readyActors.get(0).getNextTime() == 0) {
+		while (_actors.size() > 0 && _actors.get(0).getNextTime() == 0) {
 			readyActors.add(_actors.remove(0));//form list of actors that are ready to transition
 		}
 		
@@ -44,12 +47,18 @@ public class DeltaClock {
 	 * @return 
 	 */
 	public void insert(Actor actor) {
-		if (actor.getNextTime() == -1) {
+		if (actor.getNextTime() == -1 || _actors.contains(actor)) {
 			return;
 		}
 		
 		for (int actorsIndex = 0; actorsIndex < _actors.size(); actorsIndex++) {
-			if (_actors.get(actorsIndex).getNextTime() >= actor.getNextTime()) {
+			//if actor at actorsIndex == -1 then insert newActor and move actor to the next location
+			//if actor at actorsIndex != -1 and newActor is less than actor then insert newActor and decrement actor's time
+			//if actor at actorsIndex != -1 and newActor is greater than actor then decrement new Actor and check next location
+			if(_actors.get(actorsIndex).getNextTime() == -1){
+				_actors.add(actorsIndex, actor);
+				break;
+			}else if ( _actors.get(actorsIndex).getNextTime() >= actor.getNextTime() ) {
 				_actors.get(actorsIndex).setNextTime(_actors.get(actorsIndex).getNextTime() - actor.getNextTime());
 				_actors.add(actorsIndex, actor);
 				break;
@@ -69,5 +78,9 @@ public class DeltaClock {
 	 */
 	public String toString() {
 		return _actors.toString();
+	}
+	
+	public int getAbsoluteTime(){
+		return absoluteTime;
 	}
 }

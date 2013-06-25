@@ -42,7 +42,7 @@ public class State {
 		
 		for(int index = 0; index < _transitions.size(); index++){
 			Transition temp = _transitions.get(index);
-			if(temp._priority < new_transition._priority){
+			if(temp.get_priority() < new_transition.get_priority()){
 				_transitions.add(index,new_transition);
 				return this;
 			}
@@ -60,17 +60,17 @@ public class State {
 		ArrayList<Transition> next = new ArrayList<Transition>();
 		for (Transition transition : _transitions) {
 			if (transition.isEnabled() && next != null) {
-				transition.deactivateInput();
-				if( next.size() == 0 || (next.get(0)._priority == transition._priority)) {
+				if( next.size() == 0 || (next.get(0).get_priority() == transition.get_priority())) {
 					next.add(transition);
 				}
-			} else {
-				transition.deactivateInput();
 			}
 		}
 		Random rand = new Random();
-		int index = rand.nextInt(next.size());
-		return next.get(index);
+		if(next.size()>0){
+			int index = rand.nextInt(next.size());
+			return next.get(index);
+		}else
+			return null;
 	}
 	
 	/**
