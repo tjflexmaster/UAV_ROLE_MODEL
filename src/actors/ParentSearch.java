@@ -9,11 +9,16 @@ public class ParentSearch extends Actor {
 
 	public ParentSearch(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//add states
-		State IDLE = new State("IDLE");_states.add(IDLE);
-		State POKE_MM = new State("POKE_MM");_states.add(POKE_MM);
-		State TX_MM = new State("TX_MM");_states.add(TX_MM);
-		State END_MM = new State("END_MM");_states.add(END_MM);
-		State RX_MM = new State("RX_MM");_states.add(RX_MM);
+		State IDLE = new State("IDLE");
+		addState(IDLE);
+		State POKE_MM = new State("POKE_MM");
+		addState(POKE_MM);
+		State TX_MM = new State("TX_MM");
+		addState(TX_MM);
+		State END_MM = new State("END_MM");
+		addState(END_MM);
+		State RX_MM = new State("RX_MM");
+		addState(RX_MM);
 
 		//add transitions
 		IDLE.addTransition(
