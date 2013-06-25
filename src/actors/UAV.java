@@ -9,9 +9,12 @@ public class UAV extends Actor {
 
 	public UAV(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//add states
-		State IDLE = new State("IDLE"); _states.add(IDLE);
-		State TAKE_OFF = new State("TAKE_OFF"); _states.add(TAKE_OFF);
-		State FLY_LOITER = new State("FLY_LOITER"); _states.add(FLY_LOITER);
+		State IDLE = new State("IDLE"); 
+		addState(IDLE);
+		State TAKE_OFF = new State("TAKE_OFF"); 
+		addState(TAKE_OFF);
+		State FLY_LOITER = new State("FLY_LOITER"); 
+		addState(FLY_LOITER);
 		
 		//add transitions
 		IDLE.addTransition(

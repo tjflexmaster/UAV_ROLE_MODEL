@@ -18,7 +18,7 @@ public enum UDO {
 	PS_TARGET_DESCRIPTION_PS,
 	PS_TERMINATE_SEARCH_PS,
 	//Counters
-	UAVBAT_TIME_TIL_START_UAVBAT,
+	PS_TIME_TIL_START_PS,
 	
 	/* internal PS */
 
