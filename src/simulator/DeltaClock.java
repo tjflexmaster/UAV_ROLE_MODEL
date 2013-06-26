@@ -8,6 +8,7 @@ public class DeltaClock {
 
 	private ArrayList<Actor> _actors;
 	private int absoluteTime;
+	
 	/**
 	 * this method builds a delta clock of actors, that ticks their nextTime value
 	 * @param actors specifies the team of actors that will be used in this clock

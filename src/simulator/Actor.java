@@ -1,6 +1,7 @@
 package simulator;
 
-import java.util.ArrayList;
+import java.util.*;
+
 /**
  * this abstract class is extended by the actors of the simulation
  * it contains the variables and methods that compose an actor
@@ -8,7 +9,6 @@ import java.util.ArrayList;
  *
  */
 public abstract class Actor {
-	public boolean debug = true;
 	/**
 	 * this variable represents the name we give to the actor
 	 */
@@ -68,9 +68,6 @@ public abstract class Actor {
 	 */
 	public boolean processTransition(){
 		if(get_nextTime() == 0){
-			if(debug){
-				System.out.println(this.toString());
-			}
 			if(_lastTransition != null)
 				_lastTransition.deactivateOutputs();
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
@@ -113,6 +110,10 @@ public abstract class Actor {
 		return _currentState;
 	}
 
+	/**
+	 * 
+	 * @param _currentState
+	 */
 	public void setCurrentState(State _currentState) {
 		this._currentState = _currentState;
 	}
@@ -131,6 +132,4 @@ public abstract class Actor {
 		
 		return result;
 	}
-
-
 }
