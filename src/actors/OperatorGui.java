@@ -12,24 +12,24 @@ public class OperatorGui extends Actor{
 		//initialize name
 		_name = "OPERATOR_GUI";
 		//initialize states
-		State IDLE = new State("IDLE");
 		State NORMAL = new State("NORMAL");
 		State ALARM = new State("ALARM");
+		State AUDIBLE_ALARM = new State("AUDIBLE_ALARM");
 		
 		//initialize transitions
-		initializeIDLE(inputs, outputs, IDLE, NORMAL);
+		initializeIDLE(inputs, outputs, NORMAL);
 		
 		//add states
-		addState(IDLE);
 		addState(NORMAL);
 		addState(ALARM);
+		addState(AUDIBLE_ALARM);
 		
 		//initialize _currentState
-		_currentState = IDLE;
+		_currentState = NORMAL;
 	}
 	
-	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State NORMAL){
-		IDLE.addTransition(
+	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State NORMAL){
+		NORMAL.addTransition(
 				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
 				new UDO[]{outputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
 				NORMAL, Duration.NEXT, 0);

@@ -44,6 +44,8 @@ public enum UDO {
 	/* UAV Operator Data */
 	
 	//Outputs
+	OP_POKE_OGUI,
+	OP_END_OGUI,
 	OP_ACK_MM,
 	OP_TAKE_OFF_OGUI,
 	//Internals

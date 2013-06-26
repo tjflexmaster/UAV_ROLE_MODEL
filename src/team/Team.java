@@ -74,6 +74,8 @@ public class Team extends ArrayList<Actor> {
 		inputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
 		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
 		outputs.clear();
+		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
+		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
 		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
 		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
 		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);

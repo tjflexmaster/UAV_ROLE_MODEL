@@ -37,6 +37,8 @@ public class Operator extends Actor {
 		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
 		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
 		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
+		POKE_OGUI.addTransition(new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP}, new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP}, TX_OGUI, Duration.NEXT, 0);
+		END_OGUI.addTransition(null, null, IDLE, Duration.NEXT, 0);
 		initializeTX_OGUI(inputs, outputs, TX_OGUI, END_OGUI);
 		initializePOST_FLIGHT(inputs, outputs, POST_FLIGHT, POST_FLIGHT_COMPLETE);
 		initializePOST_FLIGHT_COMPLETE(inputs, outputs, POST_FLIGHT_COMPLETE, IDLE);
@@ -92,14 +94,14 @@ public class Operator extends Actor {
 				IDLE, Duration.NEXT,1);
 		RX_MM.addTransition(//process new search area of interest
 				new UDO[]{inputs.get(UDO.MM_END_OP.name()), inputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
-				new UDO[]{outputs.get(UDO.OP_NEW_SEARCH_AOI_OP.name())},
+				new UDO[]{outputs.get(UDO.OP_POKE_OGUI.name()), outputs.get(UDO.OP_NEW_SEARCH_AOI_OP.name())},
 				POKE_OGUI, Duration.NEXT, 2);
 	}
 
 	private void initializeTX_OGUI(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State TX_OGUI, State END_OGUI) {
 		TX_OGUI.addTransition(//transmit take off orders via operator gui
 				new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP},
-				new UDO[]{outputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
+				new UDO[]{outputs.get(UDO.OP_END_OGUI.name()), outputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
 				END_OGUI, Duration.OP_TX_OGUI, 0);
 	}
 

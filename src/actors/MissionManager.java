@@ -48,8 +48,8 @@ public class MissionManager extends Actor {
 		initializePOKE_VO(inputs, outputs, IDLE, POKE_VO, TX_VO);
 		initializeRX_VO(inputs, IDLE, RX_VO);
 		TX_OP.addTransition(
-				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
-				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
+				new UDO[]{ UDO.MM_TARGET_DESCRIPTION_MM,UDO.MM_NEW_SEARCH_AOI_MM},
+				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name()), UDO.MM_TARGET_DESCRIPTION_MM},
 				END_OP, Duration.MM_TX_OP, 0);
 		//add states
 		addState(IDLE);
@@ -118,7 +118,7 @@ public class MissionManager extends Actor {
 				IDLE, Duration.MM_POKE_PS, 0);
 		POKE_OP.addTransition(
 				new UDO[]{inputs.get(UDO.OP_ACK_MM.name()), UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
-				new UDO[]{UDO.MM_TARGET_DESCRIPTION_MM,},
+				new UDO[]{UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
 				TX_OP, Duration.NEXT, 1);
 	}
 

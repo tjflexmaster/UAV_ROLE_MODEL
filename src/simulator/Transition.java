@@ -121,7 +121,7 @@ public class Transition {
 		result += ") -> " + _endState.toString() + " X (";
 		if(_outputs != null){
 			for(UDO output : _outputs) {
-				result += output.name();
+				result += output.name() + " ";
 			}
 		}
 		result += ")";

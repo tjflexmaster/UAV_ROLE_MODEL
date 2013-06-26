@@ -59,10 +59,5 @@ public class UAV extends Actor {
 				TAKE_OFF, Duration.NEXT, 0);
 	}
 
-	@Override
-	public boolean updateTransition() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }
