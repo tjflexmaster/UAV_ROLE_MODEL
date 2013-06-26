@@ -28,11 +28,13 @@ public class Simulator {
 				}
 			}
 			
+			//advance time
+			readyActors = clock.tick();
+			
 			//communicate with the user
 			//runTime = communicateWithUser(scanner, clock, readyActors, runTime);
 			System.out.println("Time: " + runTime);
 			//fire all ready transitions
-			readyActors = clock.tick();
 			for (int index = 0; index < readyActors.size(); index++) {
 				readyActors.get(index).processTransition();
 			}
@@ -66,15 +68,20 @@ public class Simulator {
 		}
 		
 		for(Actor actor : readyActors){
-			if(debug){
+			if(debug && actor.get_nextTime() == 0){
 				System.out.println("----Time at: " + clock.getAbsoluteTime() + "----");
 				System.out.println(actor.toString());
 			}
 		}
 		
 		if (runTime <= clock.getAbsoluteTime()) {
-			System.out.println("Enter the time, in integer format, that I should skip to, then press Enter.");
-			runTime = scanner.nextInt();
+			System.out.println("In integer format enter a time to skip to. Then press Enter.");
+			String response = scanner.nextLine();
+			try {
+				runTime = Integer.parseInt(response);
+			} catch(NumberFormatException e) {
+				System.out.println("Contining to the next transition.");
+			}
 		}
 		return runTime;
 	}
