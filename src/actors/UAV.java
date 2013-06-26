@@ -88,7 +88,8 @@ public class UAV extends Actor {
 	public int get_nextTime(){
 		int time = super.get_nextTime();
 		for(Actor actor : _subactors){
-			time = Math.min(time, actor.get_nextTime());
+			if(actor.get_nextTime() != -1)
+				time = Math.min(time, actor.get_nextTime());
 		}
 		return time;
 	}
@@ -97,9 +98,31 @@ public class UAV extends Actor {
 	public void set_nextTime(int nextTime){
 		int time = get_nextTime()-nextTime;
 		for(Actor actor : _subactors){
-			actor.set_nextTime(actor.get_nextTime()-time);
+			if(actor.get_nextTime() != -1)
+				actor.set_nextTime(actor.get_nextTime()-time);
 		}
 		super.set_nextTime(super.get_nextTime()-time);
 	}
+	
+
+//	/**
+//	 * this method works like a normal toSTring method
+//	 * @return return the string representation of the actor
+//	 */
+//	@Override
+//	public String toString() {
+//		String result = "";
+//		
+//		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X ";
+//		if (_currentTransition != null) {
+//			result += _currentTransition.toString();
+//		}
+//		
+//		for(Actor actor : _subactors){
+//			result += "\n" + actor.toString();
+//		}
+//		
+//		return result;
+//	}
 
 }
