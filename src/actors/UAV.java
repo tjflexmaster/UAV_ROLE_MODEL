@@ -48,13 +48,13 @@ public class UAV extends Actor {
 		TAKE_OFF.addTransition(
 				null,
 				null,
-				FLY_LOITER, null, 0);
+				FLY_LOITER, Duration.NEXT, 0);
 	}
 
 	private void initializeIDLE(HashMap<String, UDO> inputs, State IDLE,
 			State TAKE_OFF) {
 		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV)},
+				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
 				null,
 				TAKE_OFF, Duration.NEXT, 0);
 	}
