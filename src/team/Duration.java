@@ -38,8 +38,8 @@ public enum Duration {
 	NEXT(1), MM_TX_OP(5,20);
 	
 	
-	int _minimum;
-	int _maximum;
+	private Integer _minimum;
+	private Integer _maximum;
 
 	/**
 	 * creates a bounded duration
@@ -57,7 +57,7 @@ public enum Duration {
 	 * creates a fixed duration
 	 * @param duration represents the fixed time duration in seconds
 	 */
-	Duration(int duration){
+	Duration(Integer duration){
 		
 		_minimum = duration;
 		_maximum = duration;
