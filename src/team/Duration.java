@@ -4,10 +4,6 @@ import java.util.Random;
 
 public enum Duration {
 	
-	/* Event Manager Durations */
-	
-	EM_START_SEARCH_PS(1),
-	
 	/* Parent Search Durations */
 	
 	PS_SEND_DATA_PS(1,5),
@@ -33,10 +29,13 @@ public enum Duration {
 	
 	/* UAV Operator Gui Outputs*/
 	
+	/* UAV Battery Outputs*/
+	
+	UAVBAT_DURATION((Integer) UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.get()),
+	
 	/* General */
 	ACK(1),
 	NEXT(1), MM_TX_OP(5,20);
-	
 	
 	private Integer _minimum;
 	private Integer _maximum;

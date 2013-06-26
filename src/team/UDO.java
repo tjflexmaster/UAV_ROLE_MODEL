@@ -98,7 +98,7 @@ public enum UDO {
 	private Object _value;
 	
 	private UDO(){
-		_value = new Boolean(false);
+		_value = null;
 	}
 	
 	/**
