@@ -32,8 +32,8 @@ public class Simulator {
 			readyActors = clock.tick();
 			
 			//communicate with the user
-			//runTime = communicateWithUser(scanner, clock, readyActors, runTime);
-			System.out.println("Time: " + runTime);
+			runTime = communicateWithUser(scanner, clock, readyActors, runTime);
+			
 			//fire all ready transitions
 			for (int index = 0; index < readyActors.size(); index++) {
 				readyActors.get(index).processTransition();
