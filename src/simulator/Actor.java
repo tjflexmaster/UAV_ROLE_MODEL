@@ -18,7 +18,7 @@ public abstract class Actor {
 	 * the simulator's delta clock uses this variable
 	 * this variable represents the time until the actor makes the transition, which is saved as currentTransition
 	 */
-	protected int _nextTime = -1;
+	private int _nextTime = -1;
 	
 	/**
 	 * this is a formally defined list of states the actor (state machine) can make during the simulation
@@ -52,11 +52,11 @@ public abstract class Actor {
 			return false;
 		if (_currentTransition == null) {
 			_currentTransition = nextTransition;
-			_nextTime = _currentTransition.getDuration();
+			set_nextTime(_currentTransition.getDuration());
 			return true;
 		} else if (_currentTransition.get_priority() < nextTransition.get_priority()) {
 			_currentTransition = nextTransition;
-			_nextTime = _currentTransition.getDuration();
+			set_nextTime(_currentTransition.getDuration());
 			return true;
 		}
 		return false;
@@ -67,7 +67,7 @@ public abstract class Actor {
 	 * @return returns true if the current transition has been processed
 	 */
 	public boolean processTransition(){
-		if(_nextTime == 0){
+		if(get_nextTime() == 0){
 			if(debug){
 				System.out.println(this.toString());
 			}
@@ -85,18 +85,16 @@ public abstract class Actor {
 	 * this method allows the simulator viewing access to this classes nextTime 
 	 * @return the time until the next transition
 	 */
-	public int getNextTime() {
-		//should we delete this method and make nextTime public?
+	public int get_nextTime() {
 		return _nextTime;
 	}
 
 	/**
 	 * this method lets the simulator update the time to reflect a delta clock value
-	 * @param nextTime
+	 * @param _nextTime
 	 */
-	public void setNextTime(int nextTime) {
-		//should we delete this method and make nextTime public?
-		this._nextTime = nextTime;
+	public void set_nextTime(int _nextTime) {
+		this._nextTime = _nextTime;
 	}
 	
 	/**
@@ -126,11 +124,13 @@ public abstract class Actor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + _nextTime + "): " + _currentState.toString() + " X ";
+		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X ";
 		if (_currentTransition != null) {
 			result += _currentTransition.toString();
 		}
 		
 		return result;
 	}
+
+
 }

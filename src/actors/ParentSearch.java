@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import simulator.Actor;
 import simulator.State;
+import simulator.TimerTransition;
 import team.Duration;
 import team.UDO;
 
@@ -63,10 +64,10 @@ public class ParentSearch extends Actor {
 	}
 
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State RX_MM) {
-		IDLE.addTransition(
+		IDLE.addTransition(new TimerTransition(
 				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
 				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
-				POKE_MM, Duration.PS_SEND_DATA_PS, 0);
+				POKE_MM, Duration.PS_SEND_DATA_PS, 0));
 		/*IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},
 				new UDO[]{outputs.get(UDO.PS_ACK_MM.name())},

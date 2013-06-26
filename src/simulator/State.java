@@ -51,6 +51,22 @@ public class State {
 		
 		return this;
 	}
+	public State addTransition(Transition new_transition){
+		if(_transitions.contains(new_transition)){
+			return this;
+		}
+		
+		for(int index = 0; index < _transitions.size(); index++){
+			Transition temp = _transitions.get(index);
+			if(temp.get_priority() < new_transition.get_priority()){
+				_transitions.add(index,new_transition);
+				return this;
+			}
+		}
+		_transitions.add(new_transition);
+		
+		return this;
+	}
 
 	/**
 	 * Finds all possible transitions of the highest priority and randomly chooses one of them

@@ -12,7 +12,7 @@ import team.UDO;
  */
 public class Transition {
 	
-	private UDO[] _inputs;
+	protected UDO[] _inputs;
 	private Duration _duration;
 	private State _endState;
 	private UDO[] _outputs;
@@ -45,27 +45,14 @@ public class Transition {
 		if(_inputs == null)
 			return true;
 		for (UDO input : _inputs) {
-//			if (input == null) {//handle null inputs
-//				return true;
-//			} else
 			if(input.get() == null){
 				return false;
 			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
 				if (!(Boolean)input.get()) {
 					return false;
 				}
-			} else if (input.get().getClass()==Integer.class) {//handle integer counters
-				input.update((Integer)input.get()-(Integer)UDO.DC_TIME_ELAPSED.get());
-				if ((Integer)input.get()>0) {
-					return false;
-				}
-				if((Integer)input.get()< 0){
-					input.set(null);
-					return false;
-				}
 			}
 		}
-		//deactivateInput();//the transition can happen, new forget the inputs
 		return true;
 	}
 

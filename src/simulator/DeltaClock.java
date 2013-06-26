@@ -29,12 +29,12 @@ public class DeltaClock {
 		if (_actors.isEmpty()) {
 			return _actors;//simulator sees null as a signal to terminate
 		} else {
-			absoluteTime += _actors.get(0)._nextTime;
-			UDO.DC_TIME_ELAPSED.update(new Integer(_actors.get(0)._nextTime));//inform actors of time elapse
-			_actors.get(0)._nextTime = 0;//advance time
+			absoluteTime += _actors.get(0).get_nextTime();
+			UDO.DC_TIME_ELAPSED.update(new Integer(_actors.get(0).get_nextTime()));//inform actors of time elapse
+			_actors.get(0).set_nextTime(0);//advance time
 		}
 		
-		while (_actors.size() > 0 && _actors.get(0).getNextTime() == 0) {
+		while (_actors.size() > 0 && _actors.get(0).get_nextTime() == 0) {
 			readyActors.add(_actors.remove(0));//form list of actors that are ready to transition
 		}
 		
@@ -47,7 +47,7 @@ public class DeltaClock {
 	 * @return 
 	 */
 	public void insert(Actor actor) {
-		if (actor.getNextTime() == -1 || _actors.contains(actor)) {
+		if (actor.get_nextTime() == -1 || _actors.contains(actor)) {
 			return;
 		}
 		
@@ -55,15 +55,15 @@ public class DeltaClock {
 			//if actor at actorsIndex == -1 then insert newActor and move actor to the next location
 			//if actor at actorsIndex != -1 and newActor is less than actor then insert newActor and decrement actor's time
 			//if actor at actorsIndex != -1 and newActor is greater than actor then decrement new Actor and check next location
-			if(_actors.get(actorsIndex).getNextTime() == -1){
+			if(_actors.get(actorsIndex).get_nextTime() == -1){
 				_actors.add(actorsIndex, actor);
 				break;
-			}else if ( _actors.get(actorsIndex).getNextTime() >= actor.getNextTime() ) {
-				_actors.get(actorsIndex).setNextTime(_actors.get(actorsIndex).getNextTime() - actor.getNextTime());
+			}else if ( _actors.get(actorsIndex).get_nextTime() >= actor.get_nextTime() ) {
+				_actors.get(actorsIndex).set_nextTime(_actors.get(actorsIndex).get_nextTime() - actor.get_nextTime());
 				_actors.add(actorsIndex, actor);
 				break;
 			} else {
-				actor.setNextTime(actor.getNextTime() - _actors.get(actorsIndex).getNextTime());
+				actor.set_nextTime(actor.get_nextTime() - _actors.get(actorsIndex).get_nextTime());
 			}
 		}
 		

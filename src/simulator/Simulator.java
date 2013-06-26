@@ -36,6 +36,7 @@ public class Simulator {
 				if(readyActors.get(index).processTransition())
 					done = false;
 			}
+			done = readyActors.isEmpty();
 		} while (!done);
 		
 		//close the scanner once the simulation is complete

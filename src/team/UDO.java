@@ -62,6 +62,8 @@ public enum UDO {
 	/* UAV Data */
 	
 	//Outputs
+	UAV_LANDED,
+	UAV_BATTERY_OFF_OGUI,
 	//Internals
 	//Counters
 	
@@ -69,6 +71,9 @@ public enum UDO {
 	
 	UAVBAT_TIME_TIL_LOW_UAVBAT,
 	UAVBAT_TIME_TIL_DEAD,
+	UAV_BATTERY_OK_OGUI,
+	UAV_BATTERY_LOW_OGUI,
+	UAV_BATTERY_DEAD_OGUI,
 	
 	/* UAV Video Feed */
 	
@@ -87,7 +92,8 @@ public enum UDO {
 	
 	/* Delta Clock Data */
 	
-	DC_TIME_ELAPSED;
+	DC_TIME_ELAPSED,
+	OP_POST_FLIGHT_COMPLETE_UAV;
 
 	private Object _value;
 	
