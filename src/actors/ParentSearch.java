@@ -26,8 +26,8 @@ public class ParentSearch extends Actor {
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		TX_MM.addTransition(
 				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-				new UDO[]{outputs.get(UDO.PS_END_MM), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM)},
-				END_MM, Duration.NEXT, 0);
+				new UDO[]{outputs.get(UDO.PS_END_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+				END_MM, Duration.PS_TX_DATA_MM, 0);
 		END_MM.addTransition(
 				null,
 				null,

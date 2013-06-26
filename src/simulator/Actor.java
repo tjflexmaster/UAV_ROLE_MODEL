@@ -71,9 +71,9 @@ public abstract class Actor {
 			if(debug){
 				System.out.println(this.toString());
 			}
-			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			if(_lastTransition != null)
 				_lastTransition.deactivateOutputs();
+			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			_lastTransition = _currentTransition;
 			_currentTransition = null;
 			return true;

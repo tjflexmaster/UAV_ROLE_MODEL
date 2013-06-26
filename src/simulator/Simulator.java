@@ -5,7 +5,7 @@ import java.util.*;
 import team.*;
 
 public class Simulator {
-	public boolean debug = true;
+	public static boolean debug = true;
 	/**
 	 * this method initializes the simulator
 	 * then this method makes the clock run the simulation
@@ -20,7 +20,6 @@ public class Simulator {
 		//run the simulator until the clock is empty
 		do {
 			done = true;
-			System.out.println("Time at: " + clock.getAbsoluteTime());
 			//update next planned transition of all actors
 			for (int index = 0; index < actors.size(); index++) {
 				if (actors.get(index).updateTransition()) {
@@ -31,6 +30,8 @@ public class Simulator {
 			
 			//fire all ready transitions
 			ArrayList<Actor> readyActors = clock.tick();
+			if(debug)
+				System.out.println("Time at: " + clock.getAbsoluteTime());
 			for (int index = 0; index < readyActors.size(); index++) {
 				if(readyActors.get(index).processTransition())
 					done = false;

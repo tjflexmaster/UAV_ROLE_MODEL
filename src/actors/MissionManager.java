@@ -19,18 +19,19 @@ public class MissionManager extends Actor {
 		State RX_PS = new State("RX_PS");
 		//comm with OP
 		State POKE_OP = new State("POKE_OP");
-		State POKE_AOI_OP = new State("POKE_AOI_OP");
-		State POKE_TERM_OP = new State("POKE_TERM_OP");
-		State TX_AOI_OP = new State("TX_AOI_OP");
-		State TX_TERM_OP = new State("TX_TERM_OP");
+//		State POKE_AOI_OP = new State("POKE_AOI_OP");
+//		State POKE_TERM_OP = new State("POKE_TERM_OP");
+//		State TX_AOI_OP = new State("TX_AOI_OP");
+//		State TX_TERM_OP = new State("TX_TERM_OP");
 		State TX_OP = new State("TX_OP");
+		State END_OP = new State("END_OP");
 		State RX_OP = new State("RX_OP");
 		//comm with VO
 		State POKE_VO = new State("POKE_VO");
-		State POKE_DESC_VO = new State("POKE_DESC_VO");
-		State POKE_TERM_VO = new State("POKE_TERM_VO");
-		State TX_DESC_VO = new State("TX_DESC_VO");
-		State TX_TERM_VO = new State("TX_TERM_VO");
+//		State POKE_DESC_VO = new State("POKE_DESC_VO");
+//		State POKE_TERM_VO = new State("POKE_TERM_VO");
+//		State TX_DESC_VO = new State("TX_DESC_VO");
+//		State TX_TERM_VO = new State("TX_TERM_VO");
 		State TX_VO = new State("TX_VO");
 		State RX_VO = new State("RX_VO");
 		//comm with VGUI
@@ -46,7 +47,10 @@ public class MissionManager extends Actor {
 		initializeRX_OP(inputs, IDLE, RX_OP);
 		initializePOKE_VO(inputs, outputs, IDLE, POKE_VO, TX_VO);
 		initializeRX_VO(inputs, IDLE, RX_VO);
-		
+		TX_OP.addTransition(
+				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
+				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
+				END_OP, Duration.MM_TX_OP, 0);
 		//add states
 		addState(IDLE);
 		//comm with PS
@@ -55,18 +59,18 @@ public class MissionManager extends Actor {
 		addState(RX_PS);
 		//comm with OP
 		addState(POKE_OP);
-		addState(POKE_AOI_OP);
-		addState(POKE_TERM_OP);
-		addState(TX_AOI_OP);
-		addState(TX_TERM_OP);
+//		addState(POKE_AOI_OP);
+//		addState(POKE_TERM_OP);
+//		addState(TX_AOI_OP);
+//		addState(TX_TERM_OP);
 		addState(TX_OP);
 		addState(RX_OP);
 		//comm with VO
 		addState(POKE_VO);
-		addState(POKE_DESC_VO);
-		addState(POKE_TERM_VO);
-		addState(TX_DESC_VO);
-		addState(TX_TERM_VO);
+//		addState(POKE_DESC_VO);
+//		addState(POKE_TERM_VO);
+//		addState(TX_DESC_VO);
+//		addState(TX_TERM_VO);
 		addState(TX_VO);
 		addState(RX_VO);
 		//comm with VGUI
@@ -114,8 +118,8 @@ public class MissionManager extends Actor {
 				IDLE, Duration.MM_POKE_PS, 0);
 		POKE_OP.addTransition(
 				new UDO[]{inputs.get(UDO.OP_ACK_MM.name()), UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
-				new UDO[]{outputs.get(UDO.MM_END_OP.name()), UDO.MM_TARGET_DESCRIPTION_MM, outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
-				TX_OP, Duration.NEXT, 0);
+				new UDO[]{UDO.MM_TARGET_DESCRIPTION_MM,},
+				TX_OP, Duration.NEXT, 1);
 	}
 
 	private void initializePOKE_PS(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State POKE_PS, State TX_PS) {
@@ -136,7 +140,7 @@ public class MissionManager extends Actor {
 //				RX_PS, null, 0);
 		RX_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name())},
-				new UDO[]{outputs.get(UDO.MM_TARGET_DESCRIPTION_MM.name()), outputs.get(UDO.MM_NEW_SEARCH_AOI_MM.name())},
+				new UDO[]{outputs.get(UDO.MM_TARGET_DESCRIPTION_MM.name()), outputs.get(UDO.MM_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.MM_POKE_OP.name())},
 				POKE_OP, Duration.NEXT, 0);
 		/*RX_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_TERMINATE_SEARCH_MM)},

@@ -11,7 +11,8 @@ public enum Duration {
 	/* Parent Search Durations */
 	
 	PS_SEND_DATA_PS(1,5),
-	PS_POKE_MM(5,20),
+	PS_POKE_MM(5,20), 
+	PS_TX_DATA_MM(5,20),
 	
 	/* Mission Manager Durations */
 	
@@ -21,17 +22,20 @@ public enum Duration {
 	MM_POKE_VO(5,20),
 	
 	/* Video Operator Outputs */
+
+	VO_RX_MM(20),
 	
 	/* Video Operator Gui Outputs */
 	
 	/* UAV Operator Outputs */
 	OP_TX_OGUI(5,20),
+	OP_RX_MM(20),
 	
 	/* UAV Operator Gui Outputs*/
 	
 	/* General */
 	ACK(1),
-	NEXT(1), OP_RX_MM(20), VO_RX_MM(20);
+	NEXT(1), MM_TX_OP(5,20);
 	
 	
 	int _minimum;

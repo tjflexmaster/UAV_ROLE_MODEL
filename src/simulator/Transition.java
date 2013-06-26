@@ -42,10 +42,13 @@ public class Transition {
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
 	public boolean isEnabled() {
+		if(_inputs == null)
+			return true;
 		for (UDO input : _inputs) {
-			if (input == null) {//handle null inputs
-				return true;
-			} else if(input.get() == null){
+//			if (input == null) {//handle null inputs
+//				return true;
+//			} else
+			if(input.get() == null){
 				return false;
 			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
 				if (!(Boolean)input.get()) {
@@ -54,6 +57,10 @@ public class Transition {
 			} else if (input.get().getClass()==Integer.class) {//handle integer counters
 				input.update((Integer)input.get()-(Integer)UDO.DC_TIME_ELAPSED.get());
 				if ((Integer)input.get()>0) {
+					return false;
+				}
+				if((Integer)input.get()< 0){
+					input.set(null);
 					return false;
 				}
 			}
@@ -73,11 +80,13 @@ public class Transition {
 	}
 	
 	public void deactivateOutputs(){
-		for(UDO output : _outputs){
-			if(output == null){
-				
-			}else{
-				output.set(null);
+		if(_outputs != null){
+			for(UDO output : _outputs){
+				if(output == null){
+					
+				}else{
+					output.set(null);
+				}
 			}
 		}
 	}
@@ -87,9 +96,10 @@ public class Transition {
 	 * @return the new state of the actor after the transition is processes 
 	 */
 	public State fire(Boolean active){
-		
-		for(UDO output : _outputs){
-			output.set(active);
+		if(_outputs != null){
+			for(UDO output : _outputs){
+				output.set(active);
+			}
 		}
 		return _endState;
 	}
@@ -103,12 +113,16 @@ public class Transition {
 	 */
 	public String toString() {
 		String result = "(";
-		for(UDO input : _inputs) {
-			result += input.name() + " ";
+		if(_inputs != null){
+			for(UDO input : _inputs) {
+				result += input.name() + " ";
+			}
 		}
 		result += ") -> " + _endState.toString() + " X (";
-		for(UDO output : _outputs) {
-			result += output.name();
+		if(_outputs != null){
+			for(UDO output : _outputs) {
+				result += output.name();
+			}
 		}
 		result += ")";
 		return result;
