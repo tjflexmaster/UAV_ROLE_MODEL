@@ -68,11 +68,13 @@ public abstract class Actor {
 	 */
 	public boolean processTransition(){
 		if(get_nextTime() == 0){
+			System.out.println(this.toString());
 			if(_lastTransition != null)
 				_lastTransition.deactivateOutputs();
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			_lastTransition = _currentTransition;
 			_currentTransition = null;
+			_nextTime = -1;
 			return true;
 		}
 		return false;
