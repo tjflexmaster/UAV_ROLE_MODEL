@@ -1,7 +1,8 @@
 package simulator;
 
 import java.util.*;
-import team.*;
+
+import model.team.*;
 
 public class Simulator {
 	public static boolean debug = true;

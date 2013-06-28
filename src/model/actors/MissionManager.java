@@ -1,9 +1,10 @@
-package actors;
+package model.actors;
 
 import java.util.HashMap;
 
+import model.team.*;
+
 import simulator.*;
-import team.*;
 
 public class MissionManager extends Actor {
 

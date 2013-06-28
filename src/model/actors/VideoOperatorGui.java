@@ -1,9 +1,10 @@
-package actors;
+package model.actors;
 
 import java.util.HashMap;
 
+import model.team.UDO;
+
 import simulator.*;
-import team.UDO;
 
 public class VideoOperatorGui extends Actor {
 

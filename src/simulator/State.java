@@ -3,8 +3,9 @@ package simulator;
 import java.util.ArrayList;
 import java.util.Random;
 
-import team.Duration;
-import team.UDO;
+import model.team.Duration;
+import model.team.UDO;
+
 
 /**
  * this class represents a the state of an actor (state machine)

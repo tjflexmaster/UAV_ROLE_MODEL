@@ -1,4 +1,4 @@
-package team;
+package model.team;
 
 import java.util.Random;
 

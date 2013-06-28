@@ -2,8 +2,9 @@ package simulator;
 
 import java.util.Random;
 
-import team.Duration;
-import team.UDO;
+import model.team.Duration;
+import model.team.UDO;
+
 
 /**
  * this class is a models all transitions in the simulation 

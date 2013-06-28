@@ -2,7 +2,8 @@ package simulator;
 
 import java.util.ArrayList;
 
-import team.*;
+import model.team.*;
+
 
 public class DeltaClock {
 

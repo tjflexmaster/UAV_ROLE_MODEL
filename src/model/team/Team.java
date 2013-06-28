@@ -1,10 +1,11 @@
-package team;
+package model.team;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.actors.*;
+
 import simulator.*;
-import actors.*;
 
 /**
  * 

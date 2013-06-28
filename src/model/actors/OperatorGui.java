@@ -1,10 +1,11 @@
-package actors;
+package model.actors;
 
 import java.util.HashMap;
 
+import model.team.Duration;
+import model.team.UDO;
+
 import simulator.*;
-import team.Duration;
-import team.UDO;
 
 public class OperatorGui extends Actor{
 

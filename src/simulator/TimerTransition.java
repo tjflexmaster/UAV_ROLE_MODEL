@@ -1,7 +1,7 @@
 package simulator;
 
-import team.Duration;
-import team.UDO;
+import model.team.Duration;
+import model.team.UDO;
 
 public class TimerTransition extends Transition {
 

@@ -1,4 +1,4 @@
-package team;
+package model.team;
 
 
 public enum UDO {

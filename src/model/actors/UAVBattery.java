@@ -1,9 +1,10 @@
-package actors;
+package model.actors;
 
 import java.util.*;
 
+import model.team.*;
+
 import simulator.*;
-import team.*;
 
 public class UAVBattery extends Actor {
 	

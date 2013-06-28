@@ -1,12 +1,13 @@
-package actors;
+package model.actors;
 
 import java.util.HashMap;
+
+import model.team.Duration;
+import model.team.UDO;
 
 import simulator.Actor;
 import simulator.State;
 import simulator.TimerTransition;
-import team.Duration;
-import team.UDO;
 
 public class ParentSearch extends Actor {
 
