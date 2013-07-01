@@ -48,10 +48,14 @@ public class MissionManager extends Actor {
 		initializeRX_OP(inputs, IDLE, RX_OP);
 		initializePOKE_VO(inputs, outputs, IDLE, POKE_VO, TX_VO);
 		initializeRX_VO(inputs, IDLE, RX_VO);
+		
 		TX_OP.addTransition(
 				new UDO[]{ UDO.MM_TARGET_DESCRIPTION_MM,UDO.MM_NEW_SEARCH_AOI_MM},
+				null,
 				new UDO[]{ outputs.get(UDO.MM_END_OP.name()),  outputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name()), UDO.MM_TARGET_DESCRIPTION_MM},
+				null,
 				END_OP, Duration.MM_TX_OP, 0);
+		
 		//add states
 		addState(IDLE);
 		//comm with PS
@@ -97,11 +101,15 @@ public class MissionManager extends Actor {
 	private void initializePOKE_VO(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_VO, State TX_VO) {
 		POKE_VO.addTransition(
 				new UDO[]{inputs.get(UDO.MM_TARGET_DESCRIPTION_MM.name())},
+				null,
 				new UDO[]{outputs.get(UDO.MM_POKE_VO.name()), UDO.MM_TARGET_DESCRIPTION_MM},
+				null,
 				IDLE, Duration.MM_POKE_VO, 0);
 		POKE_VO.addTransition(
 				new UDO[]{inputs.get(UDO.VO_ACK_MM.name()), UDO.MM_TARGET_DESCRIPTION_MM},
+				null,
 				new UDO[]{outputs.get(UDO.MM_END_VO.name()), outputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
+				null,
 				TX_VO, Duration.NEXT, 0);
 	}
 
@@ -115,11 +123,15 @@ public class MissionManager extends Actor {
 	private void initializePOKE_OP(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs,State IDLE, State POKE_OP, State TX_OP) {
 		POKE_OP.addTransition(
 				new UDO[]{UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
+				null,
 				new UDO[]{outputs.get(UDO.MM_POKE_OP.name()), UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
+				null,
 				IDLE, Duration.MM_POKE_PS, 0);
 		POKE_OP.addTransition(
 				new UDO[]{inputs.get(UDO.OP_ACK_MM.name()), UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
+				null,
 				new UDO[]{UDO.MM_TARGET_DESCRIPTION_MM, UDO.MM_NEW_SEARCH_AOI_MM},
+				null,
 				TX_OP, Duration.NEXT, 1);
 	}
 
@@ -134,6 +146,8 @@ public class MissionManager extends Actor {
 		RX_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_END_MM.name())},
 				null,
+				null,
+				null,
 				IDLE, Duration.MM_RX_PS, -1);
 //		RX_PS.addTransition(
 //				null,
@@ -141,7 +155,9 @@ public class MissionManager extends Actor {
 //				RX_PS, null, 0);
 		RX_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_END_MM.name()), inputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name()), inputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name())},
+				null,
 				new UDO[]{outputs.get(UDO.MM_TARGET_DESCRIPTION_MM.name()), outputs.get(UDO.MM_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.MM_POKE_OP.name())},
+				null,
 				POKE_OP, Duration.NEXT, 0);
 		/*RX_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_TERMINATE_SEARCH_MM)},
@@ -152,7 +168,9 @@ public class MissionManager extends Actor {
 	private void initializeIdle(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_PS) {
 		IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.PS_POKE_MM.name())},
+				null,
 				new UDO[]{outputs.get(UDO.MM_ACK_PS.name())},
+				null,
 				RX_PS, Duration.ACK, 0);
 		/*IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.VGUI_POSSIBLE_ANOMALY_DETECTED_F_MM)},

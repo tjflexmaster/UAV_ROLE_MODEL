@@ -32,7 +32,9 @@ public class OperatorGui extends Actor{
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State NORMAL){
 		NORMAL.addTransition(
 				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
+				null,
 				new UDO[]{outputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
+				null,
 				NORMAL, Duration.NEXT, 0);
 	}
 	

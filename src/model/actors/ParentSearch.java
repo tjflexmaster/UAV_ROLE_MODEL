@@ -28,12 +28,15 @@ public class ParentSearch extends Actor {
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		TX_MM.addTransition(
 				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				null,
 				new UDO[]{outputs.get(UDO.PS_END_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+				null,
 				END_MM, Duration.PS_TX_DATA_MM, 0);
 		END_MM.addTransition(
 				null,
 				null,
-				IDLE,Duration.NEXT,0);
+				null,
+				null, IDLE,Duration.NEXT,0);
 		//add states
 		addState(IDLE);
 		addState(POKE_MM);
@@ -56,18 +59,24 @@ public class ParentSearch extends Actor {
 			HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State TX_MM) {
 		POKE_MM.addTransition(
 				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				null,
 				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				null,
 				IDLE, Duration.PS_POKE_MM, 0);
 		POKE_MM.addTransition(
 				new UDO[]{inputs.get(UDO.MM_ACK_PS.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				null,
 				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				null,
 				TX_MM,Duration.NEXT,1);
 	}
 
 	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State RX_MM) {
 		IDLE.addTransition(new TimerTransition(
 				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
+				null,
 				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
+				null,
 				POKE_MM, Duration.PS_SEND_DATA_PS, 0));
 		/*IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},

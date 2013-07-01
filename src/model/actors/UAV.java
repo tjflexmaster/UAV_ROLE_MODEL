@@ -55,6 +55,8 @@ public class UAV extends Actor {
 		TAKE_OFF.addTransition(
 				null,
 				null,
+				null,
+				null,
 				FLY_LOITER, Duration.NEXT, 0);
 	}
 
@@ -62,6 +64,8 @@ public class UAV extends Actor {
 			State TAKE_OFF) {
 		IDLE.addTransition(
 				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
+				null,
+				null,
 				null,
 				TAKE_OFF, Duration.NEXT, 0);
 	}
