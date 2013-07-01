@@ -109,6 +109,7 @@ public class Team extends ArrayList<Actor> {
 		inputs.clear();
 		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
 		outputs.clear();
+		outputs.put(UDO.UAV_BATTERY_LOW_OGUI.name(), UDO.UAV_BATTERY_LOW_OGUI);
 		this.add(new UAV(inputs, outputs));
 	}
 

@@ -24,6 +24,7 @@ public enum Duration {
 	/* Video Operator Gui Outputs */
 	
 	/* UAV Operator Outputs */
+	
 	OP_TX_OGUI(5,20),
 	OP_RX_MM(22),
 	
@@ -31,9 +32,11 @@ public enum Duration {
 	
 	/* UAV Battery Outputs*/
 	
+	UAVBAT_ACTIVE_TO_LOW(3600),
 	UAVBAT_DURATION(3600),
 	
 	/* General */
+	
 	ACK(1),
 	NEXT(1), MM_TX_OP(5,20);
 	

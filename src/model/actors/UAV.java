@@ -9,13 +9,10 @@ import model.team.UDO;
 import simulator.*;
 
 public class UAV extends Actor {
-	
-	private ArrayList<Actor> _subactors;
 
 	public UAV(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//initialize name
 		_name = "UAV";
-		_subactors = new ArrayList<Actor>();
 		
 		//initialize states
 		State IDLE = new State("IDLE");
@@ -25,6 +22,17 @@ public class UAV extends Actor {
 		//add transitions
 		initializeIDLE(inputs, IDLE, TAKE_OFF);
 		initializeTAKE_OFF(TAKE_OFF, FLY_LOITER);
+		
+		//add states 
+		addState(IDLE);
+		addState(TAKE_OFF);
+		addState(FLY_LOITER);
+		
+		//initialize current state
+		_currentState = IDLE;
+		
+		//initialize subactors
+		_subactors = new ArrayList<Actor>();
 		
 		/* UAV Battery */
 		inputs.clear();
@@ -37,18 +45,10 @@ public class UAV extends Actor {
 		outputs.put(UDO.UAVBAT_TIME_TIL_DEAD.name(), UDO.UAVBAT_TIME_TIL_DEAD);
 		outputs.put(UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.name(), UDO.UAVBAT_TIME_TIL_LOW_UAVBAT);
 		outputs.put(UDO.UAV_BATTERY_OK_OGUI.name(), UDO.UAV_BATTERY_OK_OGUI);
+		outputs.put(UDO.UAV_BATTERY_LOW_OGUI.name(), UDO.UAV_BATTERY_LOW_OGUI);
 		outputs.put(UDO.UAV_BATTERY_DEAD_OGUI.name(), UDO.UAV_BATTERY_DEAD_OGUI);
 		outputs.put(UDO.UAV_BATTERY_OFF_OGUI.name(), UDO.UAV_BATTERY_OFF_OGUI);
 		_subactors.add(new UAVBattery(inputs,outputs));
-		
-		
-		//add states 
-		addState(IDLE);
-		addState(TAKE_OFF);
-		addState(FLY_LOITER);
-		
-		//initialize current state
-		_currentState = IDLE;
 	}
 
 	private void initializeTAKE_OFF(State TAKE_OFF, State FLY_LOITER) {
@@ -77,23 +77,24 @@ public class UAV extends Actor {
 			updated = actor.updateTransition()||updated;
 		}
 		return updated;
-		
 	}
 	
-	public boolean processTransition(){
-		boolean processed = false;
-		processed = processed||super.processTransition()||processed;
-		for(Actor actor : _subactors){
-			processed = actor.processTransition()||processed;
-		}
-		return processed;
-	}
+//	public boolean processTransition(){
+//		boolean processed = false;
+//		processed = super.processTransition()||processed;
+//		for(Actor actor : _subactors){
+//			processed = actor.processTransition()||processed;
+//		}
+//		return sup;
+//	}
 	
 	@Override
 	public int get_nextTime(){
 		int time = super.get_nextTime();
 		for(Actor actor : _subactors){
-			if(actor.get_nextTime() != -1)
+			if(time == -1)
+				time = actor.get_nextTime();
+			else if(actor.get_nextTime() != -1)
 				time = Math.min(time, actor.get_nextTime());
 		}
 		return time;
@@ -106,7 +107,8 @@ public class UAV extends Actor {
 			if(actor.get_nextTime() != -1)
 				actor.set_nextTime(actor.get_nextTime()-time);
 		}
-		super.set_nextTime(super.get_nextTime()-time);
+		if(super.get_nextTime() != -1)
+			super.set_nextTime(super.get_nextTime()-time);
 	}
 	
 

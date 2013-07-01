@@ -14,6 +14,8 @@ public abstract class Actor {
 	 */
 	protected String _name = "";
 	
+	private boolean not_processed = false;
+	
 	/**
 	 * the simulator's delta clock uses this variable
 	 * this variable represents the time until the actor makes the transition, which is saved as currentTransition
@@ -36,6 +38,11 @@ public abstract class Actor {
 	 */
 	protected Transition _currentTransition = null;
 	private Transition _lastTransition = null;
+	
+	/**
+	 * this represents all of the subactors that this actor holds
+	 */
+	protected ArrayList<Actor> _subactors = null;
 	
 	/**
 	 * this method tells the actor to look at its current state and inputs
@@ -67,17 +74,22 @@ public abstract class Actor {
 	 * @return returns true if the current transition has been processed
 	 */
 	public boolean processTransition(){
+		boolean processed = false;
 		if(get_nextTime() == 0){
-			System.out.println(this.toString());
 			if(_lastTransition != null)
 				_lastTransition.deactivateOutputs();
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			_lastTransition = _currentTransition;
 			_currentTransition = null;
 			_nextTime = -1;
-			return true;
+			processed = true;
 		}
-		return false;
+		if(_subactors != null){
+			for(Actor actor : _subactors){
+				processed = actor.processTransition()||processed;
+			}
+		}
+		return processed;
 	}
 
 	/**
@@ -88,6 +100,17 @@ public abstract class Actor {
 		return _nextTime;
 	}
 
+	public boolean isProcessed(){
+		if(_currentTransition != null)
+			return false;
+		if(_subactors != null){
+			for(Actor actor : _subactors){
+				if(actor._currentTransition != null)
+					return false;
+			}
+		}
+		return true;
+	}
 	/**
 	 * this method lets the simulator update the time to reflect a delta clock value
 	 * @param _nextTime
@@ -127,9 +150,13 @@ public abstract class Actor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X ";
-		if (_currentTransition != null) {
-			result += _currentTransition.toString();
+		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X " + _currentTransition.toString();
+		if(_subactors != null){
+			for(Actor actor : _subactors){
+				if(actor.get_nextTime() == 0){
+					result += '\n' + actor.toString();
+				}
+			}
 		}
 		
 		return result;

@@ -50,13 +50,14 @@ public class UAVBattery extends Actor {
 				null,
 				new UDO[]{outputs.get(UDO.UAV_BATTERY_OK_OGUI.name())},
 				new IDO[]{Memory.TIME_TILL_LOW.set(Duration.UAVBAT_DURATION.getdur())},
-				ACTIVE, Duration.UAVBAT_DURATION, 0);
-		INACTIVE.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
-				new IDO[]{Memory.TIME_TILL_LOW},
-				new UDO[]{outputs.get(UDO.UAV_BATTERY_OK_OGUI.name())},
-				new IDO[]{Memory.TIME_TILL_LOW.set(Duration.UAVBAT_DURATION.getdur())},
-				ACTIVE, Duration.UAVBAT_DURATION.update((Integer)Memory.TIME_TILL_LOW.get()), 0);
+				ACTIVE, Duration.NEXT, 0);
+		
+		ACTIVE.addTransition(
+				null,
+				null,
+				new UDO[]{outputs.get(UDO.UAV_BATTERY_LOW_OGUI.name())},
+				null,
+				LOW, Duration.UAVBAT_ACTIVE_TO_LOW, 0);
 
 //		INACTIVE.addTransition(
 //				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},

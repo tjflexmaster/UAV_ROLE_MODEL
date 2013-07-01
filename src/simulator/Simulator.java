@@ -37,7 +37,10 @@ public class Simulator {
 			
 			//fire all ready transitions
 			for (int index = 0; index < readyActors.size(); index++) {
-				readyActors.get(index).processTransition();
+				Actor actor = readyActors.get(index);
+				actor.processTransition();
+				if(!actor.isProcessed())
+					clock.insert(actor);
 			}
 		} while (!readyActors.isEmpty());
 		
@@ -54,24 +57,29 @@ public class Simulator {
 	 */
 	private static int communicateWithUser(Scanner scanner, DeltaClock clock, ArrayList<Actor> readyActors, int runTime) {
 		if(readyActors.isEmpty()){
-			System.out.println("Would you like to run in debug mode (y / n)?");
-			String response = scanner.nextLine();
-			if(response.equalsIgnoreCase("y")){
-				debug = true;
-				System.out.println("Entering Debug Mode");
-			}else if(response.equalsIgnoreCase("n")){
-				debug = false;
-				System.out.println("Running Simulation");
-			}else{
-				debug = true;
-				System.out.println("Entering Debug Mode");
+			if(clock.getAbsoluteTime() == 0){
+				System.out.println("Would you like to run in debug mode (y / n)?");
+				String response = scanner.nextLine();
+				if(response.equalsIgnoreCase("y")){
+					debug = true;
+					System.out.println("Entering Debug Mode");
+				}else if(response.equalsIgnoreCase("n")){
+					debug = false;
+					System.out.println("Running Simulation");
+				}else{
+					debug = true;
+					System.out.println("Entering Debug Mode");
+				}
+			} else {
+				System.out.println("Thank you for using the simulator, goodbye.");
+				return runTime;
 			}
-		}
-		
-		for(Actor actor : readyActors){
-			if(debug && actor.get_nextTime() == 0){
-				System.out.println("----Time at: " + clock.getAbsoluteTime() + "----");
-				System.out.println(actor.toString());
+		} else {
+			System.out.println("----Time: " + clock.getAbsoluteTime() + "----");
+			for(Actor actor : readyActors){
+				if(debug && actor.get_nextTime() == 0){
+					System.out.println(actor.toString());
+				}
 			}
 		}
 		
