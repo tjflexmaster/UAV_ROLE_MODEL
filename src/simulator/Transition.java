@@ -53,22 +53,26 @@ public class Transition {
 		if(_inputs == null && _startConditions == null)
 			return true;
 		//check if the inputs to the actor match the transition conditions
-		for (UDO input : _inputs) {
-			if(input.get() == null){
-				return false;
-			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
-				if (!(Boolean)input.get()) {
+		if(_inputs != null){
+			for (UDO input : _inputs) {
+				if(input.get() == null){
 					return false;
+				} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
+					if (!(Boolean)input.get()) {
+						return false;
+					}
 				}
 			}
 		}
 		//check to see if the internal starting conditions match
-		for(IDO cond : _startConditions){
-			if(cond == null){
-				return false;
-			}else if(cond.getData().getClass() == Boolean.class){
-				if(!(Boolean)cond.getData()){
+		if(_startConditions != null){
+			for(IDO cond : _startConditions){
+				if(cond == null){
 					return false;
+				}else if(cond.get().getClass() == Boolean.class){
+					if(!(Boolean)cond.get()){
+						return false;
+					}
 				}
 			}
 		}

@@ -31,7 +31,7 @@ public enum Duration {
 	
 	/* UAV Battery Outputs*/
 	
-	UAVBAT_DURATION((Integer) UDO.UAVBAT_TIME_TIL_LOW_UAVBAT.get()),
+	UAVBAT_DURATION(3600),
 	
 	/* General */
 	ACK(1),
@@ -46,10 +46,8 @@ public enum Duration {
 	 * @param maximum represents the maximum bound of the duration in seconds
 	 */
 	Duration(int minimum, int maximum) {
-		
 		_minimum = minimum;
 		_maximum = maximum;
-		
 	}
 	
 	/**
@@ -57,10 +55,18 @@ public enum Duration {
 	 * @param duration represents the fixed time duration in seconds
 	 */
 	Duration(Integer duration){
-		
 		_minimum = duration;
 		_maximum = duration;
-		
+	}
+	
+	/**
+	 * updates the _min and _max
+	 * @param duration represents the integer value of the duration
+	 */
+	public Duration update(Integer duration){
+		_minimum = duration;
+		_maximum = duration;
+		return this;
 	}
 
 	/**

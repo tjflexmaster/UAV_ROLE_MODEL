@@ -4,8 +4,10 @@ public interface IDO {
 	
 	public String name();
 	
-	public Object getData();
+	public Object get();
 	
-	public void setData(Object object);
+	public IDO set(Object object);
+
+	public IDO update(Integer integer);
 
 }
