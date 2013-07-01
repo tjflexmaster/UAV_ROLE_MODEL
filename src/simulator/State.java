@@ -35,8 +35,12 @@ public class State {
 	 * @param new_transition
 	 * @return returns if the addition was successful
 	 */
-	public State addTransition(UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority){
-		Transition new_transition = new Transition(inputs, outputs, endState, duration, priority);
+	public State addTransition(UDO[] inputs, IDO[] startConditions,
+			UDO[] outputs, IDO[] endConditions,
+			State endState, Duration duration, int priority){
+		Transition new_transition = new Transition(inputs,  startConditions,
+				outputs, endConditions,
+				endState, duration, priority);
 		if(_transitions.contains(new_transition)){
 			return this;
 		}

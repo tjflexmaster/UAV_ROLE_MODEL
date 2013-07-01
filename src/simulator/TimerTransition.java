@@ -5,9 +5,10 @@ import model.team.UDO;
 
 public class TimerTransition extends Transition {
 
-	public TimerTransition(UDO[] inputs, UDO[] outputs, State endState,
-			Duration duration, int priority) {
-		super(inputs, outputs, endState, duration, priority);
+	public TimerTransition(UDO[] inputs, IDO[] startConditions,
+			UDO[] outputs, IDO[] endConditions,
+			State endState, Duration duration, int priority) {
+		super(inputs, startConditions, outputs, endConditions, endState, duration, priority);
 	}
 	
 	@Override 

@@ -14,9 +14,11 @@ import model.team.UDO;
 public class Transition {
 	
 	protected UDO[] _inputs;
+	protected IDO[] _startConditions;
 	private Duration _duration;
 	private State _endState;
 	private UDO[] _outputs;
+	private IDO[] _endConditions;
 	private int _priority;
 
 
@@ -30,11 +32,15 @@ public class Transition {
 	 * todo add a duration that represents how long it takes to move between states
 	 * @return 
 	 */
-	public Transition (UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority) {
+	public Transition (UDO[] inputs, IDO[] startConditions,
+			UDO[] outputs, IDO[] endConditions,
+			State endState, Duration duration, int priority) {
 		
 		_inputs = inputs;
+		_startConditions = startConditions;
 		_outputs = outputs;
 		_endState = endState;
+		_endConditions = endConditions;
 		_duration = duration;
 		set_priority(priority);
 	}
@@ -43,13 +49,25 @@ public class Transition {
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
 	public boolean isEnabled() {
-		if(_inputs == null)
+		//check to see if the transition cares about starting conditions
+		if(_inputs == null && _startConditions == null)
 			return true;
+		//check if the inputs to the actor match the transition conditions
 		for (UDO input : _inputs) {
 			if(input.get() == null){
 				return false;
 			} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
 				if (!(Boolean)input.get()) {
+					return false;
+				}
+			}
+		}
+		//check to see if the internal starting conditions match
+		for(IDO cond : _startConditions){
+			if(cond == null){
+				return false;
+			}else if(cond.getData().getClass() == Boolean.class){
+				if(!(Boolean)cond.getData()){
 					return false;
 				}
 			}
