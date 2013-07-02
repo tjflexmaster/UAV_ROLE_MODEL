@@ -14,8 +14,6 @@ public abstract class Actor {
 	 */
 	protected String _name = "";
 	
-	private boolean not_processed = false;
-	
 	/**
 	 * the simulator's delta clock uses this variable
 	 * this variable represents the time until the actor makes the transition, which is saved as currentTransition
@@ -51,22 +49,23 @@ public abstract class Actor {
 	 * @return returns true if a new transition has been scheduled
 	 */
 	public boolean updateTransition() {
-		if (_currentState == null) {
-			return false;
+		boolean updated = false;
+		
+		Transition nextTransition;
+		if(_currentState != null && (nextTransition = _currentState.getNextTransition()) != null) {
+			if (_currentTransition == null || _currentTransition.get_priority() < nextTransition.get_priority()) {
+				_currentTransition = nextTransition;
+				set_nextTime(_currentTransition.getDuration());
+				updated = true;
+			}
 		}
-		Transition nextTransition = _currentState.getNextTransition();
-		if(nextTransition == null)
-			return false;
-		if (_currentTransition == null) {
-			_currentTransition = nextTransition;
-			set_nextTime(_currentTransition.getDuration());
-			return true;
-		} else if (_currentTransition.get_priority() < nextTransition.get_priority()) {
-			_currentTransition = nextTransition;
-			set_nextTime(_currentTransition.getDuration());
-			return true;
+		if(_subactors != null){
+			for(Actor actor : _subactors){
+				updated = actor.updateTransition()||updated;
+			}
 		}
-		return false;
+		
+		return updated;
 	}
 	
 	/**
@@ -76,8 +75,9 @@ public abstract class Actor {
 	public boolean processTransition(){
 		boolean processed = false;
 		if(get_nextTime() == 0){
-			if(_lastTransition != null)
+			if(_lastTransition != null){
 				_lastTransition.deactivateOutputs();
+			}
 			setCurrentState(_currentTransition.fire(new Boolean(true)));
 			_lastTransition = _currentTransition;
 			_currentTransition = null;

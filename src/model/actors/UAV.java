@@ -69,24 +69,6 @@ public class UAV extends Actor {
 				null,
 				TAKE_OFF, Duration.NEXT, 0);
 	}
-
-	public boolean updateTransition() {
-		boolean updated = false;
-		updated = super.updateTransition()||updated;
-		for(Actor actor : _subactors){
-			updated = actor.updateTransition()||updated;
-		}
-		return updated;
-	}
-	
-//	public boolean processTransition(){
-//		boolean processed = false;
-//		processed = super.processTransition()||processed;
-//		for(Actor actor : _subactors){
-//			processed = actor.processTransition()||processed;
-//		}
-//		return sup;
-//	}
 	
 	@Override
 	public int get_nextTime(){
@@ -111,25 +93,4 @@ public class UAV extends Actor {
 			super.set_nextTime(super.get_nextTime()-time);
 	}
 	
-
-//	/**
-//	 * this method works like a normal toSTring method
-//	 * @return return the string representation of the actor
-//	 */
-//	@Override
-//	public String toString() {
-//		String result = "";
-//		
-//		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X ";
-//		if (_currentTransition != null) {
-//			result += _currentTransition.toString();
-//		}
-//		
-//		for(Actor actor : _subactors){
-//			result += "\n" + actor.toString();
-//		}
-//		
-//		return result;
-//	}
-
 }
