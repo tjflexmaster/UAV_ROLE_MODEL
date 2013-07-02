@@ -105,10 +105,10 @@ public class Transition {
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
-	public State fire(Boolean active){
+	public State fire(){
 		if(_outputs != null){
 			for(UDO output : _outputs){
-				output.set(active);
+				output.set(true);
 			}
 		}
 		return _endState;

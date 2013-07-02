@@ -74,11 +74,12 @@ public abstract class Actor {
 	 */
 	public boolean processTransition(){
 		boolean processed = false;
-		if(get_nextTime() == 0){
+		
+		if(_currentTransition != null && get_nextTime() == 0){
 			if(_lastTransition != null){
 				_lastTransition.deactivateOutputs();
 			}
-			setCurrentState(_currentTransition.fire(new Boolean(true)));
+			_currentState = _currentTransition.fire();
 			_lastTransition = _currentTransition;
 			_currentTransition = null;
 			_nextTime = -1;
@@ -89,15 +90,8 @@ public abstract class Actor {
 				processed = actor.processTransition()||processed;
 			}
 		}
+		
 		return processed;
-	}
-
-	/**
-	 * this method allows the simulator viewing access to this classes nextTime 
-	 * @return the time until the next transition
-	 */
-	public int get_nextTime() {
-		return _nextTime;
 	}
 
 	public boolean isProcessed(){
@@ -111,12 +105,21 @@ public abstract class Actor {
 		}
 		return true;
 	}
+
+	/**
+	 * this method allows the simulator viewing access to this classes nextTime 
+	 * @return the time until the next transition
+	 */
+	public int get_nextTime(){
+		return _nextTime;
+	}
+	
 	/**
 	 * this method lets the simulator update the time to reflect a delta clock value
 	 * @param _nextTime
 	 */
-	public void set_nextTime(int _nextTime) {
-		this._nextTime = _nextTime;
+	public void set_nextTime(int nextTime){
+		this._nextTime = nextTime;
 	}
 	
 	/**
@@ -126,22 +129,6 @@ public abstract class Actor {
 	public void addState(State state){
 		_states.add(state);
 	}
-
-	/**
-	 * 
-	 * @return return the current state of the actor
-	 */
-	public State getCurrentState() {
-		return _currentState;
-	}
-
-	/**
-	 * 
-	 * @param _currentState
-	 */
-	public void setCurrentState(State _currentState) {
-		this._currentState = _currentState;
-	}
 	
 	/**
 	 * this method works like a normal toSTring method
@@ -150,7 +137,14 @@ public abstract class Actor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + get_nextTime() + "): " + _currentState.toString() + " X " + _currentTransition.toString();
+		result += _name + "(" + get_nextTime() + "): ";
+		if(_currentState != null){
+			result += _currentState.toString();
+		}
+		result += " X ";
+		if(_currentTransition != null){
+			result += _currentTransition.toString();
+		}
 		if(_subactors != null){
 			for(Actor actor : _subactors){
 				if(actor.get_nextTime() == 0){

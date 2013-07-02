@@ -86,11 +86,13 @@ public class UAV extends Actor {
 	public void set_nextTime(int nextTime){
 		int time = get_nextTime()-nextTime;
 		for(Actor actor : _subactors){
-			if(actor.get_nextTime() != -1)
+			if(actor.get_nextTime() != -1){
 				actor.set_nextTime(actor.get_nextTime()-time);
+			}
 		}
-		if(super.get_nextTime() != -1)
+		if(super.get_nextTime() != -1){
 			super.set_nextTime(super.get_nextTime()-time);
+		}
 	}
 	
 }
