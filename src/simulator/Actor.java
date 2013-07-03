@@ -8,127 +8,44 @@ import java.util.*;
  * @author tjr team
  *
  */
-public abstract class Actor {
+public abstract class Actor implements IActor {
 	/**
 	 * this variable represents the name we give to the actor
 	 */
-	protected String _name = "";
+	private String _name = "";
 	
-	/**
-	 * the simulator's delta clock uses this variable
-	 * this variable represents the time until the actor makes the transition, which is saved as currentTransition
-	 */
-	private int _nextTime = -1;
-	
-	/**
-	 * this is a formally defined list of states the actor (state machine) can make during the simulation
-	 */
-	protected ArrayList<State> _states = new ArrayList<State>();
+	private ArrayList<IState> _states;
 	
 	/**
 	 * this represents the current state of the actor (state machine)
 	 */
-	protected State _currentState = null;
+	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
 	
 	/**
-	 * this represents the current transition the actor (state machine) is making
-	 * this can be preempted given the right inputs and current state 
+	 * This method must be implemented by the Actor.  
+	 * @return
 	 */
-	protected Transition _currentTransition = null;
-	private Transition _lastTransition = null;
+	abstract public HashMap<IActor, ITransition> getTransitions();
 	
 	/**
 	 * this represents all of the subactors that this actor holds
 	 */
 	protected ArrayList<Actor> _subactors = null;
 	
-	/**
-	 * this method tells the actor to look at its current state and inputs
-	 * if appropriate a new transition will be scheduled
-	 * @param currentTime 
-	 * @return returns true if a new transition has been scheduled
-	 */
-	public boolean updateTransition() {
-		boolean updated = false;
-		
-		Transition nextTransition;
-		if(_currentState != null && (nextTransition = _currentState.getNextTransition()) != null) {
-			if (_currentTransition == null || _currentTransition.get_priority() < nextTransition.get_priority()) {
-				_currentTransition = nextTransition;
-				set_nextTime(_currentTransition.getDuration());
-				updated = true;
-			}
-		}
-		if(_subactors != null){
-			for(Actor actor : _subactors){
-				updated = actor.updateTransition()||updated;
-			}
-		}
-		
-		return updated;
-	}
 	
 	/**
-	 * this method tells the actor to process its current transition if appropriate
-	 * @return returns true if the current transition has been processed
+	 * 
+	 * @return return the current state of the actor
 	 */
-	public boolean processTransition(){
-		boolean processed = false;
-		
-		if(_currentTransition != null && get_nextTime() == 0){
-			if(_lastTransition != null){
-				_lastTransition.deactivateOutputs();
-			}
-			_currentState = _currentTransition.fire();
-			_lastTransition = _currentTransition;
-			_currentTransition = null;
-			_nextTime = -1;
-			processed = true;
-		}
-		if(_subactors != null){
-			for(Actor actor : _subactors){
-				processed = actor.processTransition()||processed;
-			}
-		}
-		
-		return processed;
+	public State getCurrentState() {
+		return (State) _internal_vars.getVariable("currentState");
+	}
+	
+	public String name()
+	{
+		return _name;
 	}
 
-	public boolean isProcessed(){
-		if(_currentTransition != null)
-			return false;
-		if(_subactors != null){
-			for(Actor actor : _subactors){
-				if(actor._currentTransition != null)
-					return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * this method allows the simulator viewing access to this classes nextTime 
-	 * @return the time until the next transition
-	 */
-	public int get_nextTime(){
-		return _nextTime;
-	}
-	
-	/**
-	 * this method lets the simulator update the time to reflect a delta clock value
-	 * @param _nextTime
-	 */
-	public void set_nextTime(int nextTime){
-		this._nextTime = nextTime;
-	}
-	
-	/**
-	 * builds a state for the actor
-	 * @param name
-	 */
-	public void addState(State state){
-		_states.add(state);
-	}
 	
 	/**
 	 * this method works like a normal toSTring method
@@ -137,22 +54,53 @@ public abstract class Actor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + get_nextTime() + "): ";
-		if(_currentState != null){
-			result += _currentState.toString();
-		}
-		result += " X ";
-		if(_currentTransition != null){
-			result += _currentTransition.toString();
-		}
-		if(_subactors != null){
-			for(Actor actor : _subactors){
-				if(actor.get_nextTime() == 0){
-					result += '\n' + actor.toString();
-				}
-			}
-		}
+		result += _name + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
 		
 		return result;
+	}
+	
+	
+	
+	/**
+	 * HELPER METHODS
+	 */
+	protected void startState(State state)
+	{
+		assert _states.contains(state):"Start state not available.";
+		_internal_vars.setVariable("currentState", state);
+	}
+	
+	protected Actor add(IState state)
+	{
+		if ( _states.contains(state) )
+			return this;
+		
+		_states.add(state);
+		return this;
+	}
+
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Actor other = (Actor) obj;
+		if (_name == null) {
+			if (other.name() != null)
+				return false;
+		} else if (!_name.equals(other.name()))
+			return false;
+		return true;
+	}
+	
+
+	@Override
+	public int hashCode()
+	{
+		return _name.hashCode();
 	}
 }

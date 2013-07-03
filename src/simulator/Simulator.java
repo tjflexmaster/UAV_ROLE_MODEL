@@ -14,7 +14,7 @@ public class Simulator {
 	public static void main(String[] args) {
 		//initialize simulation variables
 		Team actors = new Team();
-		DeltaClock clock = new DeltaClock();
+		IDeltaClock clock = new DeltaClock();
 		Scanner scanner = new Scanner(System.in);
 		ArrayList<Actor> readyActors = new ArrayList<Actor>();
 		int runTime = 0;

@@ -1,10 +1,7 @@
 package simulator;
 
-import java.util.Random;
-
 import model.team.Duration;
 import model.team.UDO;
-
 
 /**
  * this class is a models all transitions in the simulation 
@@ -14,12 +11,12 @@ import model.team.UDO;
 public class Transition {
 	
 	protected UDO[] _inputs;
-	protected IDO[] _startConditions;
 	private Duration _duration;
 	private State _endState;
 	private UDO[] _outputs;
-	private IDO[] _endConditions;
 	private int _priority;
+	private double _probability;
+	private ActorVariableWrapper _internal_vars;
 
 
 	/**
@@ -32,91 +29,148 @@ public class Transition {
 	 * todo add a duration that represents how long it takes to move between states
 	 * @return 
 	 */
-	public Transition (UDO[] inputs, IDO[] startConditions,
-			UDO[] outputs, IDO[] endConditions,
-			State endState, Duration duration, int priority) {
+	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority, double probability) {
 		
 		_inputs = inputs;
-		_startConditions = startConditions;
 		_outputs = outputs;
 		_endState = endState;
-		_endConditions = endConditions;
-		_duration = duration;
-		set_priority(priority);
+		duration(duration);
+		priority(priority);
+		probability(probability);
+		
+		_internal_vars = internalVars;
+	}
+
+	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority) {
+		
+		_inputs = inputs;
+		_outputs = outputs;
+		_endState = endState;
+		duration(duration);
+		priority(priority);
+		probability(1);
+		
+		_internal_vars = internalVars;
+	}
+	
+	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, double probability) {
+		
+		_inputs = inputs;
+		_outputs = outputs;
+		_endState = endState;
+		duration(duration);
+		priority(1);
+		probability(probability);
+		
+		_internal_vars = internalVars;
+	}
+	
+	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration) {
+		
+		_internal_vars = internalVars;
+		_inputs = inputs;
+		_outputs = outputs;
+		_endState = endState;
+		duration(duration);
+		priority(1);
+		probability(1);
+		
+		
+	}
+	
+	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState) {
+	
+		_internal_vars = internalVars;
+		_inputs = inputs;
+		_outputs = outputs;
+		_endState = endState;
+		duration(Duration.NEXT);
+		priority(1);
+		probability(1);
+		
+		
+	}
+	
+	public Transition(Transition t)
+	{
+		_internal_vars = t._internal_vars;
+		_endState = t._endState;
+		_inputs = t._inputs;
+		_outputs = t._outputs;
+		_duration = t._duration;
+		_priority = t._priority;
+		_probability = t._probability;
+		
 	}
 	
 	/**
 	 * @return return whether the transition can be made based on the state of the UDOs
 	 */
 	public boolean isEnabled() {
-		//check to see if the transition cares about starting conditions
-		if(_inputs == null && _startConditions == null)
-			return true;
-		//check if the inputs to the actor match the transition conditions
-		if(_inputs != null){
-			for (UDO input : _inputs) {
-				if(input.get() == null){
-					return false;
-				} else if (input.get().getClass()==Boolean.class) {//handle boolean signals
-					if (!(Boolean)input.get()) {
-						return false;
-					}
-				}
-			}
-		}
-		//check to see if the internal starting conditions match
-		if(_startConditions != null){
-			for(IDO cond : _startConditions){
-				if(cond == null){
-					return false;
-				}else if(cond.get().getClass() == Boolean.class){
-					if(!(Boolean)cond.get()){
-						return false;
-					}
-				}
-			}
-		}
 		return true;
-	}
-
-	public void deactivateInput() {
-		for(UDO input : _inputs){
-			if (input == null) {//handle null inputs
-				//do nothing
-			} else {//handle all other methods
-				input.set(null);
-			}
-		}
-	}
-	
-	public void deactivateOutputs(){
-		if(_outputs != null){
-			for(UDO output : _outputs){
-				if(output == null){
-					
-				}else{
-					output.set(null);
-				}
-			}
-		}
 	}
 	
 	/**
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
-	public State fire(){
+	public void fire(Boolean active){
+		
+		/**
+		 * REDO THIS SECTION
+		 * *************************
+		 */
 		if(_outputs != null){
 			for(UDO output : _outputs){
-				output.set(true);
+				output.set(active);
 			}
 		}
-		return _endState;
+		/**
+		 * *************************
+		 */
+		
+		//Update the actor state
+		_internal_vars.setVariable("currentState", _endState);
 	}
 	
-	public int getDuration(){
+	/**
+	 * Getters
+	 */
+	public int duration()
+	{
 		return _duration.getdur();
 	}
+	
+	public void duration(Duration d)
+	{
+		_duration = d;
+	}
+	
+	public int priority()
+	{
+		return _priority;
+	}
+	
+	public void priority(int p)
+	{
+		p = Math.max(0, p);
+		
+		_priority = p;
+	}
+	
+	public void probability(double p)
+	{
+		p = Math.min(1, p);
+		p = Math.max(0, p);
+		
+		_probability = p;
+	}
+	
+	public double probability()
+	{
+		return _probability;
+	}
+	
 	/**
 	 * 
 	 * @return return a string representation of the transition
@@ -138,12 +192,4 @@ public class Transition {
 		return result;
 	}
 
-	public int get_priority() {
-		return _priority;
-	}
-
-	public void set_priority(int _priority) {
-		this._priority = _priority;
-	}
-	
 }

@@ -1,10 +1,6 @@
 package simulator;
 
 import java.util.ArrayList;
-import java.util.Random;
-
-import model.team.Duration;
-import model.team.UDO;
 
 
 /**
@@ -12,13 +8,13 @@ import model.team.UDO;
  * @author tjr team
  * 
  */
-public class State {
+public class State implements IState {
 	
 	/**
 	 * this is the name of the state
 	 */
 	private String _name;
-	private ArrayList<Transition> _transitions;
+	private ArrayList<ITransition> _transitions;
 	
 	/**
 	 * this constructor is used for creating new states
@@ -26,72 +22,31 @@ public class State {
 	 */
 	public State(String name) {
 		_name = name;
-		_transitions = new ArrayList<Transition>();
+		_transitions = new ArrayList<ITransition>();
 	}
 	
-	/**
-	 * this adds a transition to the system organizing the array list by highest priorities first
-	 * The higher the priority the higher the number
-	 * @param new_transition
-	 * @return returns if the addition was successful
-	 */
-	public State addTransition(UDO[] inputs, IDO[] startConditions,
-			UDO[] outputs, IDO[] endConditions,
-			State endState, Duration duration, int priority){
-		Transition new_transition = new Transition(inputs,  startConditions,
-				outputs, endConditions,
-				endState, duration, priority);
+	public State add(ITransition new_transition)
+	{
 		if(_transitions.contains(new_transition)){
 			return this;
 		}
 		
-		for(int index = 0; index < _transitions.size(); index++){
-			Transition temp = _transitions.get(index);
-			if(temp.get_priority() < new_transition.get_priority()){
-				_transitions.add(index,new_transition);
-				return this;
-			}
-		}
+		//The Actor will decide how to handle the transition and how to sort them.
 		_transitions.add(new_transition);
 		
 		return this;
 	}
-	public State addTransition(Transition new_transition){
-		if(_transitions.contains(new_transition)){
-			return this;
-		}
-		
-		for(int index = 0; index < _transitions.size(); index++){
-			Transition temp = _transitions.get(index);
-			if(temp.get_priority() < new_transition.get_priority()){
-				_transitions.add(index,new_transition);
-				return this;
+	
+	@Override
+	public ArrayList<ITransition> getEnabledTransitions() {
+		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
+		for (ITransition t : _transitions) {
+			if ( t.isEnabled() ) {
+				//Copy the transition if it is enabled
+				enabled.add((ITransition) new Transition((Transition)t));
 			}
 		}
-		_transitions.add(new_transition);
-		
-		return this;
-	}
-
-	/**
-	 * Finds all possible transitions of the highest priority and randomly chooses one of them
-	 * @return	the next possible transition with the highest priority, null if none are possible
-	 */
-	public Transition getNextTransition() {
-		ArrayList<Transition> next = new ArrayList<Transition>();
-		for (Transition transition : _transitions) {
-			if (transition.isEnabled() && next != null) {
-				if( next.size() == 0 || (next.get(0).get_priority() == transition.get_priority())) {
-					next.add(transition);
-				}
-			}
-		}
-		Random rand = new Random();
-		if(next.size()>0){
-			int index = rand.nextInt(next.size());
-			return next.get(index);
-		}else
-			return null;
+		return enabled;
 	}
 	
 	/**
@@ -112,6 +67,12 @@ public class State {
 		} else if (!_name.equals(other._name))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return _name.hashCode();
 	}
 	
 	/**
