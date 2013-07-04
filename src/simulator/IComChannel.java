@@ -1,16 +1,21 @@
 package simulator;
 
-public interface IComChannel<T> {
-
+public interface IComChannel {
+	
 	/**
 	 * Returns the unique name of this com channel
 	 * @return
 	 */
-	String name();
-	
+	public String name();
 	/**
-	 * Returns the stored value of this com channel
-	 * @return
+	 * works as a basic java setter
+	 * @param object redefines the object
 	 */
-	T value();
+	public void set(Object object);
+	/**
+	 * works as a basic java getter
+	 * @return the object
+	 */
+	public Object get();
+	
 }
