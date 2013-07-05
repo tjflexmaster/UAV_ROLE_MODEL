@@ -225,6 +225,11 @@ public class Transition implements ITransition {
 		assert _temp_outputs.containsKey(varname): "Cannot set temp internal var, variable does not exist";
 		_temp_internal_vars.put(varname, value);
 	}
+
+	@Override
+	public int getDuration() {
+		return _duration.getdur();
+	}
 	
 	
 //	/**

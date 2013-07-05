@@ -13,4 +13,10 @@ public interface ITransition {
 	 * @return
 	 */
 	boolean isEnabled();
+	
+	/**
+	 * return an int from the range of durations
+	 * @return
+	 */
+	int getDuration();
 }
