@@ -1,8 +1,9 @@
 package simulator;
 
-import java.util.*;
-
-import model.team.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import model.team.Team;
 
 public class Simulator {
 	public static boolean debug = true;
@@ -16,33 +17,31 @@ public class Simulator {
 		Team actors = new Team();
 		IDeltaClock clock = new DeltaClock();
 		Scanner scanner = new Scanner(System.in);
-		ArrayList<Actor> readyActors = new ArrayList<Actor>();
+		ArrayList<ITransition> readyTransitions = new ArrayList<ITransition>();
 		int runTime = 0;
 		
 		//run the simulator until the clock is empty
 		do {
 			//update next planned transition of all actors
 			for (int index = 0; index < actors.size(); index++) {
-				if (actors.get(index).updateTransition()) {
-					clock.insert(actors.get(index));
-					//done = false;
+				HashMap<IActor, ITransition> transitions = actors.get(index).getTransitions();
+				for(IActor actor : transitions.keySet()){
+					ITransition t = transitions.get(actor);
+					clock.addTransition(actor, t, t.getDuration());
 				}
 			}
 			
 			//advance time
-			readyActors = clock.tick();
+			readyTransitions = clock.getReadyTransitions();
 			
 			//communicate with the user
-			runTime = communicateWithUser(scanner, clock, readyActors, runTime);
+			runTime = communicateWithUser(scanner, clock, readyTransitions, runTime);
 			
 			//fire all ready transitions
-			for (int index = 0; index < readyActors.size(); index++) {
-				Actor actor = readyActors.get(index);
-				actor.processTransition();
-				if(!actor.isProcessed())
-					clock.insert(actor);
+			for (int index = 0; index < readyTransitions.size(); index++) {
+				readyTransitions.get(index).fire();
 			}
-		} while (!readyActors.isEmpty());
+		} while (!readyTransitions.isEmpty());
 		
 		//close the scanner once the simulation is complete
 		scanner.close();
@@ -52,12 +51,12 @@ public class Simulator {
 	 * this method prints swim lanes and accepts user commands
 	 * @param scanner 
 	 * @param clock
-	 * @param readyActors
+	 * @param readyTransitions
 	 * @return return the integer time value to advance to
 	 */
-	private static int communicateWithUser(Scanner scanner, DeltaClock clock, ArrayList<Actor> readyActors, int runTime) {
-		if(readyActors.isEmpty()){
-			if(clock.getAbsoluteTime() == 0){
+	private static int communicateWithUser(Scanner scanner, IDeltaClock clock, ArrayList<ITransition> readyTransitions, int runTime) {
+		if(readyTransitions.isEmpty()){
+			if(clock.elapsedTime() == 0){
 				System.out.println("Would you like to run in debug mode (y / n)?");
 				String response = scanner.nextLine();
 				if(response.equalsIgnoreCase("y")){
@@ -75,15 +74,13 @@ public class Simulator {
 				return runTime;
 			}
 		} else {
-			System.out.println("----Time: " + clock.getAbsoluteTime() + "----");
-			for(Actor actor : readyActors){
-				if(debug && actor.get_nextTime() == 0){
-					System.out.println(actor.toString());
-				}
+			System.out.println("----Time: " + clock.elapsedTime() + "----");
+			for(ITransition transition : readyTransitions){
+				System.out.println(transition.toString());
 			}
 		}
 		
-		if (runTime <= clock.getAbsoluteTime()) {
+		if (runTime <= clock.elapsedTime()) {
 			System.out.println("In integer format enter a time to skip to. Then press Enter.");
 			String response = scanner.nextLine();
 			try {
