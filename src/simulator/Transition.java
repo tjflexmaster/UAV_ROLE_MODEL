@@ -1,22 +1,27 @@
 package simulator;
 
+import java.util.HashMap;
+
 import model.team.Duration;
-import model.team.UDO;
 
 /**
  * this class is a models all transitions in the simulation 
  * @author tjr team
  * 
  */
-public class Transition {
+public class Transition implements ITransition {
 	
-	protected UDO[] _inputs;
+	@SuppressWarnings("rawtypes")
+	protected ComChannel[] _inputs;
 	private Duration _duration;
 	private State _endState;
-	private UDO[] _outputs;
+	@SuppressWarnings("rawtypes")
+	private ComChannel[] _outputs;
+	private HashMap<String, Object> _temp_outputs;
 	private int _priority;
 	private double _probability;
-	private ActorVariableWrapper _internal_vars;
+	protected ActorVariableWrapper _internal_vars;
+	private HashMap<String, Object> _temp_internal_vars;
 
 
 	/**
@@ -29,7 +34,7 @@ public class Transition {
 	 * todo add a duration that represents how long it takes to move between states
 	 * @return 
 	 */
-	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, int priority, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -39,9 +44,12 @@ public class Transition {
 		probability(probability);
 		
 		_internal_vars = internalVars;
+		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 
-	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, int priority) {
+	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, int priority) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -51,9 +59,12 @@ public class Transition {
 		probability(1);
 		
 		_internal_vars = internalVars;
+		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -63,9 +74,12 @@ public class Transition {
 		probability(probability);
 		
 		_internal_vars = internalVars;
+		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState, Duration duration) {
+	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration) {
 		
 		_internal_vars = internalVars;
 		_inputs = inputs;
@@ -75,10 +89,11 @@ public class Transition {
 		priority(1);
 		probability(1);
 		
-		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, UDO[] inputs, UDO[] outputs, State endState) {
+	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState) {
 	
 		_internal_vars = internalVars;
 		_inputs = inputs;
@@ -88,7 +103,8 @@ public class Transition {
 		priority(1);
 		probability(1);
 		
-		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 	
 	public Transition(Transition t)
@@ -101,10 +117,12 @@ public class Transition {
 		_priority = t._priority;
 		_probability = t._probability;
 		
+		buildTempInternalVars();
+		buildTempOutput();
 	}
 	
 	/**
-	 * @return return whether the transition can be made based on the state of the UDOs
+	 * @return return whether the transition can be made based on the state of the ComChannels
 	 */
 	public boolean isEnabled() {
 		return true;
@@ -114,20 +132,24 @@ public class Transition {
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
-	public void fire(Boolean active){
+	@SuppressWarnings("rawtypes")
+	public void fire(){
 		
-		/**
-		 * REDO THIS SECTION
-		 * *************************
-		 */
-		if(_outputs != null){
-			for(UDO output : _outputs){
-				output.set(active);
+		if(!_temp_outputs.isEmpty()){
+			for(ComChannel<?> output : _outputs){
+				Object temp = _temp_outputs.get(output.name());
+				if ( temp != null )
+					output.set(temp);
 			}
 		}
-		/**
-		 * *************************
-		 */
+		
+		if ( !_temp_internal_vars.isEmpty() ) {
+			for(String var : _temp_internal_vars.keySet()) {
+				Object temp = _temp_internal_vars.get(var);
+				if ( temp != null )
+					_internal_vars.setVariable(var, temp);
+			}
+		}
 		
 		//Update the actor state
 		_internal_vars.setVariable("currentState", _endState);
@@ -171,25 +193,59 @@ public class Transition {
 		return _probability;
 	}
 	
+	
 	/**
-	 * 
-	 * @return return a string representation of the transition
+	 * HELPER METHODS
 	 */
-	public String toString() {
-		String result = "(";
-		if(_inputs != null){
-			for(UDO input : _inputs) {
-				result += input.name() + " ";
-			}
+	private void buildTempOutput()
+	{
+		_temp_outputs = new HashMap<String, Object>();
+		for( ComChannel<?> c : _outputs) {
+			_temp_outputs.put(c.name(), null);
 		}
-		result += ") -> " + _endState.toString() + " X (";
-		if(_outputs != null){
-			for(UDO output : _outputs) {
-				result += output.name() + " ";
-			}
-		}
-		result += ")";
-		return result;
 	}
+	
+	private void buildTempInternalVars()
+	{
+		_temp_internal_vars = new HashMap<String, Object>();
+		HashMap<String, Object> vars = _internal_vars.getAllVariables();
+		for(String s : vars.keySet()) {
+			_temp_internal_vars.put(s, null);
+		}
+	}
+	
+	protected void setTempOutput(String varname, Object value)
+	{
+		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
+		_temp_outputs.put(varname, value);
+	}
+	
+	protected void setTempInternalVar(String varname, Object value)
+	{
+		assert _temp_outputs.containsKey(varname): "Cannot set temp internal var, variable does not exist";
+		_temp_internal_vars.put(varname, value);
+	}
+	
+	
+//	/**
+//	 * 
+//	 * @return return a string representation of the transition
+//	 */
+//	public String toString() {
+//		String result = "(";
+//		if(_inputs != null){
+//			for(ComChannel input : _inputs) {
+//				result += input.name() + " ";
+//			}
+//		}
+//		result += ") -> " + _endState.toString() + " X (";
+//		if(_outputs != null){
+//			for(ComChannel output : _outputs) {
+//				result += output.name() + " ";
+//			}
+//		}
+//		result += ")";
+//		return result;
+//	}
 
 }

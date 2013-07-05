@@ -1,6 +1,5 @@
 package simulator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface IActor {

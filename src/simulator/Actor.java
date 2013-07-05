@@ -12,14 +12,16 @@ public abstract class Actor implements IActor {
 	/**
 	 * this variable represents the name we give to the actor
 	 */
-	private String _name = "";
+	protected String _name = "";
 	
 	private ArrayList<IState> _states;
 	
 	/**
 	 * this represents the current state of the actor (state machine)
 	 */
-	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	protected ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	
+	abstract protected void initializeInternalVariables();
 	
 	/**
 	 * This method must be implemented by the Actor.  

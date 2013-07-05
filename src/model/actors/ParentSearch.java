@@ -6,12 +6,17 @@ import model.team.Duration;
 import model.team.UDO;
 
 import simulator.Actor;
+import simulator.ActorVariableWrapper;
+import simulator.ComChannel;
+import simulator.IActor;
+import simulator.ITransition;
 import simulator.State;
 import simulator.TimerTransition;
+import simulator.Transition;
 
 public class ParentSearch extends Actor {
 
-	public ParentSearch(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
+	public ParentSearch(ComChannel[] inputs, ComChannel[] outputs) {
 		//initialize name
 		_name = "PARENT_SEARCH";
 		
@@ -21,22 +26,40 @@ public class ParentSearch extends Actor {
 		State TX_MM = new State("TX_MM");
 		State END_MM = new State("END_MM");
 		State RX_MM = new State("RX_MM");
+		
+		this.initializeInternalVariables();
 
 		//initialize transitions
-		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
+//		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
 
-		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
-		TX_MM.addTransition(
-				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-				null,
-				new UDO[]{outputs.get(UDO.PS_END_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
-				null,
-				END_MM, Duration.PS_TX_DATA_MM, 0);
-		END_MM.addTransition(
-				null,
-				null,
-				null,
-				null, IDLE,Duration.NEXT,0);
+//		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
+		
+		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
+			@Override
+			public boolean isEnabled() 
+			{
+				if ( this._internal_vars.getVariable("test").equals("test")  ) {
+					this.setTempOutput("test", 1);
+					this.setTempInternalVar("test", 2);
+					return true;
+				}
+				return false;
+						
+			}
+		};
+		TX_MM.add(t);
+//		TX_MM.addTransition((ITransition) t);
+//		TX_MM.addTransition(
+//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+//				null,
+//				new UDO[]{outputs.get(UDO.PS_END_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+//				null,
+//				END_MM, Duration.PS_TX_DATA_MM, 0);
+//		END_MM.addTransition(
+//				null,
+//				null,
+//				null,
+//				null, IDLE,Duration.NEXT,0);
 		//add states
 		addState(IDLE);
 		addState(POKE_MM);
@@ -46,6 +69,18 @@ public class ParentSearch extends Actor {
 		
 		//initialize current state
 		_currentState = IDLE;
+	}
+	
+	@Override
+	protected void initializeInternalVariables() {
+		this._internal_vars.addVariable("test", 0);
+		
+	}
+
+	@Override
+	public HashMap<IActor, ITransition> getTransitions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

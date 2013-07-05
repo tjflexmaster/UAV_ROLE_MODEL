@@ -12,14 +12,14 @@ public class ActorVariableWrapper {
 		addVariable("currentState", new State("start"));
 	}
 	
-	void addVariable(String name, Object o)
+	public void addVariable(String name, Object o)
 	{
 		assert _variables.containsKey(name):"Variable already exists";
 		
 		_variables.put(name, o);
 	}
 	
-	void setVariable(String name, Object o)
+	public void setVariable(String name, Object o)
 	{
 		assert !_variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
@@ -27,11 +27,17 @@ public class ActorVariableWrapper {
 		_variables.put(name, o);
 	}
 	
-	Object getVariable(String name)
+	public Object getVariable(String name)
 	{
 		assert !_variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		
 		return _variables.get(name);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public HashMap<String, Object> getAllVariables()
+	{
+		return (HashMap<String, Object>) _variables.clone();
 	}
 	
 }
