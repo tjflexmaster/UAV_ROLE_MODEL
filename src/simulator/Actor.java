@@ -19,7 +19,7 @@ public abstract class Actor implements IActor {
 	/**
 	 * this represents the current state of the actor (state machine)
 	 */
-	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	protected ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
 	
 	abstract protected void initializeInternalVariables();
 	

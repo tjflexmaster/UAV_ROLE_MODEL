@@ -1,19 +1,12 @@
 package model.actors;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import model.team.Duration;
-import model.team.UDO;
-
 import simulator.Actor;
-import simulator.ActorVariableWrapper;
-import simulator.ComChannel;
 import simulator.ComChannelList;
 import simulator.IActor;
 import simulator.ITransition;
 import simulator.State;
-import simulator.TimerTransition;
 import simulator.Transition;
 
 public class ParentSearch extends Actor {
@@ -49,10 +42,10 @@ public class ParentSearch extends Actor {
 
 		//initialize transitions
 		//IDLE Transitions
-//		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList )
-//		createIDLETransitions(inputs, outputs, State[]{POKE_MM, RX_MM});
+//		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList );
+		createIDLETransitions(inputs, outputs, POKE_MM, RX_MM);
 
-//		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
+		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		
 //		TX_MM.addTransition((ITransition) t);
 //		TX_MM.addTransition(
@@ -67,15 +60,15 @@ public class ParentSearch extends Actor {
 //				null,
 //				null, IDLE,Duration.NEXT,0);
 		//add states
-		this.add(POKE_MM);
-		addState(IDLE);
-		addState(POKE_MM);
-		addState(TX_MM);
-		addState(END_MM);
-		addState(RX_MM);
+		add(POKE_MM);
+		add(IDLE);
+		add(POKE_MM);
+		add(TX_MM);
+		add(END_MM);
+		add(RX_MM);
 		
 		//initialize current state
-		_currentState = IDLE;
+		startState(IDLE);
 	}
 	
 	@Override
@@ -97,8 +90,8 @@ public class ParentSearch extends Actor {
 	 * @param POKE_MM
 	 * @param TX_MM
 	 */
-//	private void initializePokeMM(HashMap<String, UDO> inputs,
-//			HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State TX_MM) {
+	private void initializePokeMM(ComChannelList inputs,
+			ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 //		POKE_MM.addTransition(
 //				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
 //				null,
@@ -111,54 +104,54 @@ public class ParentSearch extends Actor {
 //				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
 //				null,
 //				TX_MM,Duration.NEXT,1);
-//	}
+	}
 
-//	private void createIDLETransitions(ComChannelList inputs, ComChannelList outputs, State[] states) {
-//		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
-//			@Override
-//			public boolean isEnabled() 
-//			{
-//				if ( this._internal_vars.getVariable("test").equals("test")  ) {
-//					this.setTempOutput("test", 1);
-//					this.setTempInternalVar("test", 2);
-//					return true;
-//				}
-//				return false;
-//						
-//			}
-//		};
-//		TX_MM.add(t);
-//		IDLE.addTransition(new TimerTransition(
-//				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
-//				null,
-//				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
-//				null,
-//				POKE_MM, Duration.PS_SEND_DATA_PS, 0));
-//		/*IDLE.addTransition(
-//				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},
-//				new UDO[]{outputs.get(UDO.PS_ACK_MM.name())},
-//				RX_MM, null, 0);
-//		IDLE.addTransition(
-//				new UDO[]{inputs.get(UDO.EVENT_TERMINATE_SEARCH_PS.name())},
-//				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
-//				IDLE, null, 2);
-//		IDLE.addTransition(
-//				new UDO[]{inputs.get(UDO.EVENT_START_SEARCH_PS.name())},
-//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				IDLE,null,0);
-//		IDLE.addTransition(
-//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS},
-//				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name())},
-//				POKE_MM, null, 0);
-//		IDLE.addTransition(
-//				new UDO[]{UDO.PS_TARGET_DESCRIPTION_PS},
-//				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
-//				POKE_MM, null, 0);
-//		IDLE.addTransition(
-//				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
-//				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TERMINATE_SEARCH_MM.name())},
-//				POKE_MM, null, 1);*/
-//	}
+	private void createIDLETransitions(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM) {
+		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
+			@Override
+			public boolean isEnabled() 
+			{
+				if ( this._internal_vars.getVariable("test").equals("test")  ) {
+					this.setTempOutput("test", 1);
+					this.setTempInternalVar("test", 2);
+					return true;
+				}
+				return false;
+						
+			}
+		};
+		TX_MM.add(t);
+		/*IDLE.addTransition(new TimerTransition(
+				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
+				null,
+				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
+				null,
+				POKE_MM, Duration.PS_SEND_DATA_PS, 0));
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},
+				new UDO[]{outputs.get(UDO.PS_ACK_MM.name())},
+				RX_MM, null, 0);
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.EVENT_TERMINATE_SEARCH_PS.name())},
+				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
+				IDLE, null, 2);
+		IDLE.addTransition(
+				new UDO[]{inputs.get(UDO.EVENT_START_SEARCH_PS.name())},
+				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
+				IDLE,null,0);
+		IDLE.addTransition(
+				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS},
+				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name())},
+				POKE_MM, null, 0);
+		IDLE.addTransition(
+				new UDO[]{UDO.PS_TARGET_DESCRIPTION_PS},
+				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
+				POKE_MM, null, 0);
+		IDLE.addTransition(
+				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
+				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TERMINATE_SEARCH_MM.name())},
+				POKE_MM, null, 1);*/
+	}
 
 
 }

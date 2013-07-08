@@ -15,10 +15,50 @@ public class MissionManager extends Actor {
 	public enum MM_PS_DATA {
 		PS_NEW_SEARCH_AOI,
 		PS_TERMINATE_SEARCH,
-		PS_TARGET_DESCRIPTION
+		PS_TARGET_DESCRIPTION,
+		
+		MM_TARGET_SIGHTED_T,
+		MM_TARGET_SIGHTED_F,
+		MM_SEARCH_COMPLETE,
+		MM_SEARCH_FAILED
+		
+	}
+	
+	public enum MM_OP_COMM {
+		MM_POKE_OP,
+		MM_ACK_OP,
+		MM_END_OP;
+	}
+	
+	public enum MM_OP_DATA {
+		MM_NEW_SEARCH_AOI,
+		MM_TERMINATE_SEARCH,
+		
+	}
+	
+	public enum MM_VO_COMM {
+		MM_POKE_VO,
+		MM_ACK_VO,
+		MM_END_VO;
+	}
+	
+	public enum MM_VO_DATA {
+		MM_TARGET_DESCRIPTION,
+	}
+	
+	public enum MM_VGUI_COMM {
+		MM_POKE_VGUI,
+		MM_END_VGUI
+	}
+	
+	public enum MM_VGUI_DATA {
+		MM_ANOMALY_DISMISSED_T,
+		MM_ANOMALY_DISMISSED_F,
+		MM_FLYBY_REQ_T,
+		MM_FLYBY_REQ_F
 	}
 
-	public MissionManager(ComChannel[] inputs, ComChannel[] outputs) {
+	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
 		State IDLE = new State("IDLE");
 		//comm with PS
@@ -66,7 +106,7 @@ public class MissionManager extends Actor {
 		initializeTX_VGUI(TX_VGUI);
 	}
 
-	private void initializeIdle(ComChannel[] inputs, ComChannel[] outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {
+	private void initializeIdle(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {
 		Transition t;
 		
 		//(IDLE, [PS_POKE_MM], [])->(RX_PS, [MM_ACK_PS], [])
@@ -132,7 +172,7 @@ public class MissionManager extends Actor {
 		add(IDLE);
 	}
 
-	private void initializePOKE_PS(ComChannel[] inputs, ComChannel[] outputs, State POKE_PS, State TX_PS) {
+	private void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS) {
 		/*POKE_PS.addTransition(
 				new UDO[]{inputs.get(UDO.PS_BUSY_MM)},
 				new UDO[]{outputs.get(UDO.MM_POKE_PS)},
@@ -149,7 +189,7 @@ public class MissionManager extends Actor {
 		add(END_PS);
 	}
 
-	private void initializeRX_PS(ComChannel[] inputs, ComChannel[] outputs, State IDLE, State RX_PS, State POKE_OP) {
+	private void initializeRX_PS(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_OP) {
 		Transition t;
 
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM, PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])
@@ -211,7 +251,7 @@ public class MissionManager extends Actor {
 		add(RX_PS);
 	}
 
-	private void initializePOKE_OP(ComChannel[] inputs, ComChannel[] outputs,State IDLE, State POKE_OP, State TX_OP) {
+	private void initializePOKE_OP(ComChannelList inputs, ComChannelList outputs,State IDLE, State POKE_OP, State TX_OP) {
 		Transition t;
 		
 		//(POKE_OP, [OP_ACK_MM], [])->(TX_OP, [], [])
@@ -244,7 +284,7 @@ public class MissionManager extends Actor {
 		add(POKE_OP);
 	}
 
-	private void initializeTX_OP(ComChannel[] inputs, ComChannel[] outputs, State TX_OP, State END_OP) {
+	private void initializeTX_OP(ComChannelList inputs, ComChannelList outputs, State TX_OP, State END_OP) {
 		Transition t;
 		
 		//(TX_OP, [], [AREA_OF_INTEREST])->(END_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])
@@ -272,7 +312,7 @@ public class MissionManager extends Actor {
 		add(TX_OP);
 	}
 
-	private void initializeEND_OP(ComChannel[] inputs, ComChannel[] outputs, State END_OP, State IDLE) {
+	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State IDLE) {
 		Transition t;
 		
 		//(TX_OP, [], [AREA_OF_INTEREST])->(TX_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])
@@ -292,7 +332,7 @@ public class MissionManager extends Actor {
 		add(END_OP);
 	}
 
-	private void initializeRX_OP(ComChannel[] inputs, State IDLE, State RX_OP) {
+	private void initializeRX_OP(ComChannelList inputs, State IDLE, State RX_OP) {
 		/*RX_OP.addTransition(
 				new UDO[]{inputs.get(UDO.OP_END_MM.name()), inputs.get(UDO.OP_SEARCH_AOI_COMPLETE_MM.name())},
 				null,
@@ -301,7 +341,7 @@ public class MissionManager extends Actor {
 		add(RX_OP);
 	}
 
-	private void initializePOKE_VO(ComChannel[] inputs, ComChannel[] outputs, State IDLE, State POKE_VO, State TX_VO) {
+	private void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_VO, State TX_VO) {
 		Transition t;
 		
 		//(POKE_VO, [VO_ACK_MM], [])->(TX_VO, [], [])
@@ -334,7 +374,7 @@ public class MissionManager extends Actor {
 		add(POKE_VO);
 	}
 
-	private void initializeTX_VO(ComChannel[] inputs, ComChannel[] outputs, State TX_VO, State END_VO) {
+	private void initializeTX_VO(ComChannelList inputs, ComChannelList outputs, State TX_VO, State END_VO) {
 		Transition t;
 		
 		//(TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [])
@@ -356,7 +396,7 @@ public class MissionManager extends Actor {
 		add(TX_VO);
 	}
 	
-	private void initializeEND_VO(ComChannel[] inputs, ComChannel[] outputs, State END_VO, State IDLE) {
+	private void initializeEND_VO(ComChannelList inputs, ComChannelList outputs, State END_VO, State IDLE) {
 		Transition t;
 		
 		//(END_VO, [], [])->(IDLE, [MM_END_OP], [])
@@ -376,7 +416,7 @@ public class MissionManager extends Actor {
 		add(END_VO);
 	}
 
-	private void initializeRX_VO(ComChannel[] inputs, State IDLE, State RX_VO) {
+	private void initializeRX_VO(ComChannelList inputs, State IDLE, State RX_VO) {
 		/*RX_VO.addTransition(
 				new UDO[]{inputs.get(UDO.VO_END_MM.name()),inputs.get(UDO.VO_TARGET_SIGHTING_F_MM.name())},
 				null,
