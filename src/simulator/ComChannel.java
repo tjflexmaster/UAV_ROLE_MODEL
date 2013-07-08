@@ -5,12 +5,12 @@ public class ComChannel<T> {
 	T _value;
 	String _name;
 	
-	ComChannel(String name)
+	public ComChannel(String name)
 	{
 		_name = name;
 	}
 	
-	ComChannel(String name, T value)
+	public ComChannel(String name, T value)
 	{
 		_name = name;
 		_value = value;
@@ -34,7 +34,7 @@ public class ComChannel<T> {
 		return _name;
 	}
 	
-	boolean isEqual(T value)
+	public boolean isEqual(T value)
 	{
 		return _value.equals(value);
 	}

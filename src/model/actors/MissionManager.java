@@ -4,6 +4,19 @@ import java.util.*;
 import simulator.*;
 
 public class MissionManager extends Actor {
+	
+	public enum MM_PS_COMM {
+		MM_POKE_PS,
+		MM_TX_PS,
+		MM_END_PS,
+		MM_ACK_PS
+	}
+	
+	public enum MM_PS_DATA {
+		PS_NEW_SEARCH_AOI,
+		PS_TERMINATE_SEARCH,
+		PS_TARGET_DESCRIPTION
+	}
 
 	public MissionManager(ComChannel[] inputs, ComChannel[] outputs) {
 		//initialize states
@@ -397,6 +410,18 @@ public class MissionManager extends Actor {
 	protected void initializeInternalVariables() {
 		//initialize all memory variables
 		this._internal_vars.addVariable("PS_POKE_MM", 0);
+	}
+
+	@Override
+	protected void initializeInternalVariables() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public HashMap<IActor, ITransition> getTransitions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -1,5 +1,6 @@
 package model.actors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.team.Duration;
@@ -15,8 +16,20 @@ import simulator.TimerTransition;
 import simulator.Transition;
 
 public class ParentSearch extends Actor {
+	
+	public enum PS_MM_COMM {
+		PS_POKE_MM,
+		PS_TX_MM,
+		PS_END_MM,
+	}
+	
+	public enum PS_MM_DATA {
+		PS_NEW_SEARCH_AOI,
+		PS_TERMINATE_SEARCH,
+		PS_TARGET_DESCRIPTION
+	}
 
-	public ParentSearch(ComChannel[] inputs, ComChannel[] outputs) {
+	public ParentSearch(ArrayList<ComChannel> inputs, ArrayList<ComChannel> outputs) {
 		//initialize name
 		_name = "PARENT_SEARCH";
 		
@@ -27,27 +40,17 @@ public class ParentSearch extends Actor {
 		State END_MM = new State("END_MM");
 		State RX_MM = new State("RX_MM");
 		
+		//Set start state
+		this.startState(IDLE);
+		
+		//Initialize Internal Variables
 		this.initializeInternalVariables();
 
 		//initialize transitions
-//		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
+		createIDLETransitions(inputs, outputs);
 
 //		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		
-		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
-			@Override
-			public boolean isEnabled() 
-			{
-				if ( this._internal_vars.getVariable("test").equals("test")  ) {
-					this.setTempOutput("test", 1);
-					this.setTempInternalVar("test", 2);
-					return true;
-				}
-				return false;
-						
-			}
-		};
-		TX_MM.add(t);
 //		TX_MM.addTransition((ITransition) t);
 //		TX_MM.addTransition(
 //				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
@@ -106,7 +109,21 @@ public class ParentSearch extends Actor {
 				TX_MM,Duration.NEXT,1);
 	}
 
-	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State POKE_MM, State RX_MM) {
+	private void createIDLETransitions(ArrayList<ComChannel> inputs, ArrayList<ComChannel> outputs) {
+		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
+			@Override
+			public boolean isEnabled() 
+			{
+				if ( this._internal_vars.getVariable("test").equals("test")  ) {
+					this.setTempOutput("test", 1);
+					this.setTempInternalVar("test", 2);
+					return true;
+				}
+				return false;
+						
+			}
+		};
+		TX_MM.add(t);
 		IDLE.addTransition(new TimerTransition(
 				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
 				null,
