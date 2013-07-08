@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.actors.*;
+import model.events.NewSearchEvent;
 
 import simulator.*;
 
@@ -14,7 +15,7 @@ import simulator.*;
  * list all of the actors in this method
  * we may be able to use another class instead of this method
  */
-public class Team extends ArrayList<Actor> {
+public class WiSARTeam extends ArrayList<Actor> {
 	
 	/**
 	 * i have no idea what this means, but it fixed a compilation warning...
@@ -26,12 +27,16 @@ public class Team extends ArrayList<Actor> {
 	 * assigns the actors the inputs and outputs they will be using (can this be moved inside the actor? -rob)
 	 * @param outputs
 	 */
-	public Team() {
+	public WiSARTeam() {
 		//initialize inputs and outputs
-		ArrayList<ComChannel> inputs = new ArrayList<ComChannel>();
-		ArrayList<ComChannel> outputs = new ArrayList<ComChannel>();
+		ComChannelList inputs = new ComChannelList();
+		ComChannelList outputs = new ComChannelList();
 		
 		//Declare all output com channels
+		//PS_Events
+		ComChannel<Boolean> NewSearchEvent = new ComChannel<Boolean>("NewSearchEvent");
+		ComChannel<Boolean> TerminateSearchEvent = new ComChannel<Boolean>("TerminateSearchEvent");
+		
 		//PS
 		ComChannel<ParentSearch.PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.PS_MM_COMM>("PS_MM_COMM");
 		ComChannel<ParentSearch.PS_MM_DATA> PS_MM_DATA = new ComChannel<ParentSearch.PS_MM_DATA>("PS_MM_DATA");
@@ -42,6 +47,8 @@ public class Team extends ArrayList<Actor> {
 		
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
+		inputs.add(NewSearchEvent);
+		inputs.add(TerminateSearchEvent);
 		inputs.add(MM_PS_COMM);
 		inputs.add(MM_PS_DATA);
 		

@@ -11,12 +11,10 @@ import model.team.Duration;
  */
 public class Transition implements ITransition {
 	
-	@SuppressWarnings("rawtypes")
-	protected ComChannel[] _inputs;
+	protected ComChannelList _inputs;
 	private Duration _duration;
 	private State _endState;
-	@SuppressWarnings("rawtypes")
-	private ComChannel[] _outputs;
+	private ComChannelList _outputs;
 	private HashMap<String, Object> _temp_outputs;
 	private int _priority;
 	private double _probability;
@@ -34,7 +32,7 @@ public class Transition implements ITransition {
 	 * todo add a duration that represents how long it takes to move between states
 	 * @return 
 	 */
-	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, int priority, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, int priority, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -49,7 +47,7 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 
-	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, int priority) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, int priority) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -64,7 +62,7 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
@@ -79,7 +77,7 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState, Duration duration) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration) {
 		
 		_internal_vars = internalVars;
 		_inputs = inputs;
@@ -93,7 +91,7 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, ComChannel[] inputs, ComChannel[] outputs, State endState) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState) {
 	
 		_internal_vars = internalVars;
 		_inputs = inputs;
@@ -136,7 +134,7 @@ public class Transition implements ITransition {
 	public void fire(){
 		
 		if(!_temp_outputs.isEmpty()){
-			for(ComChannel<?> output : _outputs){
+			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
 				if ( temp != null )
 					output.set(temp);
@@ -200,7 +198,7 @@ public class Transition implements ITransition {
 	private void buildTempOutput()
 	{
 		_temp_outputs = new HashMap<String, Object>();
-		for( ComChannel<?> c : _outputs) {
+		for( ComChannel<?> c : _outputs.values()) {
 			_temp_outputs.put(c.name(), null);
 		}
 	}

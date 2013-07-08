@@ -19,7 +19,7 @@ public abstract class Actor implements IActor {
 	/**
 	 * this represents the current state of the actor (state machine)
 	 */
-	protected ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
 	
 	abstract protected void initializeInternalVariables();
 	
@@ -32,7 +32,7 @@ public abstract class Actor implements IActor {
 	/**
 	 * this represents all of the subactors that this actor holds
 	 */
-	protected ArrayList<Actor> _subactors = null;
+	private ArrayList<Actor> _subactors = null;
 	
 	
 	/**
@@ -47,20 +47,22 @@ public abstract class Actor implements IActor {
 	{
 		return _name;
 	}
-
 	
-	/**
-	 * this method works like a normal toSTring method
-	 * @return return the string representation of the actor
-	 */
-	public String toString() {
-		String result = "";
-		
-		result += _name + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
-		
-		return result;
+	protected ActorVariableWrapper getInternalVars()
+	{
+		return _internal_vars;
 	}
 	
+	protected ArrayList<Actor> getSubActors()
+	{
+		return _subactors;
+	}
+	
+	protected void addSubActor(Actor a)
+	{
+		_subactors.add(a);
+	}
+
 	
 	
 	/**
@@ -104,5 +106,17 @@ public abstract class Actor implements IActor {
 	public int hashCode()
 	{
 		return _name.hashCode();
+	}
+	
+	/**
+	 * this method works like a normal toSTring method
+	 * @return return the string representation of the actor
+	 */
+	public String toString() {
+		String result = "";
+		
+		result += _name + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
+		
+		return result;
 	}
 }

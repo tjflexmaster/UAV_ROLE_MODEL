@@ -412,16 +412,4 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("PS_POKE_MM", 0);
 	}
 
-	@Override
-	protected void initializeInternalVariables() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

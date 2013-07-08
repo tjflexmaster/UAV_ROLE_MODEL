@@ -14,20 +14,20 @@ public class Simulator {
 	 */
 	public static void main(String[] args) {
 		//initialize simulation variables
-		Team actors = new Team();
+		WiSARTeam team = new WiSARTeam();
 		IDeltaClock clock = new DeltaClock();
 		Scanner scanner = new Scanner(System.in);
-		ArrayList<ITransition> readyTransitions = new ArrayList<ITransition>();
 		int runTime = 0;
 		
 		//run the simulator until the clock is empty
 		do {
 			//update next planned transition of all actors
-			for (int index = 0; index < actors.size(); index++) {
-				HashMap<IActor, ITransition> transitions = actors.get(index).getTransitions();
-				for(IActor actor : transitions.keySet()){
-					ITransition t = transitions.get(actor);
-					clock.addTransition(actor, t, t.getDuration());
+			ArrayList<ITransition> readyTransitions = clock.getReadyTransitions();
+			
+			for (int index = 0; index < readyTransitions.size(); index++) {
+				if (readyTransi) {
+					clock.insert(actors.get(index));
+					//done = false;
 				}
 			}
 			
