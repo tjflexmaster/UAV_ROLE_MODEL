@@ -95,7 +95,7 @@ public class MissionManager extends Actor {
 		//initialize transitions
 		initializeIdle(inputs, outputs, IDLE, RX_PS, POKE_VO, POKE_OP);
 		//comm with PS
-		initializePOKE_PS(inputs, outputs, POKE_PS,TX_PS);
+		initializePOKE_PS(inputs, outputs, POKE_PS,TX_PS,IDLE);
 		initializeTX_PS(TX_PS);
 		initializeEND_PS(END_PS);
 		initializeRX_PS(inputs, outputs, IDLE, RX_PS, POKE_OP);
@@ -108,7 +108,7 @@ public class MissionManager extends Actor {
 		initializePOKE_VO(inputs, outputs, IDLE, POKE_VO, TX_VO);
 		initializeTX_VO(inputs, outputs, TX_VO, END_VO);
 		initializeEND_VO(inputs, outputs, END_VO, IDLE);
-		initializeRX_VO(inputs, IDLE, RX_VO);
+		initializeRX_VO(inputs, outputs, IDLE, RX_VO);
 		//comm with VGUI
 		initializeOBSERVING_VGUI(OBSERVING_VGUI);
 		initializePOKE_VGUI(POKE_VGUI);
@@ -195,7 +195,7 @@ public class MissionManager extends Actor {
 		add(IDLE);
 	}
 
-	private void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS) {
+	private void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS, State IDLE) {
 		//(POKE_PS,[PS_BUSY_MM],[])x(IDLE,[],[])
 		POKE_PS.add(new Transition(_internal_vars, inputs, outputs, TX_PS){
 			@Override
@@ -216,10 +216,6 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
-		/*POKE_PS.addTransition(
-				new UDO[]{inputs.get(UDO.PS_BUSY_MM)},
-				new UDO[]{outputs.get(UDO.MM_POKE_PS)},
-				POKE_PS, null, 0);*/
 
 		add(POKE_PS);
 	}
@@ -448,10 +444,24 @@ public class MissionManager extends Actor {
 		add(END_VO);
 	}
 
-	private void initializeRX_VO(ComChannelList inputs, State IDLE, State RX_VO) {
-		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_F],[])x(IDLE,[],[])
-		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[])
-
+	private void initializeRX_VO(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_VO) {
+		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_F],[])x(IDLE,[],[TARGET_SIGHTING_F])
+		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])
+		RX_VO.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_END_MM)){
+					if(_inputs.get("VO_MM_DATA").equals(VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_F)){
+						this.setTempInternalVar("TARGET_SIGHTED_T", true);
+					}
+					if(_inputs.get("VO_MM_DATA").equals(VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_T)){
+						this.setTempInternalVar("TARGET_SIGHTED_F", true);
+					}
+					return true;
+				}
+				return false;
+			}
+		});
 		add(RX_VO);
 	}
 
@@ -491,6 +501,8 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("NEW_SEARCH_AOI", 0);
 		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
 		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
+		this._internal_vars.addVariable("TARGET_SIGHTED_T", false);
+		this._internal_vars.addVariable("TARGET_SIGHTED_F", false);
 	}
 
 }

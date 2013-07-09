@@ -78,19 +78,8 @@ public class Operator extends Actor {
 		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
 		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
 		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
-		
-//		POKE_OGUI.addTransition(
-//				new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP},
-//				null,
-//				new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP},
-//				null,
-//				TX_OGUI, Duration.NEXT, 0);
-//		END_OGUI.addTransition(
-//				null,
-//				null,
-//				null,
-//				null,
-//				IDLE, Duration.NEXT, 0);
+		//(POKE_OGUI,[],[NEW_SEARCH_AOI])x(TX_OGUI,[],[NEW_SEARCH_AOI])
+		//(END_GUI,[],[])x(IDLE,[],[])
 		
 		initializeTX_OGUI(inputs, outputs, TX_OGUI, END_OGUI);
 		initializePOST_FLIGHT(inputs, outputs, POST_FLIGHT, POST_FLIGHT_COMPLETE);
@@ -118,6 +107,7 @@ public class Operator extends Actor {
 	}
 
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State LAUNCH_UAV, State OBSERVE_GUI) {
+		//(IDLE,[MM_POKE_OP],[])x(RX_MM,[OP_ACK_MM],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
@@ -128,27 +118,15 @@ public class Operator extends Actor {
 				return false;
 			};
 		});
-//		IDLE.addTransition(
-//				new UDO[]{inputs.get(UDO.MM_POKE_OP.name())},
-//				null,
-//				new UDO[]{outputs.get(UDO.OP_ACK_MM.name())},
-//				null,
-//				RX_MM, Duration.ACK, 0);
-		/*IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OP)},
-				new UDO[]{outputs.get(UDO.OP_TAKE_OFF_OGUI)},
-				LAUNCH_UAV, null, 0);
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.UAV_FLYING_NORMAL)},
-				null,
-				OBSERVE_GUI, null, 0);
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.UAV_FLYING_FLYBY)},
-				null,
-				OBSERVE_GUI, null, 0);*/
+		//(IDLE,[],[TAKE_OFF])x(LAUNCH_UAV,[OP_TAKE_OFF_OGUI],[])
+		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVING_GUI,[],[])
+		//(IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVING_GUI,[],[])
 	}
 	
 	private void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State RX_MM, State POKE_OGUI, State IDLE){
+		//(RX_MM,[MM_END_OP],[])x(IDLE,[],[])
+		//(RX_MM,[MM_END_OP,MM_NEW_SEARCH_AOI],[])x(IDLE,[],[NEW_SEARCH_AOI])
+		//(RX_MM,[MM_END_OP,MM_TERMINATE_SEARCH_AOI],[])x(IDLE,[],[TERMINATE_SEARCH_AOI])
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
@@ -164,77 +142,33 @@ public class Operator extends Actor {
 				return false;
 			}
 		});
-//		RX_MM.addTransition(//wait for input
-//				null,
-//				null,
-//				null,
-//				null,
-//				IDLE, Duration.OP_RX_MM, 0);
-//		RX_MM.addTransition(//return to IDLE if input is null
-//				new UDO[]{inputs.get(UDO.MM_END_OP.name())},
-//				null,
-//				null,
-//				null,
-//				IDLE, Duration.NEXT,1);
-//		RX_MM.addTransition(//process new search area of interest
-//				new UDO[]{inputs.get(UDO.MM_END_OP.name()), inputs.get(UDO.MM_NEW_SEARCH_AOI_OP.name())},
-//				null,
-//				new UDO[]{outputs.get(UDO.OP_POKE_OGUI.name()), outputs.get(UDO.OP_NEW_SEARCH_AOI_OP.name())},
-//				null,
-//				POKE_OGUI, Duration.NEXT, 2);
+		//(RX_MM,[],[])x(IDLE,[],[])
+		//(RX_MM,[MM_END_OP],[])x(IDLE,[],[])
+		//(RX_MM,[MM_END_OP, MM_NEW_SEARCH_AOI],[])x(POKE_OGUI,[OP_POKE_OGUI],[NEW_SEARCH_AOI])
 	}
 
 	private void initializeTX_OGUI(ComChannelList inputs, ComChannelList outputs, State TX_OGUI, State END_OGUI) {
-//		TX_OGUI.addTransition(//transmit take off orders via operator gui
-//				new UDO[]{UDO.OP_NEW_SEARCH_AOI_OP},
-//				null,
-//				new UDO[]{outputs.get(UDO.OP_END_OGUI.name()), outputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
-//				null,
-//				END_OGUI, Duration.OP_TX_OGUI, 0);
+		//(TX_OGUI,[],[NEW_SEARCH_AOI])x(END_OGUI,[OP_END_OGUI,OP_TAKE_OFF_OGUI],[])
 	}
 
 	private void initializeOBSERVE_GUI(ComChannelList inputs, ComChannelList outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {
-		/*OBSERVE_GUI.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_FLYBY_REQ_F_OP)},
-				new UDO[]{outputs.get(UDO.OP_POKE_OGUI)},
-				POKE_OGUI, null, 0);
-		OBSERVE_GUI.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_FLYBY_REQ_T_OP)},
-				new UDO[]{outputs.get(UDO.OP_POKE_OGUI)},
-				POKE_OGUI, null, 0);
-		OBSERVE_GUI.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_lANDED_OP)},
-				null,
-				POST_FLIGHT, null, 0);
-		OBSERVE_GUI.addTransition(
-				null,
-				null,
-				OBSERVE_UAV, null, -1);*/
+		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		//(OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
+		//(OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
 	}
 
 	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI) {
-		/*OBSERVE_UAV.addTransition(
-				new UDO[]{inputs.get(UDO.UAV_LANDED)},
-				null,
-				POST_FLIGHT, null, 0);
-		OBSERVE_UAV.addTransition(
-				null,
-				null,
-				OBSERVE_GUI, null, -1);*/
+		//(OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
+		//(OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
 	}
 	
 	private void initializePOST_FLIGHT(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT, State POST_FLIGHT_COMPLETE){
-		/*POST_FLIGHT.addTransition(
-				null,
-				new UDO[]{outputs.get(UDO.OP_POST_FLIGHT_COMPLETE_UAV)},
-				POST_FLIGHT_COMPLETE, null, 0);*/
+		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
 	}
 	
 	private void initializePOST_FLIGHT_COMPLETE(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT_COMPLETE, State IDLE){
-		/*POST_FLIGHT_COMPLETE.addTransition(
-				null,
-				null,
-				IDLE, null, 0);*/
+		//(POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
 	}
 
 	@Override

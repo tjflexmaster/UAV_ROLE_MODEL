@@ -46,23 +46,11 @@ public class ParentSearch extends Actor {
 		//initialize transitions
 		//IDLE Transitions
 //		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList );
-		createIDLETransitions(inputs, outputs, IDLE, POKE_MM, RX_MM);
+		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
 
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		initializeTxMM(inputs,outputs,IDLE,TX_MM,END_MM);
 		initializeEndMM(inputs,outputs,IDLE,END_MM, POKE_MM);
-//		TX_MM.addTransition((ITransition) t);
-//		TX_MM.addTransition(
-//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				null,
-//				new UDO[]{outputs.get(UDO.PS_END_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
-//				null,
-//				END_MM, Duration.PS_TX_DATA_MM, 0);
-//		END_MM.addTransition(
-//				null,
-//				null,
-//				null,
-//				null, IDLE,Duration.NEXT,0);
 		//add states
 		add(POKE_MM);
 		add(IDLE);
@@ -123,33 +111,25 @@ public class ParentSearch extends Actor {
 
 	private void initializeTxMM(ComChannelList inputs, ComChannelList outputs,
 			State IDLE, State TX_MM, State END_MM) {
-		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM));
-	}
-
-	@Override
-	protected void initializeInternalVariables() {
-		this._internal_vars.addVariable("test", 0);
-		this._internal_vars.addVariable("NEW_AREAS_TO_SEARCH", 0);
-		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
-		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
-		
-	}
-
-	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
-		State state = this.getCurrentState();
-		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
-		if(enabledTransitions.size() == 0)
-			return null;
-		ITransition nextTransition = enabledTransitions.get(0);
-		for(ITransition t : enabledTransitions){
-			if(nextTransition.priority() > t.priority()){
-				nextTransition = t;
+		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_internal_vars.getVariable("NEW_SEARCH_AOI").equals(true)){
+					this.setTempInternalVar("NEW_SEARCH_AOI", false);
+					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI);
+				}else
+				if(_internal_vars.getVariable("NEW_TARGET_DESCRIPTION").equals(true)){
+					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION);
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", false);
+				}else
+				if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH").equals(true)){
+					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH);
+					this.setTempInternalVar("NEW_TERMINATE_SEARCH", false);
+				}
+				this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
+				return true;
 			}
-		}
-		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
-		transitions.put(this, nextTransition);
-		return transitions;
+		});
 	}
 
 	/**
@@ -161,10 +141,11 @@ public class ParentSearch extends Actor {
 	 */
 	private void initializePokeMM(ComChannelList inputs,
 			ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
+		//(POKE_MM,[MM_ACK_PS],[])x(TX_MM,[],[])
 		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.containsKey("MM_PS_COMM") && _inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
+				if(_inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
 					return true;
 				}
 				return false;
@@ -184,7 +165,7 @@ public class ParentSearch extends Actor {
 //				TX_MM,Duration.NEXT,1);
 	}
 
-	private void createIDLETransitions(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
+	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
 			@Override
 			public boolean isEnabled() 
@@ -261,5 +242,31 @@ public class ParentSearch extends Actor {
 				POKE_MM, null, 1);*/
 	}
 
+
+	@Override
+	protected void initializeInternalVariables() {
+		this._internal_vars.addVariable("test", 0);
+		this._internal_vars.addVariable("NEW_AREAS_TO_SEARCH", 0);
+		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
+		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
+		
+	}
+
+	@Override
+	public HashMap<IActor, ITransition> getTransitions() {
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() > t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
+	}
 
 }

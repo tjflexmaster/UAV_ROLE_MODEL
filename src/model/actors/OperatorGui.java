@@ -42,12 +42,7 @@ public class OperatorGui extends Actor{
 	}
 	
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State NORMAL){
-//		NORMAL.addTransition(
-//				new UDO[]{inputs.get(UDO.OP_TAKE_OFF_OGUI.name())},
-//				null,
-//				new UDO[]{outputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
-//				null,
-//				NORMAL, Duration.NEXT, 0);
+		//(NORMAL,[OP_TAKE_OFF_OGUI],[])x(NORMAL,[OGUI_TAKE_OFF_UAV],[])
 	}
 
 	@Override
