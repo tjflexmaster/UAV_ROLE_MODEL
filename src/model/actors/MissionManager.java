@@ -1,9 +1,15 @@
 package model.actors;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import model.team.Duration;
-import simulator.*;
+import simulator.Actor;
+import simulator.ComChannelList;
+import simulator.IActor;
+import simulator.ITransition;
+import simulator.State;
+import simulator.Transition;
 
 public class MissionManager extends Actor {
 	
@@ -495,7 +501,19 @@ public class MissionManager extends Actor {
 
 	@Override
 	public HashMap<IActor, ITransition> getTransitions() {
-		return null;
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() > t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
 	}
 
 	@Override
