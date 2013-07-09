@@ -8,10 +8,15 @@ import simulator.*;
 public class VideoOperator extends Actor {
 
 	public enum VO_MM_COMM {
-
+		VO_POKE_MM,
+		VO_ACK_MM,
+		VO_END_MM
 	}
 
 	public enum VO_VGUI_COMM {
+		VO_POKE_VGUI,
+		VO_ACK_VGUI,
+		VO_END_VGUI
 
 	}
 
@@ -20,6 +25,9 @@ public class VideoOperator extends Actor {
 	}
 
 	public enum VO_OP_COMM {
+		VO_POKE_OP,
+		VO_ACK_OP,
+		VO_END_OP
 
 	}
 

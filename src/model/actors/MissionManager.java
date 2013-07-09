@@ -1,6 +1,8 @@
 package model.actors;
 
 import java.util.*;
+
+import model.team.Duration;
 import simulator.*;
 
 public class MissionManager extends Actor {
@@ -44,6 +46,7 @@ public class MissionManager extends Actor {
 	
 	public enum MM_VO_DATA {
 		MM_TARGET_DESCRIPTION,
+		MM_TERMINATE_SEARCH,
 	}
 	
 	public enum MM_VGUI_COMM {
@@ -93,7 +96,7 @@ public class MissionManager extends Actor {
 		//comm with OP
 		initializePOKE_OP(inputs, outputs, IDLE, POKE_OP, TX_OP);
 		initializeTX_OP(inputs, outputs, TX_OP, END_OP);
-		initializeEND_OP(inputs, outputs, END_OP, IDLE);
+		initializeEND_OP(inputs, outputs, END_OP, IDLE, POKE_VO);
 		initializeRX_OP(inputs, IDLE, RX_OP);
 		//comm with VO
 		initializePOKE_VO(inputs, outputs, IDLE, POKE_VO, TX_VO);
@@ -115,23 +118,37 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("PS_MM").equals("POKE") ) {
-					this.setTempOutput("MM_PS", "ACK");
+				if ( _inputs.containsKey("PS_MM_COMM") && _inputs.get("PS_MM_COMM").equals("PS_POKE_MM") ) {
+					this.setTempOutput("MM_PS_COMM", "MM_ACK_PS");
 					result = true;
 				}
 				return result;		
 			}
 		};
 		IDLE.add(t);
-		
 		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
 		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("TARGET_DESCRIPTION").equals("NEW") ) {
-					this.setTempOutput("MM_VO", "POKE");
+				if ( (Integer)this._internal_vars.getVariable("NewTargetDescription") > 0 ) {
+					this.setTempOutput("MM_VO_COMM", MissionManager.MM_VO_COMM.MM_POKE_VO);
+					result = true;
+				}
+				return result;		
+			}
+		};
+		IDLE.add(t);
+
+		//(IDLE, [], [AREA_OF_INTEREST])->(POKE_OP, [POKE_OP], [])
+		t = new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
+			@Override
+			public boolean isEnabled() 
+			{
+				boolean result = false;
+				if ( (Integer) this._internal_vars.getVariable("NewSearchAOI") > 0) {
+					this.setTempOutput("MM_OP_COMM", MissionManager.MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
 				return result;		
@@ -139,14 +156,14 @@ public class MissionManager extends Actor {
 		};
 		IDLE.add(t);
 		
-		//(IDLE, [], [AREA_OF_INTEREST])->(POKE_OP, [POKE_OP], [])
+		//(IDLE, [], [Terminate_Search])->(POKE_OP, [POKE_OP], [])
 		t = new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
-					this.setTempOutput("MM_VO", "POKE");
+				if ( (Integer) this._internal_vars.getVariable("NewTerminateSearch") > 0) {
+					this.setTempOutput("MM_OP_COMM", MissionManager.MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
 				return result;		
@@ -195,20 +212,34 @@ public class MissionManager extends Actor {
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM, PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])
 		//(RX_PS, [PS_TARGET_DESCRIPTION_MM, PS_END_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM])
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM, PS_TARGET_DESCRIPTION_MM, PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION, PS_TARGET_DESCRIPTION_MM])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
+		t = new Transition(this._internal_vars, inputs, outputs, IDLE ) {
 			@Override
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("PS_AREA_OF_INTEREST_MM").equals("NEW") ) {
-					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
+				
+				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_END_MM)){
+					if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI) ) {
+						int num = 1;
+						if(_internal_vars.getVariable("NewSearchAOI") != null)
+							num = (Integer)_internal_vars.getVariable("NewSearchAOI")+1;
+						this.setTempInternalVar("NewSearchAOI", num);
+					}
+					if ( _inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION) ) {
+						int num = 1;
+						if(_internal_vars.getVariable("NewTargetDescription") != null)
+							num = (Integer)_internal_vars.getVariable("NewTargetDescription")+1;
+						this.setTempInternalVar("NewTargetDescription", num);
+					}
+					if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH) ) {
+						int num = 1;
+						if(_internal_vars.getVariable("NewTerminateSearch") != null)
+							num = (Integer)_internal_vars.getVariable("NewTerminateSearch")+1;
+						this.setTempInternalVar("NewTerminateSearch", num);
+					}
 					result = true;
 				}
-				if ( this._internal_vars.getVariable("PS_TARGET_DESCRIPTION_MM").equals("NEW") ) {
-					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
-					result = true;
-				}
-				return result;		
+				return result;
 			}
 		};
 		RX_PS.add(t);
@@ -260,7 +291,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("OP_MM").equals("ACK") ) {
+				if ( this._internal_vars.getVariable("OP_MM_COMM").equals(Operator.OP_MM_COMM.OP_ACK_MM) ) {
 					result = true;
 				}
 				return result;		
@@ -288,16 +319,21 @@ public class MissionManager extends Actor {
 		Transition t;
 		
 		//(TX_OP, [], [AREA_OF_INTEREST])->(END_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, END_OP) {
+		t = new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_OP){
 			@Override
-			public boolean isEnabled() 
-			{
-				boolean result = false;
-				if ( this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
-					this.setTempOutput("MM_AREA_OF_INTEREST_OP", "NEW");
-					result = true;
-				}
-				return result;		
+			public boolean isEnabled(){
+					int num = 1;
+					if(_internal_vars.getVariable("NewTerminateSearch") != null){
+						num = (Integer)_internal_vars.getVariable("NewTerminateSearch")-1;
+						this.setTempInternalVar("NewTerminateSearch", num);
+						this.setTempOutput("MM_OP_DATA", MissionManager.MM_OP_DATA.MM_TERMINATE_SEARCH);
+					} else if(_internal_vars.getVariable("NewSearchAOI") != null){
+						num = (Integer)_internal_vars.getVariable("NewSearchAOI")-1;
+						this.setTempInternalVar("NewSearchAOI", num);
+						this.setTempOutput("MM_OP_DATA", MissionManager.MM_OP_DATA.MM_NEW_SEARCH_AOI);
+					}
+					this.setTempOutput("MM_OP_COMM", MissionManager.MM_OP_COMM.MM_END_OP);
+				return true;
 			}
 		};
 		TX_OP.add(t);
@@ -312,19 +348,31 @@ public class MissionManager extends Actor {
 		add(TX_OP);
 	}
 
-	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State IDLE) {
+	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State IDLE, State POKE_VO) {
 		Transition t;
-		
-		//(TX_OP, [], [AREA_OF_INTEREST])->(TX_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])
+
+		//(END_OP, [], [Terminate_Search])->(POKE_VO, [MM_POKE_VO], [Terminate_Search])
+		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
+			@Override
+			public boolean isEnabled() 
+			{
+				if((Integer)_internal_vars.getVariable("NewTerminateSearch") > 0 ){
+					return true;
+				}
+				return false;
+			}
+		};
+		END_OP.add(t);
+		//(END_OP, [], [AREA_OF_INTEREST])->(IDLE, [], [AREA_OF_INTEREST-1])
+		//(END_OP, [], [])->(IDLE,[],[])
 		t = new Transition(this._internal_vars, inputs, outputs, IDLE) {
 			@Override
 			public boolean isEnabled() 
 			{
-				boolean result = false;
-				this.setTempOutput("MM_OP", "END");
-				this.setTempInternalVar("AREA_OF_INTEREST", "CURRENT");
-				result = true;
-				return result;		
+				if((Integer)_internal_vars.getVariable("NewSearchAOI") > 0){
+					this.setTempInternalVar("NewSearchAOI", (Integer) _internal_vars.getVariable("NewSearchAOI")-1);
+				}
+				return true;
 			}
 		};
 		END_OP.add(t);
@@ -350,7 +398,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("VO_MM").equals("ACK") ) {
+				if (_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_ACK_MM) ) {
 					result = true;
 				}
 				return result;		
@@ -376,19 +424,23 @@ public class MissionManager extends Actor {
 
 	private void initializeTX_VO(ComChannelList inputs, ComChannelList outputs, State TX_VO, State END_VO) {
 		Transition t;
-		
-		//(TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [])
+
+		//(TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TARGET_DESCRIPTION-1])
+		//(TX_VO, [], [TERMINATE_SEARCH])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TERMINATE_SEARCH-1)
 		t = new Transition(this._internal_vars, inputs, outputs, END_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
-				boolean result = false;
-				if ( this._internal_vars.getVariable("TARGET_DESCRIPTION").equals("NEW") ) {
-					this.setTempOutput("MM_TARGET_DESCRIPTION_VO", "NEW");
-					this.setTempOutput("MM_VO", "END");
-					result = true;
+				if ( (Integer)this._internal_vars.getVariable("NewTargetDescription") > 0 ) {
+					this.setTempOutput("MM_VO_DATA", MissionManager.MM_VO_DATA.MM_TARGET_DESCRIPTION);
+					this.setTempInternalVar("NewTargetDescription", (Integer)_internal_vars.getVariable("NewTargetDescription")-1);
 				}
-				return result;		
+				if((Integer)_internal_vars.getVariable("NewTerminateSearch") > 0){
+					this.setTempOutput("MM_VO_DATA", MissionManager.MM_VO_DATA.MM_TERMINATE_SEARCH);
+					this.setTempInternalVar("NewTerminateSearch", (Integer)_internal_vars.getVariable("NewTerminateSearch")-1);
+				}
+				this.setTempOutput("MM_VO_COMM", MissionManager.MM_VO_COMM.MM_END_VO);
+				return true;		
 			}
 		};
 		TX_VO.add(t);

@@ -11,6 +11,9 @@ import simulator.State;
 public class Operator extends Actor {
 
 	public enum OP_UAV_COMM {
+		OP_POKE_UAV,
+		OP_ACK_UAV,
+		OP_END_UAV
 
 	}
 
@@ -23,10 +26,16 @@ public class Operator extends Actor {
 	}
 
 	public enum OP_OGUI_COMM {
+		OP_POKE_OGUI,
+		OP_ACK_OGUI,
+		OP_END_OGUI
 
 	}
 
 	public enum OP_MM_COMM {
+		OP_POKE_MM,
+		OP_ACK_MM,
+		OP_END_MM
 
 	}
 

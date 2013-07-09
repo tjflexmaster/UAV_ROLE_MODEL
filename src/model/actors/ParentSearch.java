@@ -2,6 +2,8 @@ package model.actors;
 
 import java.util.HashMap;
 
+import model.team.Duration;
+
 import simulator.Actor;
 import simulator.ComChannelList;
 import simulator.IActor;
@@ -43,10 +45,11 @@ public class ParentSearch extends Actor {
 		//initialize transitions
 		//IDLE Transitions
 //		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList );
-		createIDLETransitions(inputs, outputs, POKE_MM, RX_MM);
+		createIDLETransitions(inputs, outputs, IDLE, POKE_MM, RX_MM);
 
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
-		
+		initializeTxMM(inputs,outputs,IDLE,TX_MM,END_MM);
+		initializeEndMM(inputs,outputs,IDLE,END_MM, POKE_MM);
 //		TX_MM.addTransition((ITransition) t);
 //		TX_MM.addTransition(
 //				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
@@ -71,6 +74,57 @@ public class ParentSearch extends Actor {
 		startState(IDLE);
 	}
 	
+	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs,
+			State IDLE, State END_MM, State POKE_MM) {
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("TerminateSearchAreas") == 1){
+					setTempInternalVar("TerminateSearchAreas", 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("AreasToSearch") == 1){
+					setTempInternalVar("AreasToSearch", 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("TerminateSearchAreas") > 0){
+					int num = (Integer)_internal_vars.getVariable("TerminateSearchAreas")-1;
+					setTempInternalVar("TerminateSearchAreas", num);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("AreasToSearch") > 0){
+					int num = (Integer)_internal_vars.getVariable("AreasToSearch")-1;
+					setTempInternalVar("AreasToSearch", num);
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
+	private void initializeTxMM(ComChannelList inputs, ComChannelList outputs,
+			State IDLE, State TX_MM, State END_MM) {
+		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM));
+	}
+
 	@Override
 	protected void initializeInternalVariables() {
 		this._internal_vars.addVariable("test", 0);
@@ -92,6 +146,15 @@ public class ParentSearch extends Actor {
 	 */
 	private void initializePokeMM(ComChannelList inputs,
 			ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
+		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.containsKey("MM_PS_COMM") && _inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
+					return true;
+				}
+				return false;
+			}
+		});
 //		POKE_MM.addTransition(
 //				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
 //				null,
@@ -106,7 +169,7 @@ public class ParentSearch extends Actor {
 //				TX_MM,Duration.NEXT,1);
 	}
 
-	private void createIDLETransitions(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM) {
+	private void createIDLETransitions(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
 			@Override
 			public boolean isEnabled() 
@@ -121,6 +184,36 @@ public class ParentSearch extends Actor {
 			}
 		};
 		TX_MM.add(t);
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.containsKey("NewSearchEvent") && (Boolean)_inputs.get("NewSearchEvent").get()){
+					int num = 1;
+					
+					if(_internal_vars.getVariable("AreasToSearch")!=null){
+						num = (Integer)_internal_vars.getVariable("AreasToSearch") + 1;
+					}
+					setTempInternalVar("AreasToSearch", num);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.containsKey("TerminateSearchEvent") && (Boolean)_inputs.get("TerminateSearchEvent").get()){
+					int num = 1;
+					if(_internal_vars.getVariable("TerminateSearchAreas")!=null){
+						num = (Integer)_internal_vars.getVariable("TerminateSearchAreas") + 1;
+					}
+					setTempInternalVar("TerminateSearchAreas", num);
+					return true;
+				}
+				return false;
+			}
+		});
 		/*IDLE.addTransition(new TimerTransition(
 				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
 				null,
