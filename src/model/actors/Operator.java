@@ -1,5 +1,6 @@
 package model.actors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import simulator.Actor;
@@ -7,6 +8,7 @@ import simulator.ComChannelList;
 import simulator.IActor;
 import simulator.ITransition;
 import simulator.State;
+import simulator.Transition;
 
 public class Operator extends Actor {
 
@@ -41,6 +43,10 @@ public class Operator extends Actor {
 
 	public enum OP_MM_DATA {
 
+	}
+	
+	public enum OP_VO_COMM {
+		OP_ACK_VO
 	}
 
 	public Operator(ComChannelList inputs, ComChannelList outputs) {
@@ -112,6 +118,16 @@ public class Operator extends Actor {
 	}
 
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State LAUNCH_UAV, State OBSERVE_GUI) {
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("MM_OP_COMM").equals(MissionManager.MM_OP_COMM.MM_POKE_OP)){
+					this.setTempOutput("OP_MM_COMM", Operator.OP_MM_COMM.OP_ACK_MM);
+					return true;
+				}
+				return false;
+			};
+		});
 //		IDLE.addTransition(
 //				new UDO[]{inputs.get(UDO.MM_POKE_OP.name())},
 //				null,
@@ -133,6 +149,21 @@ public class Operator extends Actor {
 	}
 	
 	private void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State RX_MM, State POKE_OGUI, State IDLE){
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("MM_OP_COMM").equals(MissionManager.MM_OP_COMM.MM_END_OP)){
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_DATA.MM_NEW_SEARCH_AOI)){
+						this.setTempInternalVar("SEARCH_AOI", (Integer)_internal_vars.getVariable("SEARCH_AOI")+1);
+					}
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_DATA.MM_TERMINATE_SEARCH)){
+						this.setTempInternalVar("TERMINATE_SEARCH_AOI", (Integer)_internal_vars.getVariable("TERMINATE_SEARCH_AOI")+1);
+					}
+					return true;
+				}
+				return false;
+			}
+		});
 //		RX_MM.addTransition(//wait for input
 //				null,
 //				null,
@@ -214,8 +245,19 @@ public class Operator extends Actor {
 
 	@Override
 	public HashMap<IActor, ITransition> getTransitions() {
-		// TODO Auto-generated method stub
-		return null;
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() > t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
 	}
 	
 }

@@ -1,5 +1,6 @@
 package model.actors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.team.Duration;
@@ -16,7 +17,7 @@ public class ParentSearch extends Actor {
 	public enum PS_MM_COMM {
 		PS_POKE_MM,
 		PS_TX_MM,
-		PS_END_MM,
+		PS_END_MM, PS_ACK_MM, PS_BUSY_MM,
 	}
 	
 	public enum PS_MM_DATA {
@@ -79,8 +80,8 @@ public class ParentSearch extends Actor {
 		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("TerminateSearchAreas") == 1){
-					setTempInternalVar("TerminateSearchAreas", 0);
+				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
+					setTempInternalVar("NEW_TERMINATE_SEARCH", 0);
 					return true;
 				}
 				return false;
@@ -89,8 +90,8 @@ public class ParentSearch extends Actor {
 		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("AreasToSearch") == 1){
-					setTempInternalVar("AreasToSearch", 0);
+				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") == 1){
+					setTempInternalVar("NEW_AREAS_TO_SEARCH", 0);
 					return true;
 				}
 				return false;
@@ -99,9 +100,9 @@ public class ParentSearch extends Actor {
 		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("TerminateSearchAreas") > 0){
-					int num = (Integer)_internal_vars.getVariable("TerminateSearchAreas")-1;
-					setTempInternalVar("TerminateSearchAreas", num);
+				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
+					int num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
+					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 					return true;
 				}
 				return false;
@@ -110,9 +111,9 @@ public class ParentSearch extends Actor {
 		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("AreasToSearch") > 0){
-					int num = (Integer)_internal_vars.getVariable("AreasToSearch")-1;
-					setTempInternalVar("AreasToSearch", num);
+				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") > 0){
+					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")-1;
+					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
 					return true;
 				}
 				return false;
@@ -128,13 +129,27 @@ public class ParentSearch extends Actor {
 	@Override
 	protected void initializeInternalVariables() {
 		this._internal_vars.addVariable("test", 0);
+		this._internal_vars.addVariable("NEW_AREAS_TO_SEARCH", 0);
+		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
+		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
 		
 	}
 
 	@Override
 	public HashMap<IActor, ITransition> getTransitions() {
-		// TODO Auto-generated method stub
-		return null;
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() > t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
 	}
 
 	/**
@@ -190,10 +205,10 @@ public class ParentSearch extends Actor {
 				if(_inputs.containsKey("NewSearchEvent") && (Boolean)_inputs.get("NewSearchEvent").get()){
 					int num = 1;
 					
-					if(_internal_vars.getVariable("AreasToSearch")!=null){
-						num = (Integer)_internal_vars.getVariable("AreasToSearch") + 1;
+					if(_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")!=null){
+						num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") + 1;
 					}
-					setTempInternalVar("AreasToSearch", num);
+					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
 					return true;
 				}
 				return false;
@@ -205,10 +220,10 @@ public class ParentSearch extends Actor {
 			public boolean isEnabled(){
 				if(_inputs.containsKey("TerminateSearchEvent") && (Boolean)_inputs.get("TerminateSearchEvent").get()){
 					int num = 1;
-					if(_internal_vars.getVariable("TerminateSearchAreas")!=null){
-						num = (Integer)_internal_vars.getVariable("TerminateSearchAreas") + 1;
+					if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH")!=null){
+						num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") + 1;
 					}
-					setTempInternalVar("TerminateSearchAreas", num);
+					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 					return true;
 				}
 				return false;
