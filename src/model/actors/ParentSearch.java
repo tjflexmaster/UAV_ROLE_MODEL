@@ -65,66 +65,72 @@ public class ParentSearch extends Actor {
 	
 	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs,
 			State IDLE, State END_MM, State POKE_MM) {
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
-			@Override
-			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
-					setTempInternalVar("NEW_TERMINATE_SEARCH", 0);
-					return true;
-				}
-				return false;
-			}
-		});
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
-			@Override
-			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") == 1){
-					setTempInternalVar("NEW_AREAS_TO_SEARCH", 0);
-					return true;
-				}
-				return false;
-			}
-		});
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
-			@Override
-			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
-					int num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
-					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
-					return true;
-				}
-				return false;
-			}
-		});
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
-			@Override
-			public boolean isEnabled(){
-				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") > 0){
-					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")-1;
-					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
-					return true;
-				}
-				return false;
-			}
-		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE));//{
+//			@Override
+//			public boolean isEnabled(){
+//				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
+//					setTempInternalVar("NEW_TERMINATE_SEARCH", 0);
+//					return true;
+//				}
+//				return false;
+//			}
+//		});
+//		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+//			@Override
+//			public boolean isEnabled(){
+//				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") == 1){
+//					setTempInternalVar("NEW_AREAS_TO_SEARCH", 0);
+//					return true;
+//				}
+//				return false;
+//			}
+//		});
+//		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+//			@Override
+//			public boolean isEnabled(){
+//				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
+//					int num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
+//					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
+//					return true;
+//				}
+//				return false;
+//			}
+//		});
+//		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+//			@Override
+//			public boolean isEnabled(){
+//				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") > 0){
+//					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")-1;
+//					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
+//					return true;
+//				}
+//				return false;
+//			}
+//		});
 	}
 
 	private void initializeTxMM(ComChannelList inputs, ComChannelList outputs,
 			State IDLE, State TX_MM, State END_MM) {
+		//(TX_MM,[],[NEW_SEARCH_AOI,*])x(END_MM,[END_MM,PS_NEW_SEARCH_AOI],[*])
+		//(TX_MM,[],[NEW_TARGET_DESCRIPTION,*])x(END_MM,[END_MM,PS_TARGET_DESCRIPTION],[*])
+		//(TX_MM,[],[NEW_TERMINATE_SEARCH,*])x(END_MM,[END_MM,PS_TERMINATE_SEARCH],[*])
 		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("NEW_SEARCH_AOI").equals(true)){
-					this.setTempInternalVar("NEW_SEARCH_AOI", false);
+				if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
 					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI);
+					int num = (Integer) _internal_vars.getVariable("NEW_SEARCH_AOI")-1;
+					this.setTempInternalVar("NEW_SEARCH_AOI", num);
 				}else
-				if(_internal_vars.getVariable("NEW_TARGET_DESCRIPTION").equals(true)){
+				if((Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") > 0){
 					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION);
-					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", false);
+					int num = (Integer) _internal_vars.getVariable("NEW_TARGET_DESCRIPTION")-1;
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
 				}else
-				if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH").equals(true)){
+				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
 					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH);
-					this.setTempInternalVar("NEW_TERMINATE_SEARCH", false);
+					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
+					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 				}
 				this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
 				return true;
@@ -142,7 +148,7 @@ public class ParentSearch extends Actor {
 	private void initializePokeMM(ComChannelList inputs,
 			ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 		//(POKE_MM,[MM_ACK_PS],[])x(TX_MM,[],[])
-		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM){
+		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM,Duration.NEXT,1){
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
@@ -151,101 +157,86 @@ public class ParentSearch extends Actor {
 				return false;
 			}
 		});
-//		POKE_MM.addTransition(
-//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				null,
-//				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				null,
-//				IDLE, Duration.PS_POKE_MM, 0);
-//		POKE_MM.addTransition(
-//				new UDO[]{inputs.get(UDO.MM_ACK_PS.name()), UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				null,
-//				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-//				null,
-//				TX_MM,Duration.NEXT,1);
+		//(POKE_MM,[],[*])x(IDLE,[],[*])
+		POKE_MM.add(new Transition(_internal_vars, outputs, outputs, TX_MM, Duration.PS_POKE_MM, 0));
 	}
 
-	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
-		Transition t = new Transition(this._internal_vars, inputs, outputs, POKE_MM ) {
-			@Override
-			public boolean isEnabled() 
-			{
-				if ( this._internal_vars.getVariable("test").equals("test")  ) {
-					this.setTempOutput("test", 1);
-					this.setTempInternalVar("test", 2);
-					return true;
-				}
-				return false;
-						
-			}
-		};
-		TX_MM.add(t);
+	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State RX_MM) {
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.containsKey("NewSearchEvent") && (Boolean)_inputs.get("NewSearchEvent").get()){
 					int num = 1;
-					
-					if(_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")!=null){
-						num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") + 1;
-					}
-					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
+					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
+					this.setTempInternalVar("SEARCH_ACTIVE", true);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}
 				return false;
 			}
 		});
-
+		//(IDLE,[NewSearchAreaEvent],[])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_AREAS_TO_SEARCH+1])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_inputs.get("NewSearchAreaEvent").get()){
+					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
+					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")+1;
+					this.setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+				}
+				return false;
+			}
+		});
+		//(IDLE,[NewTargetDescriptionEvent],[SEARCH_ACTIVE])x(POKE_MM,[PS_POKE_MM],[SEARCH_ACTIVE, NEW_TARGET_DESCRIPTION+1])
+		IDLE.add(new Transition(_internal_vars,inputs,outputs,POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_inputs.get("NewTargetDescriptionEvent").get()){
+					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
+					int num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(IDLE,[TerminateSearchEvent],[SEARCH_ACTIVE])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_TERMINATE_SEARCH+1])
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.containsKey("TerminateSearchEvent") && (Boolean)_inputs.get("TerminateSearchEvent").get()){
+				if((Boolean)_inputs.get("TerminateSearchEvent").get()){
+					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = 1;
 					if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH")!=null){
 						num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") + 1;
 					}
 					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}
 				return false;
 			}
 		});
-		/*IDLE.addTransition(new TimerTransition(
-				new UDO[]{inputs.get(UDO.PS_TIME_TIL_START_PS.name()).update(new Integer(0))}, 
-				null,
-				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_PS.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_PS.name())},
-				null,
-				POKE_MM, Duration.PS_SEND_DATA_PS, 0));
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_PS.name())},
-				new UDO[]{outputs.get(UDO.PS_ACK_MM.name())},
-				RX_MM, null, 0);
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.EVENT_TERMINATE_SEARCH_PS.name())},
-				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
-				IDLE, null, 2);
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.EVENT_START_SEARCH_PS.name())},
-				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS, UDO.PS_TARGET_DESCRIPTION_PS},
-				IDLE,null,0);
-		IDLE.addTransition(
-				new UDO[]{UDO.PS_NEW_SEARCH_AOI_PS},
-				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_NEW_SEARCH_AOI_MM.name())},
-				POKE_MM, null, 0);
-		IDLE.addTransition(
-				new UDO[]{UDO.PS_TARGET_DESCRIPTION_PS},
-				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TARGET_DESCRIPTION_MM.name())},
-				POKE_MM, null, 0);
-		IDLE.addTransition(
-				new UDO[]{UDO.PS_TERMINATE_SEARCH_PS},
-				new UDO[]{outputs.get(UDO.PS_POKE_MM.name()), outputs.get(UDO.PS_TERMINATE_SEARCH_MM.name())},
-				POKE_MM, null, 1);*/
+		//(IDLE,[MM_POKE_PS],[*])x(RX_MM,[PS_ACK_MM],[*])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_inputs.get("MM_PS_COMM").get().equals(MissionManager.MM_PS_COMM.MM_POKE_PS)){
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 
 	@Override
 	protected void initializeInternalVariables() {
 		this._internal_vars.addVariable("test", 0);
+		this._internal_vars.addVariable("SEARCH_ACTIVE", false);
 		this._internal_vars.addVariable("NEW_AREAS_TO_SEARCH", 0);
 		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
 		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
