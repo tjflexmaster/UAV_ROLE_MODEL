@@ -242,24 +242,27 @@ public class MissionManager extends Actor {
 				boolean result = false;
 				
 				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_END_MM)){
-					if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI) ) {
-						int num = 1;
-						if(_internal_vars.getVariable("NEW_SEARCH_AOI") != null)
-							num = (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1;
-						this.setTempInternalVar("NEW_SEARCH_AOI", num);
-					}
-					if ( _inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION) ) {
-						int num = 1;
-						if(_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") != null)
-							num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
-						this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
-					}
-					if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH) ) {
-						int num = 1;
-						if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH") != null)
-							num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")+1;
-						this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
-					}
+					result = true;
+				}
+				if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI) ) {
+					int num = 1;
+					if(_internal_vars.getVariable("NEW_SEARCH_AOI") != null)
+						num = (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1;
+					this.setTempInternalVar("NEW_SEARCH_AOI", num);
+					result = true;
+				}
+				if ( _inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION) ) {
+					int num = 1;
+					if(_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") != null)
+						num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
+					result = true;
+				}
+				if ( this._inputs.get("PS_MM_DATA").equals(ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH) ) {
+					int num = 1;
+					if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH") != null)
+						num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")+1;
+					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 					result = true;
 				}
 				return result;

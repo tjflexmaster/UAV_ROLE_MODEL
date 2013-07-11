@@ -132,7 +132,7 @@ public class ParentSearch extends Actor {
 					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 				}
-				this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
+//				this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
 				return true;
 			}
 		});
