@@ -1,9 +1,7 @@
 package simulator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
-import model.team.Team;
 
 public class Simulator {
 	public static boolean debug = true;
@@ -12,7 +10,7 @@ public class Simulator {
 	 * then this method makes the clock run the simulation
 	 * @param args should be left blank, all input will be ignored
 	 */
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		//initialize simulation variables
 		WiSARTeam team = new WiSARTeam();
 		IDeltaClock clock = new DeltaClock();
@@ -45,7 +43,7 @@ public class Simulator {
 		
 		//close the scanner once the simulation is complete
 		scanner.close();
-	}
+	}*/
 	
 	/**
 	 * this method prints swim lanes and accepts user commands
