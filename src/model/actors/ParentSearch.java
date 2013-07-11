@@ -14,13 +14,17 @@ import simulator.Transition;
 
 public class ParentSearch extends Actor {
 	
+//	public enum PS_MM_COMM {
+//		PS_POKE_MM,
+//		PS_TX_MM,
+//		PS_END_MM, PS_ACK_MM, PS_BUSY_MM,
+//	}
+	
 	public enum PS_MM_COMM {
 		PS_POKE_MM,
-		PS_TX_MM,
-		PS_END_MM, PS_ACK_MM, PS_BUSY_MM,
-	}
-	
-	public enum PS_MM_DATA {
+		PS_BUSY_MM,
+		PS_ACK_MM,
+		PS_END_MM,
 		PS_NEW_SEARCH_AOI,
 		PS_TERMINATE_SEARCH,
 		PS_TARGET_DESCRIPTION
@@ -118,17 +122,17 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
-					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_NEW_SEARCH_AOI);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_NEW_SEARCH_AOI);
 					int num = (Integer) _internal_vars.getVariable("NEW_SEARCH_AOI")-1;
 					this.setTempInternalVar("NEW_SEARCH_AOI", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") > 0){
-					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TARGET_DESCRIPTION);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_TARGET_DESCRIPTION);
 					int num = (Integer) _internal_vars.getVariable("NEW_TARGET_DESCRIPTION")-1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
-					this.setTempOutput("PS_MM_DATA", ParentSearch.PS_MM_DATA.PS_TERMINATE_SEARCH);
+					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_TERMINATE_SEARCH);
 					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 				}
@@ -152,6 +156,7 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
+					this.setTempOutput("PS_MM_COMM", null);
 					return true;
 				}
 				return false;
