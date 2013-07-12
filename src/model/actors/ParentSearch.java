@@ -12,14 +12,15 @@ import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
 
+/**
+ * The parent search is an abstraction of everyone else that is involved in the search.
+ * It is most easy to conceptualize this actor as the mission manager's boss.
+ */
 public class ParentSearch extends Actor {
 	
-//	public enum PS_MM_COMM {
-//		PS_POKE_MM,
-//		PS_TX_MM,
-//		PS_END_MM, PS_ACK_MM, PS_BUSY_MM,
-//	}
-	
+	/**
+	 * This is an enumeration of the communications from the parent search to the mission manager.
+	 */
 	public enum PS_MM_COMM {
 		PS_POKE_MM,
 		PS_BUSY_MM,
@@ -30,6 +31,11 @@ public class ParentSearch extends Actor {
 		PS_TARGET_DESCRIPTION
 	}
 
+	/**
+	 * This constructor initializes all of the states and transitions that belong to the parent search.
+	 * @param inputs
+	 * @param outputs
+	 */
 	public ParentSearch(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
 		_name = "PARENT_SEARCH";
@@ -51,7 +57,6 @@ public class ParentSearch extends Actor {
 		//IDLE Transitions
 //		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList );
 		initializeIDLE(inputs, outputs, IDLE, POKE_MM, RX_MM);
-
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		initializeTxMM(inputs,outputs,IDLE,TX_MM,END_MM);
 		initializeEndMM(inputs,outputs,IDLE,END_MM, POKE_MM);
@@ -66,10 +71,16 @@ public class ParentSearch extends Actor {
 		//initialize current state
 		startState(IDLE);
 	}
-	
-	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs,
-			State IDLE, State END_MM, State POKE_MM) {
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE));//{
+
+	/**
+	 * This method assists the constructor initialize the end_mm state.<br><br>
+	 * (END_MM, [], []) -> (IDLE, [], [])<br>
+	 */
+	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM, State POKE_MM) {
+		//(END_MM, [], []) -> (IDLE, [], [])
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			
+		});//{
 //			@Override
 //			public boolean isEnabled(){
 //				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
@@ -113,8 +124,13 @@ public class ParentSearch extends Actor {
 //		});
 	}
 
-	private void initializeTxMM(ComChannelList inputs, ComChannelList outputs,
-			State IDLE, State TX_MM, State END_MM) {
+	/**
+	 * This method assists the constructor initialize the tx_mm state.<br><br>
+	 * (TX_MM,[],[NEW_SEARCH_AOI,*])x(END_MM,[END_MM,PS_NEW_SEARCH_AOI],[*])<br>
+	 * (TX_MM,[],[NEW_TARGET_DESCRIPTION,*])x(END_MM,[END_MM,PS_TARGET_DESCRIPTION],[*])<br>
+	 * (TX_MM,[],[NEW_TERMINATE_SEARCH,*])x(END_MM,[END_MM,PS_TERMINATE_SEARCH],[*])<br>
+	 */
+	private void initializeTxMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State TX_MM, State END_MM) {
 		//(TX_MM,[],[NEW_SEARCH_AOI,*])x(END_MM,[END_MM,PS_NEW_SEARCH_AOI],[*])
 		//(TX_MM,[],[NEW_TARGET_DESCRIPTION,*])x(END_MM,[END_MM,PS_TARGET_DESCRIPTION],[*])
 		//(TX_MM,[],[NEW_TERMINATE_SEARCH,*])x(END_MM,[END_MM,PS_TERMINATE_SEARCH],[*])
@@ -143,14 +159,11 @@ public class ParentSearch extends Actor {
 	}
 
 	/**
-	 * @param inputs
-	 * @param outputs
-	 * @param IDLE
-	 * @param POKE_MM
-	 * @param TX_MM
+	 * This method assists the constructor initialize the poke_mm state.<br><br>
+	 * (POKE_MM,[MM_ACK_PS],[])x(TX_MM,[],[])<br>
+	 * (POKE_MM,[],[*])x(IDLE,[],[*])<br>
 	 */
-	private void initializePokeMM(ComChannelList inputs,
-			ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
+	private void initializePokeMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 		//(POKE_MM,[MM_ACK_PS],[])x(TX_MM,[],[])
 		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM,Duration.NEXT,1){
 			@Override
@@ -162,15 +175,27 @@ public class ParentSearch extends Actor {
 				return false;
 			}
 		});
+		
 		//(POKE_MM,[],[*])x(IDLE,[],[*])
-		POKE_MM.add(new Transition(_internal_vars, outputs, outputs, TX_MM, Duration.PS_POKE_MM, 0));
+		POKE_MM.add(new Transition(_internal_vars, outputs, outputs, TX_MM, Duration.PS_POKE_MM, 0){
+			
+		});
 	}
 
+	/**
+	 * This method assists the constructor initialize the idle state.<br><br>
+	 * (IDLE, [], [NewSearchEvent]) -> (POKE_MM, [PS_POKE_MM], [SEARCH_ACTIVE])<br>
+	 * (IDLE,[NewSearchAreaEvent],[])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_AREAS_TO_SEARCH+1])<br>
+	 * (IDLE,[NewTargetDescriptionEvent],[SEARCH_ACTIVE])x(POKE_MM,[PS_POKE_MM],[SEARCH_ACTIVE, NEW_TARGET_DESCRIPTION+1])<br>
+	 * (IDLE,[TerminateSearchEvent],[SEARCH_ACTIVE])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_TERMINATE_SEARCH+1])<br>
+	 * (IDLE,[MM_POKE_PS],[*])x(RX_MM,[PS_ACK_MM],[*])<br>
+	 */
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State RX_MM) {
+		//(IDLE, [], [NewSearchEvent]) -> (POKE_MM, [PS_POKE_MM], [SEARCH_ACTIVE])
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.containsKey("NewSearchEvent") && (Boolean)_inputs.get("NewSearchEvent").get()){
+				if((Boolean)_inputs.get("NewSearchEvent").get()){
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);

@@ -11,8 +11,15 @@ import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
 
+/**
+ * The mission manager acts as a liaison between the operators and the parent search.
+ * He also watches verifies target sightings to approve sightings.
+ */
 public class MissionManager extends Actor {
 	
+	/**
+	 * This is an enumeration of the communications from the mission manager to the parent search.
+	 */
 	public enum MM_PS_COMM {
 		MM_POKE_PS,
 		MM_TX_PS,
@@ -23,18 +30,10 @@ public class MissionManager extends Actor {
 		MM_SEARCH_COMPLETE,
 		MM_SEARCH_FAILED
 	}
-	
-//	public enum MM_PS_DATA {
-//		PS_NEW_SEARCH_AOI,
-//		PS_TERMINATE_SEARCH,
-//		PS_TARGET_DESCRIPTION,
-//		
-//		MM_TARGET_SIGHTED_T,
-//		MM_TARGET_SIGHTED_F,
-//		MM_SEARCH_COMPLETE,
-//		MM_SEARCH_FAILED
-//	}
-	
+
+	/**
+	 * This is an enumeration of the communications from the mission manager to the uav operator.
+	 */
 	public enum MM_OP_COMM {
 		MM_POKE_OP,
 		MM_ACK_OP,
@@ -42,7 +41,10 @@ public class MissionManager extends Actor {
 		MM_NEW_SEARCH_AOI,
 		MM_TERMINATE_SEARCH;
 	}
-	
+
+	/**
+	 * This is an enumeration of the communications from the mission manager to the video operator.
+	 */
 	public enum MM_VO_COMM {
 		MM_POKE_VO,
 		MM_ACK_VO,
@@ -50,7 +52,10 @@ public class MissionManager extends Actor {
 		MM_TARGET_DESCRIPTION,
 		MM_TERMINATE_SEARCH;
 	}
-	
+
+	/**
+	 * This is an enumeration of the communications from the mission manager to the video gui.
+	 */
 	public enum MM_VGUI_COMM {
 		MM_POKE_VGUI,
 		MM_END_VGUI,
@@ -60,6 +65,11 @@ public class MissionManager extends Actor {
 		MM_FLYBY_REQ_F;
 	}
 
+	/**
+	 * This constructor initializes all of the states and transitions that belong to the mission manager.
+	 * @param inputs the list of assigned inputs.
+	 * @param outputs the list of assigned outputs.
+	 */
 	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
 		State IDLE = new State("IDLE");
@@ -86,7 +96,7 @@ public class MissionManager extends Actor {
 
 		this.initializeInternalVariables();
 		//initialize transitions
-		initializeIdle(inputs, outputs, IDLE, RX_PS, POKE_VO, POKE_OP, OBSERVING_VGUI, POKE_VGUI, RX_OP, RX_VO);
+		initializeIDLE(inputs, outputs, IDLE, RX_PS, POKE_VO, POKE_OP, OBSERVING_VGUI, POKE_VGUI, RX_OP, RX_VO);
 		//comm with PS
 		initializePOKE_PS(inputs, outputs, POKE_PS,TX_PS,IDLE);
 		initializeTX_PS(inputs, outputs, TX_PS, END_PS);
@@ -109,10 +119,21 @@ public class MissionManager extends Actor {
 		initializeEND_VGUI(inputs, outputs, IDLE, END_VGUI);
 	}
 
-
-	private void initializeIdle(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS,
-			State POKE_VO, State POKE_OP, State OBSERVING_VGUI, State POKE_VGUI, State RX_OP, State RX_VO) {
-		Transition t;
+	/**
+	 * This method assists the constructor initialize the idle state.<br><br>
+	 * (IDLE, [OP_POKE_MM], []) -> (RX_OP, [MM_ACK_OP], [])<br>
+	 * (IDLE, [VO_POKE_MM], []) -> (RX_VO, [MM_ACK_VO], [])<br>
+	 * (IDLE, [VGUI_ALERT], []) -> (OBSERVING_VGUI, [], [])<br>
+	 * (IDLE, [PS_POKE_MM], []) -> (RX_PS, [MM_ACK_PS], [])<br>
+	 * (IDLE, [], [TARGET_DESCRIPTION]) -> (POKE_VO, [MM_POKE_VO], [])<br>
+	 * (IDLE, [], [AREA_OF_INTEREST]) -> (POKE_OP, [POKE_OP], [])<br>
+	 * (IDLE, [], [Terminate_Search]) -> (POKE_OP, [POKE_OP], [])<br>
+	 * (IDLE, [], [ANOMALY_DISMISSED_T]) -> (POKE_VGUI, [], [ANOMALY_DISMISSED_T])<br>
+	 * (IDLE, [], [ANOMALY_DISMISSED_F]) -> (POKE_VGUI, [], [ANOMALY_DISMISSED_F])<br>
+	 * (IDLE, [], [FLYBY_REQ_T]) -> (POKE_VGUI, [], [FLYBY_REQ_T])<br>
+	 * (IDLE, [], [FLYBY_REQ_F]) -> (POKE_VGUI, [], [FLYBY_REQ_F])<br>
+	 */
+	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP, State OBSERVING_VGUI, State POKE_VGUI, State RX_OP, State RX_VO) {
 		//(IDLE,[OP_POKE_MM],[])x(RX_OP,[MM_ACK_OP],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_OP){
 			@Override
@@ -123,6 +144,7 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
+		
 		//(IDLE,[VO_POKE_MM],[])x(RX_VO,[MM_ACK_VO],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_VO){
 			@Override
@@ -135,10 +157,12 @@ public class MissionManager extends Actor {
 		});
 		
 		//(IDLE, [VGUI_ALERT],[])x(OBSERVING_VGUI,[],[])
-		t = new Transition(_internal_vars, inputs, outputs, OBSERVING_VGUI);
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVING_VGUI){
+			
+		});
 		
 		//(IDLE, [PS_POKE_MM], [])->(RX_PS, [MM_ACK_PS], [])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -149,11 +173,10 @@ public class MissionManager extends Actor {
 				}
 				return result;
 			}
-		};
-		IDLE.add(t);
+		});
 		
 		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -164,11 +187,10 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		IDLE.add(t);
+		});
 
 		//(IDLE, [], [AREA_OF_INTEREST])->(POKE_OP, [POKE_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -179,11 +201,10 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		IDLE.add(t);
+		});
 		
 		//(IDLE, [], [Terminate_Search])->(POKE_OP, [POKE_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -194,8 +215,7 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		IDLE.add(t);
+		});
 		
 		//(IDLE,[],[ANOMALY_DISMISSED_T])x(POKE_VGUI,[],[ANOMALY_DISMISSED_T])
 		//(IDLE,[],[ANOMALY_DISMISSED_F])x(POKE_VGUI,[],[ANOMALY_DISMISSED_F])
@@ -219,6 +239,11 @@ public class MissionManager extends Actor {
 		add(IDLE);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_PS state.<br><br>
+	 * (POKE_PS,[PS_BUSY_MM],[])x(IDLE,[],[])<br>
+	 * (POKE_PS,[PS_ACK_MM],[])x(TX_PS,[],[])<br>
+	 */
 	private void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS, State IDLE) {
 		//(POKE_PS,[PS_BUSY_MM],[])x(IDLE,[],[])
 		POKE_PS.add(new Transition(_internal_vars, inputs, outputs, IDLE){
@@ -245,6 +270,13 @@ public class MissionManager extends Actor {
 		add(POKE_PS);
 	}
 
+	/**
+	 * This method assists the constructor initialize the TX_PS state.<br><br>
+	 * (TX_PS,[],[SearchComplete])x(END_PS,[MM_SEARCH_COMPLETE],[])<br>
+	 * (TX_PS,[],[SearchFailed])x(END_PS,[MM_SEARCH_FAILED],[])<br>
+	 * (TX_PS,[],[TargetFound_T])x(END_PS,[MM_TARGET_SIGHTED_T],[])<br>
+	 * (TX_PS,[],[TargetFound_F])x(END_PS,[MM_TARGET_SIGHTED_F],[])<br>
+	 */
 	private void initializeTX_PS(ComChannelList inputs, ComChannelList outputs, State TX_PS, State END_PS) {
 		//(TX_PS,[],[SearchComplete])x(END_PS,[MM_SEARCH_COMPLETE],[])
 		//(TX_PS,[],[SearchFailed])x(END_PS,[MM_SEARCH_FAILED],[])
@@ -272,23 +304,36 @@ public class MissionManager extends Actor {
 				return true;
 			}
 		});
+		
 		add(TX_PS);
 	}
 	
+	/**
+	 * This method assists the constructor initialize the END_PS state.<br><br>
+	 * (END_PS,[],[])x(IDLE,[],[])<br>
+	 */
 	private void initializeEND_PS(ComChannelList inputs, ComChannelList outputs, State END_PS, State IDLE) {
 		//(END_PS,[],[])x(IDLE,[],[])
-		END_PS.add(new Transition(_internal_vars,inputs,outputs,IDLE));
+		END_PS.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			
+		});
+		
 		add(END_PS);
 	}
 
+	/**
+	 * This method assists the constructor initialize the RX_PS state.<br><br>
+	 * (RX_PS, [PS_END_MM], [])->(IDLE, [], [])<br>
+	 * (RX_PS, [PS_AREA_OF_INTEREST_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])<br>
+	 * (RX_PS, [PS_TARGET_DESCRIPTION_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM])<br>
+	 * (RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])<br>
+	 */
 	private void initializeRX_PS(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_OP) {
-		Transition t;
-
 		//(RX_PS, [PS_END_MM], [])->(IDLE, [], [])
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])
 		//(RX_PS, [PS_TARGET_DESCRIPTION_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM])
 		//(RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])
-		t = new Transition(this._internal_vars, inputs, outputs, IDLE ) {
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE ) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -320,18 +365,20 @@ public class MissionManager extends Actor {
 				}
 				return result;
 			}
-		};
-		RX_PS.add(t);
+		});
 		
 
 		add(RX_PS);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (POKE_OP, [OP_ACK_MM], [])->(TX_OP, [], [])<br>
+	 * (POKE_OP,[],[])x(IDLE,[],[])<br>
+	 */
 	private void initializePOKE_OP(ComChannelList inputs, ComChannelList outputs,State IDLE, State POKE_OP, State TX_OP) {
-		Transition t;
-		
 		//(POKE_OP, [OP_ACK_MM], [])->(TX_OP, [], [])
-		t = new Transition(this._internal_vars, inputs, outputs, TX_OP) {
+		POKE_OP.add(new Transition(this._internal_vars, inputs, outputs, TX_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -341,19 +388,23 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		POKE_OP.add(t);
+		});
+		
 		//(POKE_OP,[],[])x(IDLE,[],[])
-		POKE_OP.add(new Transition(_internal_vars, inputs, outputs,IDLE, Duration.POKE));
+		POKE_OP.add(new Transition(_internal_vars, inputs, outputs,IDLE, Duration.POKE){
+			
+		});
 
 		add(POKE_OP);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (TX_OP, [], [AREA_OF_INTEREST])->(END_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])<br>
+	 */
 	private void initializeTX_OP(ComChannelList inputs, ComChannelList outputs, State TX_OP, State END_OP) {
-		Transition t;
-		
 		//(TX_OP, [], [AREA_OF_INTEREST])->(END_OP, [MM_AREA_OF_INTEREST_OP, MM_END_OP], [])
-		t = new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_OP){
+		TX_OP.add(new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_OP){
 			@Override
 			public boolean isEnabled(){
 					int num = 1;
@@ -366,19 +417,22 @@ public class MissionManager extends Actor {
 						this.setTempInternalVar("NEW_SEARCH_AOI", num);
 						this.setTempOutput("MM_OP_COMM", MissionManager.MM_OP_COMM.MM_NEW_SEARCH_AOI);
 					}
-//					this.setTempOutput("MM_OP_COMM", MissionManager.MM_OP_COMM.MM_END_OP);
 				return true;
 			}
-		};
-		TX_OP.add(t);
+		});
+		
 		add(TX_OP);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (END_OP, [], [Terminate_Search])->(POKE_VO, [MM_POKE_VO], [Terminate_Search])<br>
+	 * (END_OP, [], [AREA_OF_INTEREST])->(IDLE, [], [AREA_OF_INTEREST-1])<br>
+	 * (END_OP, [], [])->(IDLE,[],[])<br>
+	 */
 	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State IDLE, State POKE_VO) {
-		Transition t;
-
 		//(END_OP, [], [Terminate_Search])->(POKE_VO, [MM_POKE_VO], [Terminate_Search])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
+		END_OP.add(new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -387,12 +441,11 @@ public class MissionManager extends Actor {
 				}
 				return false;
 			}
-		};
-		END_OP.add(t);
+		});
 		
 		//(END_OP, [], [AREA_OF_INTEREST])->(IDLE, [], [AREA_OF_INTEREST-1])
 		//(END_OP, [], [])->(IDLE,[],[])
-		t = new Transition(this._internal_vars, inputs, outputs, IDLE) {
+		END_OP.add(new Transition(this._internal_vars, inputs, outputs, IDLE) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -401,12 +454,17 @@ public class MissionManager extends Actor {
 				}
 				return true;
 			}
-		};
-		END_OP.add(t);
+		});
 		
 		add(END_OP);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (RX_OP,[OP_END_MM],[*])x(IDLE,[],[*])<br>
+	 * (RX_OP,[OP_SEARCH_COMPLETE],[*])x(IDLE,[],[SEARCH_COMPLETE,*])<br>
+	 * (RX_OP,[OP_SEARCH_FAILED],[*])x(IDLE,[],[SEARCH_FAILED,*])<br>
+	 */
 	private void initializeRX_OP(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_OP) {
 		//(RX_OP,[OP_END_MM],[*])x(IDLE,[],[*])
 		//(RX_OP,[OP_SEARCH_COMPLETE],[*])x(IDLE,[],[SEARCH_COMPLETE,*])
@@ -432,13 +490,17 @@ public class MissionManager extends Actor {
 		add(RX_OP);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (POKE_VO, [VO_ACK_MM], [*])->(TX_VO, [], [*])<br>
+	 * (POKE_VO, [VO_ACK_MM], [TERMINATE_SEARCH])->(TX_VO, [], [TERMINATE_SEARCH])<br>
+	 * (POKE_VO, [VO_ACK_MM], [TARGET_DESCRIPTION])->(TX_VO, [], [TARGET_DESCRIPTION])<br>
+	 */
 	private void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_VO, State TX_VO) {
-		Transition t;
-		
 		//(POKE_VO, [VO_ACK_MM], [*])->(TX_VO, [], [*])
 		//(POKE_VO, [VO_ACK_MM], [TERMINATE_SEARCH])->(TX_VO, [], [TERMINATE_SEARCH])
 		//(POKE_VO, [VO_ACK_MM], [TARGET_DESCRIPTION])->(TX_VO, [], [TARGET_DESCRIPTION])
-		t = new Transition(this._internal_vars, inputs, outputs, TX_VO) {
+		POKE_VO.add(new Transition(this._internal_vars, inputs, outputs, TX_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -448,18 +510,20 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		POKE_VO.add(t);
+		});
 
 		add(POKE_VO);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TARGET_DESCRIPTION-1])<br>
+	 * (TX_VO, [], [TERMINATE_SEARCH])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TERMINATE_SEARCH-1)<br>
+	 */
 	private void initializeTX_VO(ComChannelList inputs, ComChannelList outputs, State TX_VO, State END_VO) {
-		Transition t;
-
 		//(TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TARGET_DESCRIPTION-1])
 		//(TX_VO, [], [TERMINATE_SEARCH])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TERMINATE_SEARCH-1)
-		t = new Transition(this._internal_vars, inputs, outputs, END_VO) {
+		TX_VO.add(new Transition(this._internal_vars, inputs, outputs, END_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -471,20 +535,20 @@ public class MissionManager extends Actor {
 					this.setTempOutput("MM_VO_COMM", MissionManager.MM_VO_COMM.MM_TERMINATE_SEARCH);
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1);
 				}
-//				this.setTempOutput("MM_VO_COMM", MissionManager.MM_VO_COMM.MM_END_VO);
 				return true;		
 			}
-		};
-		TX_VO.add(t);
+		});
 		
 		add(TX_VO);
 	}
-	
+
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (END_VO, [], [])->(IDLE, [MM_END_OP], [])<br>
+	 */
 	private void initializeEND_VO(ComChannelList inputs, ComChannelList outputs, State END_VO, State IDLE) {
-		Transition t;
-		
 		//(END_VO, [], [])->(IDLE, [MM_END_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, IDLE) {
+		END_VO.add(new Transition(this._internal_vars, inputs, outputs, IDLE) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -494,12 +558,16 @@ public class MissionManager extends Actor {
 				result = true;
 				return result;		
 			}
-		};
-		END_VO.add(t);
+		});
 		
 		add(END_VO);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_F],[])x(IDLE,[],[TARGET_SIGHTING_F])<br>
+	 * (RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])<br>
+	 */
 	private void initializeRX_VO(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_VO) {
 		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_F],[])x(IDLE,[],[TARGET_SIGHTING_F])
 		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])
@@ -518,12 +586,25 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
+		
 		add(RX_VO);
 	}
 
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (OBSERVING_VGUI,[],[])x(IDLE,[],[])<br>
+	 * (OBSERVING_VGUI,[VGUI_VALIDATION_REQ_T],[])x(IDLE,[],[FLYBY_REQ_T])<br>
+	 * (OBSERVING_VGUI,[VGUI_VALIDATION_REQ_T],[])x(IDLE,[],[ANOMALY_DISMISSED_T])<br>
+	 * (OBSERVING_VGUI,[VGUI_VALIDATION_REQ_T],[])x(IDLE,[],[ANOMALY_DISMISSED_T])<br>
+	 * (OBSERVING_VGUI,[VGUI_VALIDATION_REQ_F],[])x(IDLE,[],[FLYBY_REQ_F])<br>
+	 * (OBSERVING_VGUI,[VGUI_VALIDATION_REQ_F],[])x(IDLE,[],[ANOMALY_DISMISSED_F])<br>
+	 */
 	private void initializeOBSERVING_VGUI(ComChannelList inputs, ComChannelList outputs, State OBSERVING_VGUI, State IDLE) {
 		//(OBSERVING_VGUI,[],[])x(IDLE,[],[])
-		OBSERVING_VGUI.add(new Transition(_internal_vars, inputs, outputs, IDLE,Duration.MM_OBSERVING_VGUI));
+		OBSERVING_VGUI.add(new Transition(_internal_vars, inputs, outputs, IDLE,Duration.MM_OBSERVING_VGUI){
+			
+		});
+		
 		//(OBSERVING_VGUI,[VGUI_VALIDATION_REQ_T],[])x(IDLE,[],[FLYBY_REQ_T])
 		OBSERVING_VGUI.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
@@ -535,6 +616,7 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
+		
 		//(OBSERVING_VGUI,[VGUI_VALIDATION_REQ_T],[])x(IDLE,[],[ANOMALY_DISMISSED_T])
 		OBSERVING_VGUI.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
@@ -546,6 +628,7 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
+		
 		//(OBSERVING_VGUI,[VGUI_VALIDATION_REQ_F],[])x(IDLE,[],[FLYBY_REQ_F])
 		OBSERVING_VGUI.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
@@ -557,6 +640,7 @@ public class MissionManager extends Actor {
 				return false;
 			}
 		});
+		
 		//(OBSERVING_VGUI,[VGUI_VALIDATION_REQ_F],[])x(IDLE,[],[ANOMALY_DISMISSED_F])
 		OBSERVING_VGUI.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
@@ -572,12 +656,26 @@ public class MissionManager extends Actor {
 		add(OBSERVING_VGUI);
 	}
 	
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (POKE_VGUI,[],[])x(TX_VGUI,[],[])<br>
+	 */
 	private void initializePOKE_VGUI(ComChannelList inputs, ComChannelList outputs, State POKE_VGUI, State TX_VGUI) {
 		//(POKE_VGUI,[],[])x(TX_VGUI,[],[])
-		POKE_VGUI.add(new Transition(_internal_vars,inputs,outputs,TX_VGUI));
+		POKE_VGUI.add(new Transition(_internal_vars,inputs,outputs,TX_VGUI){
+			
+		});
+		
 		add(POKE_VGUI);
 	}
 	
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (TX_VGUI,[],[MM_FLYBY_REQ_T])x(TX_VGUI,[MM_FLYBY_REQ_T],[])<br>
+	 * (TX_VGUI,[],[MM_FLYBY_REQ_F])x(TX_VGUI,[MM_FLYBY_REQ_F],[])<br>
+	 * (TX_VGUI,[],[MM_ANOMALY_DISMISSED_T])x(TX_VGUI,[MM_ANOMALY_DISMISSED_T],[])<br>
+	 * (TX_VGUI,[],[MM_ANOMALY_DISMISSED_F])x(TX_VGUI,[MM_ANOMALY_DISMISSED_F],[])<br>
+	 */
 	private void initializeTX_VGUI(ComChannelList inputs, ComChannelList outputs, State TX_VGUI, State END_VGUI) {
 		//(TX_VGUI,[],[MM_FLYBY_REQ_T])x(TX_VGUI,[MM_FLYBY_REQ_T],[])
 		//(TX_VGUI,[],[MM_FLYBY_REQ_F])x(TX_VGUI,[MM_FLYBY_REQ_F],[])
@@ -597,19 +695,19 @@ public class MissionManager extends Actor {
 				return true;
 			}
 		});
+		
 		add(TX_VGUI);
 	}
 
 	/**
-	 * @param inputs
-	 * @param outputs
-	 * @param IDLE
-	 * @param END_VGUI
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (END_VGUI,[],[])x(IDLE,[],[])<br>
 	 */
-	private void initializeEND_VGUI(ComChannelList inputs,
-			ComChannelList outputs, State IDLE, State END_VGUI) {
+	private void initializeEND_VGUI(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_VGUI) {
 		//(END_VGUI,[],[])x(IDLE,[],[])
-		END_VGUI.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+		END_VGUI.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			
+		});
 	}
 	
 	@Override
