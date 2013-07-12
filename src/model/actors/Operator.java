@@ -37,7 +37,7 @@ public class Operator extends Actor {
 	public enum OP_MM_COMM {
 		OP_POKE_MM,
 		OP_ACK_MM,
-		OP_END_MM
+		OP_END_MM, OP_SEARCH_FAILED, OP_SEARCH_COMPLETE
 
 	}
 
