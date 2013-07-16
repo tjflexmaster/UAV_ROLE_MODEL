@@ -75,37 +75,34 @@ public class Operator extends Actor {
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVE_GUI);
-		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
-		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
-		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
-		//(POKE_OGUI,[],[NEW_SEARCH_AOI])x(TX_OGUI,[],[NEW_SEARCH_AOI])
-		//(END_GUI,[],[])x(IDLE,[],[])
-		
-		initializeTX_OGUI(inputs, outputs, TX_OGUI, END_OGUI);
 		initializePOST_FLIGHT(inputs, outputs, POST_FLIGHT, POST_FLIGHT_COMPLETE);
 		initializePOST_FLIGHT_COMPLETE(inputs, outputs, POST_FLIGHT_COMPLETE, IDLE);
-		
-		//add states
-		add(IDLE);
-		add(POST_FLIGHT);
-		add(POST_FLIGHT_COMPLETE);
-		add(LAUNCH_UAV);
-		add(OBSERVE_GUI);
-		add(OBSERVE_UAV);
-		add(POKE_MM);
-		add(TX_MM);
-		add(END_MM);
-		add(RX_MM);
-		add(RX_VO);
-		add(OBSERVE_FLYBY);
-		add(POKE_OGUI);
-		add(TX_OGUI);
-		add(END_OGUI);
+		initializeLAUNCH_UAV(inputs, outputs, LAUNCH_UAV);
+		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
+		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
+		//comm with mission manager
+		initializePOKE_MM(inputs, outputs, POKE_MM);
+		initializeTX_MM(inputs, outputs, TX_MM);
+		initializeEND_MM(inputs, outputs, END_MM);
+		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
+		//comm with video operator
+		initializeRX_VO(inputs, outputs, RX_VO);
+		initializeOBSERVE_FLYBY(inputs, outputs, OBSERVE_FLYBY);
+		//comm with operator gui
+		initializePOKE_OGUI(inputs, outputs, POKE_OGUI);
+		initializeTX_OGUI(inputs, outputs, TX_OGUI, END_OGUI);
+		initializeEND_GUI(inputs, outputs, END_OGUI);
 		
 		//initialize current state
 		startState(IDLE);
 	}
 
+	/**
+	 * (IDLE,[MM_POKE_OP],[])x(RX_MM,[OP_ACK_MM],[])
+	 * (IDLE,[],[TAKE_OFF])x(LAUNCH_UAV,[OP_TAKE_OFF_OGUI],[])
+	 * (IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVING_GUI,[],[])
+	 * (IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVING_GUI,[],[])
+	 */
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State LAUNCH_UAV, State OBSERVE_GUI) {
 		//(IDLE,[MM_POKE_OP],[])x(RX_MM,[OP_ACK_MM],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
@@ -121,8 +118,98 @@ public class Operator extends Actor {
 		//(IDLE,[],[TAKE_OFF])x(LAUNCH_UAV,[OP_TAKE_OFF_OGUI],[])
 		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVING_GUI,[],[])
 		//(IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVING_GUI,[],[])
+		
+		add(IDLE);
 	}
 	
+	/**
+	 * (POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
+	 */
+	private void initializePOST_FLIGHT(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT, State POST_FLIGHT_COMPLETE){
+		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
+		
+		add(POST_FLIGHT);
+	}
+	
+	/**
+	 * (POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
+	 */
+	private void initializePOST_FLIGHT_COMPLETE(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT_COMPLETE, State IDLE){
+		//(POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
+		
+		add(POST_FLIGHT_COMPLETE);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeLAUNCH_UAV(ComChannelList inputs, ComChannelList outputs, State LAUNCH_UAV) {
+		// TODO Auto-generated method stub
+		
+		add(LAUNCH_UAV);
+	}
+
+	/**
+	 * (OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+	 * (OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+	 * (OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
+	 * (OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
+	 */
+	private void initializeOBSERVE_GUI(ComChannelList inputs, ComChannelList outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {
+		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		//(OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
+		//(OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
+		
+		add(OBSERVE_GUI);
+	}
+
+	/**
+	 * (OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
+	 * (OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
+	 */
+	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI) {
+		//(OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
+		//(OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
+		
+		add(OBSERVE_UAV);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM) {
+		// TODO Auto-generated method stub
+		
+		add(POKE_MM);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeTX_MM(ComChannelList inputs, ComChannelList outputs, State TX_MM) {
+		// TODO Auto-generated method stub
+		
+		add(TX_MM);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeEND_MM(ComChannelList inputs, ComChannelList outputs, State END_MM) {
+		// TODO Auto-generated method stub
+		
+		add(END_MM);
+	}
+	
+	/**
+	 * (RX_MM,[MM_END_OP],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_OP,MM_NEW_SEARCH_AOI],[])x(IDLE,[],[NEW_SEARCH_AOI])
+	 * (RX_MM,[MM_END_OP,MM_TERMINATE_SEARCH_AOI],[])x(IDLE,[],[TERMINATE_SEARCH_AOI])
+	 * (RX_MM,[],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_OP],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_OP, MM_NEW_SEARCH_AOI],[])x(POKE_OGUI,[OP_POKE_OGUI],[NEW_SEARCH_AOI])
+	 */
 	private void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State RX_MM, State POKE_OGUI, State IDLE){
 		//(RX_MM,[MM_END_OP],[])x(IDLE,[],[])
 		//(RX_MM,[MM_END_OP,MM_NEW_SEARCH_AOI],[])x(IDLE,[],[NEW_SEARCH_AOI])
@@ -145,30 +232,53 @@ public class Operator extends Actor {
 		//(RX_MM,[],[])x(IDLE,[],[])
 		//(RX_MM,[MM_END_OP],[])x(IDLE,[],[])
 		//(RX_MM,[MM_END_OP, MM_NEW_SEARCH_AOI],[])x(POKE_OGUI,[OP_POKE_OGUI],[NEW_SEARCH_AOI])
+		
+		add(RX_MM);
 	}
 
+	/**
+	 * 
+	 */
+	private void initializeRX_VO(ComChannelList inputs, ComChannelList outputs, State RX_VO) {
+		// TODO Auto-generated method stub
+		
+		add(RX_VO);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State OBSERVE_FLYBY) {
+		// TODO Auto-generated method stub
+		
+		add(OBSERVE_FLYBY);
+	}
+
+	/**
+	 * 
+	 */
+	private void initializePOKE_OGUI(ComChannelList inputs, ComChannelList outputs, State POKE_OGUI) {
+		// TODO Auto-generated method stub
+		
+		add(POKE_OGUI);
+	}
+
+	/**
+	 * (RX_MM,[MM_END_OP, MM_NEW_SEARCH_AOI],[])x(POKE_OGUI,[OP_POKE_OGUI],[NEW_SEARCH_AOI])
+	 */
 	private void initializeTX_OGUI(ComChannelList inputs, ComChannelList outputs, State TX_OGUI, State END_OGUI) {
 		//(TX_OGUI,[],[NEW_SEARCH_AOI])x(END_OGUI,[OP_END_OGUI,OP_TAKE_OFF_OGUI],[])
+		
+		add(TX_OGUI);
 	}
 
-	private void initializeOBSERVE_GUI(ComChannelList inputs, ComChannelList outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {
-		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
-		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
-		//(OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
-		//(OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
-	}
-
-	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI) {
-		//(OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
-		//(OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
-	}
-	
-	private void initializePOST_FLIGHT(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT, State POST_FLIGHT_COMPLETE){
-		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
-	}
-	
-	private void initializePOST_FLIGHT_COMPLETE(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT_COMPLETE, State IDLE){
-		//(POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
+	/**
+	 * 
+	 */
+	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State END_OGUI) {
+		// TODO Auto-generated method stub
+		
+		add(END_OGUI);
 	}
 
 	@Override

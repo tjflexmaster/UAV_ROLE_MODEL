@@ -80,29 +80,15 @@ public class VideoOperator extends Actor {
 		initializePOKE_GUI(inputs,outputs,POKE_GUI, TX_GUI);
 		initializeTX_GUI(inputs,outputs,TX_GUI, END_GUI);
 		initializeEND_GUI(inputs,outputs, IDLE, END_GUI);
-
-		//add states
-		add(IDLE);
-		//comm with mission manager
-		add(RX_MM);
-		add(POKE_MM);
-		add(TX_MM);
-		add(END_MM);
-		//comm with operator
-		add(POKE_OP);
-		add(TX_OP);
-		add(END_OP);
-		//comm with video gui
-		add(OBSERVE_NORMAL);
-		add(OBSERVE_FLYBY);
-		add(POKE_GUI);
-		add(TX_GUI);
-		add(END_GUI);
 		
 		//initialize current state
 		startState(IDLE);
 	}
 
+	/**
+	 * (IDLE,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+	 * (IDLE,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+	 */
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
 		//(IDLE,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
@@ -125,8 +111,17 @@ public class VideoOperator extends Actor {
 				return false;
 			}
 		});
+		
+		add(IDLE);
 	}
 
+	/**
+	 * (RX_MM,[MM_END_VO],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_VO,MM_TERMINATE_SEARCH],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_VO, MM_TARGET_DESCRIPTION],[])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+	 * (RX_MM,[],[])x(IDLE,[],[])
+	 * (RX_MM,[MM_END_VO,MM_TARGET_DESCRIPTION],[])x(IDLE,[],[TARGET_DESCRIPTION])
+	 */
 	private void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
 		//(RX_MM,[MM_END_VO],[])x(IDLE,[],[])
 		//(RX_MM,[MM_END_VO,MM_TERMINATE_SEARCH],[])x(IDLE,[],[])
@@ -172,8 +167,15 @@ public class VideoOperator extends Actor {
 				return false;
 			}
 		});
+
+		add(RX_MM);
 	}
 
+	/**
+	 * (POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_T])x(TX_MM,[],[TARGET_SIGHTED_T])
+	 * (POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])
+	 * (POKE_MM,[],[])x(IDLE,[],[])
+	 */
 	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM) {
 		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_T])x(TX_MM,[],[TARGET_SIGHTED_T])
 		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])
@@ -187,8 +189,14 @@ public class VideoOperator extends Actor {
 			}
 		});
 		//(POKE_MM,[],[])x(IDLE,[],[])
+
+		add(POKE_MM);
 	}
 
+	/**
+	 * (TX_MM,[],[TARGET_SIGHTED_T])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_T],[])
+	 * (TX_MM,[],[TARGET_SIGHTED_F])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_F],[])
+	 */
 	private void initializeTX_MM(ComChannelList inputs, ComChannelList outputs, State TX_MM, State END_MM) {
 		//(TX_MM,[],[TARGET_SIGHTED_T])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_T],[])
 		//(TX_MM,[],[TARGET_SIGHTED_F])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_F],[])
@@ -205,13 +213,23 @@ public class VideoOperator extends Actor {
 				return true;
 			}
 		});
+
+		add(TX_MM);
 	}
 
+	/**
+	 * (END_MM,[],[])x(IDLE,[],[])
+	 */
 	private void initializeEND_MM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM) {
 		//(END_MM,[],[])x(IDLE,[],[])
 		END_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE));
+
+		add(END_MM);
 	}
 
+	/**
+	 * (POKE_OP,[OP_ACK_VO],[BAD_STREAM])x(TX_OP,[],[BAD_STREAM])
+	 */
 	private void initializePOKE_OP(ComChannelList inputs, ComChannelList outputs, State POKE_OP, State TX_OP) {
 		//(POKE_OP,[OP_ACK_VO],[BAD_STREAM])x(TX_OP,[],[BAD_STREAM])
 		POKE_OP.add(new Transition(_internal_vars, inputs, outputs, TX_OP){
@@ -223,8 +241,13 @@ public class VideoOperator extends Actor {
 				return false;
 			}
 		});
+
+		add(POKE_OP);
 	}
 
+	/**
+	 * (TX_OP,[],[BAD_STREAM])x(END_OP,[VO_END_OP,VO_BAD_STREAM],[])
+	 */
 	private void initializeTX_OP(ComChannelList inputs, ComChannelList outputs, State TX_OP, State END_OP) {
 		//(TX_OP,[],[BAD_STREAM])x(END_OP,[VO_END_OP,VO_BAD_STREAM],[])
 		TX_OP.add(new Transition(_internal_vars,inputs,outputs,END_OP){
@@ -237,13 +260,29 @@ public class VideoOperator extends Actor {
 				return true;
 			}
 		});
+
+		add(TX_OP);
 	}
 
+	/**
+	 * (END_OP,[],[])x(IDLE,[],[])
+	 */
 	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_OP) {
 		//(END_OP,[],[])x(IDLE,[],[])
 		END_OP.add(new Transition(_internal_vars,inputs,outputs,IDLE));
+
+		add(END_OP);
 	}
 
+	/**
+	 * (OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+	 * (OBSERVE_NORMAL,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+	 * (OBSERVE_NORMAL,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+	 * (OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALY_DETECTED_F])
+	 * (OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALAY_DETECTED_T])
+	 * (OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_F])
+	 * (OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])
+	 */
 	private void initializeOBSERVE_NORMAL(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State POKE_GUI, State POKE_OP) {
 		//(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
 		//(OBSERVE_NORMAL,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
@@ -252,9 +291,18 @@ public class VideoOperator extends Actor {
 		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALAY_DETECTED_T])
 		//(OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_F])
 		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])
-		
+
+		add(OBSERVE_NORMAL);
 	}
 
+	/**
+	 * (OBSERVE_FLYBY,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+	 * (OBSERVE_FLYBY,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_FAILED_VGUI],[])
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_FAILED_VGUI],[])
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])
+	 */
 	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State OBSERVE_FLYBY, State POKE_MM, State poke_op) {
 		//(OBSERVE_FLYBY,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
 		//(OBSERVE_FLYBY,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
@@ -262,26 +310,48 @@ public class VideoOperator extends Actor {
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_FAILED_VGUI],[])
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])
-		
+
+		add(OBSERVE_FLYBY);
 	}
 
+	/**
+	 * (POKE_GUI,[],[FLYBY_REQ_F])x(TX_GUI,[],[FLYBY_REQ_F])
+	 * (POKE_GUI,[],[FLYBY_REQ_T])x)TX_GUI,[],[FLYBY_REQ_T])
+	 * (POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])
+	 * (POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])
+	 */
 	private void initializePOKE_GUI(ComChannelList inputs, ComChannelList outputs, State POKE_GUI, State TX_GUI) {
 		//(POKE_GUI,[],[FLYBY_REQ_F])x(TX_GUI,[],[FLYBY_REQ_F])
 		//(POKE_GUI,[],[FLYBY_REQ_T])x)TX_GUI,[],[FLYBY_REQ_T])
 		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])
 		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])
+
+		add(POKE_GUI);
 	}
 
+	/**
+	 * (TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_F_VGUI],[])
+	 * (TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_T_VGUI],[])
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+	 */
 	private void initializeTX_GUI(ComChannelList inputs, ComChannelList outputs, State TX_GUI, State END_GUI) {
 		//(TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_F_VGUI],[])
 		//(TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_T_VGUI],[])
 		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
 		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+
+		add(TX_GUI);
 	}
 
+	/**
+	 * (END_GUI,[],[])x(IDLE,[],[])
+	 */
 	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_GUI) {
 		//(END_GUI,[],[])x(IDLE,[],[])
 		END_GUI.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+
+		add(END_GUI);
 	}
 
 	@Override
