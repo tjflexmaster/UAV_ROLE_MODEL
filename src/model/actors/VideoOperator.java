@@ -18,7 +18,12 @@ public class VideoOperator extends Actor {
 	public enum VO_VGUI_COMM {
 		VO_POKE_VGUI,
 		VO_ACK_VGUI,
-		VO_END_VGUI
+		VO_END_VGUI,
+		VO_FLYBY_END_FAILED_VGUI,
+		VO_FLYBY_END_SUCCESS_VGUI,
+		VO_FLYBY_REQ_F_VGUI,
+		VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI,
+		VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI
 	}
 
 	public enum VO_OP_COMM {
@@ -312,7 +317,7 @@ public class VideoOperator extends Actor {
 		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_OP){
 			@Override
 			public boolean isEnabled(){
-				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM)){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM_VO)){
 					this.setTempOutput("VO_OP_COMM", VideoOperator.VO_OP_COMM.VO_POKE_OP);
 					this.setTempInternalVar("BAD_STREAM", true);
 					return true;
@@ -357,7 +362,7 @@ public class VideoOperator extends Actor {
 			}
 		});
 		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])
-		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
 			@Override
 			public boolean isEnabled(){
 				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_TRUE_POSITIVE_VO)){
@@ -380,13 +385,74 @@ public class VideoOperator extends Actor {
 	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])
 	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])
 	 */
-	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State OBSERVE_FLYBY, State POKE_MM, State poke_op) {
+	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State OBSERVE_FLYBY, State POKE_MM, State POKE_OP) {
 		//(OBSERVE_FLYBY,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_POKE_VO)){
+					this.setTempOutput("VO_ACK_MM", VideoOperator.VO_MM_COMM.VO_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_FLYBY,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,POKE_OP){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM_VO)){
+					this.setTempOutput("VO_OP_COMM", VideoOperator.VO_OP_COMM.VO_POKE_OP);
+					this.setTempInternalVar("BAD_STREAM", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_FAILED_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_F_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_END_FAILED_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_FAILED_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_T_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_END_FAILED_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_F_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_END_SUCCESS_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_T_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_END_SUCCESS_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
 
 		add(OBSERVE_FLYBY);
 	}
@@ -399,24 +465,104 @@ public class VideoOperator extends Actor {
 	 */
 	private void initializePOKE_GUI(ComChannelList inputs, ComChannelList outputs, State POKE_GUI, State TX_GUI) {
 		//(POKE_GUI,[],[FLYBY_REQ_F])x(TX_GUI,[],[FLYBY_REQ_F])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_F").equals(true)){
+					this.setTempInternalVar("FLYBY_REQ_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(POKE_GUI,[],[FLYBY_REQ_T])x)TX_GUI,[],[FLYBY_REQ_T])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_T").equals(true)){
+					this.setTempInternalVar("FLYBY_REQ_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_F").equals(true)){
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_T").equals(true)){
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
 
 		add(POKE_GUI);
 	}
 
 	/**
-	 * (TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_F_VGUI],[])
-	 * (TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_T_VGUI],[])
-	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
-	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+	 * (TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_F_VGUI],[])
+	 * (TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_T_VGUI],[])
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
 	 */
 	private void initializeTX_GUI(ComChannelList inputs, ComChannelList outputs, State TX_GUI, State END_GUI) {
-		//(TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_F_VGUI],[])
-		//(TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_GUI,VO_FLYBY_REQ_T_VGUI],[])
-		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
-		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_GUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+		//(TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_F_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_F").equals(true)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_REQ_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_T_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_T").equals(true)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_FLYBY_REQ_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_F").equals(true)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_T").equals(true)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI);
+				}
+				return false;
+			}
+		});
 
 		add(TX_GUI);
 	}
@@ -426,7 +572,12 @@ public class VideoOperator extends Actor {
 	 */
 	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_GUI) {
 		//(END_GUI,[],[])x(IDLE,[],[])
-		END_GUI.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+		END_GUI.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 
 		add(END_GUI);
 	}
