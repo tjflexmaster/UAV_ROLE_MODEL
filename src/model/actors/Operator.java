@@ -131,10 +131,10 @@ public class Operator extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("MM_OP_COMM").equals(MissionManager.MM_OP_COMM.MM_END_OP)){
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_DATA.MM_NEW_SEARCH_AOI)){
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_COMM.MM_NEW_SEARCH_AOI)){
 						this.setTempInternalVar("SEARCH_AOI", (Integer)_internal_vars.getVariable("SEARCH_AOI")+1);
 					}
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_DATA.MM_TERMINATE_SEARCH)){
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_COMM.MM_TERMINATE_SEARCH)){
 						this.setTempInternalVar("TERMINATE_SEARCH_AOI", (Integer)_internal_vars.getVariable("TERMINATE_SEARCH_AOI")+1);
 					}
 					return true;
