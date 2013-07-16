@@ -10,35 +10,22 @@ public class VideoOperator extends Actor {
 	public enum VO_MM_COMM {
 		VO_POKE_MM,
 		VO_ACK_MM,
-		VO_END_MM
+		VO_END_MM,
+		VO_TARGET_SIGHTED_F,
+		VO_TARGET_SIGHTED_T
 	}
 
 	public enum VO_VGUI_COMM {
 		VO_POKE_VGUI,
 		VO_ACK_VGUI,
 		VO_END_VGUI
-
-	}
-
-	public enum VO_VGUI_DATA {
-
 	}
 
 	public enum VO_OP_COMM {
 		VO_POKE_OP,
 		VO_ACK_OP,
-		VO_END_OP
-
-	}
-
-	public enum VO_OP_DATA {
+		VO_END_OP,
 		VO_BAD_STREAM
-
-	}
-
-	public enum VO_MM_DATA {
-		VO_TARGET_SIGHTED_F, VO_TARGET_SIGHTED_T
-
 	}
 
 	public VideoOperator(ComChannelList inputs, ComChannelList outputs) {
@@ -67,7 +54,7 @@ public class VideoOperator extends Actor {
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, OBSERVE_NORMAL);
 		//comm with mission manager
 		initializeRX_MM(inputs, outputs, IDLE, RX_MM, OBSERVE_NORMAL);
-		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM);
+		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM, IDLE);
 		initializeTX_MM(inputs, outputs, TX_MM, END_MM);
 		initializeEND_MM(inputs, outputs, IDLE, END_MM);
 		//comm with operator
@@ -176,7 +163,7 @@ public class VideoOperator extends Actor {
 	 * (POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])
 	 * (POKE_MM,[],[])x(IDLE,[],[])
 	 */
-	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM) {
+	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM, State IDLE) {
 		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_T])x(TX_MM,[],[TARGET_SIGHTED_T])
 		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])
 		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,TX_MM){
@@ -189,6 +176,12 @@ public class VideoOperator extends Actor {
 			}
 		});
 		//(POKE_MM,[],[])x(IDLE,[],[])
+		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 
 		add(POKE_MM);
 	}
@@ -205,10 +198,10 @@ public class VideoOperator extends Actor {
 			public boolean isEnabled(){
 				this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_END_MM);
 				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_T")){
-					this.setTempOutput("VO_MM_DATA", VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_T);
+					this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_T);
 				}
 				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
-					this.setTempOutput("VO_MM_DATA", VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_F);
+					this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_F);
 				}
 				return true;
 			}
@@ -222,7 +215,12 @@ public class VideoOperator extends Actor {
 	 */
 	private void initializeEND_MM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM) {
 		//(END_MM,[],[])x(IDLE,[],[])
-		END_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE));
+		END_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 
 		add(END_MM);
 	}
@@ -255,7 +253,7 @@ public class VideoOperator extends Actor {
 			public boolean isEnabled(){
 				this.setTempOutput("VO_OP_COMM", VideoOperator.VO_OP_COMM.VO_END_OP);
 				if((Boolean)_internal_vars.getVariable("BAD_STREAM")){
-					this.setTempOutput("VO_OP_DATA", VideoOperator.VO_OP_DATA.VO_BAD_STREAM);
+					this.setTempOutput("VO_OP_DATA", VideoOperator.VO_OP_COMM.VO_BAD_STREAM);
 				}
 				return true;
 			}
@@ -269,7 +267,12 @@ public class VideoOperator extends Actor {
 	 */
 	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_OP) {
 		//(END_OP,[],[])x(IDLE,[],[])
-		END_OP.add(new Transition(_internal_vars,inputs,outputs,IDLE));
+		END_OP.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 
 		add(END_OP);
 	}
@@ -285,12 +288,86 @@ public class VideoOperator extends Actor {
 	 */
 	private void initializeOBSERVE_NORMAL(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State POKE_GUI, State POKE_OP) {
 		//(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.equals("TARGET_DESCRIPTION")){
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,RX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_POKE_VO)){
+					this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_OP){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM)){
+					this.setTempOutput("VO_OP_COMM", VideoOperator.VO_OP_COMM.VO_POKE_OP);
+					this.setTempInternalVar("BAD_STREAM", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALY_DETECTED_F])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FALSE_POSITIVE_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALAY_DETECTED_T])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_TRUE_POSITIVE_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_F])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FALSE_POSITIVE_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("FLYBY_REQ_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_TRUE_POSITIVE_VO)){
+					this.setTempOutput("VO_VGUI_COMM", VideoOperator.VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("FLYBY_REQ_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
 
 		add(OBSERVE_NORMAL);
 	}

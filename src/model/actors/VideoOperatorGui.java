@@ -13,6 +13,9 @@ public class VideoOperatorGui extends Actor {
 	}
 
 	public enum VGUI_VO_COMM {
+		VGUI_BAD_STREAM,
+		VGUI_FALSE_POSITIVE_VO,
+		VGUI_TRUE_POSITIVE_VO
 
 	}
 

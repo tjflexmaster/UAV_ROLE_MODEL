@@ -575,10 +575,10 @@ public class MissionManager extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("VO_MM_COMM").get() != null){
-					if(_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_F)){
+					if(_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_F)){
 						this.setTempInternalVar("TARGET_SIGHTED_T", true);
 					}
-					if(_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_DATA.VO_TARGET_SIGHTED_T)){
+					if(_inputs.get("VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_T)){
 						this.setTempInternalVar("TARGET_SIGHTED_F", true);
 					}
 					return true;
