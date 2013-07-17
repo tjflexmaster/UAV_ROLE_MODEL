@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import model.team.WiSARTeam;
 
 public class Simulator {
 	
@@ -33,7 +32,7 @@ public class Simulator {
 	private DurationMode _duration;
 	private Random _random;
 	
-	Simulator(ITeam team, Mode mode, DurationMode duration)
+	public Simulator(ITeam team, Mode mode, DurationMode duration)
 	{
 		_clock = new DeltaClock();
 		_team = team;

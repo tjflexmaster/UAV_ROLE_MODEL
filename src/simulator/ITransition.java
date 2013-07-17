@@ -19,4 +19,9 @@ public interface ITransition {
 	 * @return
 	 */
 	Range getDurationRange();
+	
+	/**
+	 * return an int representing the priority
+	 */
+	int priority();
 }

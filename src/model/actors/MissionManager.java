@@ -4,21 +4,8 @@ import java.util.*;
 import simulator.*;
 
 public class MissionManager extends Actor {
-	
-	public enum MM_PS_COMM {
-		MM_POKE_PS,
-		MM_TX_PS,
-		MM_END_PS,
-		MM_ACK_PS
-	}
-	
-	public enum MM_PS_DATA {
-		PS_NEW_SEARCH_AOI,
-		PS_TERMINATE_SEARCH,
-		PS_TARGET_DESCRIPTION
-	}
 
-	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
+	public MissionManager(ComChannel[] inputs, ComChannel[] outputs) {
 		//initialize states
 		State IDLE = new State("IDLE");
 		//comm with PS
@@ -64,10 +51,6 @@ public class MissionManager extends Actor {
 		initializeOBSERVING_VGUI(OBSERVING_VGUI);
 		initializePOKE_VGUI(POKE_VGUI);
 		initializeTX_VGUI(TX_VGUI);
-	}
-
-	
-		// TODO Auto-generated constructor stub
 	}
 
 	private void initializeIdle(ComChannel[] inputs, ComChannel[] outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {

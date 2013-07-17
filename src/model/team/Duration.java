@@ -38,7 +38,7 @@ public enum Duration {
 	/* General */
 	
 	ACK(1),
-	NEXT(1), MM_TX_OP(5,20);
+	NEXT(1), MM_TX_OP(5,20), MM_OBSERVING_VGUI(5,20), MM_TX_VGUI(5,20), POKE(5,20);
 	
 	private Integer _minimum;
 	private Integer _maximum;

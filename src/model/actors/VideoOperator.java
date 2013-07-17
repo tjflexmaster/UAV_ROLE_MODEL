@@ -2,12 +2,37 @@ package model.actors;
 
 import java.util.HashMap;
 
-import model.team.*;
 import simulator.*;
 
 public class VideoOperator extends Actor {
 
-	public VideoOperator(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
+	public enum AUDIO_VO_MM_COMM {
+		VO_POKE_MM,
+		VO_ACK_MM,
+		VO_END_MM,
+		VO_TARGET_SIGHTED_F,
+		VO_TARGET_SIGHTED_T
+	}
+
+	public enum VISUAL_VO_VGUI_COMM {
+		VO_POKE_VGUI,
+		VO_ACK_VGUI,
+		VO_END_VGUI,
+		VO_FLYBY_END_FAILED_VGUI,
+		VO_FLYBY_END_SUCCESS_VGUI,
+		VO_FLYBY_REQ_F_VGUI,
+		VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI,
+		VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI
+	}
+
+	public enum AUDIO_VO_OP_COMM {
+		VO_POKE_OP,
+		VO_ACK_OP,
+		VO_END_OP,
+		VO_BAD_STREAM
+	}
+
+	public VideoOperator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
 		_name = "VIDEO_OPERATOR";
 
@@ -33,258 +58,590 @@ public class VideoOperator extends Actor {
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, OBSERVE_NORMAL);
 		//comm with mission manager
 		initializeRX_MM(inputs, outputs, IDLE, RX_MM, OBSERVE_NORMAL);
-		initializePOKE_MM(inputs, POKE_MM, TX_MM);
-		initializeTX_MM(TX_MM, END_MM);
-		initializeEND_MM(outputs, IDLE, END_MM);
+		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM, IDLE);
+		initializeTX_MM(inputs, outputs, TX_MM, END_MM);
+		initializeEND_MM(inputs, outputs, IDLE, END_MM);
 		//comm with operator
-		initializePOKE_OP(inputs, POKE_OP, TX_OP);
-		initializeTX_OP(TX_OP, END_OP);
-		initializeEND_OP(outputs, IDLE, END_OP);
+		initializePOKE_OP(inputs, outputs, POKE_OP, TX_OP);
+		initializeTX_OP(inputs, outputs, TX_OP, END_OP);
+		initializeEND_OP(inputs, outputs, IDLE, END_OP);
 		//comm with video gui
 		initializeOBSERVE_NORMAL(inputs, outputs, RX_MM, OBSERVE_NORMAL, POKE_GUI, POKE_OP);
 		initializeOBSERVE_FLYBY(inputs, outputs, RX_MM, OBSERVE_NORMAL,OBSERVE_FLYBY, POKE_MM, POKE_OP);
-		initializePOKE_GUI(POKE_GUI, TX_GUI);
-		initializeTX_GUI(TX_GUI);
-		initializeEND_GUI(outputs, IDLE, END_GUI);
-
-		//add states
-		addState(IDLE);
-		//comm with mission manager
-		addState(RX_MM);
-		addState(POKE_MM);
-		addState(TX_MM);
-		addState(END_MM);
-		//comm with operator
-		addState(POKE_OP);
-		addState(TX_OP);
-		addState(END_OP);
-		//comm with video gui
-		addState(OBSERVE_NORMAL);
-		addState(OBSERVE_FLYBY);
-		addState(POKE_GUI);
-		addState(TX_GUI);
-		addState(END_GUI);
+		initializePOKE_GUI(inputs,outputs,POKE_GUI, TX_GUI);
+		initializeTX_GUI(inputs,outputs,TX_GUI, END_GUI);
+		initializeEND_GUI(inputs,outputs, IDLE, END_GUI);
 		
 		//initialize current state
-		_currentState = IDLE;
+		startState(IDLE);
 	}
 
-	private void initializeIDLE(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
-		IDLE.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())},
-				null,
-				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())},
-				null,
-				RX_MM, Duration.ACK, 0);
-		/*IDLE.addTransition(
-				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
-				new UDO[]{},
-				OBSERVE_NORMAL, null, 0);
-		IDLE.addTransition(
-				new UDO[]{},
-				new UDO[]{},
-				OBSERVE_NORMAL, null, -1);*/
+	/**
+	 * This method assists the constructor initialize the IDLE state.<br><br>
+	 * (IDLE,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])<br>
+	 * (IDLE,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])<br>
+	 */
+	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
+		//(IDLE,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(IDLE,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_internal_vars.getVariable("TARGET_DESCRIPTION")){
+					return true;
+				}
+				return false;
+			}
+		});
+		
+		add(IDLE);
 	}
 
-	private void initializeRX_MM(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
-		RX_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_END_VO.name())},
-				null,
-				null,
-				null,
-				IDLE, Duration.NEXT, -1);
-		RX_MM.addTransition(
-				null,
-				null,
-				null,
-				null,
-				IDLE, Duration.VO_RX_MM, 0);
-		RX_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
-				null,
-				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
-				null,
-				OBSERVE_NORMAL, Duration.NEXT, 0);
-		/*RX_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
-				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
-				IDLE, null, 0);
-		RX_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_END_VO.name()), inputs.get(UDO.MM_TERMINATE_SEARCH_VO.name())},
-				null,
-				IDLE, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the RX_MM state.<br><br>
+	 * (RX_MM,[MM_END_VO],[])x(IDLE,[],[])<br>
+	 * (RX_MM,[MM_END_VO,MM_TERMINATE_SEARCH],[])x(IDLE,[],[])<br>
+	 * (RX_MM,[MM_END_VO, MM_TARGET_DESCRIPTION],[])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])<br>
+	 * (RX_MM,[],[])x(IDLE,[],[])<br>
+	 * (RX_MM,[MM_END_VO,MM_TARGET_DESCRIPTION],[])x(IDLE,[],[TARGET_DESCRIPTION])<br>
+	 */
+	private void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_MM, State OBSERVE_NORMAL) {
+		//(RX_MM,[MM_END_VO],[])x(IDLE,[],[])
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)){
+					return true;
+				}
+				return false;
+			}
+		});
+		//(RX_MM,[MM_END_VO,MM_TERMINATE_SEARCH],[])x(IDLE,[],[])
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH)
+						&& _inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO) ){
+					this.setTempInternalVar("TARGET_DESCRIPTION", false);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(RX_MM,[MM_END_VO, MM_TARGET_DESCRIPTION],[])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)
+						&& _inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION)){
+					this.setTempInternalVar("TARGET_DESCRIPTION", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(RX_MM,[],[])x(IDLE,[],[])
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+		//(RX_MM,[MM_END_VO,MM_TARGET_DESCRIPTION],[])x(IDLE,[],[TARGET_DESCRIPTION])
+		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)
+						&& _inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION)){
+					this.setTempInternalVar("TARGET_DESCRIPTION", true);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(RX_MM);
 	}
 
-	private void initializePOKE_MM(HashMap<String, UDO> inputs, State POKE_MM, State TX_MM) {
-		/*POKE_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_T_VO.name())},
-				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
-				TX_MM, null, 0);
-		POKE_MM.addTransition(
-				new UDO[]{inputs.get(UDO.MM_ACK_VO.name()), inputs.get(UDO.VO_TARGET_SIGHTED_F_VO.name())},
-				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
-				TX_MM, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the POKE_MM state.<br><br>
+	 * (POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_T])x(TX_MM,[],[TARGET_SIGHTED_T])<br>
+	 * (POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])<br>
+	 * (POKE_MM,[],[])x(IDLE,[],[])<br>
+	 */
+	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM, State IDLE) {
+		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_T])x(TX_MM,[],[TARGET_SIGHTED_T])
+		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,TX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO)
+						&& _internal_vars.getVariable("TARGET_SIGHTED_T").equals(true)){
+					this.setTempInternalVar("TARGET_SIGHTED_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(POKE_MM,[MM_ACK_VO],[TARGET_SIGHTED_F])x(TX_MM,[],[TARGET_SIGHTED_F])
+		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,TX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO)
+						&& _internal_vars.getVariable("TARGET_SIGHTED_F").equals(true)){
+					this.setTempInternalVar("TARGET_SIGHTED_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(POKE_MM,[],[])x(IDLE,[],[])
+		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+
+		add(POKE_MM);
 	}
 
-	private void initializeTX_MM(State TX_MM, State END_MM) {
-		/*TX_MM.addTransition(
-				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
-				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO},
-				END_MM , null, 0);
-		TX_MM.addTransition(
-				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
-				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO},
-				END_MM, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the TX_MM state.<br><br>
+	 * (TX_MM,[],[TARGET_SIGHTED_T])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_T],[])<br>
+	 * (TX_MM,[],[TARGET_SIGHTED_F])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_F],[])<br>
+	 */
+	private void initializeTX_MM(ComChannelList inputs, ComChannelList outputs, State TX_MM, State END_MM) {
+		//(TX_MM,[],[TARGET_SIGHTED_T])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_T],[])
+		TX_MM.add(new Transition(_internal_vars,inputs,outputs,END_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_T")){
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(TX_MM,[],[TARGET_SIGHTED_F])x(END_MM,[VO_END_MM,VO_TARGET_SIGHTED_F],[])
+		TX_MM.add(new Transition(_internal_vars,inputs,outputs,END_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(TX_MM);
 	}
 
-	private void initializeEND_MM(HashMap<String, UDO> outputs, State IDLE, State END_MM) {
-		/*END_MM.addTransition(
-				new UDO[]{UDO.VO_TARGET_SIGHTED_F_VO}, 
-				new UDO[]{outputs.get(UDO.VO_TARGET_SIGHTING_F_MM.name()), outputs.get(UDO.VO_END_MM.name())},
-				IDLE, null, 0);
-		END_MM.addTransition(
-				new UDO[]{UDO.VO_TARGET_SIGHTED_T_VO}, 
-				new UDO[]{outputs.get(UDO.VO_TARGET_SIGHTING_T_MM.name()), outputs.get(UDO.VO_END_MM.name())}, 
-				IDLE, null, 0);
-		END_MM.addTransition(null,
-				new UDO[]{outputs.get(UDO.VO_END_MM.name())},
-				IDLE, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the END_MM state.<br><br>
+	 * (END_MM,[],[])x(IDLE,[],[])<br>
+	 */
+	private void initializeEND_MM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM) {
+		//(END_MM,[],[])x(IDLE,[],[])
+		END_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+
+		add(END_MM);
 	}
 
-	private void initializePOKE_OP(HashMap<String, UDO> inputs, State POKE_OP, State TX_OP) {
-		/*POKE_OP.addTransition(
-				new UDO[]{inputs.get(UDO.OP_ACK_VO.name()), UDO.VO_BAD_STREAM_VO},
-				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				TX_OP, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the POKE_OP state.<br><br>
+	 * (POKE_OP,[OP_ACK_VO],[BAD_STREAM])x(TX_OP,[],[BAD_STREAM])<br>
+	 */
+	private void initializePOKE_OP(ComChannelList inputs, ComChannelList outputs, State POKE_OP, State TX_OP) {
+		//(POKE_OP,[OP_ACK_VO],[BAD_STREAM])x(TX_OP,[],[BAD_STREAM])
+		POKE_OP.add(new Transition(_internal_vars, inputs, outputs, TX_OP){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_OP_VO_COMM").equals(Operator.AUDIO_OP_VO_COMM.OP_ACK_VO)){
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(POKE_OP);
 	}
 
-	private void initializeTX_OP(State TX_OP, State END_OP) {
-		/*TX_OP.addTransition(
-				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				END_OP, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the TX_OP state.<br><br>
+	 * (TX_OP,[],[BAD_STREAM])x(END_OP,[VO_END_OP,VO_BAD_STREAM],[])<br>
+	 */
+	private void initializeTX_OP(ComChannelList inputs, ComChannelList outputs, State TX_OP, State END_OP) {
+		//(TX_OP,[],[BAD_STREAM])x(END_OP,[VO_END_OP,VO_BAD_STREAM],[])
+		TX_OP.add(new Transition(_internal_vars,inputs,outputs,END_OP){
+			@Override
+			public boolean isEnabled(){
+				this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_END_OP);
+				if((Boolean)_internal_vars.getVariable("BAD_STREAM")){
+					this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_BAD_STREAM);
+				}
+				return true;
+			}
+		});
+
+		add(TX_OP);
 	}
 
-	private void initializeEND_OP(HashMap<String, UDO> outputs, State IDLE, State END_OP) {
-		/*END_OP.addTransition(
-				new UDO[]{UDO.VO_BAD_STREAM_VO},
-				new UDO[]{outputs.get(UDO.VO_BAD_STREAM_OP.name()), outputs.get(UDO.VO_END_OP.name())},
-				IDLE, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the END_OP state.<br><br>
+	 * (END_OP,[],[])x(IDLE,[],[])<br>
+	 */
+	private void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_OP) {
+		//(END_OP,[],[])x(IDLE,[],[])
+		END_OP.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+
+		add(END_OP);
 	}
 
-	private void initializeOBSERVE_NORMAL(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State RX_MM, State OBSERVE_NORMAL, State POKE_GUI, State POKE_OP) {
-		OBSERVE_NORMAL.addTransition(
-				new UDO[]{UDO.VO_TARGET_DESCRIPTION_VO},
-				null,
-				new UDO[]{},
-				null,
-				OBSERVE_NORMAL, Duration.NEXT, 0);
-		/*OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
-				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())}, 
-				RX_MM, null, 0);
-		OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
-				new UDO[]{UDO.VO_BAD_STREAM_VO, outputs.get(UDO.VO_POKE_OP.name())},
-				POKE_OP, null, 0);
-		OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				POKE_GUI, null, 0);
-		OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FALSE_POSITIVE_VO.name())},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				POKE_GUI, null, 0);
-		OBSERVE_NORMAL.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				POKE_GUI, null, 0);
-		OBSERVE_NORMAL.addTransition(new UDO[]{inputs.get(UDO.VGUI_TRUE_POSITIVE_VO.name())},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO, outputs.get(UDO.VO_POKE_VGUI.name())},
-				POKE_GUI, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the OBSERVE_NORMAL state.<br><br>
+	 * (OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])<br>
+	 * (OBSERVE_NORMAL,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])<br>
+	 * (OBSERVE_NORMAL,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])<br>
+	 * (OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALY_DETECTED_F])<br>
+	 * (OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALAY_DETECTED_T])<br>
+	 * (OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_F])<br>
+	 * (OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])<br>
+	 */
+	private void initializeOBSERVE_NORMAL(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State POKE_GUI, State POKE_OP) {
+		//(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])x(OBSERVE_NORMAL,[],[TARGET_DESCRIPTION])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.equals("TARGET_DESCRIPTION")){
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,RX_MM){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_OP){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM_VO)){
+					this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_POKE_OP);
+					this.setTempInternalVar("BAD_STREAM", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALY_DETECTED_F])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FALSE_POSITIVE_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[POSSIBLE_ANOMALAY_DETECTED_T])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_TRUE_POSITIVE_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[VGUI_FALSE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_F])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FALSE_POSITIVE_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("FLYBY_REQ_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_NORMAL,[VGUI_TRUE_POSITIVE_VO],[])x(POKE_GUI,[VO_POKE_VGUI],[FLYBY_REQ_T])
+		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,POKE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_TRUE_POSITIVE_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POKE_VGUI);
+					this.setTempInternalVar("FLYBY_REQ_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(OBSERVE_NORMAL);
 	}
 
-	private void initializeOBSERVE_FLYBY(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs, State RX_MM, State OBSERVE_NORMAL, State OBSERVE_FLYBY, State POKE_MM, State poke_op) {
-		/*OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.MM_POKE_VO.name())}, 
-				new UDO[]{outputs.get(UDO.VO_ACK_MM.name())}, 
-				RX_MM, null, 0);
-		OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_BAD_STREAM_VO.name())},
-				new UDO[]{UDO.VO_BAD_STREAM_VO, outputs.get(UDO.VO_POKE_OP.name())},
-				poke_op, null, 0);
-		OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
-				new UDO[]{outputs.get(UDO.VO_FLYBY_END_FAILED_VGUI.name())},
-				OBSERVE_NORMAL, null, 0);
-		OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
-				new UDO[]{outputs.get(UDO.VO_FLYBY_END_FAILED_VGUI.name())},
-				OBSERVE_NORMAL, null, 0);
-		OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_F_VO.name())},
-				new UDO[]{outputs.get(UDO.VO_FLYBY_END_SUCCESS_VGUI.name()), UDO.VO_TARGET_SIGHTED_F_VO},
-				POKE_MM, null, 0);
-		OBSERVE_FLYBY.addTransition(
-				new UDO[]{inputs.get(UDO.VGUI_FLYBY_ANOMALY_T_VO.name())},
-				new UDO[]{outputs.get(UDO.VO_FLYBY_END_SUCCESS_VGUI.name()), UDO.VO_TARGET_SIGHTED_T_VO},
-				POKE_MM, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the OBSERVE_FLYBY state.<br><br>
+	 * (OBSERVE_FLYBY,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])<br>
+	 * (OBSERVE_FLYBY,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])<br>
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_FAILED_VGUI],[])<br>
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_FAILED_VGUI],[])<br>
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])<br>
+	 * (OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])<br>
+	 */
+	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State RX_MM, State OBSERVE_NORMAL, State OBSERVE_FLYBY, State POKE_MM, State POKE_OP) {
+		//(OBSERVE_FLYBY,[MM_POKE_VO],[])x(RX_MM,[VO_ACK_MM],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("AUDIO_MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_FLYBY,[VGUI_BAD_STREAM_VO],[])x(POKE_OP,[VO_POKE_OP],[BAD_STREAM])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,POKE_OP){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_BAD_STREAM_VO)){
+					this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_POKE_OP);
+					this.setTempInternalVar("BAD_STREAM", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_FAILED_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_F_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_END_FAILED_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_FAILED_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_T_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_END_FAILED_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_F_VO],[])x(OBSERVE_NORMAL,[VO_FLYBY_END_SUCCESS_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_F_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_END_SUCCESS_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(OBSERVE_FLYBY,[VGUI_FLYBY_ANOMALY_T_VO],[])x(OBSERVE_NORMAL,[VO_FLBY_END_SUCCESS_VGUI],[])
+		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
+			@Override
+			public boolean isEnabled(){
+				if(this._inputs.get("VISUAL_VGUI_VO_COMM").equals(VideoOperatorGui.VGUI_VO_COMM.VGUI_FLYBY_ANOMALY_T_VO)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_END_SUCCESS_VGUI);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(OBSERVE_FLYBY);
 	}
 
-	private void initializePOKE_GUI(State POKE_GUI, State TX_GUI) {
-		/*POKE_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				TX_GUI, null, 0);
-		POKE_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				TX_GUI, null, 0);
-		POKE_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				TX_GUI, null, 0);
-		POKE_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				TX_GUI, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the POKE_GUI state.<br><br>
+	 * (POKE_GUI,[],[FLYBY_REQ_F])x(TX_GUI,[],[FLYBY_REQ_F])<br>
+	 * (POKE_GUI,[],[FLYBY_REQ_T])x)TX_GUI,[],[FLYBY_REQ_T])<br>
+	 * (POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])<br>
+	 * (POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])<br>
+	 */
+	private void initializePOKE_GUI(ComChannelList inputs, ComChannelList outputs, State POKE_GUI, State TX_GUI) {
+		//(POKE_GUI,[],[FLYBY_REQ_F])x(TX_GUI,[],[FLYBY_REQ_F])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_F").equals(true)){
+					this.setTempInternalVar("FLYBY_REQ_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(POKE_GUI,[],[FLYBY_REQ_T])x)TX_GUI,[],[FLYBY_REQ_T])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_T").equals(true)){
+					this.setTempInternalVar("FLYBY_REQ_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_F").equals(true)){
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_F", true);
+					return true;
+				}
+				return false;
+			}
+		});
+		//(POKE_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])
+		POKE_GUI.add(new Transition(_internal_vars,inputs,outputs,TX_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_T").equals(true)){
+					this.setTempInternalVar("POSSIBLE_ANOMALY_DETECTED_T", true);
+					return true;
+				}
+				return false;
+			}
+		});
+
+		add(POKE_GUI);
 	}
 
-	private void initializeTX_GUI(State TX_GUI) {
-		/*TX_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				TX_GUI, null, 0);
-		TX_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				TX_GUI, null, 0);
-		TX_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				TX_GUI, null, 0);
-		TX_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				TX_GUI, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the TX_GUI state.<br><br>
+	 * (TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_F_VGUI],[])<br>
+	 * (TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_T_VGUI],[])<br>
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])<br>
+	 * (TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])<br>
+	 */
+	private void initializeTX_GUI(ComChannelList inputs, ComChannelList outputs, State TX_GUI, State END_GUI) {
+		//(TX_GUI,[],[FLYBY_REQ_F])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_F_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_F").equals(true)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_REQ_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[FLYBY_REQ_T])x(END_GUI,[VO_END_VGUI,VO_FLYBY_REQ_T_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("FLYBY_REQ_T").equals(true)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_FLYBY_REQ_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_F])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_F").equals(true)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POSSIBLE_ANOMALY_DETECTED_F_VGUI);
+				}
+				return false;
+			}
+		});
+		//(TX_GUI,[],[POSSIBLE_ANOMALY_DETECTED_T])x(END_GUI,[VO_END_VGUI,VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI],[])
+		TX_GUI.add(new Transition(_internal_vars,inputs,outputs,END_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(this._internal_vars.getVariable("POSSIBLE_ANOMALY_DETECTED_T").equals(true)){
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_END_VGUI);
+					this.setTempOutput("VISUAL_VO_VGUI_COMM", VideoOperator.VISUAL_VO_VGUI_COMM.VO_POSSIBLE_ANOMALY_DETECTED_T_VGUI);
+				}
+				return false;
+			}
+		});
+
+		add(TX_GUI);
 	}
 
-	private void initializeEND_GUI(HashMap<String, UDO> outputs, State IDLE, State END_GUI) {
-		/*END_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_F_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				IDLE, null, 0);
-		END_GUI.addTransition(
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO},
-				new UDO[]{UDO.VO_FLYBY_REQ_T_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				IDLE, null, 0);
-		END_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_F_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				IDLE, null, 0);
-		END_GUI.addTransition(
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO},
-				new UDO[]{UDO.VO_POSSIBLE_ANOMALY_DETECTED_T_VO, outputs.get(UDO.VO_END_VGUI.name())},
-				IDLE, null, 0);*/
+	/**
+	 * This method assists the constructor initialize the END_GUI state.<br><br>
+	 * (END_GUI,[],[])x(IDLE,[],[])<br>
+	 */
+	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_GUI) {
+		//(END_GUI,[],[])x(IDLE,[],[])
+		END_GUI.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+
+		add(END_GUI);
 	}
+
+	@Override
+	protected void initializeInternalVariables() {
+		// TODO Auto-generated method stub
+		this._internal_vars.addVariable("POSSIBLE_ANOMALY_DETECTED_T", false);
+		this._internal_vars.addVariable("POSSIBLE_ANOMALY_DETECTED_F", false);
+		this._internal_vars.addVariable("FLYBY_REQ_T", false);
+		this._internal_vars.addVariable("FLYBY_REQ_F", false);
+		this._internal_vars.addVariable("BAD_STREAM", false);
+		this._internal_vars.addVariable("TARGET_DESCRIPTION", false);
+		this._internal_vars.addVariable("TARGET_SIGHTED_T", false);
+		this._internal_vars.addVariable("TARGET_SIGHTED_F", false);
+	}
+
+	@Override
+	public HashMap<IActor, ITransition> getTransitions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

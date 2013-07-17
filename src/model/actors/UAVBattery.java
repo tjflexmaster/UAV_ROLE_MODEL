@@ -45,19 +45,19 @@ public class UAVBattery extends Actor {
 		State LOW = new State("LOW");
 		State DEAD = new State("DEAD");
 		
-		INACTIVE.addTransition(
-				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
-				null,
-				new UDO[]{outputs.get(UDO.UAV_BATTERY_OK_OGUI.name())},
-				new IDO[]{Memory.TIME_TILL_LOW.set(Duration.UAVBAT_DURATION.getdur())},
-				ACTIVE, Duration.NEXT, 0);
-		
-		ACTIVE.addTransition(
-				null,
-				null,
-				new UDO[]{outputs.get(UDO.UAV_BATTERY_LOW_OGUI.name())},
-				null,
-				LOW, Duration.UAVBAT_ACTIVE_TO_LOW, 0);
+//		INACTIVE.addTransition(
+//				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
+//				null,
+//				new UDO[]{outputs.get(UDO.UAV_BATTERY_OK_OGUI.name())},
+//				new IDO[]{Memory.TIME_TILL_LOW.set(Duration.UAVBAT_DURATION.getdur())},
+//				ACTIVE, Duration.NEXT, 0);
+//		
+//		ACTIVE.addTransition(
+//				null,
+//				null,
+//				new UDO[]{outputs.get(UDO.UAV_BATTERY_LOW_OGUI.name())},
+//				null,
+//				LOW, Duration.UAVBAT_ACTIVE_TO_LOW, 0);
 
 //		INACTIVE.addTransition(
 //				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},
@@ -81,12 +81,24 @@ public class UAVBattery extends Actor {
 //				INACTIVE, Duration.NEXT, 0);
 		
 		//add states
-		addState(INACTIVE);
-		addState(ACTIVE);
-		addState(LOW);
-		addState(DEAD);
+		add(INACTIVE);
+		add(ACTIVE);
+		add(LOW);
+		add(DEAD);
 		
 		//set current state
-		_currentState = INACTIVE;
+		startState(INACTIVE);
+	}
+
+	@Override
+	protected void initializeInternalVariables() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public HashMap<IActor, ITransition> getTransitions() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
