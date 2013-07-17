@@ -62,11 +62,8 @@ public class WiSARTeam extends ArrayList<Actor> {
 		
 		//VO
 		ComChannel<VideoOperator.VO_MM_COMM> VO_MM_COMM = new ComChannel<VideoOperator.VO_MM_COMM>("VO_MM_COMM");
-		ComChannel<VideoOperator.VO_MM_DATA> VO_MM_DATA = new ComChannel<VideoOperator.VO_MM_DATA>("VO_MM_DATA");
 		ComChannel<VideoOperator.VO_VGUI_COMM> VO_VGUI_COMM = new ComChannel<VideoOperator.VO_VGUI_COMM>("VO_OGUI_COMM");
-		ComChannel<VideoOperator.VO_VGUI_DATA> VO_VGUI_DATA = new ComChannel<VideoOperator.VO_VGUI_DATA>("VO_OGUI_DATA");
 		ComChannel<VideoOperator.VO_OP_COMM> VO_OP_COMM = new ComChannel<VideoOperator.VO_OP_COMM>("VO_OP_COMM");
-		ComChannel<VideoOperator.VO_OP_DATA> VO_OP_DATA = new ComChannel<VideoOperator.VO_OP_DATA>("VO_OP_DATA");
 		
 		//VGUI
 
@@ -99,7 +96,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		inputs.clear();
 		inputs.add(PS_MM_COMM);
 		inputs.add(VO_MM_COMM);
-		inputs.add(VO_MM_DATA);
 		inputs.add(OP_MM_COMM);
 		inputs.add(OP_MM_DATA);
 //		inputs.put(UDO.PS_POKE_MM.name(), UDO.PS_POKE_MM);
@@ -130,7 +126,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		inputs.clear();
 		inputs.add(MM_OP_COMM);
 		inputs.add(VO_OP_COMM);
-		inputs.add(VO_OP_DATA);
 		inputs.add(OGUI_OP_DATA);
 		inputs.add(UAV_OP_DATA);
 //		inputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
@@ -174,11 +169,8 @@ public class WiSARTeam extends ArrayList<Actor> {
 //		inputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
 		outputs.clear();
 		outputs.add(VO_OP_COMM);
-		outputs.add(VO_OP_DATA);
 		outputs.add(VO_MM_COMM);
-		outputs.add(VO_MM_DATA);
 		outputs.add(VO_VGUI_COMM);
-		outputs.add(VO_VGUI_DATA);
 //		outputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
 //		outputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
 		this.add(new VideoOperator(inputs, outputs));
@@ -186,7 +178,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		//add Video Operator Gui, with its inputs and outputs, to the team
 		inputs.clear();
 		inputs.add(VO_VGUI_COMM);
-		inputs.add(VO_VGUI_DATA);
 		inputs.add(MM_VGUI_COMM);
 		inputs.add(OGUI_VGUI_DATA);
 		inputs.add(UAV_VGUI_DATA);

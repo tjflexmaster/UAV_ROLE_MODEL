@@ -158,7 +158,13 @@ public class MissionManager extends Actor {
 		
 		//(IDLE, [VGUI_ALERT],[])x(OBSERVING_VGUI,[],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVING_VGUI){
-			
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VGUI_MM_COMM").equals(VideoOperatorGui.VGUI_MM_COMM.VGUI_ALERT_MM)){
+					return true;
+				}
+				return false;
+			}
 		});
 		
 		//(IDLE, [PS_POKE_MM], [])->(RX_PS, [MM_ACK_PS], [])
