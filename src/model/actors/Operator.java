@@ -108,7 +108,7 @@ public class Operator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_OP_COMM").equals(MissionManager.MM_OP_COMM.MM_POKE_OP)){
+				if(_inputs.get("MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP)){
 					this.setTempOutput("OP_MM_COMM", Operator.OP_MM_COMM.OP_ACK_MM);
 					return true;
 				}
@@ -217,11 +217,11 @@ public class Operator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_OP_COMM").equals(MissionManager.MM_OP_COMM.MM_END_OP)){
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_COMM.MM_NEW_SEARCH_AOI)){
+				if(_inputs.get("MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_END_OP)){
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI)){
 						this.setTempInternalVar("SEARCH_AOI", (Integer)_internal_vars.getVariable("SEARCH_AOI")+1);
 					}
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.MM_OP_COMM.MM_TERMINATE_SEARCH)){
+					if(_inputs.get("MM_OP_DATA").equals(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH)){
 						this.setTempInternalVar("TERMINATE_SEARCH_AOI", (Integer)_internal_vars.getVariable("TERMINATE_SEARCH_AOI")+1);
 					}
 					return true;

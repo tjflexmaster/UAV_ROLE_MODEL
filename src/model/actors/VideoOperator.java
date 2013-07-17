@@ -86,7 +86,7 @@ public class VideoOperator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_POKE_VO)){
+				if(_inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
 					this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_ACK_MM);
 					return true;
 				}
@@ -120,11 +120,11 @@ public class VideoOperator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_END_VO)){
-					if(_inputs.get("MM_VO_DATA").equals(MissionManager.MM_VO_COMM.MM_TARGET_DESCRIPTION)){
+				if(_inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)){
+					if(_inputs.get("MM_VO_DATA").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION)){
 						return false;
 					}
-					if(_inputs.get("MM_VO_DATA").equals(MissionManager.MM_VO_COMM.MM_TERMINATE_SEARCH)){
+					if(_inputs.get("MM_VO_DATA").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH)){
 						this.setTempInternalVar("TARGET_DESCRIPTION", false);
 					}
 					return true;
@@ -136,8 +136,8 @@ public class VideoOperator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_NORMAL){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_END_VO)){
-					if(_inputs.get("MM_VO_DATA").equals(MissionManager.MM_VO_COMM.MM_TARGET_DESCRIPTION)){
+				if(_inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)){
+					if(_inputs.get("MM_VO_DATA").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION)){
 						this.setTempInternalVar("TARGET_DESCRIPTION", true);
 						return true;
 					}
@@ -150,8 +150,8 @@ public class VideoOperator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_END_VO)){
-					if(_inputs.get("MM_VO_DATA").equals(MissionManager.MM_VO_COMM.MM_TARGET_DESCRIPTION)){
+				if(_inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_END_VO)){
+					if(_inputs.get("MM_VO_DATA").equals(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION)){
 						this.setTempInternalVar("TARGET_DESCRIPTION", true);
 						return true;
 					}
@@ -174,7 +174,7 @@ public class VideoOperator extends Actor {
 		POKE_MM.add(new Transition(_internal_vars,inputs,outputs,TX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_ACK_VO)){
+				if(_inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO)){
 					return true;
 				}
 				return false;
@@ -306,7 +306,7 @@ public class VideoOperator extends Actor {
 		OBSERVE_NORMAL.add(new Transition(_internal_vars,inputs,outputs,RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_POKE_VO)){
+				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
 					this.setTempOutput("VO_MM_COMM", VideoOperator.VO_MM_COMM.VO_ACK_MM);
 					return true;
 				}
@@ -390,7 +390,7 @@ public class VideoOperator extends Actor {
 		OBSERVE_FLYBY.add(new Transition(_internal_vars,inputs,outputs,OBSERVE_NORMAL){
 			@Override
 			public boolean isEnabled(){
-				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.MM_VO_COMM.MM_POKE_VO)){
+				if(this._inputs.get("MM_VO_COMM").equals(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO)){
 					this.setTempOutput("VO_ACK_MM", VideoOperator.VO_MM_COMM.VO_ACK_MM);
 					return true;
 				}

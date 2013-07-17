@@ -253,7 +253,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("MM_PS_COMM").get().equals(MissionManager.MM_PS_COMM.MM_POKE_PS)){
+				if((Boolean)_inputs.get("MM_PS_COMM").get().equals(MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS)){
 					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_ACK_MM);
 					return true;
 				}

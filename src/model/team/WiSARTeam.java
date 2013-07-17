@@ -41,10 +41,10 @@ public class WiSARTeam extends ArrayList<Actor> {
 		ComChannel<ParentSearch.AUDIO_PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>("PS_MM_COMM");
 		
 		//MM
-		ComChannel<MissionManager.MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.MM_PS_COMM>("MM_PS_COMM");
-		ComChannel<MissionManager.MM_OP_COMM> MM_OP_COMM = new ComChannel<MissionManager.MM_OP_COMM>("MM_OP_COMM");
-		ComChannel<MissionManager.MM_VO_COMM> MM_VO_COMM = new ComChannel<MissionManager.MM_VO_COMM>("MM_VO_COMM");
-		ComChannel<MissionManager.MM_VGUI_COMM> MM_VGUI_COMM = new ComChannel<MissionManager.MM_VGUI_COMM>("MM_VGUI_COMM");
+		ComChannel<MissionManager.AUDIO_MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.AUDIO_MM_PS_COMM>("MM_PS_COMM");
+		ComChannel<MissionManager.AUDIO_MM_OP_COMM> MM_OP_COMM = new ComChannel<MissionManager.AUDIO_MM_OP_COMM>("MM_OP_COMM");
+		ComChannel<MissionManager.AUDIO_MM_VO_COMM> MM_VO_COMM = new ComChannel<MissionManager.AUDIO_MM_VO_COMM>("MM_VO_COMM");
+		ComChannel<MissionManager.VISUAL_MM_VGUI_COMM> MM_VGUI_COMM = new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>("MM_VGUI_COMM");
 		
 		
 		//OP
