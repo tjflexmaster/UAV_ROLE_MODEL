@@ -15,84 +15,54 @@ import simulator.*;
  * list all of the actors in this method
  * we may be able to use another class instead of this method
  */
-public class WiSARTeam extends ArrayList<Actor> {
+public class WiSARTeam extends Team {
 	
-	/**
-	 * i have no idea what this means, but it fixed a compilation warning...
-	 */
-	private static final long serialVersionUID = 682275625652767731L;
-
+	ComChannelList _channels = new ComChannelList();
 	/**
 	 * initialize all of the actors that will be used during the simulation
 	 * assigns the actors the inputs and outputs they will be using (can this be moved inside the actor? -rob)
 	 * @param outputs
 	 */
 	public WiSARTeam() {
+		
+		//Declare all output com channels
+		//PS_Events
+		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
+		
+		//PS
+		_channels.add( new ComChannel<ParentSearch.PS_MM_COMM>(Channels.PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
+		
+		//MM
+		_channels.add( new ComChannel<MissionManager.MM_PS_COMM>(Channels.MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
+		
+		
 		//initialize inputs and outputs
 		ComChannelList inputs = new ComChannelList();
 		ComChannelList outputs = new ComChannelList();
 		
-		//Declare all output com channels
-		//PS_Events
-		ComChannel<Boolean> NewSearchEvent = new ComChannel<Boolean>("NewSearchEvent");
-		ComChannel<Boolean> TerminateSearchEvent = new ComChannel<Boolean>("TerminateSearchEvent");
-		
-		//PS
-		ComChannel<ParentSearch.PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.PS_MM_COMM>("PS_MM_COMM");
-		ComChannel<ParentSearch.PS_MM_DATA> PS_MM_DATA = new ComChannel<ParentSearch.PS_MM_DATA>("PS_MM_DATA");
-		
-		//MM
-		ComChannel<MissionManager.MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.MM_PS_COMM>("MM_PS_COMM");
-		ComChannel<MissionManager.MM_PS_DATA> MM_PS_DATA = new ComChannel<MissionManager.MM_PS_DATA>("MM_PS_DATA");
+		//Setup NewSearchEvent
+		inputs.clear();
+		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		this.addEvent(new NewSearchEvent(inputs, outputs), 3);
 		
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
-		inputs.add(NewSearchEvent);
-		inputs.add(TerminateSearchEvent);
-		inputs.add(MM_PS_COMM);
-		inputs.add(MM_PS_DATA);
-		
-		
-//		inputs.put(UDO.PS_TIME_TIL_START_PS.name(), UDO.PS_TIME_TIL_START_PS);
-//		inputs.put(UDO.PS_NEW_SEARCH_AOI_PS.name(), UDO.PS_NEW_SEARCH_AOI_PS);
-//		inputs.put(UDO.PS_TARGET_DESCRIPTION_PS.name(), UDO.PS_TARGET_DESCRIPTION_PS);
-//		inputs.put(UDO.MM_ACK_PS.name(), UDO.MM_ACK_PS);
+		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		inputs.add(_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
+		inputs.add(_channels.get(Channels.MM_PS_COMM.name()));
 		outputs.clear();
-		outputs.add(PS_MM_COMM);
-		outputs.add(PS_MM_DATA);
-//		outputs.put(UDO.PS_POKE_MM.name(), UDO.PS_POKE_MM);
-//		outputs.put(UDO.PS_NEW_SEARCH_AOI_MM.name(), UDO.PS_NEW_SEARCH_AOI_MM);
-//		outputs.put(UDO.PS_NEW_SEARCH_AOI_PS.name(), UDO.PS_NEW_SEARCH_AOI_PS);
-//		outputs.put(UDO.PS_TARGET_DESCRIPTION_MM.name(), UDO.PS_TARGET_DESCRIPTION_MM);
-//		outputs.put(UDO.PS_TARGET_DESCRIPTION_PS.name(), UDO.PS_TARGET_DESCRIPTION_PS);
-//		outputs.put(UDO.PS_END_MM.name(), UDO.PS_END_MM);
-		this.add(new ParentSearch(inputs, outputs));
+		outputs.add(_channels.get(Channels.PS_MM_COMM.name()));
+		this.addActor(new ParentSearch(inputs, outputs));
 
 		//add Mission Manager, with its inputs and outputs, to the team
 		inputs.clear();
-		inputs.add(PS_MM_COMM);
-		inputs.add(PS_MM_DATA);
-//		inputs.put(UDO.PS_POKE_MM.name(), UDO.PS_POKE_MM);
-//		inputs.put(UDO.PS_NEW_SEARCH_AOI_MM.name(), UDO.PS_NEW_SEARCH_AOI_MM);
-//		inputs.put(UDO.MM_NEW_SEARCH_AOI_MM.name(), UDO.MM_NEW_SEARCH_AOI_MM);
-//		inputs.put(UDO.PS_TARGET_DESCRIPTION_MM.name(), UDO.PS_TARGET_DESCRIPTION_MM);
-//		inputs.put(UDO.MM_TARGET_DESCRIPTION_MM.name(), UDO.MM_TARGET_DESCRIPTION_MM);
-//		inputs.put(UDO.PS_END_MM.name(), UDO.PS_END_MM);
-//		inputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
-//		inputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
+		inputs.add(_channels.get(Channels.PS_MM_COMM.name()));
 		outputs.clear();
-		outputs.add(MM_PS_COMM);
-		outputs.add(MM_PS_DATA);
-//		outputs.put(UDO.MM_ACK_PS.name(),UDO.MM_ACK_PS);
-//		outputs.put(UDO.MM_POKE_VO.name(), UDO.MM_POKE_VO);
-//		outputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
-//		outputs.put(UDO.MM_NEW_SEARCH_AOI_OP.name(), UDO.MM_NEW_SEARCH_AOI_OP);
-//		outputs.put(UDO.MM_NEW_SEARCH_AOI_MM.name(), UDO.MM_NEW_SEARCH_AOI_MM);
-//		outputs.put(UDO.MM_TARGET_DESCRIPTION_VO.name(), UDO.MM_TARGET_DESCRIPTION_VO);
-//		outputs.put(UDO.MM_TARGET_DESCRIPTION_MM.name(), UDO.MM_TARGET_DESCRIPTION_MM);
-//		outputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
-//		outputs.put(UDO.MM_END_VO.name(), UDO.MM_END_VO);
-		this.add(new MissionManager(inputs, outputs));
+		outputs.add(_channels.get(Channels.MM_PS_COMM.name()));
+		this.addActor(new MissionManager(inputs, outputs));
 		
 		//add UAV Operator, with its inputs and outputs, to the team
 //		inputs.clear();

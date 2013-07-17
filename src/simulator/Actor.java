@@ -48,6 +48,11 @@ public abstract class Actor implements IActor {
 		return _name;
 	}
 	
+	protected void setInternalVariable(String name, Object value)
+	{
+		_internal_vars.setVariable(name, value);
+	}
+	
 	protected ActorVariableWrapper getInternalVars()
 	{
 		return _internal_vars;

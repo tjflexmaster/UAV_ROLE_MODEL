@@ -13,7 +13,6 @@ import simulator.ComChannelList;
 import simulator.IActor;
 import simulator.ITransition;
 import simulator.State;
-import simulator.TimerTransition;
 import simulator.Transition;
 
 public class ParentSearch extends Actor {
@@ -49,6 +48,19 @@ public class ParentSearch extends Actor {
 
 		//initialize transitions
 		//IDLE Transitions
+		Transition idle_poke_mm = new Transition(this.getInternalVars(), inputs, outputs, POKE_MM) {
+			@Override
+			public boolean isEnabled() 
+			{
+				if ( this._internal_vars.getVariable("test").equals("test")  ) {
+					this.setTempOutput("test", 1);
+					this.setTempInternalVar("test", 2);
+					return true;
+				}
+				return false;
+						
+			}
+		};
 //		Transition idle_poke_mm = new Transition(this.getInternalVars(), new ComChannelList )
 //		createIDLETransitions(inputs, outputs, State[]{POKE_MM, RX_MM});
 
@@ -68,20 +80,19 @@ public class ParentSearch extends Actor {
 //				null, IDLE,Duration.NEXT,0);
 		//add states
 		this.add(POKE_MM);
-		addState(IDLE);
-		addState(POKE_MM);
-		addState(TX_MM);
-		addState(END_MM);
-		addState(RX_MM);
+		add(IDLE);
+		add(POKE_MM);
+		add(TX_MM);
+		add(END_MM);
+		add(RX_MM);
 		
 		//initialize current state
-		_currentState = IDLE;
+		startState(IDLE);
 	}
 	
 	@Override
 	protected void initializeInternalVariables() {
-		this._internal_vars.addVariable("test", 0);
-		
+		this.getInternalVars().addVariable("test",0);
 	}
 
 	@Override

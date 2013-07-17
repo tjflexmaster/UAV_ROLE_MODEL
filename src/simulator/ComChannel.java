@@ -1,18 +1,27 @@
 package simulator;
 
 public class ComChannel<T> {
-	private Class<T> classType;
-	T _value;
-	String _name;
-	
-	public ComChannel(String name)
+	public enum Type
 	{
-		_name = name;
+		VISUAL,
+		AUDIO,
+		DATA
 	}
 	
-	public ComChannel(String name, T value)
+	T _value;
+	String _name;
+	Type _type;
+	
+	public ComChannel(String name, Type type)
 	{
 		_name = name;
+		_type = type;
+	}
+	
+	public ComChannel(String name, T value, Type type)
+	{
+		_name = name;
+		_type = type;
 		_value = value;
 	}
 	
@@ -24,7 +33,7 @@ public class ComChannel<T> {
 		_value = (T) value;
 	}
 	
-	public T get()
+	public T value()
 	{
 		return _value;
 	}

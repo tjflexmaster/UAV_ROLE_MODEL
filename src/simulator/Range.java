@@ -1,28 +1,48 @@
 package simulator;
 
 public class Range {
+	private int _min = 0;
+	private int _max = 0;
 	
-	
-	private int _minimum;
-	private int _maximum;
-
-	/**
-	 * creates a bounded duration
-	 * @param minimum represents the minimum bound of the duration in seconds
-	 * @param maximum represents the maximum bound of the duration in seconds
-	 */
-	Range(int minimum, int maximum) {
-		_minimum = minimum;
-		_maximum = maximum;
+	public Range() {
+		
 	}
 	
-	/**
-	 * creates a fixed duration
-	 * @param duration represents the fixed time duration in seconds
-	 */
-	Range(int duration){
-		_minimum = duration;
-		_maximum = duration;
+	public Range(int val)
+	{
+		_min = val;
+		_max = val;
 	}
-
+	
+	public Range(int min, int max)
+	{
+		_min = min;
+		_max = max;
+	}
+	
+	public void min(int min)
+	{
+		_min = min;
+	}
+	
+	public int min()
+	{
+		return _min;
+	}
+	
+	public void max(int max)
+	{
+		_max = max;
+	}
+	
+	public int max()
+	{
+		return _max;
+	}
+	
+	public int mean()
+	{
+		return (_max - _min) / 2;
+	}
+	
 }

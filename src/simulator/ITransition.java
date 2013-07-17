@@ -18,5 +18,5 @@ public interface ITransition {
 	 * return an int from the range of durations
 	 * @return
 	 */
-	int getDuration();
+	Range getDurationRange();
 }

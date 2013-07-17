@@ -12,7 +12,7 @@ import model.team.Duration;
 public class Transition implements ITransition {
 	
 	protected ComChannelList _inputs;
-	private Duration _duration;
+	private Range _range;
 	private State _endState;
 	private ComChannelList _outputs;
 	private HashMap<String, Object> _temp_outputs;
@@ -32,12 +32,12 @@ public class Transition implements ITransition {
 	 * todo add a duration that represents how long it takes to move between states
 	 * @return 
 	 */
-	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, int priority, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, int priority, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		duration(duration);
+		setDurationRange(duration_range);
 		priority(priority);
 		probability(probability);
 		
@@ -47,12 +47,12 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 
-	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, int priority) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, int priority) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		duration(duration);
+		setDurationRange(duration_range);
 		priority(priority);
 		probability(1);
 		
@@ -62,12 +62,12 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration, double probability) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, double probability) {
 		
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		duration(duration);
+		setDurationRange(duration_range);
 		priority(1);
 		probability(probability);
 		
@@ -77,13 +77,13 @@ public class Transition implements ITransition {
 		buildTempOutput();
 	}
 	
-	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Duration duration) {
+	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range) {
 		
 		_internal_vars = internalVars;
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		duration(duration);
+		setDurationRange(duration_range);
 		priority(1);
 		probability(1);
 		
@@ -97,7 +97,7 @@ public class Transition implements ITransition {
 		_inputs = inputs;
 		_outputs = outputs;
 		_endState = endState;
-		duration(Duration.NEXT);
+		_range = new Range();
 		priority(1);
 		probability(1);
 		
@@ -111,7 +111,7 @@ public class Transition implements ITransition {
 		_endState = t._endState;
 		_inputs = t._inputs;
 		_outputs = t._outputs;
-		_duration = t._duration;
+		_range = t.getDurationRange();
 		_priority = t._priority;
 		_probability = t._probability;
 		
@@ -156,14 +156,14 @@ public class Transition implements ITransition {
 	/**
 	 * Getters
 	 */
-	public int duration()
-	{
-		return _duration.getdur();
+	@Override
+	public Range getDurationRange() {
+		return _range;
 	}
 	
-	public void duration(Duration d)
+	public void setDurationRange(Range range)
 	{
-		_duration = d;
+		_range = range;
 	}
 	
 	public int priority()
@@ -224,11 +224,6 @@ public class Transition implements ITransition {
 		_temp_internal_vars.put(varname, value);
 	}
 
-	@Override
-	public int getDuration() {
-		return _duration.getdur();
-	}
-	
 	
 //	/**
 //	 * 

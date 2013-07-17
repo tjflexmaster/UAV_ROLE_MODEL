@@ -5,12 +5,13 @@ import java.util.HashMap;
 
 public abstract class Team implements ITeam {
 	
+	ArrayList<IEvent> _events;
 	ArrayList<IActor> _actors;
-	ArrayList<IComChannel> _com_channels;
+	ComChannelList _com_channels;
 	
 
 	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
+	public HashMap<IActor, ITransition> getActorTransitions() {
 		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
 		for( IActor a : _actors ) {
 			result.putAll(a.getTransitions());
@@ -19,17 +20,33 @@ public abstract class Team implements ITeam {
 		return result;
 	}
 	
-	void addActor(IActor a) 
-	{
-		assert _actors.contains(a):"Actor is already a part of the team";
-		
-		_actors.add(a);
+	@Override
+	public ArrayList<IEvent> getEvents() {
+		return _events;
 	}
 	
-	void addComChannel(IComChannel c)
+	protected void addActor(IActor actor) 
 	{
-		assert _com_channels.contains(c):"Com channel already defined";
+		assert _actors.contains(actor):"Actor is already a part of the team";
+		
+		_actors.add(actor);
+	}
+	
+	protected void addEvent(IEvent event, int count) 
+	{
+		assert _events.contains(event):"Event is already a part of the team";
+		event.setEventCount(count);
+		_events.add(event);
+	}
+	
+	protected void addComChannel(ComChannel<?> c)
+	{
+		assert _com_channels.containsKey(c.name()):"Com channel already defined";
+		_com_channels.add(c);
 	}
 
-	
+	protected ComChannel<?> getComChannel(String name)
+	{
+		return _com_channels.get(name);
+	}
 }

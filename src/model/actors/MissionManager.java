@@ -18,7 +18,7 @@ public class MissionManager extends Actor {
 		PS_TARGET_DESCRIPTION
 	}
 
-	public MissionManager(ComChannel[] inputs, ComChannel[] outputs) {
+	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
 		State IDLE = new State("IDLE");
 		//comm with PS
@@ -64,6 +64,10 @@ public class MissionManager extends Actor {
 		initializeOBSERVING_VGUI(OBSERVING_VGUI);
 		initializePOKE_VGUI(POKE_VGUI);
 		initializeTX_VGUI(TX_VGUI);
+	}
+
+	
+		// TODO Auto-generated constructor stub
 	}
 
 	private void initializeIdle(ComChannel[] inputs, ComChannel[] outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {
