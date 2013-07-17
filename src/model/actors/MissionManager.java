@@ -173,7 +173,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( _inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_POKE_MM) ) {
+				if ( _inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM) ) {
 					this.setTempOutput("MM_PS_COMM", MM_PS_COMM.MM_ACK_PS);
 					result = true;
 				}
@@ -255,7 +255,7 @@ public class MissionManager extends Actor {
 		POKE_PS.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_BUSY_MM)){
+				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_BUSY_MM)){
 					return true;
 				}
 				return false;
@@ -266,7 +266,7 @@ public class MissionManager extends Actor {
 		POKE_PS.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_ACK_MM)){
+				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_ACK_MM)){
 					return true;
 				}
 				return false;
@@ -345,24 +345,24 @@ public class MissionManager extends Actor {
 			{
 				boolean result = false;
 				
-				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_END_MM)){
+				if(_inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_END_MM)){
 					result = true;
 				}
-				if ( this._inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_NEW_SEARCH_AOI) ) {
+				if ( this._inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI) ) {
 					int num = 1;
 					if(_internal_vars.getVariable("NEW_SEARCH_AOI") != null)
 						num = (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1;
 					this.setTempInternalVar("NEW_SEARCH_AOI", num);
 					result = true;
 				}
-				if ( _inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_TARGET_DESCRIPTION) ) {
+				if ( _inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION) ) {
 					int num = 1;
 					if(_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") != null)
 						num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
 					result = true;
 				}
-				if ( this._inputs.get("PS_MM_COMM").equals(ParentSearch.PS_MM_COMM.PS_TERMINATE_SEARCH) ) {
+				if ( this._inputs.get("PS_MM_COMM").equals(ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH) ) {
 					int num = 1;
 					if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH") != null)
 						num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")+1;

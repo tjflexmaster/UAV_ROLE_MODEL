@@ -38,7 +38,7 @@ public class WiSARTeam extends ArrayList<Actor> {
 		ComChannel<Boolean> TerminateSearchEvent = new ComChannel<Boolean>("TerminateSearchEvent");
 		
 		//PS
-		ComChannel<ParentSearch.PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.PS_MM_COMM>("PS_MM_COMM");
+		ComChannel<ParentSearch.AUDIO_PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>("PS_MM_COMM");
 		
 		//MM
 		ComChannel<MissionManager.MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.MM_PS_COMM>("MM_PS_COMM");

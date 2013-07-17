@@ -21,7 +21,7 @@ public class ParentSearch extends Actor {
 	/**
 	 * This is an enumeration of the communications from the parent search to the mission manager.
 	 */
-	public enum PS_MM_COMM {
+	public enum AUDIO_PS_MM_COMM {
 		PS_POKE_MM,
 		PS_BUSY_MM,
 		PS_ACK_MM,
@@ -138,21 +138,21 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_NEW_SEARCH_AOI);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI);
 					int num = (Integer) _internal_vars.getVariable("NEW_SEARCH_AOI")-1;
 					this.setTempInternalVar("NEW_SEARCH_AOI", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") > 0){
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_TARGET_DESCRIPTION);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION);
 					int num = (Integer) _internal_vars.getVariable("NEW_TARGET_DESCRIPTION")-1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_TERMINATE_SEARCH);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH);
 					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 				}
-//				this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
+//				this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
 				return true;
 			}
 		});
@@ -169,7 +169,7 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
-					this.setTempOutput("PS_MM_COMM", null);
+					this.setTempOutput("AUDIO_PS_MM_COMM", null);
 					return true;
 				}
 				return false;
@@ -199,7 +199,7 @@ public class ParentSearch extends Actor {
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}
 				return false;
@@ -213,7 +213,7 @@ public class ParentSearch extends Actor {
 					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")+1;
 					this.setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
 				}
 				return false;
 			}
@@ -226,7 +226,7 @@ public class ParentSearch extends Actor {
 					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}
 				return false;
@@ -243,7 +243,7 @@ public class ParentSearch extends Actor {
 						num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") + 1;
 					}
 					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_POKE_MM);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}
 				return false;
@@ -254,7 +254,7 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if((Boolean)_inputs.get("MM_PS_COMM").get().equals(MissionManager.MM_PS_COMM.MM_POKE_PS)){
-					this.setTempOutput("PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_ACK_MM);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_ACK_MM);
 					return true;
 				}
 				return false;
