@@ -12,40 +12,25 @@ import simulator.Transition;
 
 public class Operator extends Actor {
 
-	public enum OP_UAV_COMM {
+	public enum VISUAL_OP_UAV_COMM {
 		OP_POKE_UAV,
 		OP_ACK_UAV,
 		OP_END_UAV
-
 	}
 
-	public enum OP_UAV_DATA {
-
-	}
-
-	public enum OP_OGUI_DATA {
-
-	}
-
-	public enum OP_OGUI_COMM {
+	public enum VISUAL_OP_OGUI_COMM {
 		OP_POKE_OGUI,
 		OP_ACK_OGUI,
 		OP_END_OGUI
-
 	}
 
-	public enum OP_MM_COMM {
+	public enum AUDIO_OP_MM_COMM {
 		OP_POKE_MM,
 		OP_ACK_MM,
 		OP_END_MM, OP_SEARCH_FAILED, OP_SEARCH_COMPLETE
-
-	}
-
-	public enum OP_MM_DATA {
-
 	}
 	
-	public enum OP_VO_COMM {
+	public enum AUDIO_OP_VO_COMM {
 		OP_ACK_VO
 	}
 
@@ -108,8 +93,8 @@ public class Operator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP)){
-					this.setTempOutput("OP_MM_COMM", Operator.OP_MM_COMM.OP_ACK_MM);
+				if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP)){
+					this.setTempOutput("AUDIO_OP_MM_COMM", Operator.AUDIO_OP_MM_COMM.OP_ACK_MM);
 					return true;
 				}
 				return false;
@@ -217,11 +202,11 @@ public class Operator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_END_OP)){
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI)){
+				if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_END_OP)){
+					if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI)){
 						this.setTempInternalVar("SEARCH_AOI", (Integer)_internal_vars.getVariable("SEARCH_AOI")+1);
 					}
-					if(_inputs.get("MM_OP_DATA").equals(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH)){
+					if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH)){
 						this.setTempInternalVar("TERMINATE_SEARCH_AOI", (Integer)_internal_vars.getVariable("TERMINATE_SEARCH_AOI")+1);
 					}
 					return true;

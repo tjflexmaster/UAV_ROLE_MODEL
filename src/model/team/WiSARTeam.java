@@ -48,12 +48,9 @@ public class WiSARTeam extends ArrayList<Actor> {
 		
 		
 		//OP
-		ComChannel<Operator.OP_MM_COMM> OP_MM_COMM = new ComChannel<Operator.OP_MM_COMM>("OP_MM_COMM");
-		ComChannel<Operator.OP_MM_DATA> OP_MM_DATA = new ComChannel<Operator.OP_MM_DATA>("OP_MM_DATA");
-		ComChannel<Operator.OP_OGUI_COMM> OP_OGUI_COMM = new ComChannel<Operator.OP_OGUI_COMM>("OP_OGUI_COMM");
-		ComChannel<Operator.OP_OGUI_DATA> OP_OGUI_DATA = new ComChannel<Operator.OP_OGUI_DATA>("OP_OGUI_DATA");
-		ComChannel<Operator.OP_UAV_COMM> OP_UAV_COMM = new ComChannel<Operator.OP_UAV_COMM>("OP_UAV_COMM");
-		ComChannel<Operator.OP_UAV_DATA> OP_UAV_DATA = new ComChannel<Operator.OP_UAV_DATA>("OP_UAV_DATA");
+		ComChannel<Operator.AUDIO_OP_MM_COMM> OP_MM_COMM = new ComChannel<Operator.AUDIO_OP_MM_COMM>("OP_MM_COMM");
+		ComChannel<Operator.VISUAL_OP_OGUI_COMM> OP_OGUI_COMM = new ComChannel<Operator.VISUAL_OP_OGUI_COMM>("OP_OGUI_COMM");
+		ComChannel<Operator.VISUAL_OP_UAV_COMM> OP_UAV_COMM = new ComChannel<Operator.VISUAL_OP_UAV_COMM>("OP_UAV_COMM");
 		
 		//OGUI
 		ComChannel<OperatorGui.OGUI_OP_DATA> OGUI_OP_DATA = new ComChannel<OperatorGui.OGUI_OP_DATA>("OGUI_OP_DATA");
@@ -61,9 +58,9 @@ public class WiSARTeam extends ArrayList<Actor> {
 		ComChannel<OperatorGui.OGUI_VGUI_DATA> OGUI_VGUI_DATA = new ComChannel<OperatorGui.OGUI_VGUI_DATA>("OGUI_VGUI_DATA");
 		
 		//VO
-		ComChannel<VideoOperator.VO_MM_COMM> VO_MM_COMM = new ComChannel<VideoOperator.VO_MM_COMM>("VO_MM_COMM");
-		ComChannel<VideoOperator.VO_VGUI_COMM> VO_VGUI_COMM = new ComChannel<VideoOperator.VO_VGUI_COMM>("VO_OGUI_COMM");
-		ComChannel<VideoOperator.VO_OP_COMM> VO_OP_COMM = new ComChannel<VideoOperator.VO_OP_COMM>("VO_OP_COMM");
+		ComChannel<VideoOperator.AUDIO_VO_MM_COMM> VO_MM_COMM = new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>("VO_MM_COMM");
+		ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM> VO_VGUI_COMM = new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>("VO_OGUI_COMM");
+		ComChannel<VideoOperator.AUDIO_VO_OP_COMM> VO_OP_COMM = new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>("VO_OP_COMM");
 		
 		//VGUI
 
@@ -97,7 +94,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		inputs.add(PS_MM_COMM);
 		inputs.add(VO_MM_COMM);
 		inputs.add(OP_MM_COMM);
-		inputs.add(OP_MM_DATA);
 //		inputs.put(UDO.PS_POKE_MM.name(), UDO.PS_POKE_MM);
 //		inputs.put(UDO.PS_NEW_SEARCH_AOI_MM.name(), UDO.PS_NEW_SEARCH_AOI_MM);
 //		inputs.put(UDO.MM_NEW_SEARCH_AOI_MM.name(), UDO.MM_NEW_SEARCH_AOI_MM);
@@ -134,11 +130,8 @@ public class WiSARTeam extends ArrayList<Actor> {
 //		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
 		outputs.clear();
 		outputs.add(OP_UAV_COMM);
-		outputs.add(OP_UAV_DATA);
 		outputs.add(OP_OGUI_COMM);
-		outputs.add(OP_OGUI_DATA);
 		outputs.add(OP_MM_COMM);
-		outputs.add(OP_MM_DATA);
 //		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
 //		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
 //		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
@@ -150,7 +143,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		inputs.clear();
 		inputs.add(UAV_OGUI_DATA);
 		inputs.add(OP_OGUI_COMM);
-		inputs.add(OP_OGUI_DATA);
 //		inputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
 		outputs.clear();
 		outputs.add(OGUI_UAV_DATA);
@@ -188,7 +180,6 @@ public class WiSARTeam extends ArrayList<Actor> {
 		//add UAV, with its inputs and outputs, to the team
 		inputs.clear();
 		inputs.add(OP_UAV_COMM);
-		inputs.add(OP_UAV_DATA);
 		inputs.add(OGUI_UAV_DATA);
 //		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
 		outputs.clear();

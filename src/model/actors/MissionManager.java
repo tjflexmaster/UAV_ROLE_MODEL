@@ -138,7 +138,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_OP){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_OP_MM_COMM").equals(Operator.OP_MM_COMM.OP_POKE_MM)){
+				if(_inputs.get("AUDIO_OP_MM_COMM").equals(Operator.AUDIO_OP_MM_COMM.OP_POKE_MM)){
 					this.setTempOutput("AUDIO_MM_OP_COMM", MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP);
 				}
 				return false;
@@ -149,7 +149,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_VO){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_POKE_MM)){
+				if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM)){
 					this.setTempOutput("AUDIO_MM_VO_COMM", MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO);
 				}
 				return false;
@@ -389,7 +389,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("AUDIO_OP_MM_COMM").equals(Operator.OP_MM_COMM.OP_ACK_MM) ) {
+				if ( this._internal_vars.getVariable("AUDIO_OP_MM_COMM").equals(Operator.AUDIO_OP_MM_COMM.OP_ACK_MM) ) {
 					result = true;
 				}
 				return result;		
@@ -480,11 +480,11 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				if(_inputs.get("AUDIO_OP_MM_COMM").get() != null){
-					if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.OP_MM_COMM.OP_END_MM)){
+					if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.AUDIO_OP_MM_COMM.OP_END_MM)){
 						
-					} else if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.OP_MM_COMM.OP_SEARCH_COMPLETE)){
+					} else if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_COMPLETE)){
 						this.setTempInternalVar("SEARCH_COMPLETE", true);
-					} else if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.OP_MM_COMM.OP_SEARCH_FAILED)){
+					} else if(_inputs.get("AUDIO_OP_MM_COMM").get().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED)){
 						this.setTempInternalVar("SEARCH_FAILED", true);
 					}
 					return true;
@@ -511,7 +511,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if (_inputs.get("AUIDO_VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_ACK_MM) ) {
+				if (_inputs.get("AUIDO_VO_MM_COMM").equals(VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM) ) {
 					result = true;
 				}
 				return result;		
@@ -581,10 +581,10 @@ public class MissionManager extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(_inputs.get("AUDIO_VO_MM_COMM").get() != null){
-					if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_F)){
+					if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F)){
 						this.setTempInternalVar("TARGET_SIGHTED_T", true);
 					}
-					if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.VO_MM_COMM.VO_TARGET_SIGHTED_T)){
+					if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T)){
 						this.setTempInternalVar("TARGET_SIGHTED_F", true);
 					}
 					return true;
