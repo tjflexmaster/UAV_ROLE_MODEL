@@ -1,6 +1,7 @@
 package simulator;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public abstract class Event implements IEvent, IActor {
 	
@@ -26,8 +27,8 @@ public abstract class Event implements IEvent, IActor {
 	}
 	
 	public void deactivate(){
-		for(ComChannel c : outputs){
-			
+		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
+			c.getValue().set(false);
 		}
 	}
 	
@@ -51,7 +52,7 @@ public abstract class Event implements IEvent, IActor {
 	
 	public void decrementCount()
 	{
-		_count = Math.max(0, _count--);
+		_count = Math.max(0, --_count);
 	}
 	
 	public String name()

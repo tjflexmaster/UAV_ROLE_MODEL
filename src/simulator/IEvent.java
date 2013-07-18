@@ -18,5 +18,7 @@ public interface IEvent {
 	void incrementCount();
 	
 	void decrementCount();
+	
+	void deactivate();
 
 }

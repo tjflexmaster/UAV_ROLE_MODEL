@@ -6,6 +6,7 @@ import model.actors.OperatorGui;
 import model.actors.ParentSearch;
 import model.actors.UAV;
 import model.actors.VideoOperator;
+import model.events.NewSearchEvent;
 import model.events.NewSearchEventType2;
 import simulator.ComChannel;
 import simulator.ComChannel.Type;
@@ -49,7 +50,7 @@ public class WiSARTeam extends Team {
 		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		outputs.clear();
 		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		this.addEvent(new NewSearchEventType2(inputs, outputs), 2);
+		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
 
 		//Declare all output com channels
 		//PS_Events

@@ -69,6 +69,7 @@ public class Simulator {
 	{
 		//Get Transitions from the Events
 		for(IEvent e : _team.getEvents() ) {
+			
 			ITransition t = e.getEnabledTransition();
 			if ( _clock.getActorTransition((IActor) e) == null ) {
 				if ( t != null && !e.isFinished() ) {
@@ -78,7 +79,7 @@ public class Simulator {
 			} else {
 				if ( t == null ) {
 					_clock.removeTransition((IActor) e);
-					e.incrementCount();
+//					e.incrementCount();
 				}
 			}
 
@@ -89,6 +90,14 @@ public class Simulator {
 		for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
 			ITransition t = entry.getValue();
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
+		}
+		
+		//deactivate outputs from events after one cycle
+		for(IEvent e : _team.getEvents() ) {
+			ITransition t = e.getEnabledTransition();
+			if(t == null){
+				e.deactivate();
+			}
 		}
 	}
 	
