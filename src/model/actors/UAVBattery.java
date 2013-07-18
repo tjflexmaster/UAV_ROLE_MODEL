@@ -8,32 +8,6 @@ import simulator.*;
 
 public class UAVBattery extends Actor {
 
-	private enum Memory implements IDO{
-		TIME_TILL_LOW(3600),
-		TIME_TILL_DEAD(500);
-		
-		Memory(Integer i){
-			data = i;
-		}
-		
-		private Object data;
-		@Override
-		public Object get() {
-			// TODO Auto-generated method stub
-			return data;
-		}
-		@Override
-		public Memory set(Object object) {
-			data = object;
-			return this;
-		}
-		@Override
-		public Memory update(Integer integer) {
-			data = integer;
-			return this;
-		}
-		
-	}
 	
 	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//initialize name

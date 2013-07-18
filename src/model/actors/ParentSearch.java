@@ -19,6 +19,19 @@ import simulator.Transition;
 public class ParentSearch extends Actor {
 
 	/**
+	 * This is an enumeration of the communications from the parent search to the mission manager.
+	 */
+	public enum AUDIO_PS_MM_COMM {
+		PS_POKE_MM,
+		PS_BUSY_MM,
+		PS_ACK_MM,
+		PS_END_MM,
+		PS_NEW_SEARCH_AOI,
+		PS_TERMINATE_SEARCH,
+		PS_TARGET_DESCRIPTION
+	}
+	
+	/**
 	 * This constructor initializes all of the states and transitions that belong to the parent search.
 	 * @param inputs
 	 * @param outputs
@@ -149,7 +162,7 @@ public class ParentSearch extends Actor {
 		//(TX_MM,[],[NEW_SEARCH_AOI,*])x(END_MM,[END_MM,PS_NEW_SEARCH_AOI],[*])
 		//(TX_MM,[],[NEW_TARGET_DESCRIPTION,*])x(END_MM,[END_MM,PS_TARGET_DESCRIPTION],[*])
 		//(TX_MM,[],[NEW_TERMINATE_SEARCH,*])x(END_MM,[END_MM,PS_TERMINATE_SEARCH],[*])
-		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM){
+		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.PS_TX_DATA_MM.getRange()){
 			@Override
 			public boolean isEnabled(){
 				if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
@@ -180,10 +193,10 @@ public class ParentSearch extends Actor {
 	 */
 	private void initializePokeMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State POKE_MM, State TX_MM) {
 		//(POKE_MM,[MM_ACK_PS],[])x(TX_MM,[],[])
-		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM,Duration.NEXT,1){
+		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM,Duration.NEXT.getRange(),1){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("MM_PS_COMM").get().equals("MM_ACK_PS")){
+				if(_inputs.get("MM_PS_COMM").value().equals("MM_ACK_PS")){
 					this.setTempOutput("AUDIO_PS_MM_COMM", null);
 					return true;
 				}
@@ -192,7 +205,7 @@ public class ParentSearch extends Actor {
 		});
 		
 		//(POKE_MM,[],[*])x(IDLE,[],[*])
-		POKE_MM.add(new Transition(_internal_vars, outputs, outputs, TX_MM, Duration.PS_POKE_MM, 0){
+		POKE_MM.add(new Transition(_internal_vars, outputs, outputs, TX_MM, Duration.PS_POKE_MM.getRange(), 0){
 			
 		});
 	}
@@ -210,7 +223,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("NewSearchEvent").get()){
+				if((Boolean)_inputs.get("NewSearchEvent").value()){
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);
@@ -224,7 +237,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("NewSearchAreaEvent").get()){
+				if((Boolean)_inputs.get("NewSearchAreaEvent").value()){
 					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")+1;
 					this.setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
@@ -237,7 +250,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(_internal_vars,inputs,outputs,POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("NewTargetDescriptionEvent").get()){
+				if((Boolean)_inputs.get("NewTargetDescriptionEvent").value()){
 					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
@@ -251,7 +264,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("TerminateSearchEvent").get()){
+				if((Boolean)_inputs.get("TerminateSearchEvent").value()){
 					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
 					int num = 1;
 					if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH")!=null){
@@ -268,7 +281,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("MM_PS_COMM").get().equals(MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS)){
+				if((Boolean)_inputs.get("MM_PS_COMM").value().equals(MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS)){
 					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_ACK_MM);
 					return true;
 				}

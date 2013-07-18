@@ -7,6 +7,7 @@ import model.actors.*;
 import model.events.NewSearchEvent;
 
 import simulator.*;
+import simulator.ComChannel.Type;
 
 /**
  * 
@@ -31,10 +32,10 @@ public class WiSARTeam extends Team {
 		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
 		
 		//PS
-		_channels.add( new ComChannel<ParentSearch.PS_MM_COMM>(Channels.PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
 		
 		//MM
-		_channels.add( new ComChannel<MissionManager.MM_PS_COMM>(Channels.MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
 		
 		
 		//initialize inputs and outputs
@@ -50,53 +51,53 @@ public class WiSARTeam extends Team {
 
 		//Declare all output com channels
 		//PS_Events
-		ComChannel<Boolean> NewSearchEvent = new ComChannel<Boolean>("NewSearchEvent");
-		ComChannel<Boolean> TerminateSearchEvent = new ComChannel<Boolean>("TerminateSearchEvent");
+		ComChannel<Boolean> NewSearchEvent = new ComChannel<Boolean>("NewSearchEvent", Type.DATA);
+		ComChannel<Boolean> TerminateSearchEvent = new ComChannel<Boolean>("TerminateSearchEvent", Type.DATA);
 		
 		//PS
-		ComChannel<ParentSearch.AUDIO_PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>("PS_MM_COMM");
+		ComChannel<ParentSearch.AUDIO_PS_MM_COMM> PS_MM_COMM = new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>("PS_MM_COMM", Type.AUDIO);
 		
 		//MM
-		ComChannel<MissionManager.AUDIO_MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.AUDIO_MM_PS_COMM>("MM_PS_COMM");
-		ComChannel<MissionManager.AUDIO_MM_OP_COMM> MM_OP_COMM = new ComChannel<MissionManager.AUDIO_MM_OP_COMM>("MM_OP_COMM");
-		ComChannel<MissionManager.AUDIO_MM_VO_COMM> MM_VO_COMM = new ComChannel<MissionManager.AUDIO_MM_VO_COMM>("MM_VO_COMM");
-		ComChannel<MissionManager.VISUAL_MM_VGUI_COMM> MM_VGUI_COMM = new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>("MM_VGUI_COMM");
+		ComChannel<MissionManager.AUDIO_MM_PS_COMM> MM_PS_COMM = new ComChannel<MissionManager.AUDIO_MM_PS_COMM>("MM_PS_COMM", Type.AUDIO);
+		ComChannel<MissionManager.AUDIO_MM_OP_COMM> MM_OP_COMM = new ComChannel<MissionManager.AUDIO_MM_OP_COMM>("MM_OP_COMM", Type.AUDIO);
+		ComChannel<MissionManager.AUDIO_MM_VO_COMM> MM_VO_COMM = new ComChannel<MissionManager.AUDIO_MM_VO_COMM>("MM_VO_COMM", Type.AUDIO);
+		ComChannel<MissionManager.VISUAL_MM_VGUI_COMM> MM_VGUI_COMM = new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>("MM_VGUI_COMM", Type.VISUAL);
 		
 		
 		//OP
-		ComChannel<Operator.AUDIO_OP_MM_COMM> OP_MM_COMM = new ComChannel<Operator.AUDIO_OP_MM_COMM>("OP_MM_COMM");
-		ComChannel<Operator.VISUAL_OP_OGUI_COMM> OP_OGUI_COMM = new ComChannel<Operator.VISUAL_OP_OGUI_COMM>("OP_OGUI_COMM");
-		ComChannel<Operator.VISUAL_OP_UAV_COMM> OP_UAV_COMM = new ComChannel<Operator.VISUAL_OP_UAV_COMM>("OP_UAV_COMM");
+		ComChannel<Operator.AUDIO_OP_MM_COMM> OP_MM_COMM = new ComChannel<Operator.AUDIO_OP_MM_COMM>("OP_MM_COMM", Type.AUDIO);
+		ComChannel<Operator.VISUAL_OP_OGUI_COMM> OP_OGUI_COMM = new ComChannel<Operator.VISUAL_OP_OGUI_COMM>("OP_OGUI_COMM", Type.VISUAL);
+		ComChannel<Operator.VISUAL_OP_UAV_COMM> OP_UAV_COMM = new ComChannel<Operator.VISUAL_OP_UAV_COMM>("OP_UAV_COMM", Type.VISUAL);
 		
 		//OGUI
-		ComChannel<OperatorGui.OGUI_OP_DATA> OGUI_OP_DATA = new ComChannel<OperatorGui.OGUI_OP_DATA>("OGUI_OP_DATA");
-		ComChannel<OperatorGui.OGUI_UAV_DATA> OGUI_UAV_DATA = new ComChannel<OperatorGui.OGUI_UAV_DATA>("OGUI_UAV_DATA");
-		ComChannel<OperatorGui.OGUI_VGUI_DATA> OGUI_VGUI_DATA = new ComChannel<OperatorGui.OGUI_VGUI_DATA>("OGUI_VGUI_DATA");
+		ComChannel<OperatorGui.OGUI_OP_DATA> OGUI_OP_DATA = new ComChannel<OperatorGui.OGUI_OP_DATA>("OGUI_OP_DATA", Type.DATA);
+		ComChannel<OperatorGui.OGUI_UAV_DATA> OGUI_UAV_DATA = new ComChannel<OperatorGui.OGUI_UAV_DATA>("OGUI_UAV_DATA", Type.DATA);
+		ComChannel<OperatorGui.OGUI_VGUI_DATA> OGUI_VGUI_DATA = new ComChannel<OperatorGui.OGUI_VGUI_DATA>("OGUI_VGUI_DATA", Type.DATA);
 		
 		//VO
-		ComChannel<VideoOperator.AUDIO_VO_MM_COMM> VO_MM_COMM = new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>("VO_MM_COMM");
-		ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM> VO_VGUI_COMM = new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>("VO_OGUI_COMM");
-		ComChannel<VideoOperator.AUDIO_VO_OP_COMM> VO_OP_COMM = new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>("VO_OP_COMM");
+		ComChannel<VideoOperator.AUDIO_VO_MM_COMM> VO_MM_COMM = new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>("VO_MM_COMM", Type.AUDIO);
+		ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM> VO_VGUI_COMM = new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>("VO_OGUI_COMM", Type.VISUAL);
+		ComChannel<VideoOperator.AUDIO_VO_OP_COMM> VO_OP_COMM = new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>("VO_OP_COMM", Type.AUDIO);
 		
 		//VGUI
 
 		//UAV
-		ComChannel<UAV.UAV_OP_DATA> UAV_OP_DATA = new ComChannel<UAV.UAV_OP_DATA>("UAV_OP_DATA");
-		ComChannel<UAV.UAV_OGUI_DATA> UAV_OGUI_DATA = new ComChannel<UAV.UAV_OGUI_DATA>("UAV_OGUI_DATA");
-		ComChannel<UAV.UAV_VGUI_DATA> UAV_VGUI_DATA = new ComChannel<UAV.UAV_VGUI_DATA>("UAV_VGUI_DATA");
+		ComChannel<UAV.DATA_UAV_OP> UAV_OP_DATA = new ComChannel<UAV.DATA_UAV_OP>("UAV_OP_DATA", Type.DATA);
+		ComChannel<UAV.DATA_UAV_OGUI> UAV_OGUI_DATA = new ComChannel<UAV.DATA_UAV_OGUI>("UAV_OGUI_DATA", Type.DATA);
+		ComChannel<UAV.DATA_UAV_VGUI> UAV_VGUI_DATA = new ComChannel<UAV.DATA_UAV_VGUI>("UAV_VGUI_DATA", Type.DATA);
 		
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
 		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		inputs.add(_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
-		inputs.add(_channels.get(Channels.MM_PS_COMM.name()));
+		inputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.PS_MM_COMM.name()));
+		outputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		this.addActor(new ParentSearch(inputs, outputs));
 
 		//add Mission Manager, with its inputs and outputs, to the team
 		inputs.clear();
-		inputs.add(_channels.get(Channels.PS_MM_COMM.name()));
+		inputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		inputs.add(PS_MM_COMM);
 		inputs.add(VO_MM_COMM);
 		inputs.add(OP_MM_COMM);
@@ -109,7 +110,7 @@ public class WiSARTeam extends Team {
 //		inputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
 //		inputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
 		outputs.clear();
-		outputs.add(_channels.get(Channels.MM_PS_COMM.name()));
+		outputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
 		outputs.add(MM_PS_COMM);
 		outputs.add(MM_OP_COMM);
 		outputs.add(MM_VO_COMM);
@@ -144,7 +145,7 @@ public class WiSARTeam extends Team {
 //		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
 //		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
 //		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
-		this.add(new Operator(inputs, outputs));
+		this.addActor(new Operator(inputs, outputs));
 
 		//add UAV Operator Gui, with its inputs and outputs, to the team
 		inputs.clear();
@@ -157,7 +158,7 @@ public class WiSARTeam extends Team {
 		outputs.add(OGUI_VGUI_DATA);
 
 //		outputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
-		this.add(new OperatorGui(inputs, outputs));
+		this.addActor(new OperatorGui(inputs, outputs));
 
 		//add Video Operator, with its inputs and outputs, to the team
 		inputs.clear();
@@ -172,7 +173,7 @@ public class WiSARTeam extends Team {
 		outputs.add(VO_VGUI_COMM);
 //		outputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
 //		outputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
-		this.add(new VideoOperator(inputs, outputs));
+		this.addActor(new VideoOperator(inputs, outputs));
 
 		//add Video Operator Gui, with its inputs and outputs, to the team
 		inputs.clear();
@@ -182,7 +183,7 @@ public class WiSARTeam extends Team {
 		inputs.add(UAV_VGUI_DATA);
 		
 		outputs.clear();
-		this.add(new VideoOperatorGui(inputs, outputs));
+		this.addActor(new VideoOperatorGui(inputs, outputs));
 
 		//add UAV, with its inputs and outputs, to the team
 		inputs.clear();
@@ -194,7 +195,7 @@ public class WiSARTeam extends Team {
 		outputs.add(UAV_OGUI_DATA);
 		outputs.add(UAV_OP_DATA);
 //		outputs.put(UDO.UAV_BATTERY_LOW_OGUI.name(), UDO.UAV_BATTERY_LOW_OGUI);
-		this.add(new UAV(inputs, outputs));
+		this.addActor(new UAV(inputs, outputs));
 	}
 
 }

@@ -5,8 +5,8 @@ import simulator.ComChannel.Type;
 public enum Channels {
 	NEW_SEARCH_EVENT,
 	TERMINATE_SEARCH_EVENT,
-	PS_MM_COMM,
-	MM_PS_COMM
+	AUDIO_PS_MM_COMM,
+	AUDIO_MM_PS_COMM
 	
 //	NEW_SEARCH_EVENT(Type.AUDIO),
 //	TERMINATE_SEARCH_EVENT(Type.AUDIO),

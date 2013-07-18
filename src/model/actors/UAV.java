@@ -7,15 +7,15 @@ import simulator.*;
 
 public class UAV extends Actor {
 
-	public enum UAV_VGUI_DATA {
+	public enum DATA_UAV_VGUI {
 
 	}
 
-	public enum UAV_OGUI_DATA {
+	public enum DATA_UAV_OGUI {
 
 	}
 
-	public enum UAV_OP_DATA {
+	public enum DATA_UAV_OP {
 
 	}
 

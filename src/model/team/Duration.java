@@ -1,6 +1,6 @@
 package model.team;
 
-import java.util.Random;
+import simulator.Range;
 
 public enum Duration {
 	
@@ -42,6 +42,7 @@ public enum Duration {
 	
 	private Integer _minimum;
 	private Integer _maximum;
+	private Range _range;
 
 	/**
 	 * creates a bounded duration
@@ -51,6 +52,7 @@ public enum Duration {
 	Duration(int minimum, int maximum) {
 		_minimum = minimum;
 		_maximum = maximum;
+		_range = new Range(_minimum, _maximum);
 	}
 	
 	/**
@@ -88,7 +90,7 @@ public enum Duration {
 		return result;
 	}
 
-	public int getdur() {
+	public Range getRange() {
 //		if(_minimum == _maximum)
 //			return _maximum;
 //		else{
@@ -96,7 +98,7 @@ public enum Duration {
 //			int dur = _minimum + rand.nextInt(_maximum-_minimum);
 //			return dur;
 //		}
-		return _maximum;
+		return _range;
 	}
 
 }
