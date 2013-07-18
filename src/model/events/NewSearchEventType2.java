@@ -10,17 +10,17 @@ import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
 
-public class NewSearchEvent extends Event {
+public class NewSearchEventType2 extends Event {
 	
-	public NewSearchEvent(final ComChannelList inputs, final ComChannelList outputs)
+	public NewSearchEventType2(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
 		_name = "NewSearchEvent";
 		
 		//Define the event states
 		State state = this.getState();
-		_outputs = new ComChannelList();
-		_outputs.putAll(outputs);
+		//State end = new State("end");
+		
 		//Define the Event transitions
 		_transition = new Transition(getInternalVars(), inputs, outputs, state) {
 			@SuppressWarnings("unchecked")
@@ -32,8 +32,10 @@ public class NewSearchEvent extends Event {
 				if ( !new_search_event.value() ) {
 					this.setTempOutput(Channels.NEW_SEARCH_EVENT.name(), true);
 					return true;
-				} else
-					return false;
+				} else {
+					this.setTempOutput(Channels.NEW_SEARCH_EVENT.name(), false);
+					return true;
+				}
 			};
 		};
 		state.add(_transition);

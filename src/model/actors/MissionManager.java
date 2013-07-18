@@ -226,7 +226,13 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( _inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value() != null ) {
+				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_END_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					result = true;
+				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					result = true;
+				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					result = true;
+				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
 					result = true;
 				}
 				return result;

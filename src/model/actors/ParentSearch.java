@@ -108,49 +108,47 @@ public class ParentSearch extends Actor {
 	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM, State POKE_MM) {
 		//(END_MM, [], []) -> (IDLE, [], [])
 		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
-			
-		});//{
-//			@Override
-//			public boolean isEnabled(){
-//				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
-//					setTempInternalVar("NEW_TERMINATE_SEARCH", 0);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
-//		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
-//			@Override
-//			public boolean isEnabled(){
-//				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") == 1){
-//					setTempInternalVar("NEW_AREAS_TO_SEARCH", 0);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
-//		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
-//			@Override
-//			public boolean isEnabled(){
-//				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
-//					int num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
-//					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
-//		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
-//			@Override
-//			public boolean isEnabled(){
-//				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") > 0){
-//					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")-1;
-//					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") == 1){
+					setTempInternalVar("NEW_TERMINATE_SEARCH", 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") == 1){
+					setTempInternalVar("NEW_AREAS_TO_SEARCH", 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
+					int num = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
+					setTempInternalVar("NEW_TERMINATE_SEARCH", num);
+					return true;
+				}
+				return false;
+			}
+		});
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH") > 0){
+					int num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")-1;
+					setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	/**
@@ -167,17 +165,17 @@ public class ParentSearch extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
-					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI);
 					int num = (Integer) _internal_vars.getVariable("NEW_SEARCH_AOI")-1;
 					this.setTempInternalVar("NEW_SEARCH_AOI", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION") > 0){
-					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION);
 					int num = (Integer) _internal_vars.getVariable("NEW_TARGET_DESCRIPTION")-1;
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
 				}else
 				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
-					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH);
 					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
 				}
@@ -228,6 +226,13 @@ public class ParentSearch extends Actor {
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);
+					
+					num = (Integer)_internal_vars.getVariable("NEW_AREAS_TO_SEARCH")+1;
+					this.setTempInternalVar("NEW_AREAS_TO_SEARCH", num);
+					
+					num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
+					
 					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
 					return true;
 				}

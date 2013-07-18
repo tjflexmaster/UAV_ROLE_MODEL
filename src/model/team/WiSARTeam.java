@@ -1,13 +1,16 @@
 package model.team;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import model.actors.*;
-import model.events.NewSearchEvent;
-
-import simulator.*;
+import model.actors.MissionManager;
+import model.actors.Operator;
+import model.actors.OperatorGui;
+import model.actors.ParentSearch;
+import model.actors.UAV;
+import model.actors.VideoOperator;
+import model.events.NewSearchEventType2;
+import simulator.ComChannel;
 import simulator.ComChannel.Type;
+import simulator.ComChannelList;
+import simulator.Team;
 
 /**
  * 
@@ -46,7 +49,7 @@ public class WiSARTeam extends Team {
 		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		outputs.clear();
 		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
+		this.addEvent(new NewSearchEventType2(inputs, outputs), 2);
 
 		//Declare all output com channels
 		//PS_Events

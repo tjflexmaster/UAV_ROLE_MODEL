@@ -152,6 +152,10 @@ public class Transition implements ITransition {
 		buildTempOutput();
 		
 		_temp_outputs.putAll(t._temp_outputs);
+		for( Entry<String, Object> temp_internal_var : t._temp_internal_vars.entrySet()){
+			if(temp_internal_var.getValue() != null)
+			_internal_vars.setVariable(temp_internal_var.getKey(), temp_internal_var.getValue());
+		}
 	}
 	
 	/**
@@ -171,7 +175,7 @@ public class Transition implements ITransition {
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
-				if ( temp != null )
+				//if ( temp != null )
 					output.set(temp);
 			}
 		}
@@ -268,13 +272,15 @@ public class Transition implements ITransition {
 		String result = _internal_vars.getVariable("currentState").toString() + " X (";
 		if(_inputs != null){
 			for(Entry<String, ComChannel<?>> input : _inputs.entrySet()) {
-				result += input.getValue().name() + " ";
+				if(input.getValue().value() != null)
+					result += input.toString() + " ";
 			}
 		}
 		result += ") -> " + _endState.toString() + " X (";
 		if(_outputs != null){
-			for(Entry<String, ComChannel<?>> output : _outputs.entrySet()) {
-				result += output.getValue().name() + " ";
+			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
+				if(output.getValue() != null)
+					result += output.toString() + " ";
 			}
 		}
 		result += ")";

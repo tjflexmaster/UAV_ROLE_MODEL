@@ -2,12 +2,11 @@ package simulator;
 
 import java.util.HashMap;
 
-public abstract class Event implements IEvent, IActor {
+public abstract class EventType2 implements IEvent, IActor {
 	
 	private int _count = 0;
 	protected String _name;
 	protected ITransition _transition;
-	protected ComChannelList _outputs;
 	
 	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
 	
@@ -23,12 +22,6 @@ public abstract class Event implements IEvent, IActor {
 			_count = count;
 		else
 			_count = 0;
-	}
-	
-	public void deactivate(){
-		for(ComChannel c : outputs){
-			
-		}
 	}
 	
 	public int getEventCount()

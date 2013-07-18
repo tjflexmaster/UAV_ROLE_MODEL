@@ -72,4 +72,12 @@ public class ComChannel<T> {
 	{
 		return _name.hashCode();
 	}
+	
+	@Override
+	public String toString(){
+		if(_value == null){
+			return "null";
+		}
+		return _value.toString();
+	}
 }
