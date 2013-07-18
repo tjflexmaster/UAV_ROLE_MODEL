@@ -1,6 +1,7 @@
 package simulator;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import model.team.Duration;
 
@@ -34,8 +35,14 @@ public class Transition implements ITransition {
 	 */
 	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, int priority, double probability) {
 		
-		_inputs = inputs;
-		_outputs = outputs;
+		_inputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : inputs.entrySet()){
+			_inputs.add(chan.getValue());
+		}
+		_outputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : outputs.entrySet()){
+			_outputs.add(chan.getValue());
+		}
 		_endState = endState;
 		setDurationRange(duration_range);
 		priority(priority);
@@ -48,9 +55,15 @@ public class Transition implements ITransition {
 	}
 
 	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, int priority) {
-		
-		_inputs = inputs;
-		_outputs = outputs;
+
+		_inputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : inputs.entrySet()){
+			_inputs.add(chan.getValue());
+		}
+		_outputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : outputs.entrySet()){
+			_outputs.add(chan.getValue());
+		}
 		_endState = endState;
 		setDurationRange(duration_range);
 		priority(priority);
@@ -63,9 +76,15 @@ public class Transition implements ITransition {
 	}
 	
 	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range, double probability) {
-		
-		_inputs = inputs;
-		_outputs = outputs;
+
+		_inputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : inputs.entrySet()){
+			_inputs.add(chan.getValue());
+		}
+		_outputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : outputs.entrySet()){
+			_outputs.add(chan.getValue());
+		}
 		_endState = endState;
 		setDurationRange(duration_range);
 		priority(1);
@@ -80,8 +99,15 @@ public class Transition implements ITransition {
 	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState, Range duration_range) {
 		
 		_internal_vars = internalVars;
-		_inputs = inputs;
-		_outputs = outputs;
+
+		_inputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : inputs.entrySet()){
+			_inputs.add(chan.getValue());
+		}
+		_outputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : outputs.entrySet()){
+			_outputs.add(chan.getValue());
+		}
 		_endState = endState;
 		setDurationRange(duration_range);
 		priority(1);
@@ -94,8 +120,15 @@ public class Transition implements ITransition {
 	public Transition (ActorVariableWrapper internalVars, ComChannelList inputs, ComChannelList outputs, State endState) {
 	
 		_internal_vars = internalVars;
-		_inputs = inputs;
-		_outputs = outputs;
+
+		_inputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : inputs.entrySet()){
+			_inputs.add(chan.getValue());
+		}
+		_outputs = new ComChannelList();
+		for(Entry<String, ComChannel<?>> chan : outputs.entrySet()){
+			_outputs.add(chan.getValue());
+		}
 		_endState = endState;
 		_range = new Range();
 		priority(1);

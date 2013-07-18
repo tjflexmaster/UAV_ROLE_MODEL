@@ -53,11 +53,16 @@ public class ComChannel<T> {
 	{
 		if ( obj == this )
 			return true;
-		
+
 		if (obj instanceof ComChannel) {
-			if ( ((ComChannel<?>) obj).name() == this._name )
+			if ( ((ComChannel<?>) obj).name().equals(this._name) )
 				return true;
 		}
+		if (obj instanceof String) {
+			if ( ((String) obj).equals(this._name) )
+				return true;
+		}
+		
 		
 		return false;
 	}

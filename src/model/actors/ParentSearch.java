@@ -3,8 +3,8 @@ package model.actors;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.team.Channels;
 import model.team.Duration;
-
 import simulator.Actor;
 import simulator.ComChannelList;
 import simulator.IActor;
@@ -223,7 +223,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get("NewSearchEvent").value()){
+				if((Boolean)_inputs.get(Channels.NEW_SEARCH_EVENT).value()){
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);

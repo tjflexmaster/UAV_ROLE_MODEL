@@ -14,7 +14,7 @@ public abstract class Actor implements IActor {
 	 */
 	protected String _name = "";
 	
-	private ArrayList<IState> _states;
+	private ArrayList<IState> _states = new ArrayList<IState>();
 	
 	/**
 	 * this represents the current state of the actor (state machine)

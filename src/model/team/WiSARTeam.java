@@ -25,7 +25,6 @@ public class WiSARTeam extends Team {
 	 * @param outputs
 	 */
 	public WiSARTeam() {
-		
 		//Declare all output com channels
 		//PS_Events
 		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
