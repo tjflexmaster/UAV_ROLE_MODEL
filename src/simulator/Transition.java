@@ -147,9 +147,11 @@ public class Transition implements ITransition {
 		_range = t.getDurationRange();
 		_priority = t._priority;
 		_probability = t._probability;
-		
+
 		buildTempInternalVars();
 		buildTempOutput();
+		
+		_temp_outputs.putAll(t._temp_outputs);
 	}
 	
 	/**
@@ -165,7 +167,7 @@ public class Transition implements ITransition {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void fire(){
-		
+		System.out.println(this.toString());						//debuging
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
@@ -258,25 +260,25 @@ public class Transition implements ITransition {
 	}
 
 	
-//	/**
-//	 * 
-//	 * @return return a string representation of the transition
-//	 */
-//	public String toString() {
-//		String result = "(";
-//		if(_inputs != null){
-//			for(ComChannel input : _inputs) {
-//				result += input.name() + " ";
-//			}
-//		}
-//		result += ") -> " + _endState.toString() + " X (";
-//		if(_outputs != null){
-//			for(ComChannel output : _outputs) {
-//				result += output.name() + " ";
-//			}
-//		}
-//		result += ")";
-//		return result;
-//	}
+	/**
+	 * 
+	 * @return return a string representation of the transition
+	 */
+	public String toString() {
+		String result = _internal_vars.getVariable("currentState").toString() + " X (";
+		if(_inputs != null){
+			for(Entry<String, ComChannel<?>> input : _inputs.entrySet()) {
+				result += input.getValue().name() + " ";
+			}
+		}
+		result += ") -> " + _endState.toString() + " X (";
+		if(_outputs != null){
+			for(Entry<String, ComChannel<?>> output : _outputs.entrySet()) {
+				result += output.getValue().name() + " ";
+			}
+		}
+		result += ")";
+		return result;
+	}
 
 }

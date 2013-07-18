@@ -5,7 +5,7 @@ public class Range {
 	private int _max = 0;
 	
 	public Range() {
-		
+		_min = _max = 1;
 	}
 	
 	public Range(int val)

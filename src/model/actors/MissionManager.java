@@ -1,7 +1,16 @@
 package model.actors;
 
-import java.util.*;
-import simulator.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import model.team.Channels;
+import simulator.Actor;
+import simulator.ComChannel;
+import simulator.ComChannelList;
+import simulator.IActor;
+import simulator.ITransition;
+import simulator.State;
+import simulator.Transition;
 
 public class MissionManager extends Actor {
 
@@ -98,6 +107,7 @@ public class MissionManager extends Actor {
 		initializeOBSERVING_VGUI(OBSERVING_VGUI);
 		initializePOKE_VGUI(POKE_VGUI);
 		initializeTX_VGUI(TX_VGUI);
+		startState(IDLE);
 	}
 
 	private void initializeIdle(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {
@@ -109,9 +119,12 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("PS_MM").equals("POKE") ) {
-					this.setTempOutput("MM_PS", "ACK");
-					result = true;
+				if(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value() != null){
+					
+					if ( ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+						this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_ACK_PS);
+						result = true;
+					}
 				}
 				return result;		
 			}
@@ -124,7 +137,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("TARGET_DESCRIPTION").equals("NEW") ) {
+				if ( "NEW".equals(this._internal_vars.getVariable("TARGET_DESCRIPTION")) ) {
 					this.setTempOutput("MM_VO", "POKE");
 					result = true;
 				}
@@ -139,7 +152,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
+				if ( "NEW".equals(this._internal_vars.getVariable("AREA_OF_INTEREST")) ) {
 					this.setTempOutput("MM_VO", "POKE");
 					result = true;
 				}
@@ -189,23 +202,23 @@ public class MissionManager extends Actor {
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM, PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])
 		//(RX_PS, [PS_TARGET_DESCRIPTION_MM, PS_END_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM])
 		//(RX_PS, [PS_AREA_OF_INTEREST_MM, PS_TARGET_DESCRIPTION_MM, PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION, PS_TARGET_DESCRIPTION_MM])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
-			@Override
-			public boolean isEnabled() 
-			{
-				boolean result = false;
-				if ( this._internal_vars.getVariable("PS_AREA_OF_INTEREST_MM").equals("NEW") ) {
-					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
-					result = true;
-				}
-				if ( this._internal_vars.getVariable("PS_TARGET_DESCRIPTION_MM").equals("NEW") ) {
-					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
-					result = true;
-				}
-				return result;		
-			}
-		};
-		RX_PS.add(t);
+//		t = new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
+//			@Override
+//			public boolean isEnabled() 
+//			{
+//				boolean result = false;
+//				if ( "NEW".equals(this._internal_vars.getVariable("PS_AREA_OF_INTEREST_MM")) ) {
+//					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
+//					result = true;
+//				}
+//				if ( "NEW".equals(this._internal_vars.getVariable("PS_TARGET_DESCRIPTION_MM")) ) {
+//					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
+//					result = true;
+//				}
+//				return result;		
+//			}
+//		};
+//		RX_PS.add(t);
 
 		//(RX_PS, [PS_END_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])
 		t = new Transition(this._internal_vars, inputs, outputs, IDLE) {
@@ -213,7 +226,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("PS_MM").equals("END") ) {
+				if ( _inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value() != null ) {
 					result = true;
 				}
 				return result;
@@ -437,13 +450,26 @@ public class MissionManager extends Actor {
 
 	@Override
 	public HashMap<IActor, ITransition> getTransitions() {
-		return null;
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() > t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
 	}
 
 	@Override
 	protected void initializeInternalVariables() {
 		//initialize all memory variables
-		this._internal_vars.addVariable("PS_POKE_MM", 0);
+		this._internal_vars.addVariable("TARGET_DESCRIPTION", null);
+		this._internal_vars.addVariable("AREA_OF_INTEREST", null);
 	}
 
 }

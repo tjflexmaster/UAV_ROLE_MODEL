@@ -14,7 +14,9 @@ public abstract class Team implements ITeam {
 	public HashMap<IActor, ITransition> getActorTransitions() {
 		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
 		for( IActor a : _actors ) {
-			result.putAll(a.getTransitions());
+			HashMap<IActor, ITransition> transitions = a.getTransitions();
+			if(transitions != null)
+				result.putAll(transitions);
 		}
 		
 		return result;

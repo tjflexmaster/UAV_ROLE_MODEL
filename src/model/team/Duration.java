@@ -62,6 +62,7 @@ public enum Duration {
 	Duration(Integer duration){
 		_minimum = duration;
 		_maximum = duration;
+		_range = new Range(_minimum, _maximum);
 	}
 	
 	/**
@@ -71,6 +72,7 @@ public enum Duration {
 	public Duration update(Integer duration){
 		_minimum = duration;
 		_maximum = duration;
+		_range = new Range(_minimum, _maximum);
 		return this;
 	}
 

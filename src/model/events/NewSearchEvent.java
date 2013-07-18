@@ -27,7 +27,7 @@ public class NewSearchEvent extends Event {
 			public boolean isEnabled() {
 				
 				//TODO Check the simulator to see if we have a transition already
-				ComChannel<Boolean> new_search_event = (ComChannel<Boolean>) inputs.get(Channels.NEW_SEARCH_EVENT.name());
+				ComChannel<Boolean> new_search_event = (ComChannel<Boolean>) _inputs.get(Channels.NEW_SEARCH_EVENT.name());
 				if ( !new_search_event.value() ) {
 					this.setTempOutput(Channels.NEW_SEARCH_EVENT.name(), true);
 					return true;
@@ -41,7 +41,9 @@ public class NewSearchEvent extends Event {
 
 	@Override
 	public ITransition getEnabledTransition() {
-		return _transition;
+		if(_transition.isEnabled())
+			return _transition;
+		return null;
 	}
 
 }

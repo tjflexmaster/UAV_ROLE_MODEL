@@ -105,7 +105,8 @@ public class DeltaClock implements IDeltaClock {
 			_clock.remove(i);
 			
 			//Make sure to add the removed time back into the clock
-			_clock.get(i).time += dt.time;
+			if(_clock.size() > i)
+				_clock.get(i).time += dt.time;
 		}
 		
 	}

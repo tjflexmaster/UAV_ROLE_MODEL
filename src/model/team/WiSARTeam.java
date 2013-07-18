@@ -27,8 +27,8 @@ public class WiSARTeam extends Team {
 	public WiSARTeam() {
 		//Declare all output com channels
 		//PS_Events
-		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
-		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
 		
 		//PS
 		_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
@@ -46,7 +46,7 @@ public class WiSARTeam extends Team {
 		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		outputs.clear();
 		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		this.addEvent(new NewSearchEvent(inputs, outputs), 3);
+		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
 
 		//Declare all output com channels
 		//PS_Events
@@ -125,76 +125,76 @@ public class WiSARTeam extends Team {
 //		outputs.put(UDO.MM_END_VO.name(), UDO.MM_END_VO);
 		this.addActor(new MissionManager(inputs, outputs));
 		
-		//add UAV Operator, with its inputs and outputs, to the team
-		inputs.clear();
-		inputs.add(MM_OP_COMM);
-		inputs.add(VO_OP_COMM);
-		inputs.add(OGUI_OP_DATA);
-		inputs.add(UAV_OP_DATA);
-//		inputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
-//		inputs.put(UDO.MM_NEW_SEARCH_AOI_OP.name(), UDO.MM_NEW_SEARCH_AOI_OP);
-//		inputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
-//		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
-		outputs.clear();
-		outputs.add(OP_UAV_COMM);
-		outputs.add(OP_OGUI_COMM);
-		outputs.add(OP_MM_COMM);
-//		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
-//		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
-//		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
-//		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
-//		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
-		this.addActor(new Operator(inputs, outputs));
-
-		//add UAV Operator Gui, with its inputs and outputs, to the team
-		inputs.clear();
-		inputs.add(UAV_OGUI_DATA);
-		inputs.add(OP_OGUI_COMM);
-//		inputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
-		outputs.clear();
-		outputs.add(OGUI_UAV_DATA);
-		outputs.add(OGUI_OP_DATA);
-		outputs.add(OGUI_VGUI_DATA);
-
-//		outputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
-		this.addActor(new OperatorGui(inputs, outputs));
-
-		//add Video Operator, with its inputs and outputs, to the team
-		inputs.clear();
-		inputs.add(MM_VO_COMM);
-//		inputs.put(UDO.MM_POKE_VO.name(), UDO.MM_POKE_VO);
-//		inputs.put(UDO.MM_END_VO.name(), UDO.MM_END_VO);
-//		inputs.put(UDO.MM_TARGET_DESCRIPTION_VO.name(), UDO.MM_TARGET_DESCRIPTION_VO);
-//		inputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
-		outputs.clear();
-		outputs.add(VO_OP_COMM);
-		outputs.add(VO_MM_COMM);
-		outputs.add(VO_VGUI_COMM);
-//		outputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
-//		outputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
-		this.addActor(new VideoOperator(inputs, outputs));
-
-		//add Video Operator Gui, with its inputs and outputs, to the team
-		inputs.clear();
-		inputs.add(VO_VGUI_COMM);
-		inputs.add(MM_VGUI_COMM);
-		inputs.add(OGUI_VGUI_DATA);
-		inputs.add(UAV_VGUI_DATA);
-		
-		outputs.clear();
-		this.addActor(new VideoOperatorGui(inputs, outputs));
-
-		//add UAV, with its inputs and outputs, to the team
-		inputs.clear();
-		inputs.add(OP_UAV_COMM);
-		inputs.add(OGUI_UAV_DATA);
-//		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
-		outputs.clear();
-		outputs.add(UAV_VGUI_DATA);
-		outputs.add(UAV_OGUI_DATA);
-		outputs.add(UAV_OP_DATA);
-//		outputs.put(UDO.UAV_BATTERY_LOW_OGUI.name(), UDO.UAV_BATTERY_LOW_OGUI);
-		this.addActor(new UAV(inputs, outputs));
+//		//add UAV Operator, with its inputs and outputs, to the team
+//		inputs.clear();
+//		inputs.add(MM_OP_COMM);
+//		inputs.add(VO_OP_COMM);
+//		inputs.add(OGUI_OP_DATA);
+//		inputs.add(UAV_OP_DATA);
+////		inputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
+////		inputs.put(UDO.MM_NEW_SEARCH_AOI_OP.name(), UDO.MM_NEW_SEARCH_AOI_OP);
+////		inputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
+////		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
+//		outputs.clear();
+//		outputs.add(OP_UAV_COMM);
+//		outputs.add(OP_OGUI_COMM);
+//		outputs.add(OP_MM_COMM);
+////		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
+////		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
+////		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
+////		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
+////		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
+//		this.addActor(new Operator(inputs, outputs));
+//
+//		//add UAV Operator Gui, with its inputs and outputs, to the team
+//		inputs.clear();
+//		inputs.add(UAV_OGUI_DATA);
+//		inputs.add(OP_OGUI_COMM);
+////		inputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
+//		outputs.clear();
+//		outputs.add(OGUI_UAV_DATA);
+//		outputs.add(OGUI_OP_DATA);
+//		outputs.add(OGUI_VGUI_DATA);
+//
+////		outputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
+//		this.addActor(new OperatorGui(inputs, outputs));
+//
+//		//add Video Operator, with its inputs and outputs, to the team
+//		inputs.clear();
+//		inputs.add(MM_VO_COMM);
+////		inputs.put(UDO.MM_POKE_VO.name(), UDO.MM_POKE_VO);
+////		inputs.put(UDO.MM_END_VO.name(), UDO.MM_END_VO);
+////		inputs.put(UDO.MM_TARGET_DESCRIPTION_VO.name(), UDO.MM_TARGET_DESCRIPTION_VO);
+////		inputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
+//		outputs.clear();
+//		outputs.add(VO_OP_COMM);
+//		outputs.add(VO_MM_COMM);
+//		outputs.add(VO_VGUI_COMM);
+////		outputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
+////		outputs.put(UDO.VO_TARGET_DESCRIPTION_VO.name(), UDO.VO_TARGET_DESCRIPTION_VO);
+//		this.addActor(new VideoOperator(inputs, outputs));
+//
+//		//add Video Operator Gui, with its inputs and outputs, to the team
+//		inputs.clear();
+//		inputs.add(VO_VGUI_COMM);
+//		inputs.add(MM_VGUI_COMM);
+//		inputs.add(OGUI_VGUI_DATA);
+//		inputs.add(UAV_VGUI_DATA);
+//		
+//		outputs.clear();
+//		this.addActor(new VideoOperatorGui(inputs, outputs));
+//
+//		//add UAV, with its inputs and outputs, to the team
+//		inputs.clear();
+//		inputs.add(OP_UAV_COMM);
+//		inputs.add(OGUI_UAV_DATA);
+////		inputs.put(UDO.OGUI_TAKE_OFF_UAV.name(), UDO.OGUI_TAKE_OFF_UAV);
+//		outputs.clear();
+//		outputs.add(UAV_VGUI_DATA);
+//		outputs.add(UAV_OGUI_DATA);
+//		outputs.add(UAV_OP_DATA);
+////		outputs.put(UDO.UAV_BATTERY_LOW_OGUI.name(), UDO.UAV_BATTERY_LOW_OGUI);
+//		this.addActor(new UAV(inputs, outputs));
 	}
 
 }
