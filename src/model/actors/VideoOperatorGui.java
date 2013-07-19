@@ -23,7 +23,8 @@ public class VideoOperatorGui extends Actor {
 
 	public enum VISUAL_VGUI_MM_COMM {
 		VGUI_VALIDATION_REQ_T,
-		VGUI_ALERT_MM
+		VGUI_VALIDATION_REQ_F,
+		VGUI_ALERT_MM,
 
 	}
 

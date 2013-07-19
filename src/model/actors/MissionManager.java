@@ -88,7 +88,7 @@ public class MissionManager extends Actor {
 		this.initializeInternalVariables();
 		
 		//initialize transitions
-		initializeIdle(inputs, outputs, IDLE, RX_PS, POKE_VO, POKE_OP);
+		initializeIdle(inputs, outputs, IDLE, RX_PS, POKE_VO, POKE_OP, RX_OP, RX_VO);
 		//comm with PS
 		initializePOKE_PS(inputs, outputs, POKE_PS,TX_PS);
 		initializeTX_PS(TX_PS);
@@ -111,7 +111,8 @@ public class MissionManager extends Actor {
 		startState(IDLE);
 	}
 
-	private void initializeIdle(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP) {
+	private void initializeIdle(ComChannelList inputs, ComChannelList outputs,
+			State IDLE, State RX_PS, State POKE_VO, State POKE_OP, State RX_OP, State RX_VO) {
 		Transition t;
 		
 		//(IDLE, [PS_POKE_MM], [])->(RX_PS, [MM_ACK_PS], [])
@@ -131,7 +132,33 @@ public class MissionManager extends Actor {
 			}
 		};
 		IDLE.add(t);
-		
+
+		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
+		t = new Transition(this._internal_vars, inputs, outputs, RX_OP) {
+			@Override
+			public boolean isEnabled() 
+			{
+				boolean result = false;
+				if ( Operator.AUDIO_OP_MM_COMM.OP_POKE_MM.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value()) ) {
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP);
+					result = true;
+				}
+				return result;		
+			}
+		};
+		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
+		t = new Transition(this._internal_vars, inputs, outputs, RX_VO) {
+			@Override
+			public boolean isEnabled() 
+			{
+				boolean result = false;
+				if ( VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value()) ) {
+					this.setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO);
+					result = true;
+				}
+				return result;		
+			}
+		};
 		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
 		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
 			@Override
