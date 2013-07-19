@@ -196,33 +196,33 @@ public class ParentSearch extends Actor {
 				return false;
 			}
 		});
-//		//(IDLE,[NewSearchAreaEvent],[])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_SEARCH_AOI+1])
-//		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
-//			@Override
-//			public boolean isEnabled(){
-//				if((Boolean)_inputs.get(Channels.NEW_SEARCH_AREA_EVENT.name()).value()){
-//					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
-//					int num = (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1;
-//					this.setTempInternalVar("NEW_SEARCH_AOI", num);
-//					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
-//				}
-//				return false;
-//			}
-//		});
-//		//(IDLE,[NewTargetDescriptionEvent],[SEARCH_ACTIVE])x(POKE_MM,[PS_POKE_MM],[SEARCH_ACTIVE, NEW_TARGET_DESCRIPTION+1])
-//		IDLE.add(new Transition(_internal_vars,inputs,outputs,POKE_MM){
-//			@Override
-//			public boolean isEnabled(){
-//				if((Boolean)_inputs.get(Channels.TARGET_DESCRIPTION_EVENT.name()).value()){
-//					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
-//					int num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
-//					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
-//					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
-//					return true;
-//				}
-//				return false;
-//			}
-//		});
+		//(IDLE,[NewSearchAreaEvent],[])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_SEARCH_AOI+1])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_inputs.get(Channels.NEW_SEARCH_AREA_EVENT.name()).value()){
+					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
+					int num = (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1;
+					this.setTempInternalVar("NEW_SEARCH_AOI", num);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
+				}
+				return false;
+			}
+		});
+		//(IDLE,[NewTargetDescriptionEvent],[SEARCH_ACTIVE])x(POKE_MM,[PS_POKE_MM],[SEARCH_ACTIVE, NEW_TARGET_DESCRIPTION+1])
+		IDLE.add(new Transition(_internal_vars,inputs,outputs,POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_inputs.get(Channels.TARGET_DESCRIPTION_EVENT.name()).value()){
+					assert((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is no search active";
+					int num = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION")+1;
+					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", num);
+					this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(IDLE,[TerminateSearchEvent],[SEARCH_ACTIVE])x(POKE_MM,[],[SEARCH_ACTIVE, NEW_TERMINATE_SEARCH+1])
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
@@ -240,6 +240,9 @@ public class ParentSearch extends Actor {
 				return false;
 			}
 		});
+		//(IDLE, [],[NEW_TERMINATE_SEARCH])x(POKE_MM,[PS_POKE_MM],[NEW_TERMINATE_SEARCH])
+		//(IDLE, [],[NEW_SEARCH_AOI])x(POKE_MM,[PS_POKE_MM],[NEW_SEARCH_AOI])
+		//(IDLE, [],[NEW_TARGET_DESCRIPTION])x(POKE_MM,[PS_POKE_MM],[NEW_TARGET_DESCRIPTION])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){

@@ -34,6 +34,8 @@ public class WiSARTeam extends Team {
 		//PS_Events
 		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
 		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
+		_channels.add(new ComChannel<Boolean>(Channels.NEW_SEARCH_AREA_EVENT.name(),false,ComChannel.Type.AUDIO));
+		_channels.add(new ComChannel<Boolean>(Channels.TARGET_DESCRIPTION_EVENT.name(),false,ComChannel.Type.AUDIO));
 		
 		//PS
 		_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
@@ -120,6 +122,8 @@ public class WiSARTeam extends Team {
 		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		inputs.add(_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
 		inputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
+		inputs.add(_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
+		inputs.add(_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
 		outputs.clear();
 		outputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		this.addActor(new ParentSearch(inputs, outputs));
