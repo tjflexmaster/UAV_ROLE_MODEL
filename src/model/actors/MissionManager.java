@@ -418,26 +418,41 @@ public class MissionManager extends Actor {
 	 * (RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])<br>
 	 */
 	private void initializeRX_PS(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_OP) {
-		Transition t;
-		
 		//(RX_PS, [PS_END_MM], [])->(IDLE, [], [])
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled()
+			{
+				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_END_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		//(RX_PS, [PS_TARGET_DESCRIPTION_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM+1])
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled()
+			{
+				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		//(RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])
-		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE) {
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled() 
 			{
-				boolean result = false;
-				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_END_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
-					result = true;
-				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
-					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
-					result = true;
-				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
 					this.setTempInternalVar("TERMINATE_SEARCH", "NEW");
-					result = true;
+					return true;
 				}
-				return result;
+				return false;
 			}
 		});
 
@@ -479,14 +494,14 @@ public class MissionManager extends Actor {
 		POKE_OP.add(t);
 		
 		//(POKE_OP,[],[])x(IDLE,[],[])
-		/*t = new Transition(this._internal_vars, inputs, outputs,IDLE){
+		t = new Transition(this._internal_vars, inputs, outputs, IDLE, Duration.MM_POKE_OP.getRange()){
 			@Override
 			public boolean isEnabled() 
 			{
 				return true;
 			}
 		};
-		POKE_OP.add(t);*/
+		POKE_OP.add(t);
 
 		add(POKE_OP);
 	}
@@ -560,13 +575,14 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() {
 				if(_inputs.get("AUDIO_OP_MM_COMM").value() != null){
 					if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_END_MM)){
-						
+						return true;
 					} else if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_COMPLETE)){
 						this.setTempInternalVar("SEARCH_COMPLETE", true);
+						return true;
 					} else if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED)){
 						this.setTempInternalVar("SEARCH_FAILED", true);
+						return true;
 					}
-					return true;
 				}
 				return false;
 			}

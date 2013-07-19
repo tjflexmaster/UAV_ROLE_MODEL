@@ -16,6 +16,7 @@ public enum Duration {
 	MM_POKE_TO_TX_PS(5),
 	MM_RX_PS(22),
 	MM_POKE_VO(5,20),
+	MM_POKE_OP(5, 20),
 	
 	/* Video Operator Outputs */
 
