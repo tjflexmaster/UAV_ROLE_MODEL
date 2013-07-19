@@ -421,10 +421,9 @@ public class MissionManager extends Actor {
 		Transition t;
 		
 		//(RX_PS, [PS_END_MM], [])->(IDLE, [], [])
-		//(RX_PS, [PS_AREA_OF_INTEREST_MM], [])->(IDLE, [], [NEW_SEARCH_AOI+1])
 		//(RX_PS, [PS_TARGET_DESCRIPTION_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM+1])
 		//(RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])
-		t = new Transition(this._internal_vars, inputs, outputs, IDLE) {
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -437,14 +436,23 @@ public class MissionManager extends Actor {
 				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
 					this.setTempInternalVar("TERMINATE_SEARCH", "NEW");
 					result = true;
-				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
-					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
-					result = true;
 				}
 				return result;
 			}
-		};
-		RX_PS.add(t);
+		});
+
+		//(RX_PS, [PS_AREA_OF_INTEREST_MM], [])->(IDLE, [], [NEW_SEARCH_AOI+1])
+		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled() 
+			{
+				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
+					return true;
+				}
+				return false;
+			}
+		});
 
 		add(RX_PS);
 	}
@@ -498,6 +506,7 @@ public class MissionManager extends Actor {
 				boolean result = false;
 				if ( this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
 					this.setTempOutput("MM_AREA_OF_INTEREST_OP", "NEW");
+					this.setTempInternalVar("AREA_OF_INTEREST", "CURRENT");
 					result = true;
 				}
 				return result;		

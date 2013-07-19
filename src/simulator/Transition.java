@@ -175,16 +175,20 @@ public class Transition implements ITransition {
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
-				//if ( temp != null )
+				//if ( temp != null ){
 					output.set(temp);
+					_temp_outputs.put(output.name(), null);
+				//}
 			}
 		}
 		
 		if ( !_temp_internal_vars.isEmpty() ) {
 			for(String var : _temp_internal_vars.keySet()) {
 				Object temp = _temp_internal_vars.get(var);
-				if ( temp != null )
+				if ( temp != null ){
 					_internal_vars.setVariable(var, temp);
+					_temp_internal_vars.put(var, null);
+				}
 			}
 		}
 		
