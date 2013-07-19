@@ -44,7 +44,7 @@ public class WiSARTeam extends Team {
 		_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
 		_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO) );
 		_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO) );
-		_channels.add(new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL));
+		_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL) );
 		
 		//VO
 		_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO));
@@ -54,7 +54,7 @@ public class WiSARTeam extends Team {
 		
 		
 		//VGUI
-		_channels.add(new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL));
+		_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL) );
 		
 		
 		//initialize inputs and outputs
@@ -220,7 +220,6 @@ public class WiSARTeam extends Team {
 //		inputs.add(MM_VGUI_COMM);
 //		inputs.add(OGUI_VGUI_DATA);
 //		inputs.add(UAV_VGUI_DATA);
-//		
 //		outputs.clear();
 //		this.addActor(new VideoOperatorGui(inputs, outputs));
 //

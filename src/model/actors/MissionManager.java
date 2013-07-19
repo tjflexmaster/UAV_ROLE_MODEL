@@ -158,7 +158,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVING_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_VGUI_MM_COMM").equals(VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM)){
+				if(_inputs.get("VIDEO_VGUI_MM_COMM").equals(VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM)){
 					return true;
 				}
 				return false;
@@ -245,7 +245,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( (Integer) this._internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0) {
+				if ( this._internal_vars.getVariable("TERMINATE_SEARCH") != null && (Integer) this._internal_vars.getVariable("TERMINATE_SEARCH") > 0) {
 					this.setTempOutput("AUDIO_MM_OP_COMM", AUDIO_MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
@@ -257,7 +257,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_T")){
+				if(_internal_vars.getVariable("ANOMALY_DISMISSED_T") != null && (Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_T")){
 					this.setTempInternalVar("ANOMALY_DISMISSED_T", true);
 					return true;
 				}
@@ -269,7 +269,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_F")){
+				if(_internal_vars.getVariable("ANOMALY_DISMISSED_F") != null && (Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_F")){
 					this.setTempInternalVar("ANOMALY_DISMISSED_F", true);
 					return true;
 				}
@@ -281,7 +281,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_internal_vars.getVariable("FLYBY_REQ_T")){
+				if(_internal_vars.getVariable("FLYBY_REQ_T") != null && (Boolean)_internal_vars.getVariable("FLYBY_REQ_T")){
 					this.setTempInternalVar("FLYBY_REQ_T", true);
 					return true;
 				}
@@ -293,7 +293,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_internal_vars.getVariable("FLYBY_REQ_F")){
+				if(_internal_vars.getVariable("FLYBY_REQ_F") != null && (Boolean)_internal_vars.getVariable("FLYBY_REQ_F")){
 					this.setTempInternalVar("FLYBY_REQ_F", true);
 					return true;
 				}
@@ -604,7 +604,7 @@ public class MissionManager extends Actor {
 	/**
 	 * This method assists the constructor initialize the POKE_OP state.<br><br>
 	 * (TX_VO, [], [TARGET_DESCRIPTION])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TARGET_DESCRIPTION-1])<br>
-	 * (TX_VO, [], [TERMINATE_SEARCH])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TERMINATE_SEARCH-1)<br>
+	 * (TX_VO, [], [TERMINATE_SEARCH])->(END_VO, [MM_TARGET_DESCRIPTION_VO, MM_END_VO], [TERMINATE_SEARCH-1])<br>
 	 */
 	private void initializeTX_VO(ComChannelList inputs, ComChannelList outputs, State TX_VO, State END_VO) {
 		Transition t;
@@ -621,7 +621,7 @@ public class MissionManager extends Actor {
 					this.setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
 					result = true;
 				}
-				if((Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
+				if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH") != null && (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
 					this.setTempOutput("AUDIO_MM_VO_COMM", MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH);
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1);
 					result = true;
@@ -837,6 +837,7 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("TARGET_DESCRIPTION", null);
 		this._internal_vars.addVariable("AREA_OF_INTEREST", null);
 		this._internal_vars.addVariable("TERMINATE_SEARCH", null);
+		this._internal_vars.addVariable("ANOMALY_DISMISSED_T", null);
 	}
 
 }
