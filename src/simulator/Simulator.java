@@ -53,7 +53,7 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
-			System.out.println("advanced");
+			System.out.printf("advanced: %d\n", _clock.elapsedTime());
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
@@ -73,7 +73,7 @@ public class Simulator {
 			ITransition t = e.getEnabledTransition();
 			if ( _clock.getActorTransition((IActor) e) == null ) {
 				if ( t != null && !e.isFinished() ) {
-					_clock.addTransition((IActor) e, t, random(0,10000));
+					_clock.addTransition((IActor) e, t, random(t.getDurationRange().min(),t.getDurationRange().max()));
 					e.decrementCount();
 				}
 			} else {

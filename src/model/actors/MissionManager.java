@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.team.Channels;
+import model.team.Duration;
 import simulator.Actor;
 import simulator.ComChannel;
 import simulator.ComChannelList;
@@ -138,7 +139,7 @@ public class MissionManager extends Actor {
 			{
 				boolean result = false;
 				if ( "NEW".equals(this._internal_vars.getVariable("TARGET_DESCRIPTION")) ) {
-					this.setTempOutput("MM_VO", "POKE");
+					this.setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO);
 					result = true;
 				}
 				return result;		
@@ -153,7 +154,7 @@ public class MissionManager extends Actor {
 			{
 				boolean result = false;
 				if ( "NEW".equals(this._internal_vars.getVariable("AREA_OF_INTEREST")) ) {
-					this.setTempOutput("MM_VO", "POKE");
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
 				return result;		
@@ -229,10 +230,13 @@ public class MissionManager extends Actor {
 				if ( ParentSearch.AUDIO_PS_MM_COMM.PS_END_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
 					result = true;
 				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					this.setTempInternalVar("TARGET_DESCRIPTION", "NEW");
 					result = true;
 				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					this.setTempInternalVar("TERMINATE_SEARCH", "NEW");
 					result = true;
 				} else if ( ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+					this.setTempInternalVar("AREA_OF_INTEREST", "NEW");
 					result = true;
 				}
 				return result;
@@ -273,7 +277,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("OP_MM").equals("ACK") ) {
+				if (Operator.AUDIO_OP_MM_COMM.OP_ACK_MM.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value())) {
 					result = true;
 				}
 				return result;		
@@ -358,32 +362,20 @@ public class MissionManager extends Actor {
 		Transition t;
 		
 		//(POKE_VO, [VO_ACK_MM], [])->(TX_VO, [], [])
-		t = new Transition(this._internal_vars, inputs, outputs, TX_VO) {
+		t = new Transition(this._internal_vars, inputs, outputs, TX_VO, Duration.NEXT.getRange(), 1) {
 			@Override
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("VO_MM").equals("ACK") ) {
+				if ( VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value()) ) {
 					result = true;
 				}
 				return result;		
 			}
 		};
 		POKE_VO.add(t);
-		
-		/*POKE_VO.addTransition(
-				new UDO[]{inputs.get(UDO.MM_TARGET_DESCRIPTION_MM.name())},
-				null,
-				new UDO[]{outputs.get(UDO.MM_POKE_VO.name()), UDO.MM_TARGET_DESCRIPTION_MM},
-				null,
-				IDLE, Duration.MM_POKE_VO, 0);
-		POKE_VO.addTransition(
-				new UDO[]{inputs.get(UDO.VO_ACK_MM.name()), UDO.MM_TARGET_DESCRIPTION_MM},
-				null,
-				new UDO[]{outputs.get(UDO.MM_END_VO.name()), outputs.get(UDO.MM_TARGET_DESCRIPTION_VO.name())},
-				null,
-				TX_VO, Duration.NEXT, 0);*/
-
+		t = new Transition(this._internal_vars, inputs, outputs, IDLE, Duration.MM_POKE_VO.getRange(), 0);
+		POKE_VO.add(t);
 		add(POKE_VO);
 	}
 
@@ -397,8 +389,8 @@ public class MissionManager extends Actor {
 			{
 				boolean result = false;
 				if ( this._internal_vars.getVariable("TARGET_DESCRIPTION").equals("NEW") ) {
-					this.setTempOutput("MM_TARGET_DESCRIPTION_VO", "NEW");
-					this.setTempOutput("MM_VO", "END");
+					this.setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION);
+					this.setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
 					result = true;
 				}
 				return result;		
@@ -462,7 +454,7 @@ public class MissionManager extends Actor {
 			return null;
 		ITransition nextTransition = enabledTransitions.get(0);
 		for(ITransition t : enabledTransitions){
-			if(nextTransition.priority() > t.priority()){
+			if(nextTransition.priority() < t.priority()){
 				nextTransition = t;
 			}
 		}
@@ -476,6 +468,7 @@ public class MissionManager extends Actor {
 		//initialize all memory variables
 		this._internal_vars.addVariable("TARGET_DESCRIPTION", null);
 		this._internal_vars.addVariable("AREA_OF_INTEREST", null);
+		this._internal_vars.addVariable("TERMINATE_SEARCH", null);
 	}
 
 }

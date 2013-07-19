@@ -4,10 +4,11 @@ import model.actors.MissionManager;
 import model.actors.Operator;
 import model.actors.OperatorGui;
 import model.actors.ParentSearch;
-import model.actors.UAV;
 import model.actors.VideoOperator;
+import model.actors.VideoOperatorGui;
 import model.events.NewSearchEvent;
-import model.events.NewSearchEventType2;
+import model.events.OpAckEvent;
+import model.events.VoAckEvent;
 import simulator.ComChannel;
 import simulator.ComChannel.Type;
 import simulator.ComChannelList;
@@ -39,6 +40,19 @@ public class WiSARTeam extends Team {
 		
 		//MM
 		_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO) );
+		_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO) );
+		_channels.add(new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL));
+		
+		//VO
+		_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO));
+		
+		//OP
+		_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.AUDIO_OP_MM_COMM.name(), ComChannel.Type.AUDIO));
+		
+		
+		//VGUI
+		_channels.add(new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL));
 		
 		
 		//initialize inputs and outputs
@@ -51,6 +65,18 @@ public class WiSARTeam extends Team {
 		outputs.clear();
 		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
+
+		inputs.clear();
+		inputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+		this.addEvent(new VoAckEvent(inputs, outputs), 1);
+
+		inputs.clear();
+		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		this.addEvent(new OpAckEvent(inputs, outputs), 1);
 
 		//Declare all output com channels
 		//PS_Events
@@ -85,9 +111,9 @@ public class WiSARTeam extends Team {
 		//VGUI
 
 		//UAV
-		ComChannel<UAV.DATA_UAV_OP> UAV_OP_DATA = new ComChannel<UAV.DATA_UAV_OP>("UAV_OP_DATA", Type.DATA);
-		ComChannel<UAV.DATA_UAV_OGUI> UAV_OGUI_DATA = new ComChannel<UAV.DATA_UAV_OGUI>("UAV_OGUI_DATA", Type.DATA);
-		ComChannel<UAV.DATA_UAV_VGUI> UAV_VGUI_DATA = new ComChannel<UAV.DATA_UAV_VGUI>("UAV_VGUI_DATA", Type.DATA);
+//		ComChannel<UAV.DATA_UAV_OP> UAV_OP_DATA = new ComChannel<UAV.DATA_UAV_OP>("UAV_OP_DATA", Type.DATA);
+//		ComChannel<UAV.DATA_UAV_OGUI> UAV_OGUI_DATA = new ComChannel<UAV.DATA_UAV_OGUI>("UAV_OGUI_DATA", Type.DATA);
+//		ComChannel<UAV.DATA_UAV_VGUI> UAV_VGUI_DATA = new ComChannel<UAV.DATA_UAV_VGUI>("UAV_VGUI_DATA", Type.DATA);
 		
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
@@ -101,9 +127,12 @@ public class WiSARTeam extends Team {
 		//add Mission Manager, with its inputs and outputs, to the team
 		inputs.clear();
 		inputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
-		inputs.add(PS_MM_COMM);
-		inputs.add(VO_MM_COMM);
-		inputs.add(OP_MM_COMM);
+		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		inputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		inputs.add(PS_MM_COMM);
+//		inputs.add(VO_MM_COMM);
+//		inputs.add(OP_MM_COMM);
 //		inputs.put(UDO.PS_POKE_MM.name(), UDO.PS_POKE_MM);
 //		inputs.put(UDO.PS_NEW_SEARCH_AOI_MM.name(), UDO.PS_NEW_SEARCH_AOI_MM);
 //		inputs.put(UDO.MM_NEW_SEARCH_AOI_MM.name(), UDO.MM_NEW_SEARCH_AOI_MM);
@@ -114,10 +143,13 @@ public class WiSARTeam extends Team {
 //		inputs.put(UDO.VO_ACK_MM.name(), UDO.VO_ACK_MM);
 		outputs.clear();
 		outputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
-		outputs.add(MM_PS_COMM);
-		outputs.add(MM_OP_COMM);
-		outputs.add(MM_VO_COMM);
-		outputs.add(MM_VGUI_COMM);
+		outputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		outputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		outputs.add(_channels.get(Channels.VIDEO_MM_VGUI_COMM.name()));
+//		outputs.add(MM_PS_COMM);
+//		outputs.add(MM_OP_COMM);
+//		outputs.add(MM_VO_COMM);
+//		outputs.add(MM_VGUI_COMM);
 //		outputs.put(UDO.MM_ACK_PS.name(),UDO.MM_ACK_PS);
 //		outputs.put(UDO.MM_POKE_VO.name(), UDO.MM_POKE_VO);
 //		outputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
