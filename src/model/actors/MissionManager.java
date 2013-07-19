@@ -130,8 +130,6 @@ public class MissionManager extends Actor {
 	 * (IDLE, [], [FLYBY_REQ_F]) -> (POKE_VGUI, [], [FLYBY_REQ_F])<br>
 	 */
 	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_VO, State POKE_OP, State OBSERVING_VGUI, State POKE_VGUI, State RX_OP, State RX_VO) {
-		Transition t;
-		
 		//(IDLE,[OP_POKE_MM],[])x(RX_OP,[MM_ACK_OP],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_OP){
 			@Override
@@ -166,7 +164,7 @@ public class MissionManager extends Actor {
 		});
 		
 		//(IDLE, [PS_POKE_MM], [])->(RX_PS, [MM_ACK_PS], [])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, RX_PS ) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -180,11 +178,10 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		IDLE.add(t);
+		});
 
 		//(IDLE, [OP_POKE_MM], [])->(POKE_VO, [MM_ACK_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_OP) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, RX_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -195,9 +192,10 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
+		});
+		
 		//(IDLE, [VO_POKE_MM], [])->(RX_VO, [MM_ACK_VO], [])
-		t = new Transition(this._internal_vars, inputs, outputs, RX_VO) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, RX_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -208,9 +206,10 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
+		});
+		
 		//(IDLE, [], [TARGET_DESCRIPTION])->(POKE_VO, [MM_POKE_VO], [])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_VO) {
 			@Override
 			public boolean isEnabled() 
 			{
@@ -221,23 +220,21 @@ public class MissionManager extends Actor {
 				}
 				return result;		
 			}
-		};
-		IDLE.add(t);
+		});
 		
 		//(IDLE, [], [AREA_OF_INTEREST])->(POKE_OP, [POKE_OP], [])
-		t = new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
+		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
 			@Override
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( "NEW".equals(this._internal_vars.getVariable("AREA_OF_INTEREST")) ) {
+				if ( this._internal_vars.getVariable("AREA_OF_INTEREST") != null && this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
 					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
-				return result;		
+				return result;
 			}
-		};
-		IDLE.add(t);
+		});
 
 		//(IDLE, [], [Terminate_Search])->(POKE_OP, [POKE_OP], [])
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_OP) {
@@ -455,7 +452,6 @@ public class MissionManager extends Actor {
 	/**
 	 * This method assists the constructor initialize the POKE_OP state.<br><br>
 	 * (POKE_OP, [OP_ACK_MM], [])->(TX_OP, [], [])<br>
-	 * (POKE_OP,[],[])x(IDLE,[],[])<br>
 	 */
 	private void initializePOKE_OP(ComChannelList inputs, ComChannelList outputs,State IDLE, State POKE_OP, State TX_OP) {
 		Transition t;
@@ -475,14 +471,14 @@ public class MissionManager extends Actor {
 		POKE_OP.add(t);
 		
 		//(POKE_OP,[],[])x(IDLE,[],[])
-		t = new Transition(this._internal_vars, inputs, outputs,IDLE){
+		/*t = new Transition(this._internal_vars, inputs, outputs,IDLE){
 			@Override
 			public boolean isEnabled() 
 			{
 				return true;
 			}
 		};
-		POKE_OP.add(t);
+		POKE_OP.add(t);*/
 
 		add(POKE_OP);
 	}

@@ -272,35 +272,35 @@ public class Transition implements ITransition {
 		
 		//(STATE, [INPUTS], [INTERNALS]) X (STATE, [OUTPUTS], [INTERNALS]
 		StringBuilder result = new StringBuilder();
-		result.append("(" + _internal_vars.getVariable("currentState").toString() + " ,[ ");
+		result.append("(" + _internal_vars.getVariable("currentState").toString() + ", [ ");
 		//inputs
 		if(_inputs != null){
 			for(Entry<String, ComChannel<?>> input : _inputs.entrySet()) {
 				if(input.getValue().value() != null)
-					result.append(input.toString() + " ");
+					result.append(input.toString() + ", ");
 			}
 		}
-		result.append("], [");
+		result.append(" ], [ ");
 		//internals
 		for(Entry<String, Object> variable : _internal_vars.getAllVariables().entrySet()){
 			if(variable.getKey().equals("currentState"))
 				continue;
 			if(variable.getValue() != null)
-				result.append(variable.toString() + " ");
+				result.append(variable.toString() + ", ");
 		}
 				
-		result.append(" ] ->\n\t\t (" + _endState.toString() + ", [ ");
+		result.append(" ]) ->\n\t\t (" + _endState.toString() + ", [ ");
 		if(_outputs != null){
 			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
 				if(output.getValue() != null)
-					result.append(output.toString() + " ");
+					result.append(output.toString() + ", ");
 			}
 		}
-		result.append("], [");
+		result.append(" ], [ ");
 		//internals
 		for(Entry<String, Object> variable : _temp_internal_vars.entrySet()){
 			if(variable.getValue() != null)
-				result.append(variable.toString() + " ");
+				result.append(variable.toString() + ", ");
 		}
 		result.append(" ])");
 		return result.toString();
