@@ -6,8 +6,9 @@ import model.actors.OperatorGui;
 import model.actors.ParentSearch;
 import model.actors.VideoOperator;
 import model.actors.VideoOperatorGui;
-import model.events.NewSearchEvent;
 import model.events.OpAckEvent;
+import model.events.OpFailedSearchMMEvent;
+import model.events.OpPokeMMEvent;
 import model.events.VoAckEvent;
 import simulator.ComChannel;
 import simulator.ComChannel.Type;
@@ -55,19 +56,39 @@ public class WiSARTeam extends Team {
 		
 		//VGUI
 		_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL) );
-		
+		//_channels.add(new ComChannel<VideoOperatorGui.AUDIO_VGUI_MM_COMM>(Channels.AUDIO_VGUI_MM_COMM.name(), ComChannel.Type.AUDIO));
 		
 		//initialize inputs and outputs
 		ComChannelList inputs = new ComChannelList();
 		ComChannelList outputs = new ComChannelList();
-		
-		//Setup NewSearchEvent
-		inputs.clear();
-		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		outputs.clear();
-		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
 
+//		//Setup Vgui Alert
+//		inputs.clear();
+//		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		outputs.clear();
+//		outputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		this.addEvent(new VguiAlertMMEvent(inputs, outputs), 1);
+//		//Setup Vgui req
+//		inputs.clear();
+//		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		outputs.clear();
+//		outputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		this.addEvent(new VguiValidationReqTMMEvent(inputs, outputs), 1);
+
+		//initiation of VO comm event
+		inputs.clear();
+		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		this.addEvent(new OpPokeMMEvent(inputs, outputs), 1);
+		//termination of communication without transmission event
+		inputs.clear();
+		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		this.addEvent(new OpFailedSearchMMEvent(inputs, outputs), 1);
+		
+		
 		inputs.clear();
 		inputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
 		outputs.clear();

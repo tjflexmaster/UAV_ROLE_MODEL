@@ -14,7 +14,7 @@ public class OpCompleteSearchMMEvent extends simulator.Event {
 	public OpCompleteSearchMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "OpPokeEvent";
+		_name = "OpCompleteSearchEvent";
 		
 		//Define the event states
 		State state = this.getState();

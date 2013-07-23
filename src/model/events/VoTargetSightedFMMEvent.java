@@ -14,7 +14,7 @@ public class VoTargetSightedFMMEvent extends simulator.Event {
 	public VoTargetSightedFMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "VoPokeEvent";
+		_name = "VoTargetSightedFEvent";
 		
 		//Define the event states
 		State state = this.getState();

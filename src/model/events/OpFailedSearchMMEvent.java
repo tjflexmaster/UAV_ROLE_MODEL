@@ -14,7 +14,7 @@ public class OpFailedSearchMMEvent extends simulator.Event {
 	public OpFailedSearchMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "OpPokeEvent";
+		_name = "OpFailedSearchEvent";
 		
 		//Define the event states
 		State state = this.getState();

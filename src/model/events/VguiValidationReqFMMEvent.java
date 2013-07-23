@@ -15,7 +15,7 @@ public class VguiValidationReqFMMEvent extends simulator.Event {
 	public VguiValidationReqFMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "VoPokeEvent";
+		_name = "VguiValidationFEvent";
 		
 		//Define the event states
 		State state = this.getState();

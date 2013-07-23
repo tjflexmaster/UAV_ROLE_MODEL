@@ -6,6 +6,7 @@ import model.actors.VideoOperator;
 import model.actors.VideoOperatorGui;
 import model.team.Channels;
 import model.team.Duration;
+import simulator.ComChannel;
 import simulator.ComChannelList;
 import simulator.ITransition;
 import simulator.State;
@@ -15,7 +16,7 @@ public class VguiAlertMMEvent extends simulator.Event {
 	public VguiAlertMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "VoPokeEvent";
+		_name = "VguiAlertEvent";
 		
 		//Define the event states
 		State state = this.getState();
@@ -26,8 +27,12 @@ public class VguiAlertMMEvent extends simulator.Event {
 			@SuppressWarnings("unchecked")
 			@Override 
 			public boolean isEnabled() {
-				this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM);
-				return true;
+				ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM> alert_event = (ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>) _inputs.get(Channels.VIDEO_VGUI_MM_COMM.name());
+				if ( !VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM.equals(alert_event.value()) ) {
+					this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM);
+					return true;
+				} else
+					return false;
 			};
 		};
 		state.add(_transition);

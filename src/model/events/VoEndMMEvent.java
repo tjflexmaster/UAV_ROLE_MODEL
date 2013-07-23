@@ -14,7 +14,7 @@ public class VoEndMMEvent extends simulator.Event {
 	public VoEndMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "VoPokeEvent";
+		_name = "VoEndEvent";
 		
 		//Define the event states
 		State state = this.getState();

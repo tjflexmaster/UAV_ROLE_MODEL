@@ -154,7 +154,7 @@ public class Transition implements ITransition {
 		_temp_outputs.putAll(t._temp_outputs);
 		for( Entry<String, Object> temp_internal_var : t._temp_internal_vars.entrySet()){
 			if(temp_internal_var.getValue() != null)
-			_internal_vars.setVariable(temp_internal_var.getKey(), temp_internal_var.getValue());
+				_temp_internal_vars.put(temp_internal_var.getKey(), temp_internal_var.getValue());
 		}
 	}
 	

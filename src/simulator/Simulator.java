@@ -82,7 +82,6 @@ public class Simulator {
 //					e.incrementCount();
 				}
 			}
-
 		}
 		
 		//Get Transitions from the Actor

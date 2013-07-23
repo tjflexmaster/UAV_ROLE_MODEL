@@ -29,6 +29,10 @@ class DeltaTime {
 		if (obj instanceof DeltaTime) {
 			if ( ((DeltaTime) obj).actor.name() == actor.name() )
 				return true;
+			//suggested revision
+//			if(((DeltaTime) obj).actor.getClass() == actor.getClass()){
+//				return true;
+//			}
 		}
 		
 		return false;

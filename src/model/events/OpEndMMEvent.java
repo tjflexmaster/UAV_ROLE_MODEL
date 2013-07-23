@@ -14,7 +14,7 @@ public class OpEndMMEvent extends simulator.Event {
 	public OpEndMMEvent(final ComChannelList inputs, final ComChannelList outputs)
 	{
 		//Define internal variables
-		_name = "OpPokeEvent";
+		_name = "OpEndEvent";
 		
 		//Define the event states
 		State state = this.getState();

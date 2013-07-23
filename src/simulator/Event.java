@@ -28,7 +28,7 @@ public abstract class Event implements IEvent, IActor {
 	
 	public void deactivate(){
 		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
-			c.getValue().set(false);
+			c.getValue().set(null);
 		}
 	}
 	

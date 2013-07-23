@@ -43,7 +43,7 @@ public enum Duration {
 	ACK(1),
 	NEXT(1),
 	MM_TX_OP(5,20),
-	MM_OBSERVING_VGUI(5,20),
+	MM_OBSERVING_VGUI(15,20),
 	MM_TX_VGUI(5,20),
 	POKE(5,20);
 	
