@@ -69,9 +69,6 @@ public class ParentSearch extends Actor {
 			}
 		});
 		
-		//Set start state
-		this.startState(IDLE);
-		
 		//Initialize Internal Variables
 		this.initializeInternalVariables();
 
@@ -111,6 +108,7 @@ public class ParentSearch extends Actor {
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		initializeTxMM(inputs,outputs,IDLE,TX_MM,END_MM);
 		initializeEndMM(inputs,outputs,IDLE,END_MM, POKE_MM);
+		
 		//add states
 		add(IDLE);
 		add(POKE_MM);
