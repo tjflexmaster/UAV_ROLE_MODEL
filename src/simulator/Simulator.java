@@ -60,6 +60,7 @@ public class Simulator {
 			for(ITransition transition : _ready_transitions){
 				transition.fire();
 			}
+			
 		} while (!_ready_transitions.isEmpty());
 		
 		
@@ -73,7 +74,7 @@ public class Simulator {
 			ITransition t = e.getEnabledTransition();
 			if ( _clock.getActorTransition((IActor) e) == null ) {
 				if ( t != null && !e.isFinished() ) {
-					_clock.addTransition((IActor) e, t, random(t.getDurationRange().min(),t.getDurationRange().max()));
+					_clock.addTransition((IActor) e, t, random(0,10000)); //random(t.getDurationRange().min(),t.getDurationRange().max()));
 					e.decrementCount();
 				}
 			} else {
