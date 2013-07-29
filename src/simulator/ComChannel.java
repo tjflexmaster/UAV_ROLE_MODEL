@@ -43,6 +43,11 @@ public class ComChannel<T> {
 		return _name;
 	}
 	
+	public Type type()
+	{
+		return _type;
+	}
+	
 	public boolean isEqual(T value)
 	{
 		return _value.equals(value);
