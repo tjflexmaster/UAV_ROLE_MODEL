@@ -43,15 +43,13 @@
 					<transitions>
 						<transition duration-min="" duration-max="" priority="" probability="" >
 							<inputs>
-								<input>
+								<input type="chan/mem" name="">
 									<value dataType="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->"><!-- expected input value --></value>
-									<source type="chan/mem" name=""/>
 								</input>
 							</inputs>
 							<outputs>
-								<output>
+								<output type="chan/mem" name="">
 									<value dataType=""><!-- output value --></value>
-									<dest type="chan/mem" name=""/>
 								</output>
 							</outputs>
 							<endState name="" />
@@ -67,4 +65,22 @@
 	
 		</actor>
 	</actors>
+	
+	<events>
+		<event>
+			<transition>
+				<inputs>
+					<input name="">
+						<value dataType="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->"><!-- expected input value --></value>
+					</input>
+				</inputs>
+				<outputs>
+					<output name="">
+						<value dataType=""><!-- output value --></value>
+					</output>
+				</outputs>
+			</transition>
+		</event>
+		
+	</events>
 </team>

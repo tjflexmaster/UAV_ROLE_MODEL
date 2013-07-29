@@ -51,4 +51,9 @@ public abstract class Team implements ITeam {
 	{
 		return _com_channels.get(name);
 	}
+	
+	protected final ComChannelList getComChannels()
+	{
+		return (ComChannelList) _com_channels.clone();
+	}
 }

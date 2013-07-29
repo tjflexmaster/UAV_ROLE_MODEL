@@ -51,6 +51,76 @@ public class DOM {
 		}
 	}
 	
+	public ITeam getTeam()
+	{
+		//Create a team
+		AnonymousTeam team = new AnonymousTeam();
+		Element team_node = (Element) d.getElementsByTagName("team").item(0);
+		assert team_node!=null : "Missing Team Element in xml";
+		team.name(team_node.getAttribute("name"));
+		
+		//Create Team channels
+		NodeList child_nodes = team_node.getChildNodes();
+		for( int i=0; i < child_nodes.getLength(); i++ ) {
+			if ( child_nodes.item(i).getNodeName() == "channels" ) {
+				Element child = (Element) child_nodes.item(i);
+				NodeList channel_nodes = child.getElementsByTagName("channel");
+				for ( int j=0; j < channel_nodes.getLength(); j++ ) {
+					Element channel = (Element) channel_nodes.item(j);
+					
+					//Verify the channel type
+					ComChannel.Type type = null;
+					switch(channel.getAttribute("type")) {
+						case "audio":
+							type = ComChannel.Type.AUDIO;
+							break;
+						case "visual":
+							type = ComChannel.Type.VISUAL;
+							break;
+						case "event":
+							type = ComChannel.Type.EVENT;
+							break;
+						case "data":
+							type = ComChannel.Type.DATA;
+							break;
+						default:
+							assert false : "Unknown channel type: " + channel.getAttribute("type");
+							break;
+					}
+					
+					//Create the new Channel
+					ComChannel<?> new_channel = null;
+					switch(channel.getAttribute("dataType")) {
+						case "int":
+							new_channel = new ComChannel<Integer>(channel.getAttribute("name"), type);
+							break;
+						case "bool":
+							new_channel = new ComChannel<Boolean>(channel.getAttribute("name"), type);
+							break;
+						case "string":
+							new_channel = new ComChannel<String>(channel.getAttribute("name"), type);
+							break;
+						default:
+							assert false : "Unknown dataType: " + channel.getAttribute("dataType");
+							break;
+					}
+					team.addComChannel(new_channel);
+				}
+			}
+		}
+		
+		//Create Actors
+		ArrayList<Actor> actors = getActors(team.getComChannels());
+		for(Actor a : actors) {
+			team.addActor(a);
+		}
+		
+		
+		//Create Events
+		
+		return team;
+	}
+	
 	public ArrayList<Actor> getActors(ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		NodeList actor_nodes = d.getElementsByTagName("actor");

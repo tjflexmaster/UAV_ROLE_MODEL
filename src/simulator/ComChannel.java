@@ -5,7 +5,8 @@ public class ComChannel<T> {
 	{
 		VISUAL,
 		AUDIO,
-		DATA
+		DATA,
+		EVENT
 	}
 	
 	T _value;
