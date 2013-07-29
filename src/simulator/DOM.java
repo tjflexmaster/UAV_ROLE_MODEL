@@ -118,7 +118,8 @@ public class DOM {
 
 			ComChannelList inputs = new ComChannelList();
 			NodeList input_nodes = transition_node.getElementsByTagName("input");
-			final HashMap<ComChannel,DataComparator> prereqs = new HashMap<ComChannel,DataComparator>();
+			final HashMap<ComChannel,DataComparator> input_prereqs = new HashMap<ComChannel,DataComparator>();
+			final HashMap<String, DataComparator> internal_prereqs = new HashMap<String, DataComparator>();
 			int input_size = input_nodes.getLength();
 			for(int sub_index = 0; sub_index < input_size; sub_index++){
 				Element input = (Element) input_nodes.item(index);
@@ -127,59 +128,62 @@ public class DOM {
 				String data = getTextValue(input, "value");
 				String source = ((Element)input.getElementsByTagName("source").item(0)).getAttribute("type");
 				String source_name = ((Element)input.getElementsByTagName("source").item(0)).getAttribute("name");
+				DataComparator prereq = null;
+				switch(predicate){
+				case "eq":
+					prereq = new DataComparator(data, data_type){
+						@Override
+						public boolean isTrue(Object o){
+							return o.equals(data);
+						}
+					};
+					break;
+				case "gt":prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o > (int)data;
+					}
+				};
+					break;
+				case "lt":prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o < (int)data;
+					}
+				};
+					break;
+				case "neq":prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return !o.equals(data);
+					}
+				};
+					break;
+				case "gteq":prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o >= (int)data;
+					}
+				};
+					break;
+				case "lteq":prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o <= (int)data;
+					}
+				};
+					break;
+				default:
+					assert (true): "bad predicate within the transition";
+				}
 				if(source.equals("channel")){
 					ComChannel next_input = coms.get(source_name);
 					assert(next_input != null):"Missing a ComChannel in the transitions";
 					inputs.add(next_input);
-					DataComparator prereq = null;
-					switch(predicate){
-					case "eq":
-						prereq = new DataComparator(data, data_type){
-							@Override
-							public boolean isTrue(Object o){
-								return o.equals(data);
-							}
-						};
-						break;
-					case "gt":prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return (int) o > (int)data;
-						}
-					};
-						break;
-					case "lt":prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return (int) o < (int)data;
-						}
-					};
-						break;
-					case "neq":prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return !o.equals(data);
-						}
-					};
-						break;
-					case "gteq":prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return (int) o >= (int)data;
-						}
-					};
-						break;
-					case "lteq":prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return (int) o <= (int)data;
-						}
-					};
-						break;
-					default:
-						assert (true): "bad predicate within the transition";
-					}
-					prereqs.put(next_input, prereq);
+					
+					input_prereqs.put(next_input, prereq);
+				} else {
+					internal_prereqs.put(source_name, prereq);
 				}
 			}
 			ComChannelList outputs = new ComChannelList();
@@ -236,8 +240,13 @@ public class DOM {
 				@Override
 				public boolean isEnabled(){
 					for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
-						DataComparator prereq = prereqs.get(input.getValue());
+						DataComparator prereq = input_prereqs.get(input.getValue());
 						if(!prereq.isTrue(input.getValue().value()))
+							return false;
+					}
+					for(Entry<String, Object> internal : this._internal_vars.getAllVariables().entrySet()){
+						DataComparator prereq = internal_prereqs.get(internal.getKey());
+						if(!prereq.isTrue(internal.getValue()))
 							return false;
 					}
 
