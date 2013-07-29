@@ -154,7 +154,7 @@ public class Transition implements ITransition {
 		_temp_outputs.putAll(t._temp_outputs);
 		for( Entry<String, Object> temp_internal_var : t._temp_internal_vars.entrySet()){
 			if(temp_internal_var.getValue() != null)
-			_internal_vars.setVariable(temp_internal_var.getKey(), temp_internal_var.getValue());
+				_temp_internal_vars.put(temp_internal_var.getKey(), temp_internal_var.getValue());
 		}
 	}
 	
@@ -175,16 +175,20 @@ public class Transition implements ITransition {
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
-				//if ( temp != null )
+				//if ( temp != null ){
 					output.set(temp);
+					_temp_outputs.put(output.name(), null);
+				//}
 			}
 		}
 		
 		if ( !_temp_internal_vars.isEmpty() ) {
 			for(String var : _temp_internal_vars.keySet()) {
 				Object temp = _temp_internal_vars.get(var);
-				if ( temp != null )
+				if ( temp != null ){
 					_internal_vars.setVariable(var, temp);
+					_temp_internal_vars.put(var, null);
+				}
 			}
 		}
 		
@@ -272,35 +276,35 @@ public class Transition implements ITransition {
 		
 		//(STATE, [INPUTS], [INTERNALS]) X (STATE, [OUTPUTS], [INTERNALS]
 		StringBuilder result = new StringBuilder();
-		result.append("(" + _internal_vars.getVariable("currentState").toString() + " ,[ ");
+		result.append("(" + _internal_vars.getVariable("currentState").toString() + ", [ ");
 		//inputs
 		if(_inputs != null){
 			for(Entry<String, ComChannel<?>> input : _inputs.entrySet()) {
 				if(input.getValue().value() != null)
-					result.append(input.toString() + " ");
+					result.append(input.toString() + ", ");
 			}
 		}
-		result.append("], [");
+		result.append(" ], [ ");
 		//internals
 		for(Entry<String, Object> variable : _internal_vars.getAllVariables().entrySet()){
 			if(variable.getKey().equals("currentState"))
 				continue;
 			if(variable.getValue() != null)
-				result.append(variable.toString() + " ");
+				result.append(variable.toString() + ", ");
 		}
 				
-		result.append(" ] ->\n\t\t (" + _endState.toString() + ", [ ");
+		result.append(" ]) ->\n\t\t (" + _endState.toString() + ", [ ");
 		if(_outputs != null){
 			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
 				if(output.getValue() != null)
-					result.append(output.toString() + " ");
+					result.append(output.toString() + ", ");
 			}
 		}
-		result.append("], [");
+		result.append(" ], [ ");
 		//internals
 		for(Entry<String, Object> variable : _temp_internal_vars.entrySet()){
 			if(variable.getValue() != null)
-				result.append(variable.toString() + " ");
+				result.append(variable.toString() + ", ");
 		}
 		result.append(" ])");
 		return result.toString();

@@ -48,8 +48,26 @@ public class ParentSearch extends Actor {
 		State END_MM = new State("END_MM");
 		State RX_MM = new State("RX_MM");
 		
-		//Set start state
-		this.startState(IDLE);
+		RX_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
+			@Override
+			public boolean isEnabled(){
+				//if(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value() != null){
+					if(MissionManager.AUDIO_MM_PS_COMM.MM_END_PS.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						return true;
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_COMPLETE.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						return true;
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_FAILED.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						return true;
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_F.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						return true;
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_T.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						return true;
+					}
+					//return true;
+				//}
+				return false;
+			}
+		});
 		
 		//Initialize Internal Variables
 		this.initializeInternalVariables();
@@ -90,6 +108,7 @@ public class ParentSearch extends Actor {
 		initializePokeMM(inputs, outputs, IDLE, POKE_MM, TX_MM);
 		initializeTxMM(inputs,outputs,IDLE,TX_MM,END_MM);
 		initializeEndMM(inputs,outputs,IDLE,END_MM, POKE_MM);
+		
 		//add states
 		add(IDLE);
 		add(POKE_MM);

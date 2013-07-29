@@ -16,15 +16,18 @@ public enum Duration {
 	MM_POKE_TO_TX_PS(5),
 	MM_RX_PS(22),
 	MM_POKE_VO(5,20),
+	MM_POKE_OP(5, 20),
 	
 	/* Video Operator Outputs */
 
 	VO_RX_MM(20),
+	VO_TX_MM(5,20),
 	
 	/* Video Operator Gui Outputs */
 	
 	/* UAV Operator Outputs */
 	
+	OP_TX_MM(5,20),
 	OP_TX_OGUI(5,20),
 	OP_RX_MM(22),
 	
@@ -38,7 +41,11 @@ public enum Duration {
 	/* General */
 	
 	ACK(1),
-	NEXT(1), MM_TX_OP(5,20), MM_OBSERVING_VGUI(5,20), MM_TX_VGUI(5,20), POKE(5,20);
+	NEXT(1),
+	MM_TX_OP(5,20),
+	MM_OBSERVING_VGUI(15,20),
+	MM_TX_VGUI(5,20),
+	POKE(5,20);
 	
 	private Integer _minimum;
 	private Integer _maximum;

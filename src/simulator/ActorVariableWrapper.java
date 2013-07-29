@@ -14,14 +14,14 @@ public class ActorVariableWrapper {
 	
 	public void addVariable(String name, Object o)
 	{
-		assert _variables.containsKey(name):"Variable already exists";
-		
+		assert !_variables.containsKey(name):"Variable already exists";
+
 		_variables.put(name, o);
 	}
 	
 	public void setVariable(String name, Object o)
 	{
-		assert !_variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
+		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
 			
 		_variables.put(name, o);
@@ -29,7 +29,7 @@ public class ActorVariableWrapper {
 	
 	public Object getVariable(String name)
 	{
-		assert !_variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
+		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		
 		return _variables.get(name);
 	}

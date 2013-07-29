@@ -29,14 +29,14 @@ public abstract class Team implements ITeam {
 	
 	protected void addActor(IActor actor) 
 	{
-		assert _actors.contains(actor):"Actor is already a part of the team";
+		assert !_actors.contains(actor):"Actor is already a part of the team";
 		
 		_actors.add(actor);
 	}
 	
 	protected void addEvent(IEvent event, int count) 
 	{
-		assert _events.contains(event):"Event is already a part of the team";
+		assert !_events.contains(event):"Event is already a part of the team";
 		event.setEventCount(count);
 		_events.add(event);
 	}

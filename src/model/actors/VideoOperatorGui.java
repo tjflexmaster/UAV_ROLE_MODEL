@@ -8,6 +8,10 @@ import simulator.*;
 
 public class VideoOperatorGui extends Actor {
 
+	public enum AUDIO_VGUI_MM_COMM {
+
+	}
+
 	public enum VGUI_OGUI_COMM {
 
 	}
@@ -23,7 +27,8 @@ public class VideoOperatorGui extends Actor {
 
 	public enum VISUAL_VGUI_MM_COMM {
 		VGUI_VALIDATION_REQ_T,
-		VGUI_ALERT_MM
+		VGUI_VALIDATION_REQ_F,
+		VGUI_ALERT_MM,
 
 	}
 
