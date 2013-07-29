@@ -1,0 +1,615 @@
+<actor>
+	<name>MissionManager.java</name>
+	<state>
+		<name>IDLE</name>
+		<transitions>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type="">OP_POKE_MM</value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">MM_ACK_OP</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>RX_OP</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type="">VO_POKE_MM</value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">MM_ACK_VO</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>RX_VO</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type="">VGUI_ALERT</value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>OBSERVING_VGUI</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type="">PS_POKE_MM</value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">MM_ACK_PS</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>RX_PS</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">TARGET_DESCRIPTION</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">MM_POKE_VO</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_VO</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">AREA_OF_INTEREST</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">POKE_OP</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_OP</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">Terminate_Search</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type="">POKE_OP</value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_OP</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">ANOMALY_DISMISSED_T</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type="">ANOMALY_DISMISSED_T</value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_VGUI</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">ANOMALY_DISMISSED_F</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type="">ANOMALY_DISMISSED_F</value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_VGUI</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">FLYBY_REQ_T</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type="">FLYBY_REQ_T</value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_VGUI</endState>
+		<transition>
+		<transition>
+			<durationRange>
+				<max></max>
+				<min></min>
+			</durationRange>
+			<priority></priority>
+			<probability></probability>
+			<inputs>				<input>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</input>
+				<input>
+					<predicate type ="">
+					<value data_type="">FLYBY_REQ_F</value>
+					<source type="channel" name=""/>
+				</input>
+			</inputs>
+			<outputs>
+				<output>
+					<predicate type ="">
+					<value data_type=""></value>
+					<source type="channel" name=""/>
+				</output>
+				<output>
+					<predicate type ="">
+					<value data_type="">FLYBY_REQ_F</value>
+					<source type="channel" name=""/>
+				</output>
+			</outputs>
+			<endState>POKE_VGUI</endState>
+		<transition>
+		<transitions>
+	</state>
+</actor>
+<actor>
+	<name>Operator.java</name>
+	<state>
+		<name>IDLE</name>
+		<transitions>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type="">MM_POKE_OP</value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type="">OP_ACK_MM</value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>RX_MM</endState>
+			<transition>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type="">TAKE_OFF</value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type="">OP_TAKE_OFF_OGUI</value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>LAUNCH_UAV</endState>
+			<transition>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type="">UAV_FLYING_NORMAL</value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>OBSERVING_GUI</endState>
+			<transition>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type="">UAV_FLYING_FLYBY</value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>OBSERVING_GUI</endState>
+			<transition>
+		<transitions>
+	</state>
+</actor>
+<actor>
+	<name>ParentSearch.java</name>
+	<state>
+		<name>END_MM</name>
+		<transitions>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>IDLE</endState>
+			<transition>
+		<transitions>
+	</state>
+</actor>
+<actor>
+	<name>VideoOperator.java</name>
+	<state>
+		<name>IDLE</name>
+		<transitions>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type="">MM_POKE_VO</value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type="">VO_ACK_MM</value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>RX_MM</endState>
+			<transition>
+			<transition>
+				<durationRange>
+					<max></max>
+					<min></min>
+				</durationRange>
+				<priority></priority>
+				<probability></probability>
+				<inputs>
+					<input>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</input>
+					<input>
+						<predicate type ="">
+						<value data_type="">TARGET_DESCRIPTION</value>
+						<source type="channel" name=""/>
+					</input>
+				</inputs>
+				<outputs>
+					<output>
+						<predicate type ="">
+						<value data_type=""></value>
+						<source type="channel" name=""/>
+					</output>
+					<output>
+						<predicate type ="">
+						<value data_type="">TARGET_DESCRIPTION</value>
+						<source type="channel" name=""/>
+					</output>
+				</outputs>
+				<endState>OBSERVE_NORMAL</endState>
+			<transition>
+		<transitions>
+	</state>
+</actor>

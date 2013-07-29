@@ -1,0 +1,55 @@
+<Actor>
+	<name></name>
+	<channels>
+		<Audio>
+		<Video>
+	</channels>
+	<startState></startState>
+	<states>
+		<state>
+			<Name></name>
+			<assertions>
+				<assert>
+					<inputs>
+						<input>
+							<predicate type=""/>
+							<value data_type=""></value>
+							<source type="chan/mem" name=""/>
+						</input>
+					</inputs>
+					<message></message>
+				</assert>
+			</assertions>
+			<workload>
+				<channels/>
+				<finish_states/>
+			<transitions>
+				<transition>
+					<durationRange>
+						<max></max>
+						<min></min>
+					</durationRange>
+					<priority></priority>
+					<probability></probability>
+					<inputs>
+						<input>
+							<predicate type=""/>
+							<value data_type=""></value>
+							<source type="chan/mem" name=""/>
+						</input>
+					</inputs>
+					<outputs>
+						<output>
+							<value data_type=""></value>
+							<dest type="chan/mem" name=""/>
+						</output>
+					</outputs>
+					<endState></endState>
+				</transition>
+			</transitions>
+		</state>
+	</states>
+	<subactor>
+		...
+	</subactor>
+</actor>
