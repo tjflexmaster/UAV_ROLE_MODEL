@@ -1,55 +1,70 @@
-<Actor>
-	<name></name>
+<team name="">
+	<!-- List of all channels that exist within the model -->
 	<channels>
-		<Audio>
-		<Video>
+		<channel name="" type="" dataType="" />
 	</channels>
-	<startState></startState>
-	<states>
-		<state>
-			<Name></name>
-			<assertions>
-				<assert>
-					<inputs>
-						<input>
-							<predicate type=""/>
-							<value data_type=""></value>
-							<source type="chan/mem" name=""/>
-						</input>
-					</inputs>
-					<message></message>
-				</assert>
-			</assertions>
-			<workload>
-				<channels/>
-				<finish_states/>
-			<transitions>
-				<transition>
-					<durationRange>
-						<max></max>
-						<min></min>
-					</durationRange>
-					<priority></priority>
-					<probability></probability>
-					<inputs>
-						<input>
-							<predicate type=""/>
-							<value data_type=""></value>
-							<source type="chan/mem" name=""/>
-						</input>
-					</inputs>
-					<outputs>
-						<output>
-							<value data_type=""></value>
-							<dest type="chan/mem" name=""/>
-						</output>
-					</outputs>
-					<endState></endState>
-				</transition>
-			</transitions>
-		</state>
-	</states>
-	<subactor>
-		...
-	</subactor>
-</actor>
+	
+	<!-- List of model actors -->
+	<actors>
+		<actor name="">
+			<!-- Names of all channels that this Actor interacts with (input and output) -->
+			<channels>
+				<channel name=""/>
+			</channels>
+			
+			<!-- Memory variables -->
+			<memory>
+				<variable name="" dataType=""><!-- default value --></variable>
+			</memory>
+			
+			<!-- Name of the start state -->
+			<startState name="" />
+			
+			<!-- List of Actor States -->
+			<states>
+				<state name="">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate="" ></value>
+									<source type="chan/mem" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<!-- 
+					<workload>
+						<channels/>
+						<finish_states/>
+					</workload>
+					 -->
+					<transitions>
+						<transition duration-min="" duration-max="" priority="" probability="" >
+							<inputs>
+								<input>
+									<value dataType="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->"><!-- expected input value --></value>
+									<source type="chan/mem" name=""/>
+								</input>
+							</inputs>
+							<outputs>
+								<output>
+									<value dataType=""><!-- output value --></value>
+									<dest type="chan/mem" name=""/>
+								</output>
+							</outputs>
+							<endState name="" />
+						</transition>
+					</transitions>
+				</state>
+				
+			</states>
+			
+			<subActors>
+				<actor name="" />
+			</subActors>
+	
+		</actor>
+	</actors>
+</team>
