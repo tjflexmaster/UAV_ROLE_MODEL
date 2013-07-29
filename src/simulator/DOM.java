@@ -49,7 +49,7 @@ public class DOM {
 		}
 	}
 	
-	public ArrayList<Actor> getActors(){
+	public ArrayList<Actor> getActors(ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		NodeList actor_nodes = d.getElementsByTagName("actor");
 		int size = actor_nodes.getLength();
@@ -60,8 +60,11 @@ public class DOM {
 			String name = getTextValue(actor_node,"name");
 			String startState = getTextValue(actor_node,"startState");
 			ArrayList<String> channels = getChannels(actor_node);
-			
-			ArrayList<State> states = getStates(actor_node, actor.getInternalVars());
+			ComChannelList coms = new ComChannelList();
+			for(String channel : channels){
+				coms.add(all_coms.get(channel));
+			}
+			ArrayList<State> states = getStates(actor_node, actor.getInternalVars(), coms);
 			for(State state : states){
 				actor.add(state);
 				if(state.equals(startState))
@@ -72,7 +75,7 @@ public class DOM {
 		return actors;
 	}
 
-	private ArrayList<State> getStates(Element actor, ActorVariableWrapper internal_vars) {
+	private ArrayList<State> getStates(Element actor, ActorVariableWrapper internal_vars, ComChannelList coms) {
 		ArrayList<State> states = new ArrayList<State>();
 		NodeList state_nodes = actor.getElementsByTagName("state");
 		int size = state_nodes.getLength();
@@ -86,7 +89,7 @@ public class DOM {
 			Element state_node = (Element) state_nodes.item(index);
 			String title = getTextValue(state_node,"name");
 			State state = new State(title);
-			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars);
+			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars, coms);
 			for(Transition t : transitions){
 				state.add(t);
 			}
@@ -99,9 +102,9 @@ public class DOM {
 		return null;
 	}
 
-	private ArrayList<Transition> getTransitions(Element state, ArrayList<State> states, ActorVariableWrapper internal_vars) {
+	private ArrayList<Transition> getTransitions(Element state, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
 		ArrayList<Transition> transitions = new ArrayList<Transition>();
-		NodeList transition_nodes = state.getElementsByTagName("state");
+		NodeList transition_nodes = state.getElementsByTagName("transition");
 		int size = transition_nodes.getLength();
 		for(int index = 0; index < size; index++){
 			Element transition_node = (Element) transition_nodes.item(index);
