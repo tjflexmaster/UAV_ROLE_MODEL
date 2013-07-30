@@ -1,21 +1,23 @@
 package simulator;
 
-public class EqualPredicate implements IPredicate {
+/**
+ * ==
+ */
+public class EqualPredicate<T extends Comparable<? super T>> implements IPredicate {
 
-	Object _data;
+	Object _left;
 	
-	EqualPredicate(Object data)
+	EqualPredicate(Object left)
 	{
-		_data = data;
-	}
-	
-	@Override
-	public boolean evaluate(Object data) {
-		
-		if ( data.equals(data) )
-			return true;
-		else
-			return false;
+		_left = left;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean evaluate(Object right) {
+		assert _left.getClass() == right.getClass() : "Data is of different type.";
+		if (((T) _left).compareTo((T) right) == 0)
+			return true;
+		return false;
+	}
 }

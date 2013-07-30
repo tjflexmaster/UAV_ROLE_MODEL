@@ -8,4 +8,6 @@ public interface IPredicate {
 	 * @return
 	 */
 	public boolean evaluate(Object data);
+	
+	//public <T extends Comparable<? super T>> boolean evaluate(T right);
 }
