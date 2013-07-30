@@ -110,7 +110,8 @@ public class DOM {
 		}
 		
 		//Create Actors
-		ArrayList<Actor> actors = getActors(team.getComChannels());
+		Element actors_node = (Element) team_node.getElementsByTagName("actors").item(0);
+		ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
 		for(Actor a : actors) {
 			team.addActor(a);
 		}
@@ -121,9 +122,9 @@ public class DOM {
 		return team;
 	}
 	
-	public ArrayList<Actor> getActors(ComChannelList all_coms){
+	public ArrayList<Actor> getActors(Element actors_node, ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
-		NodeList actor_nodes = d.getElementsByTagName("actor");
+		NodeList actor_nodes = actors_node.getElementsByTagName("actor");
 		int size = actor_nodes.getLength();
 		for(int index = 0; index < size; index++){
 			Element actor_node = (Element)actor_nodes.item(index);
@@ -141,6 +142,11 @@ public class DOM {
 				actor.add(state);
 				if(state.equals(startState))
 					actor.startState(state);
+			}
+			Element sub_actors_node = (Element) actor_node.getElementsByTagName("subActors").item(0);
+			ArrayList<Actor> sub_actors = getActors(sub_actors_node,coms);
+			for(Actor sub_actor : sub_actors){
+				actor.addSubActor(sub_actor);
 			}
 			actors.add(actor);
 		}
@@ -213,8 +219,8 @@ public class DOM {
 			Element state_node = (Element) state_nodes.item(index);
 			String title = state_node.getAttribute("name");
 			State state = states.get(states.indexOf(title));
-			ArrayList<Transition> assertions = getAssertions(state_node, states, internal_vars, coms);
-			for(Transition assertion : assertions){
+			ArrayList<Assertion> assertions = getAssertions(state_node, states, internal_vars, coms);
+			for(Assertion assertion : assertions){
 				state.addAssertion(assertion);
 			}
 			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars, coms);
@@ -225,9 +231,105 @@ public class DOM {
 		return states;
 	}
 
+	private ArrayList<Assertion> getAssertions(Element state_node,
+			ArrayList<State> states, ActorVariableWrapper internal_vars,
+			ComChannelList coms) {
+		ArrayList<Assertion> assertions = new ArrayList<Assertion>();
+		NodeList assertion_nodes = state_node.getElementsByTagName("assert");
+		int size = assertion_nodes.getLength();
+		for(int index = 0; index < size; index++){
+			Element assertion = (Element)assertion_nodes.item(index);
+			ComChannelList inputs = new ComChannelList();
+			NodeList input_nodes = assertion.getElementsByTagName("input");
+			final HashMap<String,DataComparator> input_prereqs = new HashMap<String,DataComparator>();
+					HashMap<String, DataComparator> internal_prereqs = new HashMap<String, DataComparator>();
+			int input_size = input_nodes.getLength();
+			for(int sub_index = 0; sub_index < input_size; sub_index++){
+				Element input = (Element) input_nodes.item(index);
+				String data_type = input.getAttribute("dataType");
+				String predicate = input.getAttribute("predicate");
+				String data = getTextValue(input, "value");
+				String source = input.getAttribute("type");
+				String source_name = input.getAttribute("name");
+				DataComparator prereq = null;
+				switch(predicate){
+				case "eq":
+					prereq = new DataComparator(data, data_type){
+						@Override
+						public boolean isTrue(Object o){
+							return o.equals(data);
+						}
+					};
+					break;
+				case "gt":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o > (int)data;
+					}
+				};
+					break;
+				case "lt":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o < (int)data;
+					}
+				};
+					break;
+				case "neq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return !o.equals(data);
+					}
+				};
+					break;
+				case "gteq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o >= (int)data;
+					}
+				};
+					break;
+				case "lteq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o <= (int)data;
+					}
+				};
+					break;
+				default:
+					assert (true): "bad predicate within the assertions";
+				}
+				if(source.equals("channel")){
+					ComChannel next_input = coms.get(source_name);
+					assert(next_input != null):"Missing a ComChannel in the assertions";
+					inputs.add(next_input);
+					
+					input_prereqs.put(source_name, prereq);
+				} else {
+					internal_prereqs.put(source_name, prereq);
+				}
+			}
+			String message = getTextValue((Element) assertion.getElementsByTagName("message").item(0),"message");
+			assertions.add(new Assertion(internal_vars, inputs, input_prereqs, internal_prereqs, message));
+		}
+		return assertions;
+	}
+
 	private ArrayList<String> getChannels(Element actor) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<String> channels = new ArrayList<String>();
+		NodeList channel_nodes = ((Element)actor.getElementsByTagName("channels").item(0))
+												.getElementsByTagName("channel");
+		int size = channel_nodes.getLength();
+		for(int index = 0; index < size; index++){
+			Element channel = (Element)channel_nodes.item(index);
+			channels.add(channel.getAttribute("name"));
+		}
+		return channels;
 	}
 
 	private ArrayList<Transition> getTransitions(Element state, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
