@@ -20,6 +20,8 @@ import org.xml.sax.SAXException;
 
 public class DOM {
 	private Document d;
+	private NodeList _channel_nodes;
+	private NodeList _memory_nodes;
 	String path;
 	public DOM(String f){
 		try {
@@ -64,9 +66,12 @@ public class DOM {
 		for( int i=0; i < child_nodes.getLength(); i++ ) {
 			if ( child_nodes.item(i).getNodeName() == "channels" ) {
 				Element child = (Element) child_nodes.item(i);
-				NodeList channel_nodes = child.getElementsByTagName("channel");
-				for ( int j=0; j < channel_nodes.getLength(); j++ ) {
-					Element channel = (Element) channel_nodes.item(j);
+				
+				//Set channel nodes so data types can be found later
+				_channel_nodes = child.getElementsByTagName("channel");
+				
+				for ( int j=0; j < _channel_nodes.getLength(); j++ ) {
+					Element channel = (Element) _channel_nodes.item(j);
 					
 					//Verify the channel type
 					ComChannel.Type type = null;
@@ -120,7 +125,7 @@ public class DOM {
 		//Create Events
 		ArrayList<Event> events = getEvents(team_node, team.getComChannels());
 		for(Event e : events) {
-			team.addEvent(e, 1);
+			team.addEvent(e);
 		}
 		
 		return team;
@@ -183,16 +188,14 @@ public class DOM {
 					HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
 					for( int k=0; k < inputnodes.getLength(); k++) {
 						Element input = (Element) inputnodes.item(k);
-						Element value = (Element) input.getElementsByTagName("value").item(0);
 						ComChannel<?> c = coms.getChannel(input.getAttribute("name"));
-						IPredicate p = getPredicate(value);
+						IPredicate p = getPredicate(input);
 						inputs.put(c, p);
 					}
 					
 					Element output = (Element) event.getElementsByTagName("output").item(0);
 					ComChannel<?> o = coms.getChannel(output.getAttribute("name"));
-					Element o_value = (Element) output.getElementsByTagName("value").item(0);
-					Object value = getValue(o_value);
+					Object value = getValue(output);
 					
 					Event e = new Event(name, count, inputs, o, value);
 					team_events.add(e);
@@ -565,32 +568,38 @@ public class DOM {
 		return textElem;
 	}
 	
-	private Object getValue(Element value)
+	private Object getValue(Element input)
 	{
 		Object data = null;
-		switch(value.getAttribute("dataType")){
-		case "String":
-			data = value.getTextContent();
-			break;
-		case "Integer":
-			data = Integer.parseInt(value.getTextContent());
-			break;
-		case "Boolean":
-			data = Boolean.parseBoolean(value.getTextContent());
-			break;
-		default:
-			assert true: "Missing data type";
+		String datatype = null;
+		if ( input.getAttribute("type") == "chan")
+			datatype = getChannelDataType(input);
+		else
+			datatype = getMemoryDataType(input);
+		
+		switch(datatype){
+			case "String":
+				data = input.getAttribute("value");
+				break;
+			case "Integer":
+				data = Integer.parseInt(input.getAttribute("value"));
+				break;
+			case "Boolean":
+				data = Boolean.parseBoolean(input.getAttribute("value"));
+				break;
+			default:
+				assert true: "Missing data type";
 		}
 		
 		return data;
 	}
 	
-	private IPredicate getPredicate(Element value)
+	private IPredicate getPredicate(Element input)
 	{
-		Object data = getValue(value);
+		Object data = getValue(input);
 		
 		IPredicate predicate = null;
-		switch(value.getAttribute("predicate")) {
+		switch(input.getAttribute("predicate")) {
 			case "eq":
 				predicate = new EqualPredicate(data);
 				break;
@@ -615,6 +624,28 @@ public class DOM {
 		}
 		
 		return predicate;
+	}
+	
+	private String getChannelDataType(Element input)
+	{
+		for ( int j=0; j < _channel_nodes.getLength(); j++ ) {
+			Element e = (Element) _channel_nodes.item(j);
+			if ( e.getAttribute("name") == input.getAttribute("name") ) {
+				return e.getAttribute("dataType");
+			}
+		}
+		return null;
+	}
+	
+	private String getMemoryDataType(Element input)
+	{
+		for ( int j=0; j < _memory_nodes.getLength(); j++ ) {
+			Element e = (Element) _memory_nodes.item(j);
+			if ( e.getAttribute("name") == input.getAttribute("name") ) {
+				return e.getAttribute("dataType");
+			}
+		}
+		return null;
 	}
 
 }
