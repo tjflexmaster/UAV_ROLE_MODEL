@@ -92,13 +92,13 @@ public class Simulator {
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
 		}
 		
-		//deactivate outputs from events after one cycle
-		for(IEvent e : _team.getEvents() ) {
-			ITransition t = e.getEnabledTransition();
-			if(t == null){
-				e.deactivate();
-			}
-		}
+//		//deactivate outputs from events after one cycle
+//		for(IEvent e : _team.getEvents() ) {
+//			ITransition t = e.getEnabledTransition();
+//			if(t == null){
+//				e.deactivate();
+//			}
+//		}
 	}
 	
 	

@@ -67,7 +67,12 @@
 	</actors>
 	
 	<events>
-		<event>
+		<event name="" count="">
+			<!-- Names of all channels that this Event interacts with (input and output) -->
+			<channels>
+				<channel name=""/>
+			</channels>
+			
 			<transition>
 				<inputs>
 					<input name="">

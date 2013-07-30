@@ -7,10 +7,8 @@ public abstract class Event implements IEvent, IActor {
 	
 	private int _count = 0;
 	protected String _name;
-	protected ITransition _transition;
-	protected ComChannelList _outputs;
-	
-	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	protected EventTransition _transition;
+//	protected ComChannelList _outputs;
 	
 	/**
 	 * This method returns an enabled transition.  Events only have a single transition.
@@ -26,11 +24,11 @@ public abstract class Event implements IEvent, IActor {
 			_count = 0;
 	}
 	
-	public void deactivate(){
-		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
-			c.getValue().set(null);
-		}
-	}
+//	public void deactivate(){
+//		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
+//			c.getValue().set(null);
+//		}
+//	}
 	
 	public int getEventCount()
 	{
@@ -66,16 +64,6 @@ public abstract class Event implements IEvent, IActor {
 		
 		result.put(this, getEnabledTransition());
 		return result;
-	}
-	
-	protected ActorVariableWrapper getInternalVars()
-	{
-		return _internal_vars;
-	}
-	
-	protected State getState()
-	{
-		return (State) _internal_vars.getVariable("currentState");
 	}
 	
 	@Override
