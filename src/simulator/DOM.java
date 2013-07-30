@@ -159,8 +159,12 @@ public class DOM {
 		}
 		for(int index = 0; index < size; index++){
 			Element state_node = (Element) state_nodes.item(index);
-			String title = getTextValue(state_node,"name");
-			State state = new State(title);
+			String title = state_node.getAttribute("name");
+			State state = states.get(states.indexOf(title));
+			ArrayList<Transition> assertions = getAssertions(state_node, states, internal_vars, coms);
+			for(Transition assertion : assertions){
+				state.addAssertion(assertion);
+			}
 			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars, coms);
 			for(Transition t : transitions){
 				state.add(t);
@@ -180,11 +184,10 @@ public class DOM {
 		int size = transition_nodes.getLength();
 		for(int index = 0; index < size; index++){
 			Element transition_node = (Element) transition_nodes.item(index);
-			Element duration = (Element) transition_node.getElementsByTagName("durationRange").item(0);
-			int max = Integer.parseInt(getTextValue(duration,"max"));
-			int min = Integer.parseInt(getTextValue(duration,"min"));
-			int priority = Integer.parseInt(getTextValue(transition_node,"priority"));
-			double probability = Double.parseDouble(getTextValue(transition_node, "probability"));
+			int max = Integer.parseInt(transition_node.getAttribute("duration-min"));
+			int min = Integer.parseInt(transition_node.getAttribute("duration-max"));
+			int priority = Integer.parseInt(transition_node.getAttribute("priority"));
+			double probability = Double.parseDouble(transition_node.getAttribute("probability"));
 
 			ComChannelList inputs = new ComChannelList();
 			NodeList input_nodes = transition_node.getElementsByTagName("input");
@@ -193,120 +196,22 @@ public class DOM {
 			int input_size = input_nodes.getLength();
 			for(int sub_index = 0; sub_index < input_size; sub_index++){
 				Element input = (Element) input_nodes.item(index);
-				String data_type = input.getAttribute("dataType");
-				String predicate = input.getAttribute("predicate");
-				String data = getTextValue(input, "value");
-				String source = ((Element)input.getElementsByTagName("source").item(0)).getAttribute("type");
-				String source_name = ((Element)input.getElementsByTagName("source").item(0)).getAttribute("name");
-				DataComparator prereq = null;
-				switch(predicate){
-				case "eq":
-					prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return o.equals(data);
-						}
-					};
-					break;
-				case "gt":prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o > (int)data;
-					}
-				};
-					break;
-				case "lt":prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o < (int)data;
-					}
-				};
-					break;
-				case "neq":prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return !o.equals(data);
-					}
-				};
-					break;
-				case "gteq":prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o >= (int)data;
-					}
-				};
-					break;
-				case "lteq":prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o <= (int)data;
-					}
-				};
-					break;
-				default:
-					assert (true): "bad predicate within the transition";
-				}
-				if(source.equals("channel")){
-					ComChannel next_input = coms.get(source_name);
-					assert(next_input != null):"Missing a ComChannel in the transitions";
-					inputs.add(next_input);
-					
-					input_prereqs.put(next_input, prereq);
-				} else {
-					internal_prereqs.put(source_name, prereq);
-				}
+				addInput(coms, inputs, input_prereqs, internal_prereqs, input);
 			}
 			ComChannelList outputs = new ComChannelList();
 			NodeList output_nodes = transition_node.getElementsByTagName("input");
-			final HashMap<ComChannel,Object> temp_out = new HashMap<ComChannel,Object>();
+			final HashMap<String,Object> temp_out = new HashMap<String,Object>();
 			final HashMap<String,Object> temp_internals = new HashMap<String,Object>();
 			int output_size = output_nodes.getLength();
 			for(int sub_index = 0; sub_index < output_size; sub_index++){
 				Element output = (Element) output_nodes.item(index);
-				String data_type = output.getAttribute("dataType");
-				String predicate = output.getAttribute("predicate");
-				String data = getTextValue(output, "value");
-				String source = ((Element)output.getElementsByTagName("source").item(0)).getAttribute("type");
-				String source_name = ((Element)output.getElementsByTagName("source").item(0)).getAttribute("name");
-				if(source.equals("channel")){
-					ComChannel next_output = coms.get(source_name);
-					assert(next_output != null):"Missing a ComChannel in the transitions";
-					outputs.add(next_output);
-					
-					switch(data_type){
-					case "String":
-						temp_out.put(next_output, data);
-						break;
-					case "Integer":
-						temp_out.put(next_output, Integer.parseInt(data));
-						break;
-					case "Boolean":
-						temp_out.put(next_output, Boolean.parseBoolean(data));
-						break;
-					default:
-						assert true: "Missing data type";
-					}
-				} else {
-					assert(internal_vars.getVariable(source_name) != null):"Missing an internal variable in the transitions";
-					
-					switch(data_type){
-					case "String":
-						temp_internals.put(source_name, data);
-						break;
-					case "Integer":
-						temp_internals.put(source_name, Integer.parseInt(data));
-						break;
-					case "Boolean":
-						temp_internals.put(source_name, Boolean.parseBoolean(data));
-						break;
-					default:
-						assert true: "Missing data type";
-					}
-				}
+				addOutput(internal_vars, coms, outputs, temp_out,
+						temp_internals, output);
 			}
 			
-			String endState = getTextValue(transition_node, "endState");
-			Transition transition = new Transition(internal_vars, inputs, outputs, states.get(states.indexOf(endState))){
+			State end_state = getEndState(states, transition_node);
+			Transition transition = new Transition(internal_vars, inputs, outputs,
+					end_state, new Range(min,max), priority, probability){
 				@Override
 				public boolean isEnabled(){
 					for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
@@ -320,7 +225,7 @@ public class DOM {
 							return false;
 					}
 
-					for(Entry<String, ComChannel<?>> output : _inputs.entrySet()){
+					for(Entry<String, Object> output : temp_out.entrySet()){
 						this.setTempOutput(output.getKey(), temp_out.get(output.getValue()));
 					}
 					for(Entry<String, Object> internal : temp_internals.entrySet()){
@@ -333,6 +238,151 @@ public class DOM {
 			
 		}
 		return transitions;
+	}
+
+	/**
+	 * @param coms
+	 * @param inputs
+	 * @param input_prereqs
+	 * @param internal_prereqs
+	 * @param input
+	 */
+	private void addInput(ComChannelList coms, ComChannelList inputs,
+			final HashMap<ComChannel, DataComparator> input_prereqs,
+			final HashMap<String, DataComparator> internal_prereqs,
+			Element input) {
+		String data_type = input.getAttribute("dataType");
+		String predicate = input.getAttribute("predicate");
+		String data = getTextValue(input, "value");
+		String source = input.getAttribute("type");
+		String source_name = input.getAttribute("name");
+		DataComparator prereq = null;
+		switch(predicate){
+		case "eq":
+			prereq = new DataComparator(data, data_type){
+				@Override
+				public boolean isTrue(Object o){
+					return o.equals(data);
+				}
+			};
+			break;
+		case "gt":
+			prereq = new DataComparator(data, data_type){
+			@Override
+			public boolean isTrue(Object o){
+				return (int) o > (int)data;
+			}
+		};
+			break;
+		case "lt":
+			prereq = new DataComparator(data, data_type){
+			@Override
+			public boolean isTrue(Object o){
+				return (int) o < (int)data;
+			}
+		};
+			break;
+		case "neq":
+			prereq = new DataComparator(data, data_type){
+			@Override
+			public boolean isTrue(Object o){
+				return !o.equals(data);
+			}
+		};
+			break;
+		case "gteq":
+			prereq = new DataComparator(data, data_type){
+			@Override
+			public boolean isTrue(Object o){
+				return (int) o >= (int)data;
+			}
+		};
+			break;
+		case "lteq":
+			prereq = new DataComparator(data, data_type){
+			@Override
+			public boolean isTrue(Object o){
+				return (int) o <= (int)data;
+			}
+		};
+			break;
+		default:
+			assert (true): "bad predicate within the transition";
+		}
+		if(source.equals("channel")){
+			ComChannel next_input = coms.get(source_name);
+			assert(next_input != null):"Missing a ComChannel in the transitions";
+			inputs.add(next_input);
+			
+			input_prereqs.put(next_input, prereq);
+		} else {
+			internal_prereqs.put(source_name, prereq);
+		}
+	}
+
+	/**
+	 * @param internal_vars
+	 * @param coms
+	 * @param outputs
+	 * @param temp_out
+	 * @param temp_internals
+	 * @param output
+	 */
+	private void addOutput(ActorVariableWrapper internal_vars,
+			ComChannelList coms, ComChannelList outputs,
+			final HashMap<String, Object> temp_out,
+			final HashMap<String, Object> temp_internals, Element output) {
+		String data_type = output.getAttribute("dataType");
+		String predicate = output.getAttribute("predicate");
+		String data = getTextValue(output, "value");
+		String source = output.getAttribute("type");
+		String source_name = output.getAttribute("name");
+		if(source.equals("channel")){
+			ComChannel next_output = coms.get(source_name);
+			assert(next_output != null):"Missing a ComChannel in the transitions";
+			outputs.add(next_output);
+			
+			switch(data_type){
+			case "String":
+				temp_out.put(source_name, data);
+				break;
+			case "Integer":
+				temp_out.put(source_name, Integer.parseInt(data));
+				break;
+			case "Boolean":
+				temp_out.put(source_name, Boolean.parseBoolean(data));
+				break;
+			default:
+				assert true: "Missing data type";
+			}
+		} else {
+			assert(internal_vars.getVariable(source_name) != null):"Missing an internal variable in the transitions";
+			
+			switch(data_type){
+			case "String":
+				temp_internals.put(source_name, data);
+				break;
+			case "Integer":
+				temp_internals.put(source_name, Integer.parseInt(data));
+				break;
+			case "Boolean":
+				temp_internals.put(source_name, Boolean.parseBoolean(data));
+				break;
+			default:
+				assert true: "Missing data type";
+			}
+		}
+	}
+
+	/**
+	 * @param states
+	 * @param transition_node
+	 * @return
+	 */
+	private State getEndState(ArrayList<State> states, Element transition_node) {
+		String endState = ((Element)transition_node.getElementsByTagName("endState").item(0)).getAttribute("name");
+		State end_state = states.get(states.indexOf(endState));
+		return end_state;
 	}
 
 	private String getTextValue(Element e, String tag) throws NullPointerException {
@@ -361,11 +411,5 @@ public class DOM {
 		textElem.appendChild(d.createTextNode(Integer.toString(value)));
 		return textElem;
 	}
-	public String output(){
-		DOMImplementationLS dom_implementation = (DOMImplementationLS) d.getImplementation();
-		LSSerializer output = dom_implementation.createLSSerializer();
-		return output.toString();
-	}
-
 
 }
