@@ -1,20 +1,46 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public abstract class Event implements IEvent, IActor {
+public class Event implements IActor {
 	
 	private int _count = 0;
 	protected String _name;
-	protected EventTransition _transition;
+	private ArrayList<IState> _states = new ArrayList<IState>();
+	protected ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
 //	protected ComChannelList _outputs;
 	
-	/**
-	 * This method returns an enabled transition.  Events only have a single transition.
-	 * @return
-	 */
-	public abstract ITransition getEnabledTransition();
+	Event(String name, int count, final HashMap<ComChannel<?>, IPredicate> inputs, ComChannel<?> output_channel, Object output_value)
+	{
+		this._name = name;
+		this.setEventCount(count);
+		
+		//Build the states and transitions for the event
+		State active = new State("active");
+		State inactive = new State("inactive");
+		
+		
+		ActivateEventTransition t = new ActivateEventTransition(inputs.keySet(), output_channel, output_value, _internal_vars, inactive) {
+			@Override
+			public boolean isEnabled()
+			{
+				for(Entry<ComChannel<?>, IPredicate> input : inputs.entrySet()) {
+					IPredicate p = input.getValue();
+					ComChannel<?> c = input.getKey();
+					if ( !p.evaluate(c.value()) )
+						return false;
+				}
+				
+				return true;
+			}
+		};
+		active.add(t);
+		
+		DeactivateEventTransition d = new DeactivateEventTransition(output_channel, _internal_vars, active);
+		inactive.add(d);
+	}
 	
 	public void setEventCount(int count)
 	{
@@ -58,11 +84,15 @@ public abstract class Event implements IEvent, IActor {
 		return _name;
 	}
 	
+	public State getCurrentState() {
+		return (State) _internal_vars.getVariable("currentState");
+	}
+	
 	public HashMap<IActor, ITransition> getTransitions()
 	{
 		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
-		
-		result.put(this, getEnabledTransition());
+		ITransition t = getCurrentState().getEnabledTransitions().get(0);
+		result.put(this, t);
 		return result;
 	}
 	
