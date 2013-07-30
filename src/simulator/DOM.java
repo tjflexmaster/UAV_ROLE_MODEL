@@ -163,39 +163,39 @@ public class DOM {
 		
 		NodeList child_nodes = team.getChildNodes();
 		for( int i=0; i < child_nodes.getLength(); i++ ) {
-			if ( child_nodes.item(i).getNodeName() == "events" ) {
+			if ( child_nodes.item(i).getNodeName() == "events" ) {								//found events nodes
 				Element events = (Element) child_nodes.item(i);
 				NodeList event_nodes = events.getElementsByTagName("event");
-				for ( int j=0; j < event_nodes.getLength(); j++ ) {
+				for ( int j=0; j < event_nodes.getLength(); j++ ) {								//for each event
 					Element event = (Element) event_nodes.item(j);
-					String name = event.getAttribute("name");
-					int count = Math.max(0, Integer.parseInt(event.getAttribute("count")));
+					String name = event.getAttribute("name");									//get event name
+					int count = Math.max(0, Integer.parseInt(event.getAttribute("count")));		//get number of instances
 					
 					//Get Event com channels
-					ArrayList<String> channels = getChannels(event);
+					ArrayList<String> channels = getChannels(event);							//get com channels
 					ComChannelList coms = new ComChannelList();
-					for(String channel : channels){
-						coms.add(all_channels.get(channel));
+					for(String channel : channels){												//for each channel
+						coms.add(all_channels.get(channel));									//add to all channels
 					}
 					
 					//Get inputs and outputs
-					NodeList inputnodes = event.getElementsByTagName("input");
+					NodeList inputnodes = event.getElementsByTagName("input");					//get input
 					HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
-					for( int k=0; k < inputnodes.getLength(); k++) {
-						Element input = (Element) inputnodes.item(k);
-						Element value = (Element) input.getElementsByTagName("value").item(0);
-						ComChannel<?> c = coms.getChannel(input.getAttribute("name"));
-						IPredicate p = getPredicate(value);
-						inputs.put(c, p);
+					for( int k=0; k < inputnodes.getLength(); k++) {							//for each input
+						Element input = (Element) inputnodes.item(k);							
+						Element value = (Element) input.getElementsByTagName("value").item(0);	//get expected value
+						ComChannel<?> c = coms.getChannel(input.getAttribute("name"));			//get channel name
+						IPredicate p = getPredicate(value);										//get predicate
+						inputs.put(c, p);														//add pred & chan to inputs map
 					}
 					
-					Element output = (Element) event.getElementsByTagName("output").item(0);
-					ComChannel<?> o = coms.getChannel(output.getAttribute("name"));
-					Element o_value = (Element) output.getElementsByTagName("value").item(0);
+					Element output = (Element) event.getElementsByTagName("output").item(0);	//get outputs
+					ComChannel<?> o = coms.getChannel(output.getAttribute("name"));				//get channel name
+					Element o_value = (Element) output.getElementsByTagName("value").item(0);	//get value to assign
 					Object value = getValue(o_value);
 					
-					Event e = new Event(name, count, inputs, o, value);
-					team_events.add(e);
+					Event e = new Event(name, count, inputs, o, value);							//form new event with name, instances, output & output value
+					team_events.add(e);															//add event to the team
 				}
 				
 			}//end if
@@ -230,92 +230,29 @@ public class DOM {
 		return states;
 	}
 
-	private ArrayList<Assertion> getAssertions(Element state_node,
-			ArrayList<State> states, ActorVariableWrapper internal_vars,
-			ComChannelList coms) {
+	private ArrayList<Assertion> getAssertions(Element state_node, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
+
 		ArrayList<Assertion> assertions = new ArrayList<Assertion>();
-		NodeList assertion_nodes = state_node.getElementsByTagName("assert");
-		int size = assertion_nodes.getLength();
-		for(int index = 0; index < size; index++){
-			Element assertion = (Element)assertion_nodes.item(index);
-			ComChannelList inputs = new ComChannelList();
-			NodeList input_nodes = assertion.getElementsByTagName("input");
-			final HashMap<String,DataComparator> input_prereqs = new HashMap<String,DataComparator>();
-					HashMap<String, DataComparator> internal_prereqs = new HashMap<String, DataComparator>();
-			int input_size = input_nodes.getLength();
-			for(int sub_index = 0; sub_index < input_size; sub_index++){
-				Element input = (Element) input_nodes.item(index);
-				String data_type = input.getAttribute("dataType");
-				String predicate = input.getAttribute("predicate");
-				String data = getTextValue(input, "value");
-				String source = input.getAttribute("type");
-				String source_name = input.getAttribute("name");
-				DataComparator prereq = null;
-				switch(predicate){
-				case "eq":
-					prereq = new DataComparator(data, data_type){
-						@Override
-						public boolean isTrue(Object o){
-							return o.equals(data);
-						}
-					};
-					break;
-				case "gt":
-					prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o > (int)data;
-					}
-				};
-					break;
-				case "lt":
-					prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o < (int)data;
-					}
-				};
-					break;
-				case "neq":
-					prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return !o.equals(data);
-					}
-				};
-					break;
-				case "gteq":
-					prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o >= (int)data;
-					}
-				};
-					break;
-				case "lteq":
-					prereq = new DataComparator(data, data_type){
-					@Override
-					public boolean isTrue(Object o){
-						return (int) o <= (int)data;
-					}
-				};
-					break;
-				default:
-					assert (true): "bad predicate within the assertions";
-				}
-				if(source.equals("channel")){
-					ComChannel next_input = coms.get(source_name);
-					assert(next_input != null):"Missing a ComChannel in the assertions";
-					inputs.add(next_input);
-					
-					input_prereqs.put(source_name, prereq);
-				} else {
-					internal_prereqs.put(source_name, prereq);
-				}
+		
+		NodeList assertion_nodes = state_node.getElementsByTagName("assert");			//found assertions nodes
+		for( int i=0; i < assertion_nodes.getLength(); i++ ) {							//for all assertions nodes							//for each assert
+			Element assertion = (Element) assertion_nodes.item(i);
+			
+			//get inputs
+			NodeList input_nodes = assertion.getElementsByTagName("input");				//get input
+			HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
+			for( int k=0; k < input_nodes.getLength(); k++) {							//for each input
+				Element input = (Element) input_nodes.item(k);							
+				Element value = (Element) input.getElementsByTagName("value").item(0);	//get expected value
+				ComChannel<?> c = coms.getChannel(input.getAttribute("name"));			//get channel name
+				IPredicate p = getPredicate(value);										//get predicate
+				inputs.put(c, p);														//add pred & chan to inputs map
 			}
-			String message = getTextValue((Element) assertion.getElementsByTagName("message").item(0),"message");
-			assertions.add(new Assertion(internal_vars, inputs, input_prereqs, internal_prereqs, message));
+			
+			//get message
+			String message = assertion.getAttribute("message");							//get message
 		}
+		
 		return assertions;
 	}
 
@@ -341,40 +278,41 @@ public class DOM {
 			int min = Integer.parseInt(transition_node.getAttribute("duration-max"));
 			int priority = Integer.parseInt(transition_node.getAttribute("priority"));
 			double probability = Double.parseDouble(transition_node.getAttribute("probability"));
-
+			
+			//get inputs
 			ComChannelList inputs = new ComChannelList();
 			NodeList input_nodes = transition_node.getElementsByTagName("input");
-			final HashMap<ComChannel,DataComparator> input_prereqs = new HashMap<ComChannel,DataComparator>();
-			final HashMap<String, DataComparator> internal_prereqs = new HashMap<String, DataComparator>();
+			final HashMap<ComChannel<?>, IPredicate> input_prereqs = new HashMap<ComChannel<?>, IPredicate>();
+			final HashMap<String, IPredicate> internal_prereqs = new HashMap<String, IPredicate>();
 			int input_size = input_nodes.getLength();
 			for(int sub_index = 0; sub_index < input_size; sub_index++){
 				Element input = (Element) input_nodes.item(index);
 				addInput(coms, inputs, input_prereqs, internal_prereqs, input);
 			}
+			
+			//get outputs
 			ComChannelList outputs = new ComChannelList();
-			NodeList output_nodes = transition_node.getElementsByTagName("input");
+			NodeList output_nodes = transition_node.getElementsByTagName("output");
 			final HashMap<String,Object> temp_out = new HashMap<String,Object>();
 			final HashMap<String,Object> temp_internals = new HashMap<String,Object>();
 			int output_size = output_nodes.getLength();
 			for(int sub_index = 0; sub_index < output_size; sub_index++){
 				Element output = (Element) output_nodes.item(index);
-				addOutput(internal_vars, coms, outputs, temp_out,
-						temp_internals, output);
+				addOutput(internal_vars, coms, outputs, temp_out, temp_internals, output);
 			}
 			
 			State end_state = getEndState(states, transition_node);
-			Transition transition = new Transition(internal_vars, inputs, outputs,
-					end_state, new Range(min,max), priority, probability){
+			Transition transition = new Transition(internal_vars, inputs, outputs, end_state, new Range(min,max), priority, probability){
 				@Override
 				public boolean isEnabled(){
 					for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
-						DataComparator prereq = input_prereqs.get(input.getValue());
-						if(!prereq.isTrue(input.getValue().value()))
+						IPredicate prereq = input_prereqs.get(input.getValue());
+						if(!prereq.evaluate(input.getValue().value()))
 							return false;
 					}
 					for(Entry<String, Object> internal : this._internal_vars.getAllVariables().entrySet()){
-						DataComparator prereq = internal_prereqs.get(internal.getKey());
-						if(!prereq.isTrue(internal.getValue()))
+						IPredicate prereq = internal_prereqs.get(internal.getKey());
+						if(!prereq.evaluate(internal.getValue()))
 							return false;
 					}
 
@@ -388,7 +326,6 @@ public class DOM {
 				}
 			};
 			
-			
 		}
 		return transitions;
 	}
@@ -400,76 +337,19 @@ public class DOM {
 	 * @param internal_prereqs
 	 * @param input
 	 */
-	private void addInput(ComChannelList coms, ComChannelList inputs,
-			final HashMap<ComChannel, DataComparator> input_prereqs,
-			final HashMap<String, DataComparator> internal_prereqs,
-			Element input) {
-		String data_type = input.getAttribute("dataType");
+	private void addInput(ComChannelList coms, ComChannelList inputs, final HashMap<ComChannel<?>, IPredicate> input_prereqs, final HashMap<String, IPredicate> internal_prereqs, Element input) {
 		String predicate = input.getAttribute("predicate");
 		String data = getTextValue(input, "value");
 		String source = input.getAttribute("type");
 		String source_name = input.getAttribute("name");
-		DataComparator prereq = null;
-		switch(predicate){
-		case "eq":
-			prereq = new DataComparator(data, data_type){
-				@Override
-				public boolean isTrue(Object o){
-					return o.equals(data);
-				}
-			};
-			break;
-		case "gt":
-			prereq = new DataComparator(data, data_type){
-			@Override
-			public boolean isTrue(Object o){
-				return (int) o > (int)data;
-			}
-		};
-			break;
-		case "lt":
-			prereq = new DataComparator(data, data_type){
-			@Override
-			public boolean isTrue(Object o){
-				return (int) o < (int)data;
-			}
-		};
-			break;
-		case "neq":
-			prereq = new DataComparator(data, data_type){
-			@Override
-			public boolean isTrue(Object o){
-				return !o.equals(data);
-			}
-		};
-			break;
-		case "gteq":
-			prereq = new DataComparator(data, data_type){
-			@Override
-			public boolean isTrue(Object o){
-				return (int) o >= (int)data;
-			}
-		};
-			break;
-		case "lteq":
-			prereq = new DataComparator(data, data_type){
-			@Override
-			public boolean isTrue(Object o){
-				return (int) o <= (int)data;
-			}
-		};
-			break;
-		default:
-			assert (true): "bad predicate within the transition";
-		}
-		if(source.equals("channel")){
-			ComChannel next_input = coms.get(source_name);
-			assert(next_input != null):"Missing a ComChannel in the transitions";
-			inputs.add(next_input);
-			
-			input_prereqs.put(next_input, prereq);
-		} else {
-			internal_prereqs.put(source_name, prereq);
+		
+		IPredicate p = getPredicate((Element) input.getElementsByTagName("value"));			//get predicate
+		
+		if(source.equals("channel")){														//inputs
+			ComChannel<?> c = coms.getChannel(input.getAttribute("name"));					//get channel name
+			input_prereqs.put(c, p);														//add pred & chan to inputs map
+		} else {																			//memory
+			internal_prereqs.put(source_name, p);											//add pred & chan to inputs map
 		}
 	}
 
