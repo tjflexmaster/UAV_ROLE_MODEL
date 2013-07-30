@@ -15,6 +15,7 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
+	private ArrayList<Assertion> _assertions;
 	
 	/**
 	 * this constructor is used for creating new states
@@ -23,6 +24,7 @@ public class State implements IState {
 	public State(String name) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
+		_assertions = new ArrayList<Assertion>();
 	}
 	
 	public State add(ITransition new_transition)
@@ -39,6 +41,9 @@ public class State implements IState {
 	
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
+		for(Assertion assertion : _assertions){
+			assertion.checkAssertion();
+		}
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
 			if ( t.isEnabled() ) {
@@ -81,6 +86,10 @@ public class State implements IState {
 	 */
 	public String toString() {
 		return _name;
+	}
+
+	public void addAssertion(Assertion assertion) {
+		_assertions.add(assertion);
 	}
 
 }

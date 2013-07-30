@@ -161,8 +161,8 @@ public class DOM {
 			Element state_node = (Element) state_nodes.item(index);
 			String title = state_node.getAttribute("name");
 			State state = states.get(states.indexOf(title));
-			ArrayList<Transition> assertions = getAssertions(state_node, states, internal_vars, coms);
-			for(Transition assertion : assertions){
+			ArrayList<Assertion> assertions = getAssertions(state_node, states, internal_vars, coms);
+			for(Assertion assertion : assertions){
 				state.addAssertion(assertion);
 			}
 			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars, coms);
@@ -171,6 +171,95 @@ public class DOM {
 			}
 		}
 		return states;
+	}
+
+	private ArrayList<Assertion> getAssertions(Element state_node,
+			ArrayList<State> states, ActorVariableWrapper internal_vars,
+			ComChannelList coms) {
+		ArrayList<Assertion> assertions = new ArrayList<Assertion>();
+		NodeList assertion_nodes = state_node.getElementsByTagName("assert");
+		int size = assertion_nodes.getLength();
+		for(int index = 0; index < size; index++){
+			Element assertion = (Element)assertion_nodes.item(index);
+			ComChannelList inputs = new ComChannelList();
+			NodeList input_nodes = assertion.getElementsByTagName("input");
+			final HashMap<String,DataComparator> input_prereqs = new HashMap<String,DataComparator>();
+					HashMap<String, DataComparator> internal_prereqs = new HashMap<String, DataComparator>();
+			int input_size = input_nodes.getLength();
+			for(int sub_index = 0; sub_index < input_size; sub_index++){
+				Element input = (Element) input_nodes.item(index);
+				String data_type = input.getAttribute("dataType");
+				String predicate = input.getAttribute("predicate");
+				String data = getTextValue(input, "value");
+				String source = input.getAttribute("type");
+				String source_name = input.getAttribute("name");
+				DataComparator prereq = null;
+				switch(predicate){
+				case "eq":
+					prereq = new DataComparator(data, data_type){
+						@Override
+						public boolean isTrue(Object o){
+							return o.equals(data);
+						}
+					};
+					break;
+				case "gt":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o > (int)data;
+					}
+				};
+					break;
+				case "lt":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o < (int)data;
+					}
+				};
+					break;
+				case "neq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return !o.equals(data);
+					}
+				};
+					break;
+				case "gteq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o >= (int)data;
+					}
+				};
+					break;
+				case "lteq":
+					prereq = new DataComparator(data, data_type){
+					@Override
+					public boolean isTrue(Object o){
+						return (int) o <= (int)data;
+					}
+				};
+					break;
+				default:
+					assert (true): "bad predicate within the assertions";
+				}
+				if(source.equals("channel")){
+					ComChannel next_input = coms.get(source_name);
+					assert(next_input != null):"Missing a ComChannel in the assertions";
+					inputs.add(next_input);
+					
+					input_prereqs.put(source_name, prereq);
+				} else {
+					internal_prereqs.put(source_name, prereq);
+				}
+			}
+			String message = getTextValue((Element) assertion.getElementsByTagName("message").item(0),"message");
+			assertions.add(new Assertion(internal_vars, inputs, input_prereqs, internal_prereqs, message));
+		}
+		return assertions;
 	}
 
 	private ArrayList<String> getChannels(Element actor) {
