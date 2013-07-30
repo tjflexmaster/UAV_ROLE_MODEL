@@ -110,7 +110,8 @@ public class DOM {
 		}
 		
 		//Create Actors
-		ArrayList<Actor> actors = getActors(team.getComChannels());
+		Element actors_node = (Element) team_node.getElementsByTagName("actors").item(0);
+		ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
 		for(Actor a : actors) {
 			team.addActor(a);
 		}
@@ -121,9 +122,9 @@ public class DOM {
 		return team;
 	}
 	
-	public ArrayList<Actor> getActors(ComChannelList all_coms){
+	public ArrayList<Actor> getActors(Element actors_node, ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
-		NodeList actor_nodes = d.getElementsByTagName("actor");
+		NodeList actor_nodes = actors_node.getElementsByTagName("actor");
 		int size = actor_nodes.getLength();
 		for(int index = 0; index < size; index++){
 			Element actor_node = (Element)actor_nodes.item(index);
@@ -141,6 +142,11 @@ public class DOM {
 				actor.add(state);
 				if(state.equals(startState))
 					actor.startState(state);
+			}
+			Element sub_actors_node = (Element) actor_node.getElementsByTagName("subActors").item(0);
+			ArrayList<Actor> sub_actors = getActors(sub_actors_node,coms);
+			for(Actor sub_actor : sub_actors){
+				actor.addSubActor(sub_actor);
 			}
 			actors.add(actor);
 		}
