@@ -605,25 +605,30 @@ public class DOM {
 	{
 		Object data = null;
 		String datatype = null;
-		if ( input.getAttribute("type") == "chan")
-			datatype = getChannelDataType(input);
-		else
-			datatype = getMemoryDataType(input);
 		
-		switch(datatype){
-			case "String":
-				data = input.getAttribute("value");
-				break;
-			case "Integer":
-				data = Integer.parseInt(input.getAttribute("value"));
-				break;
-			case "Boolean":
-				data = Boolean.parseBoolean(input.getAttribute("value"));
-				break;
-			default:
-				assert true: "Missing data type";
+		if ( input.getAttribute("value").isEmpty() )
+			return null;
+		else {
+			if ( input.getAttribute("type") == "chan")
+				datatype = getChannelDataType(input);
+			else
+				datatype = getMemoryDataType(input);
+			
+			switch(datatype){
+				case "String":
+					
+					data = input.getAttribute("value");
+					break;
+				case "Integer":
+					data = Integer.parseInt(input.getAttribute("value"));
+					break;
+				case "Boolean":
+					data = Boolean.parseBoolean(input.getAttribute("value"));
+					break;
+				default:
+					assert true: "Missing data type";
+			}
 		}
-		
 		return data;
 	}
 	

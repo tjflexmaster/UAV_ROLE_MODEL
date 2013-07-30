@@ -1,0 +1,105 @@
+<team name="BasicWiSARTeam">
+	<!-- List of all channels that exist within the model -->
+	<channels>
+		<channel name="ps_audio_mm" type="audio" dataType="String" />
+		<channel name="ps_visual_mm" type="visual" dataType="String" />
+		<channel name="mm_audio_ps" type = "audio" dataType="String" />
+		<channel name="mm_visual_ps" type="visual" dataType="String"/>
+		<channel name="new_search_event" type="event" dataType="Boolean" />
+	</channels>
+	
+	<!-- List of model actors -->
+	<actors>
+		<actor name="parent_search">
+			<!-- Names of all channels that this Actor interacts with (input and output) -->
+			<channels>
+				<channel name="ps_audio_mm"/>
+				<channel name="ps_visual_mm"/>
+				<channel name="mm_audio_ps"/>
+				<channel name="mm_visual_ps"/>
+				<channel name="new_search_event"/>
+			</channels>
+			
+			<!-- Memory variables -->
+			<memory>
+				<variable name="search_active" dataType="Boolean">false</variable>
+				<variable name="search_aoi" dataType="Integer">0</variable>
+			</memory>
+			
+			<!-- Name of the start state -->
+			<startState name="idle" />
+			
+			<!-- List of Actor States -->
+			<states>
+				<state name="idle">
+					<transitions>
+						<transition duration-min="1" duration-max="1">
+							<inputs>
+								<input type="chan" name="new_search_event" predicate="eq" value="true"/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="ps_audio_mm" value="tx">
+									<value dataType="String">poke</value>
+								</output>
+							</outputs>
+							<endState name="communicate_mm" />
+						</transition>
+					</transitions>
+				</state>
+				<state name="communicate_mm">
+					<transitions>
+						<transition duration-min="1" duration-max="1">
+							<inputs>
+								<input type="chan" name="ps_audio_mm" predicate="eq" value="poke"/>
+								<!-- <input type="chan" name="mm_audio_ps" predicate="eq" value="ack"/> -->
+							</inputs>
+							<outputs>
+								<ouput type="chan" name="ps_audio_mm" value="tx"/>
+							</outputs>
+							<endState name="communicate_mm"/>
+						</transition>
+						<transition duration-min="600" duration-max="1800">
+							<inputs>
+								<input type="chan" name="ps_audio_mm" predicate="eq" value="tx"/>
+							</inputs>
+							<outputs>
+								<ouput type="chan" name="ps_audio_mm" value="end"/>
+							</outputs>
+							<endState name="communicate_mm"/>
+						</transition>
+						<transition duration-min="1" duration-max="1">
+							<inputs>
+								<input type="chan" name="ps_audio_mm" predicate="eq" value="end"/>
+							</inputs>
+							<outputs>
+								<ouput type="chan" name="ps_audio_mm" value=""/>
+							</outputs>
+							<endState name="communicate_mm"/>
+						</transition>
+					</transitions>
+				
+				</state>
+			</states>
+			
+			<subActors>
+			</subActors>
+	
+		</actor>
+	</actors>
+	
+	<events>
+		<event name="new_search_event" count="3">
+			<!-- Names of all channels that this Event interacts with (input and output) -->
+			<channels>
+				<channel name="new_search_event"/>
+			</channels>
+			
+			<inputs>
+			</inputs>
+			<output name="new_search_event">
+				<value dataType="Boolean">true</value>
+			</output>
+		</event>
+		
+	</events>
+</team>

@@ -47,6 +47,7 @@ public class Simulator {
 	 */
 	public void run()
 	{
+		
 		do {
 			//Get all event and team transitions
 			loadTransitions();
@@ -69,20 +70,23 @@ public class Simulator {
 	private void loadTransitions()
 	{
 		//Get Transitions from the Events
-		for(IEvent e : _team.getEvents() ) {
-			
-			ITransition t = e.getEnabledTransition();
+		for(Event e : _team.getEvents() ) {
+			HashMap<IActor, ITransition> transitions = e.getTransitions();
 			if ( _clock.getActorTransition((IActor) e) == null ) {
-				if ( t != null && !e.isFinished() ) {
-					_clock.addTransition((IActor) e, t, random(0,10000)); //random(t.getDurationRange().min(),t.getDurationRange().max()));
+				for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
+					ITransition t = entry.getValue();
+					if ( t.getDurationRange() == null )
+						_clock.addTransition(e, t, random(0, 10000));
+					else
+						_clock.addTransition(e, t, duration(t.getDurationRange()));
 					e.decrementCount();
 				}
 			} else {
-				if ( t == null ) {
-					_clock.removeTransition((IActor) e);
-//					e.incrementCount();
+				if ( transitions.isEmpty() ) {
+					_clock.removeTransition(e);
 				}
 			}
+				
 		}
 		
 		//Get Transitions from the Actor
@@ -92,13 +96,6 @@ public class Simulator {
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
 		}
 		
-//		//deactivate outputs from events after one cycle
-//		for(IEvent e : _team.getEvents() ) {
-//			ITransition t = e.getEnabledTransition();
-//			if(t == null){
-//				e.deactivate();
-//			}
-//		}
 	}
 	
 	
