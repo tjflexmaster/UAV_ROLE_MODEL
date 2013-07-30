@@ -135,10 +135,11 @@ public class DOM {
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		NodeList actor_nodes = actors_node.getElementsByTagName("actor");
 		int size = actor_nodes.getLength();
-		for(int index = 0; index < size; index++){
+		for(int index = 0; index < size; index++) {
 			Element actor_node = (Element)actor_nodes.item(index);
 			Actor actor = new AnonymousActor();
 			
+			//Create Actor channels
 			String name = getTextValue(actor_node,"name");
 			String startState = getTextValue(actor_node,"startState");
 			ArrayList<String> channels = getChannels(actor_node);
@@ -146,10 +147,21 @@ public class DOM {
 			for(String channel : channels){
 				coms.add(all_coms.get(channel));
 			}
+			
+			//Create memory variables
+			Element memory = (Element) actors_node.getElementsByTagName("memory").item(0);
+			ActorVariableWrapper vars = actor.getInternalVars();
+			_memory_nodes = memory.getChildNodes();
+			for( int i=0; i < _memory_nodes.getLength(); i++ ) {
+				Element var = (Element) _memory_nodes.item(i);
+				Object data = getMemoryValue(var);
+				vars.addVariable(var.getAttribute("name"), data);
+			}
+			
 			ArrayList<State> states = getStates(actor_node, actor.getInternalVars(), coms);
-			for(State state : states){
+			for(State state : states) {
 				actor.add(state);
-				if(state.equals(startState))
+				if( state.equals(startState) )
 					actor.startState(state);
 			}
 			Element sub_actors_node = (Element) actor_node.getElementsByTagName("subActors").item(0);
@@ -566,6 +578,27 @@ public class DOM {
 		Element textElem = d.createElement(type);
 		textElem.appendChild(d.createTextNode(Integer.toString(value)));
 		return textElem;
+	}
+	
+	private Object getMemoryValue(Element variable)
+	{
+		Object data = null;
+		
+		switch(variable.getAttribute("dataType")){
+			case "String":
+				data = variable.getTextContent();
+				break;
+			case "Integer":
+				data = Integer.parseInt(variable.getTextContent());
+				break;
+			case "Boolean":
+				data = Boolean.parseBoolean(variable.getTextContent());
+				break;
+			default:
+				assert true: "Missing data type";
+		}
+		
+		return data;
 	}
 	
 	private Object getValue(Element input)
