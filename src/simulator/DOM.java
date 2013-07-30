@@ -263,8 +263,15 @@ public class DOM {
 	}
 
 	private ArrayList<String> getChannels(Element actor) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<String> channels = new ArrayList<String>();
+		NodeList channel_nodes = ((Element)actor.getElementsByTagName("channels").item(0))
+												.getElementsByTagName("channel");
+		int size = channel_nodes.getLength();
+		for(int index = 0; index < size; index++){
+			Element channel = (Element)channel_nodes.item(index);
+			channels.add(channel.getAttribute("name"));
+		}
+		return channels;
 	}
 
 	private ArrayList<Transition> getTransitions(Element state, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
