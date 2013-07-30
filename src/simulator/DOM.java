@@ -118,6 +118,10 @@ public class DOM {
 		
 		
 		//Create Events
+		ArrayList<Event> events = getEvents(team_node, team.getComChannels());
+		for(Event e : events) {
+			team.addEvent(e, 1);
+		}
 		
 		return team;
 	}
@@ -155,6 +159,8 @@ public class DOM {
 	
 	private ArrayList<Event> getEvents(Element team, ComChannelList all_channels)
 	{
+		ArrayList<Event> team_events = new ArrayList<Event>();
+		
 		NodeList child_nodes = team.getChildNodes();
 		for( int i=0; i < child_nodes.getLength(); i++ ) {
 			if ( child_nodes.item(i).getNodeName() == "events" ) {
@@ -172,37 +178,30 @@ public class DOM {
 						coms.add(all_channels.get(channel));
 					}
 					
-					//Get transition inputs and outputs
-					Element transition = (Element) event.getElementsByTagName("transition").item(0);
-					NodeList inputnodes = transition.getElementsByTagName("input");
-					NodeList outputnodes = transition.getElementsByTagName("output");
-					ComChannelList inputs = new ComChannelList();
+					//Get inputs and outputs
+					NodeList inputnodes = event.getElementsByTagName("input");
+					HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
 					for( int k=0; k < inputnodes.getLength(); k++) {
 						Element input = (Element) inputnodes.item(k);
-						inputs.add( coms.getChannel(input.getAttribute("name")) );
 						Element value = (Element) input.getElementsByTagName("value").item(0);
+						ComChannel<?> c = coms.getChannel(input.getAttribute("name"));
+						IPredicate p = getPredicate(value);
+						inputs.put(c, p);
 					}
 					
-					ComChannelList outputs = new ComChannelList();
-					for( int k=0; k < inputnodes.getLength(); k++) {
-						Element output = (Element) inputnodes.item(k);
-						outputs.add( coms.getChannel(output.getAttribute("name")) );
-					}
+					Element output = (Element) event.getElementsByTagName("output").item(0);
+					ComChannel<?> o = coms.getChannel(output.getAttribute("name"));
+					Element o_value = (Element) output.getElementsByTagName("value").item(0);
+					Object value = getValue(o_value);
 					
-					EventTransition etransition = new EventTransition(inputs, outputs) {
-						@Override
-						public boolean isEnabled()
-						{
-							
-						}
-					};
-					
-					
-					AnonymousEvent e = new AnonymousEvent(name, count, )
+					Event e = new Event(name, count, inputs, o, value);
+					team_events.add(e);
 				}
 				
-			}
-		}
+			}//end if
+		}//end for
+		
+		return team_events;
 	}
 
 	private ArrayList<State> getStates(Element actor, ActorVariableWrapper internal_vars, ComChannelList coms) {
@@ -564,6 +563,58 @@ public class DOM {
 		Element textElem = d.createElement(type);
 		textElem.appendChild(d.createTextNode(Integer.toString(value)));
 		return textElem;
+	}
+	
+	private Object getValue(Element value)
+	{
+		Object data = null;
+		switch(value.getAttribute("dataType")){
+		case "String":
+			data = value.getTextContent();
+			break;
+		case "Integer":
+			data = Integer.parseInt(value.getTextContent());
+			break;
+		case "Boolean":
+			data = Boolean.parseBoolean(value.getTextContent());
+			break;
+		default:
+			assert true: "Missing data type";
+		}
+		
+		return data;
+	}
+	
+	private IPredicate getPredicate(Element value)
+	{
+		Object data = getValue(value);
+		
+		IPredicate predicate = null;
+		switch(value.getAttribute("predicate")) {
+			case "eq":
+				predicate = new EqualPredicate(data);
+				break;
+			case "gt":
+				predicate = new GreaterThanPredicate(data);
+				break;
+			case "lt":
+				predicate = new LessThanPredicate(data);
+				break;
+			case "neq":
+				predicate = new NotEqualPredicate(data);
+				break;
+			case "gteq":
+				predicate = new GreaterThanEqualPredicate(data);
+				break;
+			case "lteq":
+				predicate = new LessThanEqualPredicate(data);
+				break;
+			default:
+				assert false : "Unknown predicate value";
+				break;
+		}
+		
+		return predicate;
 	}
 
 }
