@@ -23,10 +23,9 @@ public class CommentToXml {
 				f = file;
 		}
 		for(File file : f.listFiles()){
-			System.out.println(file.getName());
-			System.out.println(xml.parseFile(file));
+			//if(file.getName().equals("MissionManager.java"))
+				System.out.println(xml.parseFile(file));
 		}
-		//System.out.println(xml.parseFile(new File("MissionManager")));
 	}
 	public String parseFile(File f){
 		StringBuilder str = new StringBuilder();
@@ -40,24 +39,36 @@ public class CommentToXml {
 				}
 				line = line.trim();
 			}
+			str.append("\n<actor name=\""+ f.getName() + "\">");
+			str.append("\n\t<channels>\n\t\t<channel name=\"\"/>\n\t</channels>");
+			str.append("\n\t<memory>\n\t\t<variable name =\"\" dataType=\"\"></variable>\n\t</memory>");
+			str.append("\n\t<startState name=\"\"/>");
+			str.append("\n\t<states>");
 			while(!line.startsWith("* ("))line = br.readLine().trim();
-			int start = line.indexOf('(')+1;
-			int end = line.indexOf(',');
-			String startState = line.substring(start, end);
-			str.append("<actor>\n");
-			str.append("\t<name>" + f.getName() + "</name>\n");
-			str.append("\t<state>\n");
-			str.append("\t\t<name>");
-			str.append(startState);
-			str.append("</name>\n");
-			str.append("\t\t<transitions>\n");
-			while(!line.endsWith("*/")){
-				str.append(parseComment(line));
-				line = br.readLine().trim();
+			while(true){
+				int start = line.indexOf('(')+1;
+				int end = line.indexOf(',');
+				String startState = line.substring(start, end);
+				str.append("\n\t\t<state name=\"" + startState + "\">");
+				str.append("\n\t\t\t<assertions>\n\t\t\t\t<assert>\n\t\t\t\t\t<inputs>\n\t\t\t\t\t\t<input>\n\t\t\t\t\t\t\t<value dataType=\"\" predicate=\"\"></value>\n\t\t\t\t\t\t\t<source type=\"\" name=\"\"/>\n\t\t\t\t\t\t</input>\n\t\t\t\t\t</inputs>\n\t\t\t\t\t<message></message>\n\t\t\t\t</assert>\n\t\t\t</assertions>");
+				str.append("\n\t\t\t<transitions>");
+				while(!line.endsWith("*/")){
+					str.append(parseComment(line));
+					line = br.readLine().trim();
+				}
+				str.append("\n\t\t\t</transitions>");
+				str.append("\n\t\t</state>");
+				while(!line.startsWith("* (")){
+					line = br.readLine();
+					if(line == null){
+						str.append("\n\t</states>");
+						str.append("\n\t<subActors>\n\t\t<actor name=\"\"/>\n\t</subActors>");
+						str.append("\n</actor>");
+						return str.toString();
+					}
+					line = line.trim();
+				}
 			}
-			str.append("\t\t<transitions>\n");
-			str.append("\t</state>\n");
-			str.append("</actor>");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,71 +84,49 @@ public class CommentToXml {
 		int start = s.indexOf('(')+1;
 		int end = s.indexOf(',');
 		String startState = s.substring(start, end);
-		str.append("\t\t<transition>\n");
-		str.append("\t\t\t<durationRange>\n");
-		str.append("\t\t\t\t<max></max>\n");
-		str.append("\t\t\t\t<min></min>\n");
-		str.append("\t\t\t</durationRange>\n");
-		str.append("\t\t\t<priority></priority>\n");
-		str.append("\t\t\t<probability></probability>\n");
+		str.append("\n\t\t\t\t<transition duration-min=\"\" duration-max=\"\" priority=\"\" probability=\"\">");
 		start = s.indexOf('[')+1;
 		end = s.indexOf(']', start);
-		str.append("\t\t\t<inputs>");
+		str.append("\n\t\t\t\t\t<inputs>");
 		String[] inputs = s.substring(start, end).split(", ");
 		for(String input : inputs){
-			str.append("\t\t\t\t<input>\n");
-			str.append("\t\t\t\t\t<predicate type =\"\">\n");
-			str.append("\t\t\t\t\t<value data_type=\"\">");
-			str.append(input);
-			str.append("</value>\n");
-			str.append("\t\t\t\t\t<source type=\"channel\" name=\"\"/>\n");
-			str.append("\t\t\t\t</input>\n");
+			str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\">");
+			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + input + "</value>");
+			str.append("\n\t\t\t\t\t\t</input>");
 		}
 		
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] internals = s.substring(start, end).split(", ");
 		for(String internal : internals){
-			str.append("\t\t\t\t<input>\n");
-			str.append("\t\t\t\t\t<predicate type =\"\">\n");
-			str.append("\t\t\t\t\t<value data_type=\"\">");
-			str.append(internal);
-			str.append("</value>\n");
-			str.append("\t\t\t\t\t<source type=\"channel\" name=\"\"/>\n");
-			str.append("\t\t\t\t</input>\n");
+			str.append("\n\t\t\t\t\t\t<input type=\"memory\" name=\"\">");
+			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + internal + "</value>");
+			str.append("\n\t\t\t\t\t\t</input>");
 		}
-		str.append("\t\t\t</inputs>\n");
+		str.append("\n\t\t\t\t\t</inputs>");
 		start = s.indexOf('(', end)+1;
 		end = s.indexOf(',', start);
 		String endState = s.substring(start, end);
 		start = s.indexOf('[',end)+1;
 		end = s.indexOf(']', start);
-		str.append("\t\t\t<outputs>\n");
+		str.append("\n\t\t\t\t\t<outputs>");
 		String[] outputs = s.substring(start, end).split(", ");
 		for(String output : outputs){
-			str.append("\t\t\t\t<output>\n");
-			str.append("\t\t\t\t\t<predicate type =\"\">\n");
-			str.append("\t\t\t\t\t<value data_type=\"\">");
-			str.append(output);
-			str.append("</value>\n");
-			str.append("\t\t\t\t\t<source type=\"channel\" name=\"\"/>\n");
-			str.append("\t\t\t\t</output>\n");
+			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\">");
+			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + output + "</value>");
+			str.append("\n\t\t\t\t\t\t</output>");
 		}
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] temp_internals = s.substring(start, end).split(", ");
 		for(String temp_internal : temp_internals){
-			str.append("\t\t\t\t<output>\n");
-			str.append("\t\t\t\t\t<predicate type =\"\">\n");
-			str.append("\t\t\t\t\t<value data_type=\"\">");
-			str.append(temp_internal);
-			str.append("</value>\n");
-			str.append("\t\t\t\t\t<source type=\"channel\" name=\"\"/>\n");
-			str.append("\t\t\t\t</output>\n");
+			str.append("\n\t\t\t\t\t\t<output type=\"memory\" name=\"\">");
+			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + temp_internal + "</value>");
+			str.append("\n\t\t\t\t\t\t</output>");
 		}
-		str.append("\t\t\t</outputs>\n");
-		str.append("\t\t\t<endState>" + endState + "</endState>\n");
-		str.append("\t\t<transition>\n");
+		str.append("\n\t\t\t\t\t</outputs>");
+		str.append("\n\t\t\t\t\t<endState name=\"" + endState + "\"/>");
+		str.append("\n\t\t\t\t</transition>");
 		return str.toString();
 	}
 }
