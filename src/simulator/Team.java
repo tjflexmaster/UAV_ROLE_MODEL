@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class Team implements ITeam {
 	
-	ArrayList<IEvent> _events = new ArrayList<IEvent>();
+	ArrayList<Event> _events = new ArrayList<Event>();
 	ArrayList<IActor> _actors = new ArrayList<IActor>();
 	ComChannelList _com_channels;
 	
@@ -23,7 +23,7 @@ public abstract class Team implements ITeam {
 	}
 	
 	@Override
-	public ArrayList<IEvent> getEvents() {
+	public ArrayList<Event> getEvents() {
 		return _events;
 	}
 	
@@ -34,10 +34,9 @@ public abstract class Team implements ITeam {
 		_actors.add(actor);
 	}
 	
-	protected void addEvent(IEvent event, int count) 
+	protected void addEvent(Event event) 
 	{
 		assert !_events.contains(event):"Event is already a part of the team";
-		event.setEventCount(count);
 		_events.add(event);
 	}
 	
