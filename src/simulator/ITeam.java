@@ -13,9 +13,9 @@ public interface ITeam {
 	
 	
 	/**
-	 * Return a list of current event transitions
+	 * Return a list of current events
 	 * @return
 	 */
-	ArrayList<IEvent> getEvents();
+	ArrayList<Event> getEvents();
 
 }

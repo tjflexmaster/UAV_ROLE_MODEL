@@ -26,10 +26,7 @@
 					<assertions>
 						<assert>
 							<inputs>
-								<input>
-									<value dataType="" predicate="" ></value>
-									<source type="chan/mem" name=""/>
-								</input>
+								<input type="chan/mem" name="" predicate="" value="" />
 							</inputs>
 							<message></message>
 						</assert>
@@ -43,14 +40,10 @@
 					<transitions>
 						<transition duration-min="" duration-max="" priority="" probability="" >
 							<inputs>
-								<input type="chan/mem" name="">
-									<value dataType="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->"><!-- expected input value --></value>
-								</input>
+								<input type="chan/mem" name="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->" value="<!-- expected input value -->" />
 							</inputs>
 							<outputs>
-								<output type="chan/mem" name="">
-									<value dataType=""><!-- output value --></value>
-								</output>
+								<output type="chan/mem" name="" value="<!-- output value -->">
 							</outputs>
 							<endState name="" />
 						</transition>
@@ -73,18 +66,10 @@
 				<channel name=""/>
 			</channels>
 			
-			<transition>
-				<inputs>
-					<input name="">
-						<value dataType="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->"><!-- expected input value --></value>
-					</input>
-				</inputs>
-				<outputs>
-					<output name="">
-						<value dataType=""><!-- output value --></value>
-					</output>
-				</outputs>
-			</transition>
+			<inputs>
+				<input name="" predicate="<!-- eq, gt, lt, neq, gteq, lteq -->" value="" />
+			</inputs>
+			<output name="" value="<!-- output value -->"/>
 		</event>
 		
 	</events>
