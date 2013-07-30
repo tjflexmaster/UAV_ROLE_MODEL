@@ -91,13 +91,13 @@ public class DOM {
 					//Create the new Channel
 					ComChannel<?> new_channel = null;
 					switch(channel.getAttribute("dataType")) {
-						case "int":
+						case "Integer":
 							new_channel = new ComChannel<Integer>(channel.getAttribute("name"), type);
 							break;
-						case "bool":
+						case "Boolean":
 							new_channel = new ComChannel<Boolean>(channel.getAttribute("name"), type);
 							break;
-						case "string":
+						case "String":
 							new_channel = new ComChannel<String>(channel.getAttribute("name"), type);
 							break;
 						default:
@@ -145,6 +145,58 @@ public class DOM {
 			actors.add(actor);
 		}
 		return actors;
+	}
+	
+	private ArrayList<Event> getEvents(Element team, ComChannelList all_channels)
+	{
+		NodeList child_nodes = team.getChildNodes();
+		for( int i=0; i < child_nodes.getLength(); i++ ) {
+			if ( child_nodes.item(i).getNodeName() == "events" ) {
+				Element events = (Element) child_nodes.item(i);
+				NodeList event_nodes = events.getElementsByTagName("event");
+				for ( int j=0; j < event_nodes.getLength(); j++ ) {
+					Element event = (Element) event_nodes.item(j);
+					String name = event.getAttribute("name");
+					int count = Math.max(0, Integer.parseInt(event.getAttribute("count")));
+					
+					//Get Event com channels
+					ArrayList<String> channels = getChannels(event);
+					ComChannelList coms = new ComChannelList();
+					for(String channel : channels){
+						coms.add(all_channels.get(channel));
+					}
+					
+					//Get transition inputs and outputs
+					Element transition = (Element) event.getElementsByTagName("transition").item(0);
+					NodeList inputnodes = transition.getElementsByTagName("input");
+					NodeList outputnodes = transition.getElementsByTagName("output");
+					ComChannelList inputs = new ComChannelList();
+					for( int k=0; k < inputnodes.getLength(); k++) {
+						Element input = (Element) inputnodes.item(k);
+						inputs.add( coms.getChannel(input.getAttribute("name")) );
+						Element value = (Element) input.getElementsByTagName("value").item(0);
+					}
+					
+					ComChannelList outputs = new ComChannelList();
+					for( int k=0; k < inputnodes.getLength(); k++) {
+						Element output = (Element) inputnodes.item(k);
+						outputs.add( coms.getChannel(output.getAttribute("name")) );
+					}
+					
+					EventTransition etransition = new EventTransition(inputs, outputs) {
+						@Override
+						public boolean isEnabled()
+						{
+							
+						}
+					};
+					
+					
+					AnonymousEvent e = new AnonymousEvent(name, count, )
+				}
+				
+			}
+		}
 	}
 
 	private ArrayList<State> getStates(Element actor, ActorVariableWrapper internal_vars, ComChannelList coms) {
