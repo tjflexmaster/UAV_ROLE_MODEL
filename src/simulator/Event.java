@@ -40,6 +40,9 @@ public class Event implements IActor {
 		
 		DeactivateEventTransition d = new DeactivateEventTransition(output_channel, _internal_vars, active);
 		inactive.add(d);
+		_states.add(active);
+		_states.add(inactive);
+		_internal_vars.setVariable("currentState", active);
 	}
 	
 	public void setEventCount(int count)
@@ -90,10 +93,15 @@ public class Event implements IActor {
 	
 	public HashMap<IActor, ITransition> getTransitions()
 	{
-		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
-		ITransition t = getCurrentState().getEnabledTransitions().get(0);
-		result.put(this, t);
-		return result;
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
+		
 	}
 	
 	@Override
