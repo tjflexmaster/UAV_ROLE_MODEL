@@ -38,9 +38,7 @@
 								<input type="chan" name="new_search_event" predicate="eq" value="true"/>
 							</inputs>
 							<outputs>
-								<output type="chan" name="ps_audio_mm" value="tx">
-									<value dataType="String">poke</value>
-								</output>
+								<output type="chan" name="ps_audio_mm" value="poke"/>
 							</outputs>
 							<endState name="communicate_mm" />
 						</transition>
@@ -96,9 +94,7 @@
 			
 			<inputs>
 			</inputs>
-			<output name="new_search_event">
-				<value dataType="Boolean">true</value>
-			</output>
+			<output name="new_search_event" dataType="Boolean" value="true"/>
 		</event>
 		
 	</events>

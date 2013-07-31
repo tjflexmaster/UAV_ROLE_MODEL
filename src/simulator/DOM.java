@@ -522,6 +522,8 @@ public class DOM {
 			String type = input.getAttribute("type");
 			if ( type.equals("chan") )
 				datatype = getChannelDataType(input);
+			else if(type.equals(""))
+				datatype = input.getAttribute("dataType");
 			else
 				datatype = getMemoryDataType(input);
 			
