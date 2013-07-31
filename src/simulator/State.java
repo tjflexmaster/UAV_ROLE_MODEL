@@ -80,6 +80,10 @@ public class State implements IState {
 		return _name.hashCode();
 	}
 	
+	public String getName() {
+		return _name;
+	}
+	
 	/**
 	 * this method works like a normal toString method
 	 * @return return the string representation of this state

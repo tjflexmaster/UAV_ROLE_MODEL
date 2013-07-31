@@ -382,8 +382,8 @@ public class DOM {
 		
 		IPredicate p = getPredicate(input);													//get predicate
 		
-		if(source.equals("channel")){														//inputs
-			ComChannel<?> c = coms.getChannel(input.getAttribute("name"));					//get channel name
+		if(source.equals("chan")){															//inputs
+			ComChannel<?> c = coms.getChannel(source_name);									//get channel name
 			input_prereqs.put(c, p);														//add pred & chan to inputs map
 		} else {																			//memory
 			internal_prereqs.put(source_name, p);											//add pred & chan to inputs map
@@ -450,9 +450,14 @@ public class DOM {
 	 * @return
 	 */
 	private State getEndState(ArrayList<State> states, Element transition_node) {
-		String endState = ((Element)transition_node.getElementsByTagName("endState").item(0)).getAttribute("name");
-		State end_state = states.get(states.indexOf(endState));
-		return end_state;
+		String endStateName = ((Element)transition_node.getElementsByTagName("endState").item(0)).getAttribute("name");
+		for ( State nextState : states ) {
+			if ( nextState.getName().equals(endStateName) ) {
+				return nextState;
+			}
+		}
+		assert true : "Couldn't find an end state.";
+		return null;
 	}
 
 	private String getTextValue(Element e, String tag) throws NullPointerException {
@@ -536,6 +541,7 @@ public class DOM {
 					assert true: "Missing data type";
 			}
 		}
+		
 		return data;
 	}
 	
@@ -573,12 +579,15 @@ public class DOM {
 	
 	private String getChannelDataType(Element input)
 	{
-		for ( int j=0; j < _channel_nodes.getLength(); j++ ) {
+		for ( int j=0; j<_channel_nodes.getLength(); j++ ) {
 			Element e = (Element) _channel_nodes.item(j);
-			if ( e.getAttribute("name") == input.getAttribute("name") ) {
+			String channelName = e.getAttribute("name").toString();
+			String inputName = input.getAttribute("name").toString();
+			if ( channelName.equals(inputName) ) {
 				return e.getAttribute("dataType");
 			}
 		}
+		assert true : "Couldn't get channel data type, maybe it wasn't added to the team?";
 		return null;
 	}
 	
@@ -586,10 +595,11 @@ public class DOM {
 	{
 		for ( int j=0; j < _memory_nodes.getLength(); j++ ) {
 			Element e = (Element) _memory_nodes.item(j);
-			if ( e.getAttribute("name") == input.getAttribute("name") ) {
+			if ( e.getAttribute("name").equals(input.getAttribute("name")) ) {
 				return e.getAttribute("dataType");
 			}
 		}
+		assert true : "Couldn't get memory data type, maybe it wasn't added to the team?";
 		return null;
 	}
 
