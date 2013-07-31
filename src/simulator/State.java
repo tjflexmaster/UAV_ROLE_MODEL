@@ -68,14 +68,19 @@ public class State implements IState {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+//		if (getClass() != obj.getClass())
+//			return false;
+		if(obj.getClass().equals(String.class) && !_name.equals((String)obj)){
 			return false;
-		State other = (State) obj;
-		if (_name == null) {
-			if (other._name != null)
+		}
+		if(obj.getClass().equals(State.class)){
+			State other = (State) obj;
+			if (_name == null) {
+				if (other._name != null)
+					return false;
+			} else if (!_name.equals(other._name))
 				return false;
-		} else if (!_name.equals(other._name))
-			return false;
+		}
 		return true;
 	}
 	

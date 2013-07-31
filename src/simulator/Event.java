@@ -100,7 +100,8 @@ public class Event implements IActor {
 			return null;
 		ITransition nextTransition = enabledTransitions.get(0);
 		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
-		transitions.put(this, nextTransition);
+		if(_count > 0 || nextTransition instanceof DeactivateEventTransition)
+			transitions.put(this, nextTransition);
 		return transitions;
 		
 	}
@@ -127,5 +128,10 @@ public class Event implements IActor {
 	public int hashCode()
 	{
 		return _name.hashCode();
+	}
+	
+	@Override
+	public String toString(){
+		return "Name: " + _name + " CurrentState: " + _internal_vars.getVariable("currentState") + " EventsRemaining: " + _count;
 	}
 }

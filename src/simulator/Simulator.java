@@ -59,6 +59,7 @@ public class Simulator {
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
 			for(ITransition transition : _ready_transitions){
+				System.out.println(transition.toString());
 				transition.fire();
 			}
 			
@@ -79,11 +80,22 @@ public class Simulator {
 						_clock.addTransition(e, t, random(0, 10000));
 					else
 						_clock.addTransition(e, t, duration(t.getDurationRange()));
-					e.decrementCount();
+					if(e.getCurrentState().equals("active"))
+						e.decrementCount();
 				}
 			} else {
 				if ( transitions.isEmpty() ) {
 					_clock.removeTransition(e);
+				}else{
+					for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
+						ITransition t = entry.getValue();
+						if ( t.getDurationRange() == null )
+							_clock.addTransition(e, t, random(0, 10000));
+						else
+							_clock.addTransition(e, t, duration(t.getDurationRange()));
+						if(e.getCurrentState().equals("active"))
+							e.decrementCount();
+					}
 				}
 			}
 				
