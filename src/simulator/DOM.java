@@ -116,9 +116,11 @@ public class DOM {
 		
 		//Create Actors
 		Element actors_node = (Element) team_node.getElementsByTagName("actors").item(0);
-		ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
-		for(Actor a : actors) {
-			team.addActor(a);
+		if(actors_node.getElementsByTagName("actor") != null) {//If the file doesn't contain actors.
+			ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
+			for(Actor a : actors) {
+				team.addActor(a);
+			}
 		}
 		
 		
@@ -435,6 +437,9 @@ public class DOM {
 
 	private String getTextValue(Element e, String tag) throws NullPointerException {
 		Element titleElem = (Element)e.getElementsByTagName(tag).item(0);
+		if(titleElem == null)
+			return "";
+		
 		String value = titleElem.getTextContent();
 
 		return value;
