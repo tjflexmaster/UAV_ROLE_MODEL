@@ -59,12 +59,14 @@ public class DOM {
 		AnonymousTeam team = new AnonymousTeam();
 		Element team_node = (Element) d.getElementsByTagName("team").item(0);
 		assert team_node!=null : "Missing Team Element in xml";
-		team.name(team_node.getAttribute("name"));
+		String name = team_node.getAttribute("name");
+		team.name(name);
 		
-		//Create Team channels
 		NodeList child_nodes = team_node.getChildNodes();
 		for( int i=0; i < child_nodes.getLength(); i++ ) {
-			if ( child_nodes.item(i).getNodeName() == "channels" ) {
+			String nodeName = child_nodes.item(i).getNodeName();
+			
+			if ( nodeName == "channels" ) {//CHANNELS
 				Element child = (Element) child_nodes.item(i);
 				
 				//Set channel nodes so data types can be found later
@@ -111,18 +113,15 @@ public class DOM {
 					}
 					team.addComChannel(new_channel);
 				}
+			} else if ( nodeName == "actors" ) {//ACTORS
+				Element actors_node = (Element) child_nodes.item(i);
+
+				ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
+				for(Actor a : actors) {
+					team.addActor(a);
+				}
 			}
 		}
-		
-		//Create Actors
-		Element actors_node = (Element) team_node.getElementsByTagName("actors").item(0);
-		if(actors_node.getElementsByTagName("actor") != null) {//If the file doesn't contain actors.
-			ArrayList<Actor> actors = getActors(actors_node, team.getComChannels());
-			for(Actor a : actors) {
-				team.addActor(a);
-			}
-		}
-		
 		
 		//Create Events
 		ArrayList<Event> events = getEvents(team_node, team.getComChannels());
@@ -135,44 +134,51 @@ public class DOM {
 	
 	public ArrayList<Actor> getActors(Element actors_node, ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
-		NodeList actor_nodes = actors_node.getElementsByTagName("actor");
-		int size = actor_nodes.getLength();
-		for(int index = 0; index < size; index++) {
-			Element actor_node = (Element)actor_nodes.item(index);
-			Actor actor = new AnonymousActor();
+		
+		NodeList child_nodes = actors_node.getChildNodes();
+		for( int i=0; i < child_nodes.getLength(); i++ ) {
+			String nodeName = child_nodes.item(i).getNodeName();
 			
-			//Create Actor channels
-			String name = getTextValue(actor_node,"name");
-			String startState = getTextValue(actor_node,"startState");
-			ArrayList<String> channels = getChannels(actor_node);
-			ComChannelList coms = new ComChannelList();
-			for(String channel : channels){
-				coms.add(all_coms.get(channel));
+			if ( nodeName == "actor" ) {
+				Element actor_node = (Element) child_nodes.item(i);
+				Actor actor = new AnonymousActor();
+				
+				//Create Actor channels
+				String name = actor_node.getAttribute("name").toString();
+				String startState = ((Element) actor_node.getElementsByTagName("startState").item(0)).getAttribute("name").toString();
+				ArrayList<String> channels = getChannels(actor_node);
+				ComChannelList coms = new ComChannelList();
+				for(String channel : channels){//why do we add all team channels to each actor? -rob
+					coms.add(all_coms.get(channel));
+				}
+				
+				//Create memory variables
+				ActorVariableWrapper vars = actor.getInternalVars();
+				Element memory = (Element) actor_node.getElementsByTagName("memory").item(0);
+				_memory_nodes = memory.getElementsByTagName("variable");
+				int numberOfNodes = _memory_nodes.getLength();
+				for( int j=0; j < numberOfNodes; j++ ) {
+					Element var = (Element) _memory_nodes.item(j);
+					String varName = var.getAttribute("name").toString();
+					Object data = getMemoryValue(var);
+					vars.addVariable(varName, data);
+				}
+				
+				ArrayList<State> states = getStates(actor_node, actor.getInternalVars(), coms);
+				for(State state : states) {
+					actor.add(state);
+					if( state.equals(startState) )
+						actor.startState(state);
+				}
+				Element sub_actors_node = (Element) actor_node.getElementsByTagName("subActors").item(0);
+				ArrayList<Actor> sub_actors = getActors(sub_actors_node,coms);
+				for(Actor sub_actor : sub_actors){
+					actor.addSubActor(sub_actor);
+				}
+				actors.add(actor);
 			}
-			
-			//Create memory variables
-			Element memory = (Element) actors_node.getElementsByTagName("memory").item(0);
-			ActorVariableWrapper vars = actor.getInternalVars();
-			_memory_nodes = memory.getChildNodes();
-			for( int i=0; i < _memory_nodes.getLength(); i++ ) {
-				Element var = (Element) _memory_nodes.item(i);
-				Object data = getMemoryValue(var);
-				vars.addVariable(var.getAttribute("name"), data);
-			}
-			
-			ArrayList<State> states = getStates(actor_node, actor.getInternalVars(), coms);
-			for(State state : states) {
-				actor.add(state);
-				if( state.equals(startState) )
-					actor.startState(state);
-			}
-			Element sub_actors_node = (Element) actor_node.getElementsByTagName("subActors").item(0);
-			ArrayList<Actor> sub_actors = getActors(sub_actors_node,coms);
-			for(Actor sub_actor : sub_actors){
-				actor.addSubActor(sub_actor);
-			}
-			actors.add(actor);
 		}
+		
 		return actors;
 	}
 	
@@ -224,23 +230,27 @@ public class DOM {
 	private ArrayList<State> getStates(Element actor, ActorVariableWrapper internal_vars, ComChannelList coms) {
 		ArrayList<State> states = new ArrayList<State>();
 		NodeList state_nodes = actor.getElementsByTagName("state");
-		int size = state_nodes.getLength();
-		for(int index = 0; index < size; index++){
+		int numberOfNodes = state_nodes.getLength();
+		for( int index=0; index<numberOfNodes; index++ ){
 			Element state_node = (Element) state_nodes.item(index);
-			String title = getTextValue(state_node,"name");
+			String title = state_node.getAttribute("name").toString();
 			State state = new State(title);
 			states.add(state);
 		}
-		for(int index = 0; index < size; index++){
+		for( int index=0; index<numberOfNodes; index++ ){
 			Element state_node = (Element) state_nodes.item(index);
-			String title = state_node.getAttribute("name");
-			State state = states.get(states.indexOf(title));
+			String title = state_node.getAttribute("name").toString();
+			State state = states.get(index);
+			
+			//ASSERTIONS
 			ArrayList<Assertion> assertions = getAssertions(state_node, states, internal_vars, coms);
-			for(Assertion assertion : assertions){
+			for( Assertion assertion : assertions ){
 				state.addAssertion(assertion);
 			}
+			
+			//TRANSITIONS
 			ArrayList<Transition> transitions = getTransitions(state_node, states, internal_vars, coms);
-			for(Transition t : transitions){
+			for( Transition t : transitions ){
 				state.add(t);
 			}
 		}
@@ -248,11 +258,11 @@ public class DOM {
 	}
 
 	private ArrayList<Assertion> getAssertions(Element state_node, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
-
 		ArrayList<Assertion> assertions = new ArrayList<Assertion>();
 		
 		NodeList assertion_nodes = state_node.getElementsByTagName("assert");			//found assertions nodes
-		for( int i=0; i < assertion_nodes.getLength(); i++ ) {							//for all assertions nodes							//for each assert
+		int numberOfNodes = assertion_nodes.getLength();
+		for( int i=0; i < numberOfNodes; i++ ) {							//for all assertions nodes							//for each assert
 			Element assertion = (Element) assertion_nodes.item(i);
 			
 			//get inputs
@@ -275,6 +285,7 @@ public class DOM {
 
 	private ArrayList<String> getChannels(Element actor) {
 		ArrayList<String> channels = new ArrayList<String>();
+		
 		NodeList channel_nodes = ((Element)actor.getElementsByTagName("channels").item(0))
 												.getElementsByTagName("channel");
 		int size = channel_nodes.getLength();
@@ -282,28 +293,36 @@ public class DOM {
 			Element channel = (Element)channel_nodes.item(index);
 			channels.add(channel.getAttribute("name"));
 		}
+		
 		return channels;
 	}
 
 	private ArrayList<Transition> getTransitions(Element state, ArrayList<State> states, ActorVariableWrapper internal_vars, ComChannelList coms) {
 		ArrayList<Transition> transitions = new ArrayList<Transition>();
+		
 		NodeList transition_nodes = state.getElementsByTagName("transition");
-		int size = transition_nodes.getLength();
-		for(int index = 0; index < size; index++){
+		int numberOfNodes = transition_nodes.getLength();
+		for( int index=0; index<numberOfNodes; index++ ){
 			Element transition_node = (Element) transition_nodes.item(index);
-			int max = Integer.parseInt(transition_node.getAttribute("duration-min"));
-			int min = Integer.parseInt(transition_node.getAttribute("duration-max"));
-			int priority = Integer.parseInt(transition_node.getAttribute("priority"));
-			double probability = Double.parseDouble(transition_node.getAttribute("probability"));
+			int max = Integer.parseInt(transition_node.getAttribute("duration-min").toString());
+			int min = Integer.parseInt(transition_node.getAttribute("duration-max").toString());
+			
+			int priority = 0;
+			if( transition_node.getAttribute("priority")!="" )
+				priority = Integer.parseInt(transition_node.getAttribute("priority").toString());
+			
+			double probability = 0.0;
+			if ( transition_node.getAttribute("probability")!="" )
+				probability = Double.parseDouble(transition_node.getAttribute("probability").toString());
 			
 			//get inputs
 			ComChannelList inputs = new ComChannelList();
 			NodeList input_nodes = transition_node.getElementsByTagName("input");
 			final HashMap<ComChannel<?>, IPredicate> input_prereqs = new HashMap<ComChannel<?>, IPredicate>();
 			final HashMap<String, IPredicate> internal_prereqs = new HashMap<String, IPredicate>();
-			int input_size = input_nodes.getLength();
-			for(int sub_index = 0; sub_index < input_size; sub_index++){
-				Element input = (Element) input_nodes.item(index);
+			int numberOfInputNodes = input_nodes.getLength();
+			for(int inputIndex = 0; inputIndex < numberOfInputNodes; inputIndex++){
+				Element input = (Element) input_nodes.item(inputIndex);
 				addInput(coms, inputs, input_prereqs, internal_prereqs, input);
 			}
 			
@@ -344,6 +363,7 @@ public class DOM {
 			};
 			
 		}
+		
 		return transitions;
 	}
 
@@ -360,7 +380,7 @@ public class DOM {
 		String source = input.getAttribute("type");
 		String source_name = input.getAttribute("name");
 		
-		IPredicate p = getPredicate((Element) input.getElementsByTagName("value"));			//get predicate
+		IPredicate p = getPredicate(input);													//get predicate
 		
 		if(source.equals("channel")){														//inputs
 			ComChannel<?> c = coms.getChannel(input.getAttribute("name"));					//get channel name
@@ -491,10 +511,12 @@ public class DOM {
 		Object data = null;
 		String datatype = null;
 		
-		if ( input.getAttribute("value").isEmpty() )
+		String value = input.getAttribute("value");
+		if ( value.isEmpty() )
 			return null;
 		else {
-			if ( input.getAttribute("type") == "chan")
+			String type = input.getAttribute("type");
+			if ( type.equals("chan") )
 				datatype = getChannelDataType(input);
 			else
 				datatype = getMemoryDataType(input);
