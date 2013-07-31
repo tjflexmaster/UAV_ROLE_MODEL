@@ -120,13 +120,14 @@ public class DOM {
 				for(Actor a : actors) {
 					team.addActor(a);
 				}
+			} else if ( nodeName == "events" ) {//EVENTS
+				Element events_node = (Element) child_nodes.item(i);
+				
+				ArrayList<Event> events = getEvents(events_node, team.getComChannels());
+				for(Event e : events) {
+					team.addEvent(e);
+				}
 			}
-		}
-		
-		//Create Events
-		ArrayList<Event> events = getEvents(team_node, team.getComChannels());
-		for(Event e : events) {
-			team.addEvent(e);
 		}
 		
 		return team;
@@ -182,44 +183,43 @@ public class DOM {
 		return actors;
 	}
 	
-	private ArrayList<Event> getEvents(Element team, ComChannelList all_channels)
-	{
+	private ArrayList<Event> getEvents(Element events_node, ComChannelList all_channels){
 		ArrayList<Event> team_events = new ArrayList<Event>();
 		
-		NodeList child_nodes = team.getChildNodes();
-		for( int i=0; i < child_nodes.getLength(); i++ ) {
-			if ( child_nodes.item(i).getNodeName() == "events" ) {								//found events nodes
-				Element events = (Element) child_nodes.item(i);
-				NodeList event_nodes = events.getElementsByTagName("event");
-				for ( int j=0; j < event_nodes.getLength(); j++ ) {								//for each event
-					Element event = (Element) event_nodes.item(j);
-					String name = event.getAttribute("name");									//get event name
-					int count = Math.max(0, Integer.parseInt(event.getAttribute("count")));		//get number of instances
-					
-					//Get Event com channels
-					ArrayList<String> channels = getChannels(event);							//get com channels
-					ComChannelList coms = new ComChannelList();
-					for(String channel : channels){												//for each channel
-						coms.add(all_channels.get(channel));									//add to all channels
-					}
-					
-					//Get inputs and outputs
-					NodeList inputnodes = event.getElementsByTagName("input");					//get input
-					HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
-					for( int k=0; k < inputnodes.getLength(); k++) {
-						Element input = (Element) inputnodes.item(k);
-						ComChannel<?> c = coms.getChannel(input.getAttribute("name"));
-						IPredicate p = getPredicate(input);
-						inputs.put(c, p);
-					}
-					
-					Element output = (Element) event.getElementsByTagName("output").item(0);
-					ComChannel<?> o = coms.getChannel(output.getAttribute("name"));
-					Object value = getValue(output);
-					
-					Event e = new Event(name, count, inputs, o, value);							//form new event with name, instances, output & output value
-					team_events.add(e);															//add event to the team
+		NodeList child_nodes = events_node.getChildNodes();
+		int numberOfNodes = child_nodes.getLength();
+		for( int i=0; i<numberOfNodes; i++ ) {
+			String nodeName = child_nodes.item(i).getNodeName();
+			
+			if ( nodeName.equals("event") ) {													//for each event
+				Element event_node = (Element) child_nodes.item(i);
+				String name = event_node.getAttribute("name");										//get event name
+				int count = Math.max(0, Integer.parseInt(event_node.getAttribute("count")));			//get number of instances
+				
+				//CHANNELS
+				ArrayList<String> channels = getChannels(event_node);								//get com channels
+				ComChannelList coms = new ComChannelList();
+				for ( String channel : channels ) {												//for each channel
+					coms.add(all_channels.get(channel));										//add to all channels
 				}
+				
+				//INPUTS
+				NodeList inputnodes = event_node.getElementsByTagName("input");						//get input
+				HashMap<ComChannel<?>, IPredicate> inputs = new HashMap<ComChannel<?>, IPredicate>();
+				for ( int k=0; k < inputnodes.getLength(); k++) {
+					Element input = (Element) inputnodes.item(k);
+					ComChannel<?> c = coms.getChannel(input.getAttribute("name"));
+					IPredicate p = getPredicate(input);
+					inputs.put(c, p);
+				}
+				
+				//OUTPUTS
+				Element output = (Element) event_node.getElementsByTagName("output").item(0);
+				ComChannel<?> o = coms.getChannel(output.getAttribute("name"));
+				Object value = getValue(output);
+				
+				Event e = new Event(name, count, inputs, o, value);								//form new event with name, instances, output & output value
+				team_events.add(e);																//add event to the team
 				
 			}//end if
 		}//end for
@@ -286,8 +286,7 @@ public class DOM {
 	private ArrayList<String> getChannels(Element actor) {
 		ArrayList<String> channels = new ArrayList<String>();
 		
-		NodeList channel_nodes = ((Element)actor.getElementsByTagName("channels").item(0))
-												.getElementsByTagName("channel");
+		NodeList channel_nodes = ((Element)actor.getElementsByTagName("channels").item(0)).getElementsByTagName("channel");
 		int size = channel_nodes.getLength();
 		for(int index = 0; index < size; index++){
 			Element channel = (Element)channel_nodes.item(index);
