@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import simulator.ComChannel.Type;
+
 public class Event implements IActor {
 	
 	private int _count = 0;
@@ -20,7 +22,6 @@ public class Event implements IActor {
 		//Build the states and transitions for the event
 		State active = new State("active");
 		State inactive = new State("inactive");
-		
 		
 		ActivateEventTransition t = new ActivateEventTransition(inputs.keySet(), output_channel, output_value, _internal_vars, inactive) {
 			@Override

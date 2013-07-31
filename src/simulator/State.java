@@ -48,7 +48,12 @@ public class State implements IState {
 		for (ITransition t : _transitions) {
 			if ( t.isEnabled() ) {
 				//Copy the transition if it is enabled
-				enabled.add((ITransition) new Transition((Transition)t));
+				if(t instanceof Transition)
+					enabled.add((ITransition) new Transition((Transition)t));
+				else if(t instanceof ActivateEventTransition)
+					enabled.add((ITransition) new ActivateEventTransition((ActivateEventTransition)t));
+				else if(t instanceof DeactivateEventTransition)
+					enabled.add((ITransition) new DeactivateEventTransition((DeactivateEventTransition)t));
 			}
 		}
 		return enabled;

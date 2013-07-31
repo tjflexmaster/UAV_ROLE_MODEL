@@ -13,7 +13,6 @@ public class ActivateEventTransition implements ITransition {
 	protected State _end_state;
 	
 	public ActivateEventTransition (Set<ComChannel<?> > inputs, ComChannel<?> output_channel, Object output_value, ActorVariableWrapper internal_vars, State end_state) {
-		
 		_inputs = new ComChannelList();
 		for(ComChannel<?> entry : inputs){
 			assert entry.type() == ComChannel.Type.EVENT : "Incompatible ComChannel Type used for Event transition input";
@@ -27,6 +26,17 @@ public class ActivateEventTransition implements ITransition {
 		
 		_internal_vars = internal_vars;
 		_end_state = end_state;
+	}
+	
+	public ActivateEventTransition(ActivateEventTransition t){
+
+		_internal_vars = t._internal_vars;
+		_end_state = t._end_state;
+		_inputs = t._inputs;
+		_outputs = t._outputs;
+		_temp_outputs = new HashMap<String, Object>();
+		_temp_outputs.putAll(t._temp_outputs);
+		
 	}
 	
 //	private void buildTempOutput()

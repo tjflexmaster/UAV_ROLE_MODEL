@@ -24,6 +24,15 @@ public class DeactivateEventTransition implements ITransition {
 		_end_state = end_state;
 	}
 	
+	public DeactivateEventTransition(DeactivateEventTransition t) {
+		_internal_vars = t._internal_vars;
+		_end_state = t._end_state;
+		_inputs = t._inputs;
+		_outputs = t._outputs;
+		_temp_outputs = new HashMap<String, Object>();
+		_temp_outputs.putAll(t._temp_outputs);
+	}
+
 	@Override
 	public void fire() {
 		if(!_temp_outputs.isEmpty()){
