@@ -136,17 +136,19 @@ public class DOM {
 	public ArrayList<Actor> getActors(Element actors_node, ComChannelList all_coms){
 		ArrayList<Actor> actors = new ArrayList<Actor>();
 		
-		NodeList child_nodes = actors_node.getChildNodes();
+		NodeList child_nodes = actors_node.getElementsByTagName("actor");
 		for( int i=0; i < child_nodes.getLength(); i++ ) {
 			String nodeName = child_nodes.item(i).getNodeName();
 			
 			if ( nodeName == "actor" ) {
 				Element actor_node = (Element) child_nodes.item(i);
-				Actor actor = new AnonymousActor();
+				BasicActor actor = new BasicActor();
+				
+				String name = actor_node.getAttribute("name").toString();
+				actor.setName(name);
+				String startState = ((Element) actor_node.getElementsByTagName("startState").item(0)).getAttribute("name").toString();
 				
 				//Create Actor channels
-				String name = actor_node.getAttribute("name").toString();
-				String startState = ((Element) actor_node.getElementsByTagName("startState").item(0)).getAttribute("name").toString();
 				ArrayList<String> channels = getChannels(actor_node);
 				ComChannelList coms = new ComChannelList();
 				for(String channel : channels){//why do we add all team channels to each actor? -rob
@@ -154,7 +156,7 @@ public class DOM {
 				}
 				
 				//Create memory variables
-				ActorVariableWrapper vars = actor.getInternalVars();
+//				ActorVariableWrapper vars = actor.getInternalVars();
 				Element memory = (Element) actor_node.getElementsByTagName("memory").item(0);
 				_memory_nodes = memory.getElementsByTagName("variable");
 				int numberOfNodes = _memory_nodes.getLength();
@@ -162,9 +164,9 @@ public class DOM {
 					Element var = (Element) _memory_nodes.item(j);
 					String varName = var.getAttribute("name").toString();
 					Object data = getMemoryValue(var);
-					vars.addVariable(varName, data);
+//					vars.addVariable(varName, data);
+					actor.addVariable(varName, data);
 				}
-				
 				ArrayList<State> states = getStates(actor_node, actor.getInternalVars(), coms);
 				for(State state : states) {
 					actor.add(state);
@@ -342,12 +344,12 @@ public class DOM {
 				public boolean isEnabled(){
 					for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
 						IPredicate prereq = input_prereqs.get(input.getValue());
-						if(!prereq.evaluate(input.getValue().value()))
+						if(prereq != null && !prereq.evaluate(input.getValue().value()))
 							return false;
 					}
 					for(Entry<String, Object> internal : this._internal_vars.getAllVariables().entrySet()){
 						IPredicate prereq = internal_prereqs.get(internal.getKey());
-						if(!prereq.evaluate(internal.getValue()))
+						if( prereq != null && !prereq.evaluate(internal.getValue()))
 							return false;
 					}
 
@@ -360,6 +362,7 @@ public class DOM {
 					return true;
 				}
 			};
+			transitions.add(transition);
 			
 		}
 		
@@ -373,7 +376,8 @@ public class DOM {
 	 * @param internal_prereqs
 	 * @param input
 	 */
-	private void addInput(ComChannelList coms, ComChannelList inputs, final HashMap<ComChannel<?>, IPredicate> input_prereqs, final HashMap<String, IPredicate> internal_prereqs, Element input) {
+	private void addInput(ComChannelList coms, ComChannelList inputs, final HashMap<ComChannel<?>, IPredicate> input_prereqs,
+			final HashMap<String, IPredicate> internal_prereqs, Element input) {
 		String predicate = input.getAttribute("predicate");
 		String data = getTextValue(input, "value");
 		String source = input.getAttribute("type");
@@ -383,6 +387,7 @@ public class DOM {
 		
 		if(source.equals("chan")){															//inputs
 			ComChannel<?> c = coms.getChannel(source_name);									//get channel name
+			inputs.add(c);																	//add channel to inputs
 			input_prereqs.put(c, p);														//add pred & chan to inputs map
 		} else {																			//memory
 			internal_prereqs.put(source_name, p);											//add pred & chan to inputs map
