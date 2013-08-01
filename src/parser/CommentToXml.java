@@ -84,22 +84,33 @@ public class CommentToXml {
 		int start = s.indexOf('(')+1;
 		int end = s.indexOf(',');
 		String startState = s.substring(start, end);
-		str.append("\n\t\t\t\t<transition duration-min=\"\" duration-max=\"\" priority=\"\" probability=\"\">");
+		str.append("\n\t\t\t\t<transition duration-min=\"1\" duration-max=\"1\" priority=\"0\" probability=\"1.0\">");
 		start = s.indexOf('[')+1;
 		end = s.indexOf(']', start);
 		str.append("\n\t\t\t\t\t<inputs>");
 		String[] inputs = s.substring(start, end).split(", ");
 		for(String input : inputs){
-			if(!input.equals(""))
-				str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\" predicate=\"\" value=\"" + input + "\"/>");
+			if(!input.equals("")){
+				String name = "";
+				if(input.startsWith("OP"))
+					name = "AUDIO_OP_MM_COMM";
+				else if(input.startsWith("VO"))
+					name = "AUDIO_VO_MM_COMM";
+				else if(input.startsWith("PS"))
+					name = "AUDIO_PS_MM_COMM";
+				else if(input.startsWith("VGUI"))
+					name = "VIDEO_VGUI_MM_COMM";
+				str.append("\n\t\t\t\t\t\t<input type=\"chan\" name=\"" + name + "\" predicate=\"eq\" value=\"" + input + "\"/>");
+			}
 		}
 		
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] internals = s.substring(start, end).split(", ");
 		for(String internal : internals){
-			if(!internal.equals(""))
-				str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\" predicate=\"\" value=\"" + internal + "\"/>");
+			if(!internal.equals("")){
+				str.append("\n\t\t\t\t\t\t<input type=\"memory\" name=\""+ internal +"\" predicate=\"eq\" value=\"\"/>");
+			}
 		}
 		str.append("\n\t\t\t\t\t</inputs>");
 		start = s.indexOf('(', end)+1;
@@ -110,15 +121,26 @@ public class CommentToXml {
 		str.append("\n\t\t\t\t\t<outputs>");
 		String[] outputs = s.substring(start, end).split(", ");
 		for(String output : outputs){
-			if(!output.equals(""))
-			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\" predicate=\"\" value=\"" + output + "\"/>");
+			if(!output.equals("")){
+				String name = "";
+				if(output.endsWith("OP"))
+					name = "AUDIO_OP_MM_COMM";
+				else if(output.endsWith("VO"))
+					name = "AUDIO_VO_MM_COMM";
+				else if(output.endsWith("PS"))
+					name = "AUDIO_PS_MM_COMM";
+				else if(output.endsWith("VGUI"))
+					name = "VIDEO_VGUI_MM_COMM";
+				str.append("\n\t\t\t\t\t\t<output type=\"chan\" name=\"" + name + "\" predicate=\"eq\" value=\"" + output + "\"/>");
+			}
 		}
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] temp_internals = s.substring(start, end).split(", ");
 		for(String temp_internal : temp_internals){
-			if(!temp_internal.equals(""))
-			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\" predicate=\"\" value=\"" + temp_internal + "\"/>");
+			if(!temp_internal.equals("")){
+				str.append("\n\t\t\t\t\t\t<output type=\"memory\" name=\"" + temp_internal + "\" predicate=\"eq\" value=\"\"/>");
+			}
 		}
 		str.append("\n\t\t\t\t\t</outputs>");
 		str.append("\n\t\t\t\t\t<endState name=\"" + endState + "\"/>");
