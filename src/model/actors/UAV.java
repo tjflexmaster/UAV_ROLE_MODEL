@@ -24,9 +24,9 @@ public class UAV extends Actor {
 		_name = "UAV";
 		
 		//initialize states
-		State IDLE = new State("IDLE");
-		State TAKE_OFF = new State("TAKE_OFF"); 
-		State FLY_LOITER = new State("FLY_LOITER"); 
+		State IDLE = new State("IDLE",0);
+		State TAKE_OFF = new State("TAKE_OFF",0); 
+		State FLY_LOITER = new State("FLY_LOITER",0); 
 		
 		//add transitions
 //		initializeIDLE(inputs, IDLE, TAKE_OFF);

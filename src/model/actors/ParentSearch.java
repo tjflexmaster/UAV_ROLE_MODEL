@@ -43,10 +43,10 @@ public class ParentSearch extends Actor {
 		
 		//initialize states
 		State IDLE = new State("IDLE",0);
-		State POKE_MM = new State("POKE_MM");
-		State TX_MM = new State("TX_MM");
-		State END_MM = new State("END_MM");
-		State RX_MM = new State("RX_MM");
+		State POKE_MM = new State("POKE_MM",0);
+		State TX_MM = new State("TX_MM",0);
+		State END_MM = new State("END_MM",0);
+		State RX_MM = new State("RX_MM",0);
 		
 		RX_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
