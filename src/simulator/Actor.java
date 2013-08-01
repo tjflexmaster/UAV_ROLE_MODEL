@@ -100,6 +100,7 @@ public abstract class Actor implements IActor {
 		}else{
 			_workload ++;
 		}
+		
 		return _workload + temp_workload;
 	}
 

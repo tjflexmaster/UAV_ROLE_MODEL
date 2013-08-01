@@ -5,11 +5,12 @@ import model.actors.Operator;
 import model.actors.OperatorGui;
 import model.actors.ParentSearch;
 import model.actors.VideoOperator;
+import model.actors.VOWateredDown;
 import model.actors.VideoOperatorGui;
 import model.events.OpAckEvent;
 import model.events.OpFailedSearchMMEvent;
 import model.events.OpPokeMMEvent;
-import model.events.VoAckEvent;
+//import model.events.VoAckEvent;
 import simulator.ComChannel;
 import simulator.ComChannel.Type;
 import simulator.ComChannelList;
@@ -93,7 +94,8 @@ public class WiSARTeam extends Team {
 		inputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
 		outputs.clear();
 		outputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
-		this.addEvent(new VoAckEvent(inputs, outputs), 1);
+		this.addActor(new VOWateredDown(inputs, outputs));
+//		this.addEvent(new VoAckEvent(inputs, outputs), 1);
 
 		inputs.clear();
 		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
