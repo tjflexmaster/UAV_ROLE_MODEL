@@ -45,7 +45,8 @@ public enum Duration {
 	MM_TX_OP(5,20),
 	MM_OBSERVING_VGUI(15,20),
 	MM_TX_VGUI(5,20),
-	POKE(5,20);
+	POKE(5,20),
+	OP_OBSERVE_GUI(5,20), OP_POST_FLIGHT_COMPLETE(5,20);
 	
 	private Integer _minimum;
 	private Integer _maximum;

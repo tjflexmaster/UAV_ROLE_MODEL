@@ -14,8 +14,9 @@ public class OperatorGui extends Actor{
 
 	}
 
-	public enum OGUI_OP_DATA {
-
+	public enum VIDEO_OGUI_OP_COMM {
+		OGUI_LANDED, OGUI_FLYBY_REQ_F, OGUI_FLYBY_REQ_T, VO_FLYBY_END_FAILED_VGUI, OGUI_FLYBY_END_FAILED, OGUI_FLYBY_END_SUCCESS
+		
 	}
 
 	public OperatorGui(ComChannelList inputs, ComChannelList outputs) {

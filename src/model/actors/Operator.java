@@ -3,6 +3,8 @@ package model.actors;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.team.Channels;
+import model.team.Duration;
 import simulator.Actor;
 import simulator.ComChannelList;
 import simulator.IActor;
@@ -31,9 +33,12 @@ public class Operator extends Actor {
 		OP_SEARCH_FAILED,
 		OP_SEARCH_COMPLETE
 	}
-	
+
 	public enum AUDIO_OP_VO_COMM {
 		OP_ACK_VO
+	}
+	public enum DATA_OP_UAV_COMM {
+		OP_POST_FLIGHT_COMPLETE
 	}
 
 	public Operator(ComChannelList inputs, ComChannelList outputs) {
@@ -103,6 +108,16 @@ public class Operator extends Actor {
 			};
 		});
 		//(IDLE,[],[TAKE_OFF])x(LAUNCH_UAV,[OP_TAKE_OFF_OGUI],[])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, LAUNCH_UAV){
+			@Override
+			public boolean isEnabled(){
+				if(_internal_vars.getVariable("TAKE_OFF"))){
+					this.setTempOutput("AUDIO_OP_MM_COMM", Operator.AUDIO_OP_MM_COMM.OP_ACK_MM);
+					return true;
+				}
+				return false;
+			};
+		});
 		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVING_GUI,[],[])
 		//(IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVING_GUI,[],[])
 		
@@ -114,7 +129,13 @@ public class Operator extends Actor {
 	 */
 	private void initializePOST_FLIGHT(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT, State POST_FLIGHT_COMPLETE){
 		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
-		
+		POST_FLIGHT.add(new Transition(_internal_vars, inputs, outputs, POST_FLIGHT_COMPLETE, Duration.OP_POST_FLIGHT_COMPLETE.getRange()){
+			@Override
+			public boolean isEnabled(){
+				this.setTempOutput("DATA_OP_UAV_COMM", Operator.DATA_OP_UAV_COMM.OP_POST_FLIGHT_COMPLETE);
+				return true;
+			}
+		});
 		add(POST_FLIGHT);
 	}
 	
@@ -123,7 +144,7 @@ public class Operator extends Actor {
 	 */
 	private void initializePOST_FLIGHT_COMPLETE(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT_COMPLETE, State IDLE){
 		//(POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
-		
+		POST_FLIGHT_COMPLETE.add(new Transition(_internal_vars, inputs, outputs, IDLE));
 		add(POST_FLIGHT_COMPLETE);
 	}
 
@@ -144,10 +165,37 @@ public class Operator extends Actor {
 	 */
 	private void initializeOBSERVE_GUI(ComChannelList inputs, ComChannelList outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {
 		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI, Duration.NEXT.getRange(),1){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_F)){
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
+		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI, Duration.NEXT.getRange(),1){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_T)){
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
+		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_UAV,Duration.NEXT.getRange(),1){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_LANDED)){
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
-		
+		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_UAV, Duration.OP_OBSERVE_GUI.getRange(),0));
 		add(OBSERVE_GUI);
 	}
 
@@ -235,43 +283,62 @@ public class Operator extends Actor {
 	/**
 	 * 
 	 */
-	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State OBSERVE_FLYBY) {
+	private void initializeOBSERVE_FLYBY(ComChannelList inputs, ComChannelList outputs, State OBSERVE_FLYBY, State IDLE) {
 		// TODO Auto-generated method stub
-		
+		OBSERVE_FLYBY.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_FAILED.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()))){
+					
+				} else if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_SUCCESS.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()))){
+					
+				}
+				return false;
+			}
+		});
 		add(OBSERVE_FLYBY);
 	}
 
 	/**
-	 * 
+	 * @(POKE_OGUI, [], [])x(TX_OGUI,[],[])
 	 */
-	private void initializePOKE_OGUI(ComChannelList inputs, ComChannelList outputs, State POKE_OGUI) {
+	private void initializePOKE_OGUI(ComChannelList inputs, ComChannelList outputs, State POKE_OGUI, State TX_OGUI) {
 		// TODO Auto-generated method stub
-		
+		POKE_OGUI.add(new Transition(_internal_vars, inputs, outputs, TX_OGUI));
 		add(POKE_OGUI);
 	}
 
 	/**
-	 * (RX_MM,[MM_END_OP, MM_NEW_SEARCH_AOI],[])x(POKE_OGUI,[OP_POKE_OGUI],[NEW_SEARCH_AOI])
+	 * (RX_MM,[MM_END_OP],[NEW_SEARCH_AOI])x(END_OGUI,[NEW_SEARCH_AOI],[])
 	 */
 	private void initializeTX_OGUI(ComChannelList inputs, ComChannelList outputs, State TX_OGUI, State END_OGUI) {
 		//(TX_OGUI,[],[NEW_SEARCH_AOI])x(END_OGUI,[OP_END_OGUI,OP_TAKE_OFF_OGUI],[])
-		
+		TX_OGUI.add(new Transition(_internal_vars, inputs, outputs, END_OGUI, Duration.OP_TX_OGUI.getRange()){
+			@Override
+			public boolean isEnabled(){
+				if(((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")) > 0){
+					this.setTempOutput("VIDEO_OP_MM_COMM", "OP_NEW_SEARCH_AOI");
+					return true;
+				}
+				return false;
+			}
+		});
 		add(TX_OGUI);
 	}
 
 	/**
-	 * 
+	 * (END_OGUI,[],[])x(IDLE,[],[])
 	 */
-	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State END_OGUI) {
+	private void initializeEND_GUI(ComChannelList inputs, ComChannelList outputs, State END_OGUI, State IDLE) {
 		// TODO Auto-generated method stub
-		
+		END_OGUI.add(new Transition(_internal_vars, inputs, outputs, IDLE));
 		add(END_OGUI);
 	}
 
 	@Override
 	protected void initializeInternalVariables() {
-		// TODO Auto-generated method stub
-		
+		_internal_vars.addVariable("TAKE_OFF", false);
+		_internal_vars.addVariable("NEW_SEARCH_AOI", 0);
 	}
 
 	@Override
