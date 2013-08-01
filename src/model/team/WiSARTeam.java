@@ -76,19 +76,22 @@ public class WiSARTeam extends Team {
 //		outputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		this.addEvent(new VguiValidationReqTMMEvent(inputs, outputs), 1);
 
-		//initiation of VO comm event
-		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		this.addEvent(new OpPokeMMEvent(inputs, outputs), 1);
-		//termination of communication without transmission event
-		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
-		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		this.addEvent(new OpFailedSearchMMEvent(inputs, outputs), 1);
-		
+//		inputs.clear();
+//		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		outputs.clear();
+//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		this.addEvent(new OpPokeMMEvent(inputs, outputs), 1);
+//		//termination of communication without transmission event
+//		inputs.clear();
+//		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+//		outputs.clear();
+//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		this.addEvent(new OpFailedSearchMMEvent(inputs, outputs), 1);
+//		inputs.clear();
+//		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+//		outputs.clear();
+//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		this.addEvent(new OpAckEvent(inputs, outputs), 1);
 		
 		inputs.clear();
 		inputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
@@ -96,12 +99,6 @@ public class WiSARTeam extends Team {
 		outputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
 		this.addActor(new VOWateredDown(inputs, outputs));
 //		this.addEvent(new VoAckEvent(inputs, outputs), 1);
-
-		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
-		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		this.addEvent(new OpAckEvent(inputs, outputs), 1);
 
 		//Declare all output com channels
 		//PS_Events
@@ -117,14 +114,13 @@ public class WiSARTeam extends Team {
 		ComChannel<MissionManager.AUDIO_MM_VO_COMM> MM_VO_COMM = new ComChannel<MissionManager.AUDIO_MM_VO_COMM>("MM_VO_COMM", Type.AUDIO);
 		ComChannel<MissionManager.VISUAL_MM_VGUI_COMM> MM_VGUI_COMM = new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>("MM_VGUI_COMM", Type.VISUAL);
 		
-		
 		//OP
 		ComChannel<Operator.AUDIO_OP_MM_COMM> OP_MM_COMM = new ComChannel<Operator.AUDIO_OP_MM_COMM>("OP_MM_COMM", Type.AUDIO);
 		ComChannel<Operator.VISUAL_OP_OGUI_COMM> OP_OGUI_COMM = new ComChannel<Operator.VISUAL_OP_OGUI_COMM>("OP_OGUI_COMM", Type.VISUAL);
 		ComChannel<Operator.VISUAL_OP_UAV_COMM> OP_UAV_COMM = new ComChannel<Operator.VISUAL_OP_UAV_COMM>("OP_UAV_COMM", Type.VISUAL);
 		
 		//OGUI
-		ComChannel<OperatorGui.OGUI_OP_DATA> OGUI_OP_DATA = new ComChannel<OperatorGui.OGUI_OP_DATA>("OGUI_OP_DATA", Type.DATA);
+		ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM> OGUI_OP_DATA = new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>("OGUI_OP_DATA", Type.DATA);
 		ComChannel<OperatorGui.OGUI_UAV_DATA> OGUI_UAV_DATA = new ComChannel<OperatorGui.OGUI_UAV_DATA>("OGUI_UAV_DATA", Type.DATA);
 		ComChannel<OperatorGui.OGUI_VGUI_DATA> OGUI_VGUI_DATA = new ComChannel<OperatorGui.OGUI_VGUI_DATA>("OGUI_VGUI_DATA", Type.DATA);
 		
@@ -188,27 +184,27 @@ public class WiSARTeam extends Team {
 //		outputs.put(UDO.MM_END_VO.name(), UDO.MM_END_VO);
 		this.addActor(new MissionManager(inputs, outputs));
 		
-//		//add UAV Operator, with its inputs and outputs, to the team
-//		inputs.clear();
-//		inputs.add(MM_OP_COMM);
-//		inputs.add(VO_OP_COMM);
+		//add UAV Operator, with its inputs and outputs, to the team
+		inputs.clear();
+		inputs.add(MM_OP_COMM);
+		inputs.add(VO_OP_COMM);
 //		inputs.add(OGUI_OP_DATA);
 //		inputs.add(UAV_OP_DATA);
-////		inputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
-////		inputs.put(UDO.MM_NEW_SEARCH_AOI_OP.name(), UDO.MM_NEW_SEARCH_AOI_OP);
-////		inputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
-////		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
-//		outputs.clear();
-//		outputs.add(OP_UAV_COMM);
-//		outputs.add(OP_OGUI_COMM);
-//		outputs.add(OP_MM_COMM);
-////		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
-////		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
-////		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
-////		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
-////		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
-//		this.addActor(new Operator(inputs, outputs));
-//
+//		inputs.put(UDO.MM_POKE_OP.name(), UDO.MM_POKE_OP);
+//		inputs.put(UDO.MM_NEW_SEARCH_AOI_OP.name(), UDO.MM_NEW_SEARCH_AOI_OP);
+//		inputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
+//		inputs.put(UDO.MM_END_OP.name(), UDO.MM_END_OP);
+		outputs.clear();
+		outputs.add(OP_UAV_COMM);
+		outputs.add(OP_OGUI_COMM);
+		outputs.add(OP_MM_COMM);
+//		outputs.put(UDO.OP_POKE_OGUI.name(), UDO.OP_POKE_OGUI);
+//		outputs.put(UDO.OP_END_OGUI.name(), UDO.OP_END_OGUI);
+//		outputs.put(UDO.OP_ACK_MM.name(), UDO.OP_ACK_MM);
+//		outputs.put(UDO.OP_NEW_SEARCH_AOI_OP.name(), UDO.OP_NEW_SEARCH_AOI_OP);
+//		outputs.put(UDO.OP_TAKE_OFF_OGUI.name(), UDO.OP_TAKE_OFF_OGUI);
+		this.addActor(new Operator(inputs, outputs));
+
 //		//add UAV Operator Gui, with its inputs and outputs, to the team
 //		inputs.clear();
 //		inputs.add(UAV_OGUI_DATA);

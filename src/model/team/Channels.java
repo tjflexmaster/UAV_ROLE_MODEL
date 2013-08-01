@@ -1,7 +1,5 @@
 package model.team;
 
-import simulator.ComChannel.Type;
-
 public enum Channels {
 	NEW_SEARCH_EVENT,
 	TERMINATE_SEARCH_EVENT,
@@ -15,7 +13,10 @@ public enum Channels {
 	AUDIO_OP_MM_COMM,
 	AUDIO_MM_OP_COMM,
 	VIDEO_VGUI_MM_COMM,
-	AUDIO_VGUI_MM_COMM, VIDEO_OGUI_OP_COMM, DATA_OP_OGUI, AUDIO_VO_OP_COMM,
+	AUDIO_VGUI_MM_COMM,
+	VIDEO_OGUI_OP_COMM,
+	DATA_OP_OGUI,
+	AUDIO_VO_OP_COMM,
 	
 	
 //	NEW_SEARCH_EVENT(Type.AUDIO),

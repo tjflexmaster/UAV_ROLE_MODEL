@@ -74,11 +74,11 @@ public class Operator extends Actor {
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVE_GUI);
 		initializePOST_FLIGHT(inputs, outputs, POST_FLIGHT, POST_FLIGHT_COMPLETE);
 		initializePOST_FLIGHT_COMPLETE(inputs, outputs, POST_FLIGHT_COMPLETE, IDLE);
-		initializeLAUNCH_UAV(inputs, outputs, LAUNCH_UAV);
+		initializeLAUNCH_UAV(inputs, outputs, LAUNCH_UAV, OBSERVE_GUI);
 		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV);
 		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
 		//comm with mission manager
-		initializePOKE_MM(inputs, outputs, POKE_MM);
+		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM);
 		initializeTX_MM(inputs, outputs, TX_MM);
 		initializeEND_MM(inputs, outputs, END_MM, IDLE);
 		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
@@ -92,7 +92,6 @@ public class Operator extends Actor {
 		
 		//initialize current state
 		startState(IDLE);
-	}
 	}
 
 	/**
@@ -117,15 +116,27 @@ public class Operator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, LAUNCH_UAV){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("TAKE_OFF"))){
+				if((Boolean) _internal_vars.getVariable("TAKE_OFF")){
 					this.setTempOutput("AUDIO_OP_MM_COMM", Operator.AUDIO_OP_MM_COMM.OP_ACK_MM);
 					return true;
 				}
 				return false;
 			};
 		});
-		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVING_GUI,[],[])
-		//(IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVING_GUI,[],[])
+		
+		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVE_GUI,[],[])
+		//(IDLE,[UAV_FLYING_FLYBY],[])x(OBSERVE_GUI,[],[])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_NORMAL.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
+					return true;
+				} else if (OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_FLYBY.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
+					
+				}
+				return false;
+			}
+		});
 		
 		add(IDLE);
 	}
@@ -134,7 +145,7 @@ public class Operator extends Actor {
 	 * (POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
 	 */
 	private void initializePOST_FLIGHT(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT, State POST_FLIGHT_COMPLETE){
-		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV,[])
+		//(POST_FLIGHT,[],[])x(POST_FLIGHT_COMPLETE,[OP_POST_FLIGHT_COMPLETE_UAV],[])
 		POST_FLIGHT.add(new Transition(_internal_vars, inputs, outputs, POST_FLIGHT_COMPLETE, Duration.OP_POST_FLIGHT_COMPLETE.getRange()){
 			@Override
 			public boolean isEnabled(){
@@ -150,15 +161,30 @@ public class Operator extends Actor {
 	 */
 	private void initializePOST_FLIGHT_COMPLETE(ComChannelList inputs, ComChannelList outputs, State POST_FLIGHT_COMPLETE, State IDLE){
 		//(POST_FLIGHT_COMPLETE,[],[])x(IDLE,[],[])
-		POST_FLIGHT_COMPLETE.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+		POST_FLIGHT_COMPLETE.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+		
 		add(POST_FLIGHT_COMPLETE);
 	}
 
 	/**
-	 * 
+	 * (LAUNCH_UAV, [UAV_FLYING_NORMAL], [])x(OBSERVE_GUI, [], [])
 	 */
-	private void initializeLAUNCH_UAV(ComChannelList inputs, ComChannelList outputs, State LAUNCH_UAV) {
-		// TODO Auto-generated method stub
+	private void initializeLAUNCH_UAV(ComChannelList inputs, ComChannelList outputs, State LAUNCH_UAV, State OBSERVE_GUI) {
+		//(LAUNCH_UAV, [UAV_FLYING_NORMAL], [])x(OBSERVE_GUI, [], [])
+		LAUNCH_UAV.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_GUI){
+			@Override
+			public boolean isEnabled(){
+				if(OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_NORMAL.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
+					return true;
+				}
+				return false;
+			}
+		});
 		
 		add(LAUNCH_UAV);
 	}
@@ -171,25 +197,21 @@ public class Operator extends Actor {
 	 */
 	private void initializeOBSERVE_GUI(ComChannelList inputs, ComChannelList outputs, State OBSERVE_GUI, State POKE_OGUI, State POST_FLIGHT, State OBSERVE_UAV) {
 		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_F_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
-		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI, Duration.NEXT.getRange(),1){
-			@Override
-			public boolean isEnabled(){
-				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_F)){
-					return true;
-				}
-				return false;
-			}
-		});
 		//(OBSERVE_GUI,[OGUI_FLYBY_REQ_T_OP],[])x(POKE_OGUI,[OP_POKE_OGUI],[])
 		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI, Duration.NEXT.getRange(),1){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_T)){
+				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_F)){
+					this.setTempOutput("VISUAL_OP_OGUI_COMM", Operator.VISUAL_OP_OGUI_COMM.OP_POKE_OGUI);
+					return true;
+				}else if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_T)){
+					this.setTempOutput("VISUAL_OP_OGUI_COMM", Operator.VISUAL_OP_OGUI_COMM.OP_POKE_OGUI);
 					return true;
 				}
 				return false;
 			}
 		});
+		
 		//(OBSERVE_GUI,[OGUI_LANDED_OP],[]),x(POST_FLIGHT,[],[])
 		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_UAV,Duration.NEXT.getRange(),1){
 			@Override
@@ -200,8 +222,14 @@ public class Operator extends Actor {
 				return false;
 			}
 		});
+		
 		//(OBSERVE_GUI,[],[])x(OBSERVE_UAV,[],[])
-		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_UAV, Duration.OP_OBSERVE_GUI.getRange(),0));
+		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_UAV, Duration.OP_OBSERVE_GUI.getRange(),0){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 		add(OBSERVE_GUI);
 	}
 
@@ -211,16 +239,41 @@ public class Operator extends Actor {
 	 */
 	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI) {
 		//(OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
+		OBSERVE_UAV.add(new Transition(_internal_vars, inputs, outputs, POST_FLIGHT, Duration.NEXT.getRange(), 1){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_LANDED)){
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		//(OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
+		OBSERVE_UAV.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_GUI, Duration.NEXT.getRange(), 1){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
 		
 		add(OBSERVE_UAV);
 	}
 
 	/**
-	 * 
+	 * (POKE_MM,[MM_ACK_OP],[])x([TX_MM,[],[])
 	 */
-	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM) {
-		// TODO Auto-generated method stub
+	private void initializePOKE_MM(ComChannelList inputs, ComChannelList outputs, State POKE_MM, State TX_MM) {
+		//(POKE_MM,[MM_ACK_OP],[])x([TX_MM,[],[])
+		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM, Duration.NEXT.getRange(), 1){
+			@Override
+			public boolean isEnabled(){
+				if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP)){
+					return true;
+				}
+				return false;
+			}
+		});
 		
 		add(POKE_MM);
 	}
