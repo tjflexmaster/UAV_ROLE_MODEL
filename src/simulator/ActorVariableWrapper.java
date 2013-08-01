@@ -46,8 +46,14 @@ public class ActorVariableWrapper {
 		_workload = 0;
 //		int max = _variables.size();
 		for(Entry<String, Object> i : _variables.entrySet()){
-			if(i.getValue() != null)
+			if(i.getValue() != null){
+				if(i.getValue() instanceof Boolean && !(Boolean) i.getValue()){
+					continue;
+				} else if(i.getValue() instanceof Integer && ((Integer)i.getValue()) == 0){
+					continue;
+				}
 				_workload++;
+			}
 		}
 		return _workload;
 	}

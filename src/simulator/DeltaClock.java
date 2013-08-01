@@ -164,9 +164,13 @@ public class DeltaClock implements IDeltaClock {
 		
 		for( int i=0; i<_clock.size(); i++) {
 			DeltaTime dt = _clock.get(i);
-			if ( dt.time == 0 )
+			if ( dt.time == 0 ){
+				String name = dt.actor.name();
+				int workload = dt.actor.getWorkload();
+				if(!(dt.actor instanceof Event))
+					System.out.println("Actor: " + name + " State : " + ((Actor)dt.actor).getCurrentState() + " workload: " + workload);
 				result.add(dt.transition);
-			else
+			}else
 				break;
 			
 		}

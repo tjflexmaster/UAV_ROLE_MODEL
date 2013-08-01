@@ -84,7 +84,7 @@ public class MissionManager extends Actor {
 		State POKE_VGUI = new State("POKE_VGUI",1);
 		State TX_VGUI = new State("TX_VGUI",1);
 		State END_VGUI = new State("END_VGUI",1);
-
+		_name = "Mission Manager";
 		this.initializeInternalVariables();
 		
 		//initialize transitions

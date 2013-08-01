@@ -18,4 +18,6 @@ public interface IActor {
 	 */
 	String name();
 	
+	int getWorkload();
+	
 }

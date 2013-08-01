@@ -47,4 +47,10 @@ public class NewSearchEvent extends Event {
 		return null;
 	}
 
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

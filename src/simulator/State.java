@@ -49,17 +49,24 @@ public class State implements IState {
 		}
 		return enabled;
 	}
-	
-	/**
-	 * override the equals method to return true if the names of the two states match
-	 */
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if(obj instanceof String && _name.equals(obj))
+			return true;
+		if (!(obj instanceof State))
 			return false;
 		State other = (State) obj;
 		if (_name == null) {
@@ -69,13 +76,7 @@ public class State implements IState {
 			return false;
 		return true;
 	}
-	
-	@Override
-	public int hashCode()
-	{
-		return _name.hashCode();
-	}
-	
+
 	/**
 	 * this method works like a normal toString method
 	 * @return return the string representation of this state
