@@ -14,6 +14,8 @@ public abstract class Actor implements IActor {
 	 */
 	protected String _name = "";
 	
+	private int _workload = 0;
+	
 	private ArrayList<IState> _states = new ArrayList<IState>();
 	
 	/**
@@ -89,10 +91,16 @@ public abstract class Actor implements IActor {
 	}
 	
 	public int getWorkload(){
-		int _workload = 0;
-		_workload += _internal_vars.getWorkload();
-		_workload += getCurrentState().getWorkload();
-		return _workload;
+		int temp_workload = 0;
+		temp_workload += _internal_vars.getWorkload();
+		temp_workload += getCurrentState().getWorkload();
+		
+		if(getCurrentState().equals("IDLE")){
+			_workload = 0;
+		}
+		
+		_workload ++;
+		return _workload + temp_workload;
 	}
 
 	
