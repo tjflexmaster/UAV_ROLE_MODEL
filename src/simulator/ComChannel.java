@@ -12,18 +12,21 @@ public class ComChannel<T> {
 	T _value;
 	String _name;
 	Type _type;
+	String _value_type;
 	
-	public ComChannel(String name, Type type)
+	public ComChannel(String name, Type type, String value_type)
 	{
 		_name = name;
 		_type = type;
+		_value_type = value_type;
 	}
 	
-	public ComChannel(String name, T value, Type type)
+	public ComChannel(String name, T value, Type type, String value_type)
 	{
 		_name = name;
 		_type = type;
 		_value = value;
+		_value_type = value_type;
 	}
 	
 	

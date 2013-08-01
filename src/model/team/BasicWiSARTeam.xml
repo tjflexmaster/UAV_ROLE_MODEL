@@ -48,11 +48,10 @@
 					<transitions>
 						<transition duration-min="1" duration-max="1">
 							<inputs>
-								<input type="chan" name="ps_audio_mm" predicate="eq" value="poke"/>
-								<!-- <input type="chan" name="mm_audio_ps" predicate="eq" value="ack"/> -->
+								<input type="chan" name="mm_audio_ps" predicate="eq" value="ack"/>
 							</inputs>
 							<outputs>
-								<ouput type="chan" name="ps_audio_mm" value="tx"/>
+								<output type="chan" name="ps_audio_mm" value="tx"/>
 							</outputs>
 							<endState name="communicate_mm"/>
 						</transition>
@@ -61,7 +60,7 @@
 								<input type="chan" name="ps_audio_mm" predicate="eq" value="tx"/>
 							</inputs>
 							<outputs>
-								<ouput type="chan" name="ps_audio_mm" value="end"/>
+								<output type="chan" name="ps_audio_mm" value="end"/>
 							</outputs>
 							<endState name="communicate_mm"/>
 						</transition>
@@ -70,7 +69,7 @@
 								<input type="chan" name="ps_audio_mm" predicate="eq" value="end"/>
 							</inputs>
 							<outputs>
-								<ouput type="chan" name="ps_audio_mm" value=""/>
+								<!-- <output type="chan" name="ps_audio_mm" value=""/> -->
 							</outputs>
 							<endState name="communicate_mm"/>
 						</transition>

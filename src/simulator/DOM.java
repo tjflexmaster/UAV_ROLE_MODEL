@@ -99,13 +99,13 @@ public class DOM {
 					ComChannel<?> new_channel = null;
 					switch(channel.getAttribute("dataType")) {
 						case "Integer":
-							new_channel = new ComChannel<Integer>(channel.getAttribute("name"), type);
+							new_channel = new ComChannel<Integer>(channel.getAttribute("name"), type, "Integer");
 							break;
 						case "Boolean":
-							new_channel = new ComChannel<Boolean>(channel.getAttribute("name"), type);
+							new_channel = new ComChannel<Boolean>(channel.getAttribute("name"), type, "Boolean");
 							break;
 						case "String":
-							new_channel = new ComChannel<String>(channel.getAttribute("name"), type);
+							new_channel = new ComChannel<String>(channel.getAttribute("name"), type, "String");
 							break;
 						default:
 							assert false : "Unknown dataType: " + channel.getAttribute("dataType");
@@ -329,12 +329,13 @@ public class DOM {
 			
 			//get outputs
 			ComChannelList outputs = new ComChannelList();
+//			NodeList output_nodes = ((Element)transition_node.getElementsByTagName("outputs").item(0)).getElementsByTagName("output");
 			NodeList output_nodes = transition_node.getElementsByTagName("output");
 			final HashMap<String,Object> temp_out = new HashMap<String,Object>();
 			final HashMap<String,Object> temp_internals = new HashMap<String,Object>();
 			int output_size = output_nodes.getLength();
-			for(int sub_index = 0; sub_index < output_size; sub_index++){
-				Element output = (Element) output_nodes.item(index);
+			for(int outputIndex = 0; outputIndex < output_size; outputIndex++){
+				Element output = (Element) output_nodes.item(outputIndex);
 				addOutput(internal_vars, coms, outputs, temp_out, temp_internals, output);
 			}
 			
@@ -354,7 +355,7 @@ public class DOM {
 					}
 
 					for(Entry<String, Object> output : temp_out.entrySet()){
-						this.setTempOutput(output.getKey(), temp_out.get(output.getValue()));
+						this.setTempOutput(output.getKey(), temp_out.get(output.getKey()));
 					}
 					for(Entry<String, Object> internal : temp_internals.entrySet()){
 						this.setTempInternalVar(internal.getKey(), internal.getValue());
@@ -406,45 +407,43 @@ public class DOM {
 			ComChannelList coms, ComChannelList outputs,
 			final HashMap<String, Object> temp_out,
 			final HashMap<String, Object> temp_internals, Element output) {
-		String data_type = output.getAttribute("dataType");
-		String predicate = output.getAttribute("predicate");
-		String data = getTextValue(output, "value");
-		String source = output.getAttribute("type");
-		String source_name = output.getAttribute("name");
-		if(source.equals("channel")){
-			ComChannel next_output = coms.get(source_name);
+		String data = output.getAttribute("value");
+		String type = output.getAttribute("type");
+		String name = output.getAttribute("name");
+		if(type.equals("chan")){
+			ComChannel next_output = coms.get(name);
 			assert(next_output != null):"Missing a ComChannel in the transitions";
 			outputs.add(next_output);
-			
-			switch(data_type){
+			switch(next_output._value_type){
 			case "String":
-				temp_out.put(source_name, data);
+				temp_out.put(name, data);
 				break;
 			case "Integer":
-				temp_out.put(source_name, Integer.parseInt(data));
+				temp_out.put(name, Integer.parseInt(data));
 				break;
 			case "Boolean":
-				temp_out.put(source_name, Boolean.parseBoolean(data));
+				temp_out.put(name, Boolean.parseBoolean(data));
 				break;
 			default:
 				assert true: "Missing data type";
 			}
 		} else {
-			assert(internal_vars.getVariable(source_name) != null):"Missing an internal variable in the transitions";
-			
-			switch(data_type){
+			assert(internal_vars.getVariable(name) != null):"Missing an internal variable in the transitions";
+			String internal_data_type = internal_vars.getVariableType(name);
+			switch(internal_data_type){
 			case "String":
-				temp_internals.put(source_name, data);
+				temp_out.put(name, data);
 				break;
 			case "Integer":
-				temp_internals.put(source_name, Integer.parseInt(data));
+				temp_out.put(name, Integer.parseInt(data));
 				break;
 			case "Boolean":
-				temp_internals.put(source_name, Boolean.parseBoolean(data));
+				temp_out.put(name, Boolean.parseBoolean(data));
 				break;
 			default:
 				assert true: "Missing data type";
 			}
+			
 		}
 	}
 
