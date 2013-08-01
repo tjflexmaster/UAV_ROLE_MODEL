@@ -23,7 +23,7 @@ public class CommentToXml {
 				f = file;
 		}
 		for(File file : f.listFiles()){
-			//if(file.getName().equals("MissionManager.java"))
+			if(file.getName().equals("MissionManager.java"))
 				System.out.println(xml.parseFile(file));
 		}
 	}
@@ -90,18 +90,16 @@ public class CommentToXml {
 		str.append("\n\t\t\t\t\t<inputs>");
 		String[] inputs = s.substring(start, end).split(", ");
 		for(String input : inputs){
-			str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\">");
-			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + input + "</value>");
-			str.append("\n\t\t\t\t\t\t</input>");
+			if(!input.equals(""))
+				str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\" predicate=\"\" value=\"" + input + "\"/>");
 		}
 		
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] internals = s.substring(start, end).split(", ");
 		for(String internal : internals){
-			str.append("\n\t\t\t\t\t\t<input type=\"memory\" name=\"\">");
-			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + internal + "</value>");
-			str.append("\n\t\t\t\t\t\t</input>");
+			if(!internal.equals(""))
+				str.append("\n\t\t\t\t\t\t<input type=\"channel\" name=\"\" predicate=\"\" value=\"" + internal + "\"/>");
 		}
 		str.append("\n\t\t\t\t\t</inputs>");
 		start = s.indexOf('(', end)+1;
@@ -112,17 +110,15 @@ public class CommentToXml {
 		str.append("\n\t\t\t\t\t<outputs>");
 		String[] outputs = s.substring(start, end).split(", ");
 		for(String output : outputs){
-			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\">");
-			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + output + "</value>");
-			str.append("\n\t\t\t\t\t\t</output>");
+			if(!output.equals(""))
+			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\" predicate=\"\" value=\"" + output + "\"/>");
 		}
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] temp_internals = s.substring(start, end).split(", ");
 		for(String temp_internal : temp_internals){
-			str.append("\n\t\t\t\t\t\t<output type=\"memory\" name=\"\">");
-			str.append("\n\t\t\t\t\t\t\t<value data_type=\"\" predicate=\"\">" + temp_internal + "</value>");
-			str.append("\n\t\t\t\t\t\t</output>");
+			if(!temp_internal.equals(""))
+			str.append("\n\t\t\t\t\t\t<output type=\"channel\" name=\"\" predicate=\"\" value=\"" + temp_internal + "\"/>");
 		}
 		str.append("\n\t\t\t\t\t</outputs>");
 		str.append("\n\t\t\t\t\t<endState name=\"" + endState + "\"/>");
