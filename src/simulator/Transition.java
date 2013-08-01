@@ -171,7 +171,7 @@ public class Transition implements ITransition {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void fire(){
-//		System.out.println(this.toString());						//debuging
+		System.out.println(this.toString());
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
