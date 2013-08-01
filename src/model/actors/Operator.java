@@ -41,24 +41,24 @@ public class Operator extends Actor {
 		_name = "OPERATOR";
 		
 		//initialize states
-		State IDLE = new State("IDLE");
-		State POST_FLIGHT = new State("POST_FLIGHT");
-		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE");
-		State LAUNCH_UAV = new State("LAUNCH_UAV");
-		State OBSERVE_GUI = new State("OBSERVE_GUI");
-		State OBSERVE_UAV = new State("OBSERVE_UAV");
+		State IDLE = new State("IDLE",0);
+		State POST_FLIGHT = new State("POST_FLIGHT",6);
+		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE",1);
+		State LAUNCH_UAV = new State("LAUNCH_UAV",6);
+		State OBSERVE_GUI = new State("OBSERVE_GUI",3);
+		State OBSERVE_UAV = new State("OBSERVE_UAV",3);
 		//comm with mission manager
-		State POKE_MM = new State("POKE_MM");
-		State TX_MM = new State("TX_MM");
-		State END_MM = new State("END_MM");
-		State RX_MM = new State("RX_MM");
+		State POKE_MM = new State("POKE_MM",1);
+		State TX_MM = new State("TX_MM",1);
+		State END_MM = new State("END_MM",1);
+		State RX_MM = new State("RX_MM",1);
 		//comm with the video operator
-		State RX_VO = new State("RX_VO");
-		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY");
+		State RX_VO = new State("RX_VO",1);
+		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY",5);
 		//comm with the operator gui
-		State POKE_OGUI = new State("POKE_OGUI");
-		State TX_OGUI = new State("TX_OGUI");
-		State END_OGUI = new State("END_OGUI");
+		State POKE_OGUI = new State("POKE_OGUI",1);
+		State TX_OGUI = new State("TX_OGUI",1);
+		State END_OGUI = new State("END_OGUI",1);
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVE_GUI);

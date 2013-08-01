@@ -15,14 +15,15 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
-	
+	private int _workload;
 	/**
 	 * this constructor is used for creating new states
 	 * @param name
 	 */
-	public State(String name) {
+	public State(String name, int workload) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
+		_workload = workload;
 	}
 	
 	public State add(ITransition new_transition)
@@ -81,6 +82,11 @@ public class State implements IState {
 	 */
 	public String toString() {
 		return _name;
+	}
+
+	public int getWorkload() {
+		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
+		return temp_workload;
 	}
 
 }

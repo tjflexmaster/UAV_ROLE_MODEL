@@ -63,27 +63,27 @@ public class MissionManager extends Actor {
 	}
 	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
-		State IDLE = new State("IDLE");
+		State IDLE = new State("IDLE",0);
 		//comm with PS
-		State POKE_PS = new State("POKE_PS");
-		State TX_PS = new State("TX_PS");
-		State END_PS = new State("END_PS");
-		State RX_PS = new State("RX_PS");
+		State POKE_PS = new State("POKE_PS",1);
+		State TX_PS = new State("TX_PS",1);
+		State END_PS = new State("END_PS",1);
+		State RX_PS = new State("RX_PS",1);
 		//comm with OP
-		State POKE_OP = new State("POKE_OP");
-		State TX_OP = new State("TX_OP");
-		State END_OP = new State("END_OP");
-		State RX_OP = new State("RX_OP");
+		State POKE_OP = new State("POKE_OP",1);
+		State TX_OP = new State("TX_OP",1);
+		State END_OP = new State("END_OP",1);
+		State RX_OP = new State("RX_OP",1);
 		//comm with VO
-		State POKE_VO = new State("POKE_VO");
-		State TX_VO = new State("TX_VO");
-		State END_VO = new State("END_VO");
-		State RX_VO = new State("RX_VO");
+		State POKE_VO = new State("POKE_VO",1);
+		State TX_VO = new State("TX_VO",1);
+		State END_VO = new State("END_VO",1);
+		State RX_VO = new State("RX_VO",1);
 		//comm with VGUI
-		State OBSERVING_VGUI = new State("OBSERVING_VGUI");
-		State POKE_VGUI = new State("POKE_VGUI");
-		State TX_VGUI = new State("TX_VGUI");
-		State END_VGUI = new State("END_VGUI");
+		State OBSERVING_VGUI = new State("OBSERVING_VGUI",6);
+		State POKE_VGUI = new State("POKE_VGUI",1);
+		State TX_VGUI = new State("TX_VGUI",1);
+		State END_VGUI = new State("END_VGUI",1);
 
 		this.initializeInternalVariables();
 		

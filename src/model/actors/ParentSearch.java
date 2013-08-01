@@ -42,7 +42,7 @@ public class ParentSearch extends Actor {
 		_name = "PARENT_SEARCH";
 		
 		//initialize states
-		State IDLE = new State("IDLE");
+		State IDLE = new State("IDLE",0);
 		State POKE_MM = new State("POKE_MM");
 		State TX_MM = new State("TX_MM");
 		State END_MM = new State("END_MM");

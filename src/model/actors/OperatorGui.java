@@ -22,9 +22,9 @@ public class OperatorGui extends Actor{
 		//initialize name
 		_name = "OPERATOR_GUI";
 		//initialize states
-		State NORMAL = new State("NORMAL");
-		State ALARM = new State("ALARM");
-		State AUDIBLE_ALARM = new State("AUDIBLE_ALARM");
+		State NORMAL = new State("NORMAL",0);
+		State ALARM = new State("ALARM",0);
+		State AUDIBLE_ALARM = new State("AUDIBLE_ALARM",0);
 		
 		//initialize transitions
 		initializeIDLE(inputs, outputs, NORMAL);

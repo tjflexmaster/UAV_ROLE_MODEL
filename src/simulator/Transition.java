@@ -310,4 +310,14 @@ public class Transition implements ITransition {
 		return result.toString();
 	}
 
+	public int getWorkload() {
+		int workload = 0;
+		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
+			if(input.getValue().value() != null){
+				workload++;
+			}
+		}
+		return workload;
+	}
+
 }

@@ -1,15 +1,17 @@
 package simulator;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class ActorVariableWrapper {
 
 	HashMap<String, Object> _variables;
+	private int _workload;
 	
 	ActorVariableWrapper()
 	{
 		_variables = new HashMap<String, Object>();
-		addVariable("currentState", new State("start"));
+		addVariable("currentState", new State("start",0));
 	}
 	
 	public void addVariable(String name, Object o)
@@ -40,4 +42,13 @@ public class ActorVariableWrapper {
 		return (HashMap<String, Object>) _variables.clone();
 	}
 	
+	public int getWorkload(){
+		_workload = 0;
+//		int max = _variables.size();
+		for(Entry<String, Object> i : _variables.entrySet()){
+			if(i.getValue() != null)
+				_workload++;
+		}
+		return _workload;
+	}
 }

@@ -87,6 +87,13 @@ public abstract class Actor implements IActor {
 		_states.add(state);
 		return this;
 	}
+	
+	public int getWorkload(){
+		int _workload = 0;
+		_workload += _internal_vars.getWorkload();
+		_workload += getCurrentState().getWorkload();
+		return _workload;
+	}
 
 	
 	@Override
