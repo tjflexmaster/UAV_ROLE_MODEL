@@ -97,9 +97,9 @@ public abstract class Actor implements IActor {
 		
 		if(getCurrentState().equals("IDLE")){
 			_workload = 0;
-		}
-		else
+		}else{
 			_workload ++;
+		}
 		return _workload + temp_workload;
 	}
 

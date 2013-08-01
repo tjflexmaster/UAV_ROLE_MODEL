@@ -314,6 +314,11 @@ public class Transition implements ITransition {
 		int workload = 0;
 		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
 			if(input.getValue().value() != null){
+				if(input.getValue().value() instanceof Boolean && !(Boolean) input.getValue().value()){
+					continue;
+				} else if(input.getValue().value() instanceof Integer && ((Integer)input.getValue().value()) == 0){
+					continue;
+				}
 				workload++;
 			}
 		}
