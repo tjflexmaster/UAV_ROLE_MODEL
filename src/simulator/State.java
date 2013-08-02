@@ -23,7 +23,7 @@ public class State implements IState {
 	public State(String name, int workload) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
-		_workload = workload;
+		_workload = workload*2;
 	}
 	
 	public State add(ITransition new_transition)

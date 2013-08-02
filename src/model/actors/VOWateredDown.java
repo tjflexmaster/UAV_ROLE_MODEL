@@ -66,16 +66,17 @@ public class VOWateredDown extends Actor {
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM);//(IDLE, [], [])->(IDLE, [(VO_TARGET_SIGHTED_F | VO_TARGET_SIGHTED_T)], [])
 					return true;
 					
-				} else if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F")) == 2 || ((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T")) == 2){
-					if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F")) == 2){
-						this.setTempInternalVar("NEW_TARGET_SIGHTED_F", 3);//advance
-					} else if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T")) == 2) {
-						this.setTempInternalVar("NEW_TARGET_SIGHTED_T", 3);//advance
-					}
-					
-					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_END_MM], [])
-					return true;
-				}
+				} 
+//				else if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F")) == 2 || ((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T")) == 2){
+//					if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F")) == 2){
+//						this.setTempInternalVar("NEW_TARGET_SIGHTED_F", 3);//advance
+//					} else if(((Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T")) == 2) {
+//						this.setTempInternalVar("NEW_TARGET_SIGHTED_T", 3);//advance
+//					}
+//					
+//					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_END_MM], [])
+//					return true;
+//				}
 				return false;
 			}
 		});
