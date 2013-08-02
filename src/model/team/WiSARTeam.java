@@ -32,6 +32,7 @@ public class WiSARTeam extends Team {
 	 */
 	public WiSARTeam() {
 		//Declare all output com channels
+		//TEST
 		
 		_com_channels = new ComChannelList();
 		//PS_Events
