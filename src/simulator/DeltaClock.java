@@ -168,7 +168,7 @@ public class DeltaClock implements IDeltaClock {
 				String name = dt.actor.name();
 				int workload = dt.actor.getWorkload();
 				if(!(dt.actor instanceof Event))
-					System.out.println("Actor: " + name + " State : " + ((Actor)dt.actor).getCurrentState() + " workload: " + workload);
+					System.out.print('\n' + "actor: " + name + '\n' + "workload: " + workload + '\n' + "transition: ");
 				result.add(dt.transition);
 			}else
 				break;

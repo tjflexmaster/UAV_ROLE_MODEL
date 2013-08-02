@@ -17,7 +17,6 @@ public class ActorVariableWrapper {
 	public void addVariable(String name, Object o)
 	{
 		assert !_variables.containsKey(name):"Variable already exists";
-
 		_variables.put(name, o);
 	}
 	
@@ -32,7 +31,6 @@ public class ActorVariableWrapper {
 	public Object getVariable(String name)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
-		
 		return _variables.get(name);
 	}
 	

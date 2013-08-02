@@ -7,6 +7,7 @@ import model.actors.ParentSearch;
 import model.actors.VideoOperator;
 import model.actors.VOWateredDown;
 import model.actors.VideoOperatorGui;
+import model.events.NewSearchEvent;
 import model.events.OpAckEvent;
 import model.events.OpFailedSearchMMEvent;
 import model.events.OpPokeMMEvent;
@@ -62,8 +63,13 @@ public class WiSARTeam extends Team {
 		//initialize inputs and outputs
 		ComChannelList inputs = new ComChannelList();
 		ComChannelList outputs = new ComChannelList();
-
-//		//Setup Vgui Alert
+		
+		inputs.clear();
+		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		outputs.clear();
+		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
+		
 //		inputs.clear();
 //		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		outputs.clear();
