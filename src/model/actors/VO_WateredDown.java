@@ -1,8 +1,5 @@
 package model.actors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import model.team.Channels;
 import model.team.Duration;
 import simulator.*;
@@ -18,10 +15,11 @@ public class VO_WateredDown extends Actor {
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE);
-		this.initializeInternalVariables();
+		
+		initializeInternalVariables();
+		
 		//initialize current state
 		startState(IDLE);
-		this.startState(IDLE);
 	}
 
 	/**
