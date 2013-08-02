@@ -18,4 +18,7 @@ public interface ITeam {
 	 */
 	ArrayList<IEvent> getEvents();
 
+
+	HashMap<Actor, Integer> getWorkload();
+
 }

@@ -1,8 +1,12 @@
 package simulator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -47,21 +51,58 @@ public class Simulator {
 	 */
 	public void run()
 	{
+		HashMap<String, String> data = new HashMap<String, String>();
+		String workloadOutput = "";
 		do {
 			//Get all event and team transitions
 			loadTransitions();
 			
 			//Advance Time
 			_clock.advanceTime();
-//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());
+//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
+			HashMap<Actor, Integer> workload = _team.getWorkload();
+			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
+				String name = actor_workload.getKey()._name;
+				String state = actor_workload.getKey().getCurrentState().toString();
+				int work = actor_workload.getValue();
+				if(data.containsKey(name)){
+					data.put(name, data.get(name)+ "\n" + state + "\t" + work);
+				}else{
+					data.put(name, "\n" + name +"\n" + state + "\t" + work);
+				}
+//				workloadOutput += ("\n" + name + "\t" + state + "\t" + work);
+				System.out.println("\n" + name + "\t" + state + "\t" + work);
+			}
+			
+//			int workload = dt.actor.getWorkload();
+//			if(!(dt.actor instanceof Event)){
+//				System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
+//				PrintWriter workloadWriter;
+//				try {
+//					workloadWriter = new PrintWriter(new File("workload.txt"));
+//					workloadWriter.append("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
+//					workloadWriter.close();
+//				} catch (FileNotFoundException e) {
+//					e.printStackTrace();
+//				}
+//			}
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
 			for(ITransition transition : _ready_transitions){
-//				System.out.println('\n' + transition.toString());
+				//System.out.println('\n' + transition.toString());
 				transition.fire();
 			}
 		} while (!_ready_transitions.isEmpty());
+
+		try {
+			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
+			for(Entry<String, String> actor_workload : data.entrySet())
+				workloadWriter.print(actor_workload.getValue());
+			workloadWriter.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		
 	}

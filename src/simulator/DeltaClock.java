@@ -165,19 +165,6 @@ public class DeltaClock implements IDeltaClock {
 		for( int i=0; i<_clock.size(); i++) {
 			DeltaTime dt = _clock.get(i);
 			if ( dt.time == 0 ){
-				String name = dt.actor.name();
-				int workload = dt.actor.getWorkload();
-				if(!(dt.actor instanceof Event)){
-					System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
-					PrintWriter workloadWriter;
-					try {
-						workloadWriter = new PrintWriter(new File("workload.txt"));
-						workloadWriter.println("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
-						workloadWriter.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					}
-				}
 				result.add(dt.transition);
 			}else
 				break;

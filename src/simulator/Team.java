@@ -51,4 +51,12 @@ public abstract class Team implements ITeam {
 	{
 		return _com_channels.get(name);
 	}
+	
+	public HashMap<Actor, Integer> getWorkload(){
+		HashMap<Actor, Integer> workload = new HashMap<Actor, Integer>();
+		for(IActor a : _actors){
+			workload.put((Actor)a, a.getWorkload());
+		}
+		return workload;
+	}
 }
