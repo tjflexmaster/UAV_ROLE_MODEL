@@ -24,7 +24,7 @@ import simulator.Team;
  */
 public class WiSARTeam extends Team {
 	
-	ComChannelList _channels = new ComChannelList();
+//	ComChannelList _com_channels = new ComChannelList();
 	/**
 	 * initialize all of the actors that will be used during the simulation
 	 * assigns the actors the inputs and outputs they will be using (can this be moved inside the actor? -rob)
@@ -32,144 +32,146 @@ public class WiSARTeam extends Team {
 	 */
 	public WiSARTeam() {
 		//Declare all output com channels
+		
+		_com_channels = new ComChannelList();
 		//PS_Events
-		_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
-		_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
-		_channels.add(new ComChannel<Boolean>(Channels.NEW_SEARCH_AREA_EVENT.name(),false,ComChannel.Type.AUDIO));
-		_channels.add(new ComChannel<Boolean>(Channels.TARGET_DESCRIPTION_EVENT.name(),false,ComChannel.Type.AUDIO));
+		_com_channels.add( new ComChannel<Boolean>(Channels.NEW_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<Boolean>(Channels.TERMINATE_SEARCH_EVENT.name(), false, ComChannel.Type.AUDIO) );
+		_com_channels.add(new ComChannel<Boolean>(Channels.NEW_SEARCH_AREA_EVENT.name(),false,ComChannel.Type.AUDIO));
+		_com_channels.add(new ComChannel<Boolean>(Channels.TARGET_DESCRIPTION_EVENT.name(),false,ComChannel.Type.AUDIO));
 		
 		//PS
-		_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
 		
 		//MM
-		_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
-		_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO) );
-		_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO) );
-		_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL) );
-		_channels.add(new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.DATA_MM_VGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL) );
+		_com_channels.add(new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.DATA_MM_VGUI_COMM.name(), ComChannel.Type.DATA));
 		
 		//VO
-		_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO));
-		_channels.add(new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>(Channels.AUDIO_VO_OP_COMM.name(), ComChannel.Type.AUDIO));
-		_channels.add(new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>(Channels.DATA_VO_VGUI.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO));
+		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>(Channels.AUDIO_VO_OP_COMM.name(), ComChannel.Type.AUDIO));
+		_com_channels.add(new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>(Channels.DATA_VO_VGUI.name(), ComChannel.Type.VISUAL));
 		
 		//OP
-		_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.AUDIO_OP_MM_COMM.name(), ComChannel.Type.AUDIO));
-		_channels.add(new ComChannel<Operator.DATA_OP_OGUI_COMM>(Channels.DATA_OP_OGUI_COMM.name(), ComChannel.Type.DATA));
-		_channels.add(new ComChannel<Operator.DATA_OP_UAV_COMM>(Channels.DATA_OP_UAV.name(), ComChannel.Type.DATA));
-//		_channels.add(new ComChannel<Operator.AUDIO_OP_VO_COMM>(Channels.AUDIO_OP_VO_COMM.name(), ComChannel.Type.AUDIO));
-//		_channels.add(new ComChannel<Operator.VISUAL_OP_OGUI_COMM>(Channels.VIDEO_OP_OGUI_COMM.name(), ComChannel.Type.VISUAL));
-//		_channels.add(new ComChannel<Operator.VISUAL_OP_UAV_COMM>(Channels.VIDEO_OP_UAV_COMM.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.AUDIO_OP_MM_COMM.name(), ComChannel.Type.AUDIO));
+		_com_channels.add(new ComChannel<Operator.DATA_OP_OGUI_COMM>(Channels.DATA_OP_OGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add(new ComChannel<Operator.DATA_OP_UAV_COMM>(Channels.DATA_OP_UAV.name(), ComChannel.Type.DATA));
+//		_com_channels.add(new ComChannel<Operator.AUDIO_OP_VO_COMM>(Channels.AUDIO_OP_VO_COMM.name(), ComChannel.Type.AUDIO));
+//		_com_channels.add(new ComChannel<Operator.VISUAL_OP_OGUI_COMM>(Channels.VIDEO_OP_OGUI_COMM.name(), ComChannel.Type.VISUAL));
+//		_com_channels.add(new ComChannel<Operator.VISUAL_OP_UAV_COMM>(Channels.VIDEO_OP_UAV_COMM.name(), ComChannel.Type.VISUAL));
 		
 		//VGUI
-		_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL) );
-		//_channels.add(new ComChannel<VideoOperatorGui.AUDIO_VGUI_MM_COMM>(Channels.AUDIO_VGUI_MM_COMM.name(), ComChannel.Type.AUDIO));
+		_com_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL) );
+		//_com_channels.add(new ComChannel<VideoOperatorGui.AUDIO_VGUI_MM_COMM>(Channels.AUDIO_VGUI_MM_COMM.name(), ComChannel.Type.AUDIO));
 		
 		//OGUI
-		_channels.add(new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>(Channels.VIDEO_OGUI_OP_COMM.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>(Channels.VIDEO_OGUI_OP_COMM.name(), ComChannel.Type.VISUAL));
 		
 		//UAV
-		_channels.add(new ComChannel<UAV.VISUAL_UAV_OP_COMM>(Channels.VIDEO_UAV_OP_COMM.name(), ComChannel.Type.VISUAL));
-		_channels.add(new ComChannel<UAV.DATA_UAV_OGUI>(Channels.DATA_UAV_OGUI_COMM.name(), ComChannel.Type.DATA));
-		_channels.add(new ComChannel<UAV.DATA_UAV_VGUI>(Channels.DATA_UAV_VGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add(new ComChannel<UAV.VISUAL_UAV_OP_COMM>(Channels.VIDEO_UAV_OP_COMM.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<UAV.DATA_UAV_OGUI>(Channels.DATA_UAV_OGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add(new ComChannel<UAV.DATA_UAV_VGUI>(Channels.DATA_UAV_VGUI_COMM.name(), ComChannel.Type.DATA));
 		
 		//initialize inputs and outputs
 		ComChannelList inputs = new ComChannelList();
 		ComChannelList outputs = new ComChannelList();
 		inputs.clear();
-		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		outputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
 		
 //		inputs.clear();
-//		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		outputs.clear();
-//		outputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		outputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		this.addEvent(new VguiAlertMMEvent(inputs, outputs), 1);
 		
 //		//Setup Vgui req
 //		inputs.clear();
-//		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		outputs.clear();
-//		outputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		outputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 //		this.addEvent(new VguiValidationReqTMMEvent(inputs, outputs), 1);
 
 //		inputs.clear();
-//		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
 //		outputs.clear();
-//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		outputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
 //		this.addEvent(new OpPokeMMEvent(inputs, outputs), 1);
 		
 //		//termination of communication without transmission event
 //		inputs.clear();
-//		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
 //		outputs.clear();
-//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		outputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
 //		this.addEvent(new OpFailedSearchMMEvent(inputs, outputs), 1);
 		
 //		inputs.clear();
-//		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
 //		outputs.clear();
-//		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		outputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
 //		this.addEvent(new OpAckEvent(inputs, outputs), 1);
 		
 		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
-		outputs.add(_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
 		this.addActor(new VOWateredDown(inputs, outputs));
 //		this.addEvent(new VoAckEvent(inputs, outputs), 1);
 
 		
 		//add Parent Search, with its inputs and outputs, to the team 
 		inputs.clear();
-		inputs.add(_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		inputs.add(_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
-		inputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
-		inputs.add(_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
-		inputs.add(_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		this.addActor(new ParentSearch(inputs, outputs));
 
 		//add Mission Manager, with its inputs and outputs, to the team
 		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
-		inputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		inputs.add(_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
-		inputs.add(_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
-		outputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
-		outputs.add(_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_MM_VGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_MM_VGUI_COMM.name()));
 		this.addActor(new MissionManager(inputs, outputs));
 		
 		//add UAV Operator, with its inputs and outputs, to the team
 		inputs.clear();
-		inputs.add(_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
-		inputs.add(_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
-		inputs.add(_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
-		inputs.add(_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_OP_OGUI_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_OP_UAV.name()));
+		outputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_OP_OGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_OP_UAV.name()));
 		this.addActor(new Operator(inputs, outputs));
 
 		inputs.clear();
-		inputs.add(_channels.get(Channels.DATA_OP_OGUI_COMM.name()));
-		inputs.add(_channels.get(Channels.DATA_OP_UAV.name()));
-		inputs.add(_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
+		inputs.add(_com_channels.get(Channels.DATA_OP_OGUI_COMM.name()));
+		inputs.add(_com_channels.get(Channels.DATA_OP_UAV.name()));
+		inputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
 		outputs.clear();
-		outputs.add(_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_UAV_VGUI_COMM.name()));
-		outputs.add(_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
-		outputs.add(_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
-		outputs.add(_channels.get(Channels.DATA_UAV_VGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_UAV_VGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
+		outputs.add(_com_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
+		outputs.add(_com_channels.get(Channels.DATA_UAV_VGUI_COMM.name()));
 		this.addActor(new UAV_OGUI_WateredDown(inputs,outputs));
 //		//add UAV Operator Gui, with its inputs and outputs, to the team
 //		inputs.clear();

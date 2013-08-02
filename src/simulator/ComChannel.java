@@ -1,5 +1,7 @@
 package simulator;
 
+import simulator.ComChannel.Type;
+
 public class ComChannel<T> {
 	public enum Type
 	{
@@ -79,5 +81,9 @@ public class ComChannel<T> {
 			return "null";
 		}
 		return _value.toString();
+	}
+
+	public Type type() {
+		return _type;
 	}
 }

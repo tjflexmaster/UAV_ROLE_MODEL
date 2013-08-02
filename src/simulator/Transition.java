@@ -163,6 +163,7 @@ public class Transition implements ITransition {
 		_temp_outputs.clear();
 		_temp_internal_vars.clear();
 	}
+	
 	public boolean updateTransition(){
 //		for(Entry<String, Object> internal : _internal_vars.getAllVariables().entrySet()){
 //			this.setTempInternalVar(internal.getKey(), internal.getValue());
@@ -174,6 +175,7 @@ public class Transition implements ITransition {
 		}
 		return isEnabled();
 	}
+	
 	/**
 	 * @return return whether the transition can be made based on the state of the ComChannels
 	 */
@@ -352,6 +354,18 @@ public class Transition implements ITransition {
 			}
 		}
 		return workload;
+	}
+	
+	@Override
+	public ComChannelList getInputChannels()
+	{
+		return _inputs;
+	}
+	
+	@Override
+	public ComChannelList getOutputChannels()
+	{
+		return _outputs;
 	}
 
 }

@@ -7,7 +7,7 @@ public abstract class Team implements ITeam {
 	
 	ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	ArrayList<IActor> _actors = new ArrayList<IActor>();
-	ComChannelList _com_channels;
+	public ComChannelList _com_channels;
 	
 
 	@Override
@@ -25,6 +25,12 @@ public abstract class Team implements ITeam {
 	@Override
 	public ArrayList<IEvent> getEvents() {
 		return _events;
+	}
+	
+	@Override
+	public ComChannelList getAllChannels()
+	{
+		return _com_channels;
 	}
 	
 	protected void addActor(IActor actor) 

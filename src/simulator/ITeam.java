@@ -20,5 +20,7 @@ public interface ITeam {
 
 
 	HashMap<Actor, Integer> getWorkload();
+	
+	ComChannelList getAllChannels();
 
 }

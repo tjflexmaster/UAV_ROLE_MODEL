@@ -29,4 +29,8 @@ public interface ITransition {
 	 * return an int representing the priority
 	 */
 	int priority();
+	
+	ComChannelList getInputChannels();
+	
+	ComChannelList getOutputChannels();
 }
