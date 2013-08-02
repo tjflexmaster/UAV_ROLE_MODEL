@@ -7,11 +7,11 @@ import model.team.Channels;
 import model.team.Duration;
 import simulator.*;
 
-public class VOWateredDown extends Actor {
+public class VO_WateredDown extends Actor {
 
-	public VOWateredDown(ComChannelList inputs, ComChannelList outputs) {
+	public VO_WateredDown(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "VIDEO_OPERATOR";
+		_name = "VO_WateredDown";
 
 		//initialize states
 		State IDLE = new State("IDLE",0);

@@ -8,11 +8,16 @@ import simulator.Transition;
 public class UAV_OGUI_WateredDown extends simulator.Actor {
 
 	public UAV_OGUI_WateredDown(ComChannelList inputs, ComChannelList outputs) {
+		_name = "UAV_OGUI_WateredDown";
+		
 		State IDLE = new State("IDLE",0);
+		
 		this.initializeInternalVariables();
+		
 		this._name = "UAV/OGUI";
-		startState(IDLE);
-		add(IDLE);
+		
+		this.startState(IDLE);
+
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
@@ -41,6 +46,7 @@ public class UAV_OGUI_WateredDown extends simulator.Actor {
 				return false;
 			}
 		});
+		this.add(IDLE);
 	}
 	
 	@Override
