@@ -42,9 +42,10 @@ public class Operator extends Actor {
 	}
 	
 	public enum DATA_OP_OGUI_COMM {
-		OP_END_FLYBY
-		
-	, NEW_SEARCH_AOI, OP_LAND_UAV}
+		OP_END_FLYBY,
+		NEW_SEARCH_AOI,
+		OP_LAND_UAV
+	}
 
 	public Operator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
@@ -69,6 +70,8 @@ public class Operator extends Actor {
 		State POKE_OGUI = new State("POKE_OGUI",1);
 		State TX_OGUI = new State("TX_OGUI",1);
 		State END_OGUI = new State("END_OGUI",1);
+		
+		this.initializeInternalVariables();
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, LAUNCH_UAV, OBSERVE_GUI);
@@ -79,7 +82,7 @@ public class Operator extends Actor {
 		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI);
 		//comm with mission manager
 		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM);
-		initializeTX_MM(inputs, outputs, TX_MM);
+		initializeTX_MM(inputs, outputs, TX_MM, END_MM);
 		initializeEND_MM(inputs, outputs, END_MM, IDLE);
 		initializeRX_MM(inputs, outputs, RX_MM, POKE_OGUI, IDLE);
 		//comm with video operator
@@ -105,13 +108,14 @@ public class Operator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_MM){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP)){
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP.equals(_inputs.get("AUDIO_MM_OP_COMM"))){
 					this.setTempOutput("AUDIO_OP_MM_COMM", Operator.AUDIO_OP_MM_COMM.OP_ACK_MM);
 					return true;
 				}
 				return false;
 			};
 		});
+		
 		//(IDLE,[],[TAKE_OFF])x(LAUNCH_UAV,[OP_TAKE_OFF_OGUI],[])
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, LAUNCH_UAV){
 			@Override
@@ -121,7 +125,7 @@ public class Operator extends Actor {
 					return true;
 				}
 				return false;
-			};
+			}
 		});
 		
 		//(IDLE,[UAV_FLYING_NORMAL],[])x(OBSERVE_GUI,[],[])
@@ -279,20 +283,39 @@ public class Operator extends Actor {
 	}
 
 	/**
-	 * 
+	 * (TX_MM,[],[])x(END_MM,[OP_SEARCH_FAILED],[])
+	 * (TX_MM,[],[])x(END_MM,[OP_SEARCH_COMPLETE],[])
 	 */
-	private void initializeTX_MM(ComChannelList inputs, ComChannelList outputs, State TX_MM) {
-		// TODO Auto-generated method stub
+	private void initializeTX_MM(ComChannelList inputs, ComChannelList outputs, State TX_MM, State END_MM) {
+		//(TX_MM,[],[SEARCH_COMPLETE])x(END_MM,[OP_SEARCH_COMPLETE],[])
+		//(TX_MM,[],[SEARCH_FAILED])x(END_MM,[OP_SEARCH_FAILED],[])
+		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.NEXT.getRange(), 1){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean) _internal_vars.getVariable("OP_SEARCH_FAILED")){
+					return true;
+				}else if((Boolean) _internal_vars.getVariable("SEARCH_COMPLETE")){
+					return true;
+				}
+				return false;
+			}
+		});
 		
 		add(TX_MM);
 	}
 
 	/**
-	 * 
+	 * (END_MM,[],[])x([IDLE,[],[])
 	 */
 	private void initializeEND_MM(ComChannelList inputs, ComChannelList outputs, State END_MM, State IDLE) {
-		// TODO Auto-generated method stub
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+		//(END_MM,[],[])x([IDLE,[],[])
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1){
+			@Override
+			public boolean isEnabled(){
+				return true;
+			}
+		});
+				
 		add(END_MM);
 	}
 	
@@ -440,11 +463,13 @@ public class Operator extends Actor {
 
 	@Override
 	protected void initializeInternalVariables() {
-		_internal_vars.addVariable("BAD_STREAM", false);
-		_internal_vars.addVariable("RECHARGE_BATTERY", false);
-		_internal_vars.addVariable("TAKE_OFF", false);
-		_internal_vars.addVariable("END_FLYBY", true);
-		_internal_vars.addVariable("NEW_SEARCH_AOI", 0);
+		this._internal_vars.addVariable("SEARCH_COMPLETE", false);
+		this._internal_vars.addVariable("OP_SEARCH_COMPLETE", false);
+		this._internal_vars.addVariable("BAD_STREAM", false);
+		this._internal_vars.addVariable("RECHARGE_BATTERY", false);
+		this._internal_vars.addVariable("TAKE_OFF", false);
+		this._internal_vars.addVariable("END_FLYBY", true);
+		this._internal_vars.addVariable("NEW_SEARCH_AOI", 0);
 	}
 
 	@Override
