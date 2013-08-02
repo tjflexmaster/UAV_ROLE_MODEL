@@ -15,7 +15,8 @@ public class UAV extends Actor {
 
 	}
 
-	public enum DATA_UAV_OP {
+	public enum VISUAL_UAV_OP_COMM {
+		LANDED, FLYING
 
 	}
 

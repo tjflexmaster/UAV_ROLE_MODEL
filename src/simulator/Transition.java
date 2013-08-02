@@ -15,7 +15,7 @@ public class Transition implements ITransition {
 	protected ComChannelList _inputs;
 	private Range _range;
 	private State _endState;
-	private ComChannelList _outputs;
+	protected ComChannelList _outputs;
 	private HashMap<String, Object> _temp_outputs;
 	private int _priority;
 	private double _probability;
@@ -158,6 +158,21 @@ public class Transition implements ITransition {
 		}
 	}
 	
+	public void clearTempData(){
+		_temp_outputs.clear();
+		_temp_internal_vars.clear();
+	}
+	public boolean updateTransition(){
+//		for(Entry<String, Object> internal : _internal_vars.getAllVariables().entrySet()){
+//			this.setTempInternalVar(internal.getKey(), internal.getValue());
+//		}
+		for(Entry<String, Object> internal : _temp_internal_vars.entrySet()){
+			if(internal.getValue() != null){
+				_temp_internal_vars.put(internal.getKey(), null);
+			}
+		}
+		return isEnabled();
+	}
 	/**
 	 * @return return whether the transition can be made based on the state of the ComChannels
 	 */
@@ -171,7 +186,6 @@ public class Transition implements ITransition {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void fire(){
-		System.out.println(this.toString());
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
@@ -280,7 +294,9 @@ public class Transition implements ITransition {
 		//inputs
 		if(_inputs != null){
 			for(Entry<String, ComChannel<?>> input : _inputs.entrySet()) {
-				if(input.getValue().value() != null)
+				if(input.getValue().value() != null
+						&& (!(input.getValue().value() instanceof Boolean) || (Boolean)input.getValue().value())
+						&& (!(input.getValue().value() instanceof Integer) || (Integer)input.getValue().value() != 0))
 					result.append(input.toString() + ", ");
 			}
 		}
@@ -289,7 +305,9 @@ public class Transition implements ITransition {
 		for(Entry<String, Object> variable : _internal_vars.getAllVariables().entrySet()){
 			if(variable.getKey().equals("currentState"))
 				continue;
-			if(variable.getValue() != null)
+			if(variable.getValue() != null
+					&& (!(variable.getValue() instanceof Boolean) || (Boolean)variable.getValue())
+					&& (!(variable.getValue() instanceof Integer) || (Integer)variable.getValue() != 0))
 				result.append(variable.toString() + ", ");
 		}
 				
@@ -297,6 +315,8 @@ public class Transition implements ITransition {
 		if(_outputs != null){
 			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
 				if(output.getValue() != null)
+//						&& (!(output.getValue() instanceof Boolean) || (Boolean)output.getValue())
+//						&& (!(output.getValue() instanceof Integer) || (Integer)output.getValue() != 0))
 					result.append(output.toString() + ", ");
 			}
 		}
@@ -304,6 +324,8 @@ public class Transition implements ITransition {
 		//internals
 		for(Entry<String, Object> variable : _temp_internal_vars.entrySet()){
 			if(variable.getValue() != null)
+//					&& (!(variable.getValue() instanceof Boolean) || (Boolean)variable.getValue())
+//					&& (!(variable.getValue() instanceof Integer) || (Integer)variable.getValue() != 0))
 				result.append(variable.toString() + ", ");
 		}
 		result.append(" ])");

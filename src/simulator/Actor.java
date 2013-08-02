@@ -29,7 +29,21 @@ public abstract class Actor implements IActor {
 	 * This method must be implemented by the Actor.  
 	 * @return
 	 */
-	abstract public HashMap<IActor, ITransition> getTransitions();
+	public HashMap<IActor, ITransition> getTransitions(){
+		State state = this.getCurrentState();
+		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		if(enabledTransitions.size() == 0)
+			return null;
+		ITransition nextTransition = enabledTransitions.get(0);
+		for(ITransition t : enabledTransitions){
+			if(nextTransition.priority() < t.priority()){
+				nextTransition = t;
+			}
+		}
+		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+		transitions.put(this, nextTransition);
+		return transitions;
+	}
 	
 	/**
 	 * this represents all of the subactors that this actor holds

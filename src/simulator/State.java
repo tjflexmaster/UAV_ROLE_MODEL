@@ -42,7 +42,7 @@ public class State implements IState {
 	public ArrayList<ITransition> getEnabledTransitions() {
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
-			if ( t.isEnabled() ) {
+			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
 				enabled.add((ITransition) new Transition((Transition)t));
 			}

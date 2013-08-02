@@ -53,11 +53,12 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
-			System.out.printf("advanced: %d\n", _clock.elapsedTime());
+//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
 			for(ITransition transition : _ready_transitions){
+				System.out.println('\n' + transition.toString());
 				transition.fire();
 			}
 		} while (!_ready_transitions.isEmpty());

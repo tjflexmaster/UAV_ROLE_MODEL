@@ -23,7 +23,7 @@ public class OperatorGui extends Actor{
 		OGUI_FLYBY_END_SUCCESS,
 		OGUI_BATTERY_LOW,
 		UAV_FLYING_NORMAL,
-		UAV_FLYING_FLYBY
+		UAV_FLYING_FLYBY, UAV_ON_GROUND
 	}
 
 	public OperatorGui(ComChannelList inputs, ComChannelList outputs) {
