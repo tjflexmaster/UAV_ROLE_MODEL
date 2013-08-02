@@ -6,7 +6,7 @@ import model.actors.OperatorGui;
 import model.actors.ParentSearch;
 import model.actors.UAV;
 import model.actors.UAV_OGUI_WateredDown;
-import model.actors.VOWateredDown;
+import model.actors.VO_WateredDown;
 import model.actors.VideoOperator;
 import model.actors.VideoOperatorGui;
 import model.events.NewSearchEvent;
@@ -122,7 +122,7 @@ public class WiSARTeam extends Team {
 		outputs.clear();
 		outputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
 		outputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
-		this.addActor(new VOWateredDown(inputs, outputs));
+		this.addActor(new VO_WateredDown(inputs, outputs));
 //		this.addEvent(new VoAckEvent(inputs, outputs), 1);
 
 		
