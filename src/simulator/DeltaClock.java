@@ -1,7 +1,7 @@
 package simulator;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.io.*;
+import java.util.*;
 
 /**
  * This class uses Actor names to compare objects to one another.
@@ -167,8 +167,17 @@ public class DeltaClock implements IDeltaClock {
 			if ( dt.time == 0 ){
 				String name = dt.actor.name();
 				int workload = dt.actor.getWorkload();
-				if(!(dt.actor instanceof Event))
+				if(!(dt.actor instanceof Event)){
 					System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
+					PrintWriter workloadWriter;
+					try {
+						workloadWriter = new PrintWriter(new File("workload.txt"));
+						workloadWriter.println("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
+						workloadWriter.close();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
 				result.add(dt.transition);
 			}else
 				break;
