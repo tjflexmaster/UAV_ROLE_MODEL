@@ -145,6 +145,9 @@ public class Simulator {
 			}
 			
 		} while (!_ready_transitions.isEmpty());
+		
+		//Add the last metric
+		metrics.add(metric);
 
 		try {
 			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));

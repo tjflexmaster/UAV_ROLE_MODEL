@@ -164,7 +164,7 @@ public class Transition implements ITransition {
 		_temp_internal_vars.clear();
 	}
 	
-	private void clearTempValues(){
+	protected void clearTempValues(){
 		for(Entry<String, Object> internal : _temp_internal_vars.entrySet()){
 			if(internal.getValue() != null){
 				_temp_internal_vars.put(internal.getKey(), null);

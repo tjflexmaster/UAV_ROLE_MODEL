@@ -343,6 +343,9 @@ public class DOM {
 			Transition transition = new Transition(internal_vars, inputs, outputs, end_state, new Range(min,max), priority, probability){
 				@Override
 				public boolean isEnabled(){
+					//Clear temp values
+					clearTempValues();
+					
 					for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
 						IPredicate prereq = input_prereqs.get(input.getValue());
 						if(prereq != null && !prereq.evaluate(input.getValue().value()))
