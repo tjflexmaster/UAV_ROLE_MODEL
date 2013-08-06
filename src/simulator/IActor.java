@@ -18,6 +18,10 @@ public interface IActor {
 	 */
 	String name();
 	
+	/**
+	 * Returns the calculated workload of the Actor
+	 * @return
+	 */
 	int getWorkload();
 	
 }

@@ -84,14 +84,10 @@ public class Simulator {
 	 */
 	public void run()
 	{
-<<<<<<< HEAD
-		
-=======
 		HashMap<String, String> data = new HashMap<String, String>();
 		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
 		String workloadOutput = "";
 		MetricDataStruct metric = new MetricDataStruct(0);
->>>>>>> refs/heads/workload
 		do {
 			//Get all event and team transitions
 			loadTransitions(metric);
@@ -137,11 +133,7 @@ public class Simulator {
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
 			for(ITransition transition : _ready_transitions){
-<<<<<<< HEAD
-				System.out.println(transition.toString());
-=======
 				//System.out.println('\n' + transition.toString());
->>>>>>> refs/heads/workload
 				transition.fire();
 				metric._fired_transitions++;
 				ComChannelList outputs = transition.getOutputChannels();

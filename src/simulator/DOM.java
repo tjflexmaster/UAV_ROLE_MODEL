@@ -236,7 +236,7 @@ public class DOM {
 		for( int index=0; index<numberOfNodes; index++ ){
 			Element state_node = (Element) state_nodes.item(index);
 			String title = state_node.getAttribute("name").toString();
-			State state = new State(title);
+			State state = new State(title,1);
 			states.add(state);
 		}
 		for( int index=0; index<numberOfNodes; index++ ){

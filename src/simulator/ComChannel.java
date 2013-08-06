@@ -92,7 +92,4 @@ public class ComChannel<T> {
 		return _value.toString();
 	}
 
-	public Type type() {
-		return _type;
-	}
 }

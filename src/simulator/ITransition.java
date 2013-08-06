@@ -13,11 +13,11 @@ public interface ITransition {
 	 * @return
 	 */
 	boolean isEnabled();
-	/**
-	 * If the transition is possible then this method will return true. It also clears out the temporary data from previous checks.
-	 * @return
-	 */
-	boolean updateTransition();
+//	/**
+//	 * If the transition is possible then this method will return true. It also clears out the temporary data from previous checks.
+//	 * @return
+//	 */
+//	boolean updateTransition();
 	
 	/**
 	 * return an int from the range of durations

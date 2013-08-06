@@ -39,20 +39,6 @@ public class ActivateEventTransition implements ITransition {
 		
 	}
 	
-//	private void buildTempOutput()
-//	{
-//		_temp_outputs = new HashMap<String, Object>();
-//		for( ComChannel<?> c : _outputs.values()) {
-//			_temp_outputs.put(c.name(), null);
-//		}
-//	}
-	
-//	protected void setTempOutput(String varname, Object value)
-//	{
-//		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
-//		_temp_outputs.put(varname, value);
-//	}
-	
 	@Override
 	public void fire() {
 		if(!_temp_outputs.isEmpty()){
@@ -69,7 +55,19 @@ public class ActivateEventTransition implements ITransition {
 
 	@Override
 	public boolean isEnabled() {
+		
+		
 		return true;
+	}
+	
+	@Override
+	public ComChannelList getInputChannels() {
+		return _inputs;
+	}
+
+	@Override
+	public ComChannelList getOutputChannels() {
+		return _outputs;
 	}
 
 	@Override
@@ -81,7 +79,7 @@ public class ActivateEventTransition implements ITransition {
 	public int priority() {
 		return 1;
 	}
-
+	
 	/**
 	 * 
 	 * @return return a string representation of the transition
@@ -117,4 +115,5 @@ public class ActivateEventTransition implements ITransition {
 		result.append(" ], [ ])");
 		return result.toString();
 	}
+
 }

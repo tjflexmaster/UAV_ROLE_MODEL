@@ -15,12 +15,8 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
-<<<<<<< HEAD
 	private ArrayList<Assertion> _assertions;
-	
-=======
 	private int _workload;
->>>>>>> refs/heads/workload
 	/**
 	 * this constructor is used for creating new states
 	 * @param name
@@ -28,11 +24,8 @@ public class State implements IState {
 	public State(String name, int workload) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
-<<<<<<< HEAD
 		_assertions = new ArrayList<Assertion>();
-=======
 		_workload = workload*2;
->>>>>>> refs/heads/workload
 	}
 	
 	public State add(ITransition new_transition)
@@ -54,7 +47,7 @@ public class State implements IState {
 		}
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
-			if ( t.updateTransition() ) {
+			if ( t.isEnabled() ) {
 				//Copy the transition if it is enabled
 				if(t instanceof Transition)
 					enabled.add((ITransition) new Transition((Transition)t));
@@ -81,17 +74,10 @@ public class State implements IState {
 			return true;
 		if (obj == null)
 			return false;
-<<<<<<< HEAD
-//		if (getClass() != obj.getClass())
-//			return false;
-		if(obj.getClass().equals(String.class) && !_name.equals((String)obj)){
-=======
 		if(obj instanceof String && _name.equals(obj))
 			return true;
 		if (!(obj instanceof State))
->>>>>>> refs/heads/workload
 			return false;
-		}
 		if(obj.getClass().equals(State.class)){
 			State other = (State) obj;
 			if (_name == null) {
@@ -102,21 +88,11 @@ public class State implements IState {
 		}
 		return true;
 	}
-<<<<<<< HEAD
-	
-	@Override
-	public int hashCode()
-	{
-		return _name.hashCode();
-	}
 	
 	public String getName() {
 		return _name;
 	}
 	
-=======
-
->>>>>>> refs/heads/workload
 	/**
 	 * this method works like a normal toString method
 	 * @return return the string representation of this state
@@ -125,14 +101,13 @@ public class State implements IState {
 		return _name;
 	}
 
-<<<<<<< HEAD
 	public void addAssertion(Assertion assertion) {
 		_assertions.add(assertion);
-=======
+	}
+	
 	public int getWorkload() {
 		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
 		return temp_workload;
->>>>>>> refs/heads/workload
 	}
 
 }

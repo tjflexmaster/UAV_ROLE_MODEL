@@ -159,27 +159,33 @@ public class Transition implements ITransition {
 		}
 	}
 	
-	public void clearTempData(){
+	private void clearTempData(){
 		_temp_outputs.clear();
 		_temp_internal_vars.clear();
 	}
 	
-	public boolean updateTransition(){
-//		for(Entry<String, Object> internal : _internal_vars.getAllVariables().entrySet()){
-//			this.setTempInternalVar(internal.getKey(), internal.getValue());
-//		}
+	private void clearTempValues(){
 		for(Entry<String, Object> internal : _temp_internal_vars.entrySet()){
 			if(internal.getValue() != null){
 				_temp_internal_vars.put(internal.getKey(), null);
 			}
 		}
-		return isEnabled();
+		
+		for(Entry<String, Object> internal : _temp_outputs.entrySet()){
+			if(internal.getValue() != null){
+				_temp_outputs.put(internal.getKey(), null);
+			}
+		}
+		
 	}
 	
 	/**
 	 * @return return whether the transition can be made based on the state of the ComChannels
 	 */
 	public boolean isEnabled() {
+		//Clear Temp Data first
+		clearTempValues();
+		
 		return true;
 	}
 	

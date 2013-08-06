@@ -52,6 +52,16 @@ public class DeactivateEventTransition implements ITransition {
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	@Override
+	public ComChannelList getInputChannels() {
+		return _inputs;
+	}
+
+	@Override
+	public ComChannelList getOutputChannels() {
+		return _outputs;
+	}
 
 	@Override
 	public Range getDurationRange() {

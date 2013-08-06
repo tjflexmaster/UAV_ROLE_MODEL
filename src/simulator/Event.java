@@ -20,8 +20,8 @@ public class Event implements IActor {
 		this.setEventCount(count);
 		
 		//Build the states and transitions for the event
-		State active = new State("active");
-		State inactive = new State("inactive");
+		State active = new State("active", 1);
+		State inactive = new State("inactive", 1);
 		
 		ActivateEventTransition t = new ActivateEventTransition(inputs.keySet(), output_channel, output_value, _internal_vars, inactive) {
 			@Override
@@ -92,6 +92,7 @@ public class Event implements IActor {
 		return (State) _internal_vars.getVariable("currentState");
 	}
 	
+	@Override
 	public HashMap<IActor, ITransition> getTransitions()
 	{
 		State state = this.getCurrentState();
@@ -104,6 +105,11 @@ public class Event implements IActor {
 			transitions.put(this, nextTransition);
 		return transitions;
 		
+	}
+	@Override
+	public int getWorkload()
+	{
+		return 1;
 	}
 	
 	@Override

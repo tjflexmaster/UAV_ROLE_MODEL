@@ -57,17 +57,16 @@ public abstract class Team implements ITeam {
 		return _com_channels.get(name);
 	}
 	
-<<<<<<< HEAD
 	protected final ComChannelList getComChannels()
 	{
 		return (ComChannelList) _com_channels.clone();
-=======
+	}
+
 	public HashMap<Actor, Integer> getWorkload(){
 		HashMap<Actor, Integer> workload = new HashMap<Actor, Integer>();
 		for(IActor a : _actors){
 			workload.put((Actor)a, a.getWorkload());
 		}
 		return workload;
->>>>>>> refs/heads/workload
 	}
 }
