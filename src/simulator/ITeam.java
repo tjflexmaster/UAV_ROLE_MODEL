@@ -18,4 +18,9 @@ public interface ITeam {
 	 */
 	ArrayList<Event> getEvents();
 
+
+	HashMap<Actor, Integer> getWorkload();
+	
+	ComChannelList getAllChannels();
+
 }

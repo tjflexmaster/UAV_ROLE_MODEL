@@ -7,7 +7,7 @@ public abstract class Team implements ITeam {
 	
 	ArrayList<Event> _events = new ArrayList<Event>();
 	ArrayList<IActor> _actors = new ArrayList<IActor>();
-	ComChannelList _com_channels;
+	public ComChannelList _com_channels;
 	
 
 	@Override
@@ -25,6 +25,12 @@ public abstract class Team implements ITeam {
 	@Override
 	public ArrayList<Event> getEvents() {
 		return _events;
+	}
+	
+	@Override
+	public ComChannelList getAllChannels()
+	{
+		return _com_channels;
 	}
 	
 	protected void addActor(IActor actor) 
@@ -51,8 +57,17 @@ public abstract class Team implements ITeam {
 		return _com_channels.get(name);
 	}
 	
+<<<<<<< HEAD
 	protected final ComChannelList getComChannels()
 	{
 		return (ComChannelList) _com_channels.clone();
+=======
+	public HashMap<Actor, Integer> getWorkload(){
+		HashMap<Actor, Integer> workload = new HashMap<Actor, Integer>();
+		for(IActor a : _actors){
+			workload.put((Actor)a, a.getWorkload());
+		}
+		return workload;
+>>>>>>> refs/heads/workload
 	}
 }

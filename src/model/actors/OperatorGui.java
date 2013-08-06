@@ -14,17 +14,25 @@ public class OperatorGui extends Actor{
 
 	}
 
-	public enum OGUI_OP_DATA {
-
+	public enum VIDEO_OGUI_OP_COMM {
+		OGUI_LANDED,
+		OGUI_FLYBY_REQ_F,
+		OGUI_FLYBY_REQ_T,
+		VO_FLYBY_END_FAILED_VGUI,
+		OGUI_FLYBY_END_FAILED,
+		OGUI_FLYBY_END_SUCCESS,
+		OGUI_BATTERY_LOW,
+		UAV_FLYING_NORMAL,
+		UAV_FLYING_FLYBY, UAV_ON_GROUND
 	}
 
 	public OperatorGui(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
 		_name = "OPERATOR_GUI";
 		//initialize states
-		State NORMAL = new State("NORMAL");
-		State ALARM = new State("ALARM");
-		State AUDIBLE_ALARM = new State("AUDIBLE_ALARM");
+		State NORMAL = new State("NORMAL",0);
+		State ALARM = new State("ALARM",0);
+		State AUDIBLE_ALARM = new State("AUDIBLE_ALARM",0);
 		
 		//initialize transitions
 		initializeIDLE(inputs, outputs, NORMAL);

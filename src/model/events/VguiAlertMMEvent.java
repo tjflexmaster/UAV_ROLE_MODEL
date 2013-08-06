@@ -45,4 +45,10 @@ public class VguiAlertMMEvent extends simulator.Event {
 			return _transition;
 		return null;
 	}
+
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

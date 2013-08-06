@@ -42,11 +42,11 @@ public class ParentSearch extends Actor {
 		_name = "PARENT_SEARCH";
 		
 		//initialize states
-		State IDLE = new State("IDLE");
-		State POKE_MM = new State("POKE_MM");
-		State TX_MM = new State("TX_MM");
-		State END_MM = new State("END_MM");
-		State RX_MM = new State("RX_MM");
+		State IDLE = new State("IDLE",0);
+		State POKE_MM = new State("POKE_MM",1);
+		State TX_MM = new State("TX_MM",1);
+		State END_MM = new State("END_MM",1);
+		State RX_MM = new State("RX_MM",1);
 		
 		RX_MM.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
@@ -55,12 +55,18 @@ public class ParentSearch extends Actor {
 					if(MissionManager.AUDIO_MM_PS_COMM.MM_END_PS.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
 						return true;
 					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_COMPLETE.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						this.setTempInternalVar("SEARCH_COMPLETE", true);
+						this.setTempInternalVar("SEARCH_ACTIVE", false);
 						return true;
 					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_FAILED.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						this.setTempInternalVar("SEARCH_FAILED", true);
+						this.setTempInternalVar("SEARCH_ACTIVE", false);
 						return true;
 					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_F.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						this.setTempInternalVar("TARGET_FOUND", true);
 						return true;
 					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_T.equals(_inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value())){
+						this.setTempInternalVar("TARGET_FOUND", true);
 						return true;
 					}
 					//return true;
@@ -154,6 +160,7 @@ public class ParentSearch extends Actor {
 					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH);
 					int num = (Integer) _internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1;
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", num);
+					this.setTempInternalVar("SEARCH_ACTIVE", false);
 				}
 //				this.setTempOutput("AUDIO_PS_MM_COMM", ParentSearch.PS_MM_COMM.PS_END_MM);
 				return true;
@@ -198,7 +205,7 @@ public class ParentSearch extends Actor {
 		IDLE.add(new Transition(this._internal_vars, inputs, outputs, POKE_MM){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean)_inputs.get(Channels.NEW_SEARCH_EVENT.name()).value()){
+				if(_inputs.get(Channels.NEW_SEARCH_EVENT.name()).value() != null && (Boolean)_inputs.get(Channels.NEW_SEARCH_EVENT.name()).value()){
 					int num = 1;
 					assert(!(Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")):"There is already a search going on";
 					this.setTempInternalVar("SEARCH_ACTIVE", true);
@@ -289,6 +296,19 @@ public class ParentSearch extends Actor {
 				return false;
 			}
 		});
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_MM){
+			@Override
+			public boolean isEnabled(){
+				if((Boolean)_internal_vars.getVariable("SEARCH_ACTIVE")){
+					if((Boolean)_internal_vars.getVariable("TARGET_FOUND")){
+						this.setTempInternalVar("NEW_TERMINATE_SEARCH", (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")+1);
+						this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM);
+						return true;
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 
@@ -298,24 +318,27 @@ public class ParentSearch extends Actor {
 		this._internal_vars.addVariable("NEW_SEARCH_AOI", 0);
 		this._internal_vars.addVariable("NEW_TARGET_DESCRIPTION", 0);
 		this._internal_vars.addVariable("NEW_TERMINATE_SEARCH", 0);
+		this._internal_vars.addVariable("TARGET_FOUND", false);
+		this._internal_vars.addVariable("SEARCH_COMPLETE", false);
+		this._internal_vars.addVariable("SEARCH_FAILED", false);
 		
 	}
 
-	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
-		State state = this.getCurrentState();
-		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
-		if(enabledTransitions.size() == 0)
-			return null;
-		ITransition nextTransition = enabledTransitions.get(0);
-		for(ITransition t : enabledTransitions){
-			if(nextTransition.priority() < t.priority()){
-				nextTransition = t;
-			}
-		}
-		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
-		transitions.put(this, nextTransition);
-		return transitions;
-	}
+//	@Override
+//	public HashMap<IActor, ITransition> getTransitions() {
+//		State state = this.getCurrentState();
+//		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+//		if(enabledTransitions.size() == 0)
+//			return null;
+//		ITransition nextTransition = enabledTransitions.get(0);
+//		for(ITransition t : enabledTransitions){
+//			if(nextTransition.priority() < t.priority()){
+//				nextTransition = t;
+//			}
+//		}
+//		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+//		transitions.put(this, nextTransition);
+//		return transitions;
+//	}
 
 }

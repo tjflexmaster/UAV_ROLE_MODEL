@@ -1,12 +1,49 @@
 package simulator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
 
+import simulator.ComChannel.Type;
+
+
+
 public class Simulator {
+	
+	public class MetricDataStruct
+	{
+		public int _time = 0;
+		public int _active_channels = 0;
+		public int _read_channels = 0;
+		public int _read_audio_channels = 0;
+		public int _read_visual_channels = 0;
+		public int _read_data_channels = 0;
+//		public int _read_memory = 0;
+		public int _updated_channels = 0;
+		public int _updated_audio_channels = 0;
+		public int _updated_visual_channels = 0;
+		public int _updated_data_channels = 0;
+//		public int _updated_memory = 0;
+		public int _added_transitions = 0;
+		public int _fired_transitions = 0;
+		public int _states_changed = 0;
+		
+		MetricDataStruct(int time)
+		{
+			_time = time;
+		}
+		
+		public String toString()
+		{
+			return String.format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", _time, _active_channels, _added_transitions, _fired_transitions, _read_channels, _read_audio_channels, _read_visual_channels, _read_data_channels, _updated_channels, _updated_audio_channels, _updated_visual_channels, _updated_data_channels);
+		}
+	}
 	
 	public enum Mode {
 		DEBUG,
@@ -47,28 +84,95 @@ public class Simulator {
 	 */
 	public void run()
 	{
+<<<<<<< HEAD
 		
+=======
+		HashMap<String, String> data = new HashMap<String, String>();
+		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
+		String workloadOutput = "";
+		MetricDataStruct metric = new MetricDataStruct(0);
+>>>>>>> refs/heads/workload
 		do {
 			//Get all event and team transitions
-			loadTransitions();
+			loadTransitions(metric);
+			
+			//Save the metrics
+			metric._active_channels = _team.getAllChannels().countActiveChannels();
+			metrics.add(metric);
 			
 			//Advance Time
 			_clock.advanceTime();
-			System.out.printf("advanced: %d\n", _clock.elapsedTime());
+			
+			//Start a new metric
+			metric = new MetricDataStruct(_clock.elapsedTime());
+			
+//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
+			HashMap<Actor, Integer> workload = _team.getWorkload();
+			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
+				String name = actor_workload.getKey()._name;
+				String state = actor_workload.getKey().getCurrentState().toString();
+				int work = actor_workload.getValue();
+				if(data.containsKey(name)){
+					data.put(name, data.get(name)+ "\n" + state + "\t" + work);
+				}else{
+					data.put(name, "\n" + name +"\n" + state + "\t" + work);
+				}
+//				workloadOutput += ("\n" + name + "\t" + state + "\t" + work);
+				System.out.println("\n" + name + "\t" + state + "\t" + work);
+			}
+			
+//			int workload = dt.actor.getWorkload();
+//			if(!(dt.actor instanceof Event)){
+//				System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
+//				PrintWriter workloadWriter;
+//				try {
+//					workloadWriter = new PrintWriter(new File("workload.txt"));
+//					workloadWriter.append("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
+//					workloadWriter.close();
+//				} catch (FileNotFoundException e) {
+//					e.printStackTrace();
+//				}
+//			}
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());
 			for(ITransition transition : _ready_transitions){
+<<<<<<< HEAD
 				System.out.println(transition.toString());
+=======
+				//System.out.println('\n' + transition.toString());
+>>>>>>> refs/heads/workload
 				transition.fire();
+				metric._fired_transitions++;
+				ComChannelList outputs = transition.getOutputChannels();
+				metric._updated_channels = outputs.size();
+				metric._updated_audio_channels = outputs.countChannels(Type.AUDIO);
+				metric._updated_visual_channels = outputs.countChannels(Type.VISUAL);
+				metric._updated_data_channels = outputs.countChannels(Type.DATA);
+				metric._states_changed++;
 			}
 			
 		} while (!_ready_transitions.isEmpty());
+
+		try {
+			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
+			for(Entry<String, String> actor_workload : data.entrySet())
+				workloadWriter.print(actor_workload.getValue());
+			workloadWriter.close();
+			
+			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+			for(MetricDataStruct m : metrics) {
+				metricsWriter.println(m.toString());
+			}
+			metricsWriter.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		
 	}
 	
-	private void loadTransitions()
+	private void loadTransitions(MetricDataStruct metric)
 	{
 		//Get Transitions from the Events
 		for(Event e : _team.getEvents() ) {
@@ -106,6 +210,12 @@ public class Simulator {
 		for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
 			ITransition t = entry.getValue();
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
+			metric._added_transitions++;
+			ComChannelList inputs = t.getOutputChannels();
+			metric._read_channels = inputs.size();
+			metric._read_audio_channels = inputs.countChannels(Type.AUDIO);
+			metric._read_visual_channels = inputs.countChannels(Type.VISUAL);
+			metric._read_data_channels = inputs.countChannels(Type.DATA);
 		}
 		
 	}
@@ -161,100 +271,5 @@ public class Simulator {
 	{
 		return _random.nextInt(max - min + 1) + min;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/**
-	 * this method initializes the simulator
-	 * then this method makes the clock run the simulation
-	 * @param args should be left blank, all input will be ignored
-	 */
-//	public static void main(String[] args) {
-//		//initialize simulation variables
-//		ITeam team = new WiSARTeam();
-//		IDeltaClock clock = new DeltaClock();
-//		Scanner scanner = new Scanner(System.in);
-//		ArrayList<ITransition> readyTransitions = new ArrayList<ITransition>();
-//		int runTime = 0;
-//		
-//		//run the simulator until the clock is empty
-//		do {
-//			//First get the Actor Transitions
-//			HashMap<IActor, ITransition> transitions = team.getEventTransitions();
-//			for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
-//				//TODO get a duration range from the transition
-//				clock.addTransition(entry.getKey(), entry.getValue(), 1);
-//			}
-//			
-//			//advance time
-//			clock.advanceTime();
-//			runTime = clock.elapsedTime();
-//			
-//			//Process all ready transitions
-//			readyTransitions = clock.getReadyTransitions();
-//			
-//			//communicate with the user
-//			runTime = communicateWithUser(scanner, clock, readyTransitions, runTime);
-//			
-//			//fire all ready transitions
-//			for (int index = 0; index < readyTransitions.size(); index++) {
-//				readyTransitions.get(index).fire();
-//			}
-//		} while (!readyTransitions.isEmpty());
-//		
-//		//close the scanner once the simulation is complete
-//		scanner.close();
-//	}
-	
-	/**
-	 * this method prints swim lanes and accepts user commands
-	 * @param scanner 
-	 * @param clock
-	 * @param readyTransitions
-	 * @return return the integer time value to advance to
-	 */
-//	private static int communicateWithUser(Scanner scanner, IDeltaClock clock, ArrayList<ITransition> readyTransitions, int runTime) {
-//		if(readyTransitions.isEmpty()){
-//			if(clock.elapsedTime() == 0){
-//				System.out.println("Would you like to run in debug mode (y / n)?");
-//				String response = scanner.nextLine();
-//				if(response.equalsIgnoreCase("y")){
-//					debug = true;
-//					System.out.println("Entering Debug Mode");
-//				}else if(response.equalsIgnoreCase("n")){
-//					debug = false;
-//					System.out.println("Running Simulation");
-//				}else{
-//					debug = true;
-//					System.out.println("Entering Debug Mode");
-//				}
-//			} else {
-//				System.out.println("Thank you for using the simulator, goodbye.");
-//				return runTime;
-//			}
-//		} else {
-//			System.out.println("----Time: " + clock.elapsedTime() + "----");
-//			for(ITransition transition : readyTransitions){
-//				System.out.println(transition.toString());
-//			}
-//		}
-//		
-//		if (runTime <= clock.elapsedTime()) {
-//			System.out.println("In integer format enter a time to skip to. Then press Enter.");
-//			String response = scanner.nextLine();
-//			try {
-//				runTime = Integer.parseInt(response);
-//			} catch(NumberFormatException e) {
-//				System.out.println("Contining to the next transition.");
-//			}
-//		}
-//		return runTime;
-//	}
 	
 }

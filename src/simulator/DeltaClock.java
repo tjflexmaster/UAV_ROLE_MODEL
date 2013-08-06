@@ -1,7 +1,7 @@
 package simulator;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.io.*;
+import java.util.*;
 
 /**
  * This class uses Actor names to compare objects to one another.
@@ -164,9 +164,9 @@ public class DeltaClock implements IDeltaClock {
 		
 		for( int i=0; i<_clock.size(); i++) {
 			DeltaTime dt = _clock.get(i);
-			if ( dt.time == 0 )
+			if ( dt.time == 0 ){
 				result.add(dt.transition);
-			else
+			}else
 				break;
 			
 		}

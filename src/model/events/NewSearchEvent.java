@@ -29,7 +29,7 @@ public class NewSearchEvent extends Event {
 				
 				//TODO Check the simulator to see if we have a transition already
 				ComChannel<Boolean> new_search_event = (ComChannel<Boolean>) _inputs.get(Channels.NEW_SEARCH_EVENT.name());
-				if ( !new_search_event.value() ) {
+				if ( new_search_event.value() != null && !new_search_event.value() ) {
 					this.setTempOutput(Channels.NEW_SEARCH_EVENT.name(), true);
 					return true;
 				} else
@@ -45,6 +45,12 @@ public class NewSearchEvent extends Event {
 		if(_transition.isEnabled())
 			return _transition;
 		return null;
+	}
+
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

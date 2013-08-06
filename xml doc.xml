@@ -18,6 +18,7 @@
 				<channel name="VIDEO_MM_VGUI_COMM"/>
 			</channels>
 			<memory>
+<<<<<<< HEAD
 				<variable name ="TARGET_DESCRIPTION" dataType="String"> null</variable>
 				<variable name ="AREA_OF_INTEREST" dataType="String"> null</variable>
 				<variable name ="TERMINATE_SEARCH" dataType="Integer"> null</variable>
@@ -1140,6 +1141,712 @@
 								<output type="memory" name="">
 									<value data_type="" predicate=""></value>
 								</output>
+=======
+				<variable name ="TARGET_DESCRIPTION" dataType="String">null</variable>
+				<variable name ="AREA_OF_INTEREST" dataType="String">null</variable>
+				<variable name ="TERMINATE_SEARCH" dataType="Integer">null</variable>
+				<variable name ="NEW_TERMINATE_SEARCH" dataType="Integer">null</variable>
+				<variable name ="ANOMALY_DISMISSED_T" dataType="Boolean">false</variable>
+				<variable name ="ANOMALY_DISMISSED_F" dataType="Boolean">false</variable>
+				<variable name ="FLYBY_REQ_T" dataType="Boolean">false</variable>
+				<variable name ="FLYBY_REQ_F" dataType="Boolean">false</variable>
+				<variable name ="TARGET_SIGHTED_T" dataType="Boolean">false</variable>
+				<variable name ="TARGET_SIGHTED_F" dataType="Boolean">false</variable>
+				<variable name ="SEARCH_COMPLETE" dataType="Boolean">false</variable>
+				<variable name ="SEARCH_FAILED" dataType="Boolean">false</variable>
+			</memory>
+			<startState name=""/>
+			<states>
+				<state name="IDLE">
+				
+				;
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_OP_MM_COMM" predicate="eq" value="OP_POKE_MM"/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="MM_ACK_OP"/>
+							</outputs>
+							<endState name="RX_OP"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_POKE_MM"/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_ACK_VO"/>
+							</outputs>
+							<endState name="RX_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_ALERT"/>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="OBSERVING_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_POKE_MM"/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_PS_COMM" predicate="eq" value="MM_ACK_PS"/>
+							</outputs>
+							<endState name="RX_PS"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="TARGET_DESCRIPTION" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_POKE_VO"/>
+							</outputs>
+							<endState name="POKE_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="AREA_OF_INTEREST" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="POKE_OP"/>
+							</outputs>
+							<endState name="POKE_OP"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="Terminate_Search" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="POKE_OP"/>
+							</outputs>
+							<endState name="POKE_OP"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="ANOMALY_DISMISSED_T" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="ANOMALY_DISMISSED_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="POKE_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="ANOMALY_DISMISSED_F" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="ANOMALY_DISMISSED_F" predicate="eq" value=""/>
+							</outputs>
+							<endState name="POKE_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="FLYBY_REQ_T" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="FLYBY_REQ_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="POKE_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="FLYBY_REQ_F" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="FLYBY_REQ_F" predicate="eq" value=""/>
+							</outputs>
+							<endState name="POKE_VGUI"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="POKE_PS">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_BUSY_MM"/>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_ACK_MM"/>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="TX_PS"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="TX_PS">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="SearchComplete" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_SEARCH_COMPLETE"/>
+							</outputs>
+							<endState name="END_PS"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="SearchFailed" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_SEARCH_FAILED"/>
+							</outputs>
+							<endState name="END_PS"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="TargetFound_T" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_TARGET_SIGHTED_T"/>
+							</outputs>
+							<endState name="END_PS"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="TargetFound_F" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_TARGET_SIGHTED_F"/>
+							</outputs>
+							<endState name="END_PS"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="END_PS">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="RX_PS">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_END_MM"/>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_AREA_OF_INTEREST_MM"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="TARGET_DESCRIPTION" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_TARGET_DESCRIPTION_MM"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="PS_TARGET_DESCRIPTION_MM" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_PS_MM_COMM" predicate="eq" value="PS_TERMINATE_SEARCH"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="NEW_TERMINATE_SEARCH" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="POKE_OP">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_OP_MM_COMM" predicate="eq" value="OP_ACK_MM"/>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="TX_OP"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="TX_OP">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="AREA_OF_INTEREST" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="MM_AREA_OF_INTEREST_OP"/>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="MM_END_OP"/>
+							</outputs>
+							<endState name="END_OP"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="END_OP">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="Terminate_Search" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_POKE_VO"/>
+								<output type="memory" name="Terminate_Search" predicate="eq" value=""/>
+							</outputs>
+							<endState name="POKE_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="AREA_OF_INTEREST" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="AREA_OF_INTEREST-1" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="RX_OP">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_OP_MM_COMM" predicate="eq" value="OP_END_MM"/>
+								<input type="memory" name="*" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="*" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_OP_MM_COMM" predicate="eq" value="OP_SEARCH_COMPLETE"/>
+								<input type="memory" name="*" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="SEARCH_COMPLETE,*" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_OP_MM_COMM" predicate="eq" value="OP_SEARCH_FAILED"/>
+								<input type="memory" name="*" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="SEARCH_FAILED,*" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="POKE_VO">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_ACK_MM"/>
+								<input type="memory" name="*" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="*" predicate="eq" value=""/>
+							</outputs>
+							<endState name="TX_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_ACK_MM"/>
+								<input type="memory" name="TERMINATE_SEARCH" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="TERMINATE_SEARCH" predicate="eq" value=""/>
+							</outputs>
+							<endState name="TX_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_ACK_MM"/>
+								<input type="memory" name="TARGET_DESCRIPTION" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="TARGET_DESCRIPTION" predicate="eq" value=""/>
+							</outputs>
+							<endState name="TX_VO"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="TX_VO">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="TARGET_DESCRIPTION" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_TARGET_DESCRIPTION_VO"/>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_END_VO"/>
+								<output type="memory" name="TARGET_DESCRIPTION-1" predicate="eq" value=""/>
+							</outputs>
+							<endState name="END_VO"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="TERMINATE_SEARCH" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_TARGET_DESCRIPTION_VO"/>
+								<output type="chan" name="AUDIO_MM_VO_COMM" predicate="eq" value="MM_END_VO"/>
+								<output type="memory" name="TERMINATE_SEARCH-1" predicate="eq" value=""/>
+							</outputs>
+							<endState name="END_VO"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="END_VO">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+								<output type="chan" name="AUDIO_MM_OP_COMM" predicate="eq" value="MM_END_OP"/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="RX_VO">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_END_MM"/>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_TARGET_SIGHTING_F"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="TARGET_SIGHTING_F" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_END_MM"/>
+								<input type="chan" name="AUDIO_VO_MM_COMM" predicate="eq" value="VO_TARGET_SIGHTING_T"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="TARGET_SIGHTING_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="OBSERVING_VGUI">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_VALIDATION_REQ_T"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="FLYBY_REQ_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_VALIDATION_REQ_T"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="ANOMALY_DISMISSED_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_VALIDATION_REQ_T"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="ANOMALY_DISMISSED_T" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_VALIDATION_REQ_F"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="FLYBY_REQ_F" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="chan" name="VIDEO_VGUI_MM_COMM" predicate="eq" value="VGUI_VALIDATION_REQ_F"/>
+							</inputs>
+							<outputs>
+								<output type="memory" name="ANOMALY_DISMISSED_F" predicate="eq" value=""/>
+							</outputs>
+							<endState name="IDLE"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="POKE_VGUI">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+							</outputs>
+							<endState name="TX_VGUI"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="TX_VGUI">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="MM_FLYBY_REQ_T" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_FLYBY_REQ_T"/>
+							</outputs>
+							<endState name="TX_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="MM_FLYBY_REQ_F" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_FLYBY_REQ_F"/>
+							</outputs>
+							<endState name="TX_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="MM_ANOMALY_DISMISSED_T" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_ANOMALY_DISMISSED_T"/>
+							</outputs>
+							<endState name="TX_VGUI"/>
+						</transition>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+								<input type="memory" name="MM_ANOMALY_DISMISSED_F" predicate="eq" value=""/>
+							</inputs>
+							<outputs>
+								<output type="chan" name="" predicate="eq" value="MM_ANOMALY_DISMISSED_F"/>
+							</outputs>
+							<endState name="TX_VGUI"/>
+						</transition>
+					</transitions>
+				</state>
+				<state name="END_VGUI">
+					<assertions>
+						<assert>
+							<inputs>
+								<input>
+									<value dataType="" predicate=""></value>
+									<source type="" name=""/>
+								</input>
+							</inputs>
+							<message></message>
+						</assert>
+					</assertions>
+					<transitions>
+						<transition duration-min="1" duration-max="1" priority="0" probability="1.0">
+							<inputs>
+							</inputs>
+							<outputs>
+>>>>>>> refs/heads/workload
 							</outputs>
 							<endState name="IDLE"/>
 						</transition>

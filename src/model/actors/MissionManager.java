@@ -14,6 +14,10 @@ import simulator.Transition;
 
 public class MissionManager extends Actor {
 
+	public enum DATA_MM_VGUI_COMM {
+
+	}
+
 	/**
 	 * This is an enumeration of the communications from the mission manager to the parent search.
 	 */
@@ -63,28 +67,28 @@ public class MissionManager extends Actor {
 	}
 	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
-		State IDLE = new State("IDLE");
+		State IDLE = new State("IDLE",0);
 		//comm with PS
-		State POKE_PS = new State("POKE_PS");
-		State TX_PS = new State("TX_PS");
-		State END_PS = new State("END_PS");
-		State RX_PS = new State("RX_PS");
+		State POKE_PS = new State("POKE_PS",1);
+		State TX_PS = new State("TX_PS",1);
+		State END_PS = new State("END_PS",1);
+		State RX_PS = new State("RX_PS",1);
 		//comm with OP
-		State POKE_OP = new State("POKE_OP");
-		State TX_OP = new State("TX_OP");
-		State END_OP = new State("END_OP");
-		State RX_OP = new State("RX_OP");
+		State POKE_OP = new State("POKE_OP",1);
+		State TX_OP = new State("TX_OP",1);
+		State END_OP = new State("END_OP",1);
+		State RX_OP = new State("RX_OP",1);
 		//comm with VO
-		State POKE_VO = new State("POKE_VO");
-		State TX_VO = new State("TX_VO");
-		State END_VO = new State("END_VO");
-		State RX_VO = new State("RX_VO");
+		State POKE_VO = new State("POKE_VO",1);
+		State TX_VO = new State("TX_VO",1);
+		State END_VO = new State("END_VO",1);
+		State RX_VO = new State("RX_VO",1);
 		//comm with VGUI
-		State OBSERVING_VGUI = new State("OBSERVING_VGUI");
-		State POKE_VGUI = new State("POKE_VGUI");
-		State TX_VGUI = new State("TX_VGUI");
-		State END_VGUI = new State("END_VGUI");
-
+		State OBSERVING_VGUI = new State("OBSERVING_VGUI",6);
+		State POKE_VGUI = new State("POKE_VGUI",1);
+		State TX_VGUI = new State("TX_VGUI",1);
+		State END_VGUI = new State("END_VGUI",1);
+		_name = "Mission Manager";
 		this.initializeInternalVariables();
 		
 		//initialize transitions
@@ -136,7 +140,7 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_OP){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_OP_MM_COMM").equals(Operator.AUDIO_OP_MM_COMM.OP_POKE_MM)){
+				if(Operator.AUDIO_OP_MM_COMM.OP_POKE_MM.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value())){
 					this.setTempOutput("AUDIO_MM_OP_COMM", MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP);
 				}
 				return false;
@@ -147,8 +151,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_VO){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_VO_MM_COMM").equals(VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM)){
-					this.setTempOutput("AUDIO_MM_VO_COMM", MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO);
+				if(VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+					this.setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO);
 				}
 				return false;
 			}
@@ -244,7 +248,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("TERMINATE_SEARCH") != null && (Integer) this._internal_vars.getVariable("TERMINATE_SEARCH") > 0) {
+				if ( "NEW".equals(_internal_vars.getVariable("TERMINATE_SEARCH"))) {
 					this.setTempOutput("AUDIO_MM_OP_COMM", AUDIO_MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
@@ -316,7 +320,10 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("TARGET_SIGHTED_T") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
+				if(_internal_vars.getVariable("TARGET_SIGHTED_T") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_T")){
+					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
+					return true;
+				} else if(_internal_vars.getVariable("TARGET_SIGHTED_F") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
 				}
@@ -568,9 +575,13 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
-					this.setTempOutput("MM_AREA_OF_INTEREST_OP", "NEW");
+				if ( "NEW".equals(this._internal_vars.getVariable("AREA_OF_INTEREST")) ) {
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI);
 					this.setTempInternalVar("AREA_OF_INTEREST", "CURRENT");
+					result = true;
+				} else if("NEW".equals(_internal_vars.getVariable("TERMINATE_SEARCH"))){
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH);
+					this.setTempInternalVar("TERMINATE_SEARCH", "CURRENT");
 					result = true;
 				}
 				return result;		
@@ -734,20 +745,23 @@ public class MissionManager extends Actor {
 	 * (RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])<br>
 	 */
 	private void initializeRX_VO(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_VO) {
-		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_F],[])x(IDLE,[],[TARGET_SIGHTING_F])
-		//(RX_VO,[VO_END_MM, VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])
+		//(RX_VO,[VO_TARGET_SIGHTING_F],[])x(IDLE,[],[TARGET_SIGHTING_F])
+		//(RX_VO,[VO_TARGET_SIGHTING_T],[])x(IDLE,[],[TARGET_SIGHTING_T])
+		//(RX_VO,[VO_END_MM],[])x(IDLE,[],[TARGET_SIGHTING_T])
 		RX_VO.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(this._inputs.get("AUDIO_VO_MM_COMM").value() != null){
 					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
 						this.setTempInternalVar("TARGET_SIGHTED_F", true);
+						return true;
 					}
 					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
 						this.setTempInternalVar("TARGET_SIGHTED_T", true);
+						return true;
 					}
-					return true;
-				}
+					if(VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+						return true;
+					}
 				return false;
 			}
 		});
@@ -884,22 +898,22 @@ public class MissionManager extends Actor {
 		});
 	}
 
-	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
-		State state = this.getCurrentState();
-		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
-		if(enabledTransitions.size() == 0)
-			return null;
-		ITransition nextTransition = enabledTransitions.get(0);
-		for(ITransition t : enabledTransitions){
-			if(nextTransition.priority() < t.priority()){
-				nextTransition = t;
-			}
-		}
-		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
-		transitions.put(this, nextTransition);
-		return transitions;
-	}
+//	@Override
+//	public HashMap<IActor, ITransition> getTransitions() {
+//		State state = this.getCurrentState();
+//		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+//		if(enabledTransitions.size() == 0)
+//			return null;
+//		ITransition nextTransition = enabledTransitions.get(0);
+//		for(ITransition t : enabledTransitions){
+//			if(nextTransition.priority() < t.priority()){
+//				nextTransition = t;
+//			}
+//		}
+//		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
+//		transitions.put(this, nextTransition);
+//		return transitions;
+//	}
 
 	@Override
 	protected void initializeInternalVariables() {

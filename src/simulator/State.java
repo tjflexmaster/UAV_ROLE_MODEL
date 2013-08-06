@@ -15,16 +15,24 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
+<<<<<<< HEAD
 	private ArrayList<Assertion> _assertions;
 	
+=======
+	private int _workload;
+>>>>>>> refs/heads/workload
 	/**
 	 * this constructor is used for creating new states
 	 * @param name
 	 */
-	public State(String name) {
+	public State(String name, int workload) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
+<<<<<<< HEAD
 		_assertions = new ArrayList<Assertion>();
+=======
+		_workload = workload*2;
+>>>>>>> refs/heads/workload
 	}
 	
 	public State add(ITransition new_transition)
@@ -46,7 +54,7 @@ public class State implements IState {
 		}
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
-			if ( t.isEnabled() ) {
+			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
 				if(t instanceof Transition)
 					enabled.add((ITransition) new Transition((Transition)t));
@@ -58,19 +66,30 @@ public class State implements IState {
 		}
 		return enabled;
 	}
-	
-	/**
-	 * override the equals method to return true if the names of the two states match
-	 */
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
+<<<<<<< HEAD
 //		if (getClass() != obj.getClass())
 //			return false;
 		if(obj.getClass().equals(String.class) && !_name.equals((String)obj)){
+=======
+		if(obj instanceof String && _name.equals(obj))
+			return true;
+		if (!(obj instanceof State))
+>>>>>>> refs/heads/workload
 			return false;
 		}
 		if(obj.getClass().equals(State.class)){
@@ -83,6 +102,7 @@ public class State implements IState {
 		}
 		return true;
 	}
+<<<<<<< HEAD
 	
 	@Override
 	public int hashCode()
@@ -94,6 +114,9 @@ public class State implements IState {
 		return _name;
 	}
 	
+=======
+
+>>>>>>> refs/heads/workload
 	/**
 	 * this method works like a normal toString method
 	 * @return return the string representation of this state
@@ -102,8 +125,14 @@ public class State implements IState {
 		return _name;
 	}
 
+<<<<<<< HEAD
 	public void addAssertion(Assertion assertion) {
 		_assertions.add(assertion);
+=======
+	public int getWorkload() {
+		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
+		return temp_workload;
+>>>>>>> refs/heads/workload
 	}
 
 }
