@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import model.team.Channels;
 
 public class CommentParser {
 	public static void main(String[] args){
@@ -20,49 +23,73 @@ public class CommentParser {
 				f = file;
 		}
 		for(File file : f.listFiles()){
-			if(file.getName().equals("actors"))
-				f = file;
-		}
-		for(File file : f.listFiles()){
-			if(file.getName().equals("comments"))
+			if(file.getName().equals("transitions"))
 				f = file;
 		}
 		for(File file : f.listFiles()){
 			BufferedReader br;
 			try {
+				if(file.getName().endsWith(".java"))
+					continue;
 				br = new BufferedReader(new FileReader(file));
 				StringBuilder constructor = new StringBuilder();
+				StringBuilder memory = new StringBuilder();
+				memory.append("\n@Override\nprotected void initializeInternalVariables() {");
 				String name = file.getName();
 				name = name.substring(0, name.indexOf('.'));
-				String line = br.readLine();
-				HashMap<String, String> initializers = new HashMap<String, String>();
-				while(line != null){
-					line = line.trim();
-					if(line.startsWith("(")){
-						String[] transition_state = xml.parseComment(line);
-						String state = transition_state[0].substring(0, transition_state[0].indexOf('.')).trim();
-						if(initializers.containsKey(state)){
-							if(initializers.get(state).contains("State " + transition_state[1])){
-								initializers.put(state, initializers.get(state) + transition_state[0]);
-							}else
-								initializers.put(state, "State " + transition_state[1] + ", " + initializers.get(state) + transition_state[0]);
-						}else{
-							initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + transition_state[0]);
+				if(name.length() > 0){
+					String line = br.readLine();
+					HashMap<String, String> initializers = new HashMap<String, String>();
+					HashMap<String, String> enumerations = new HashMap<String, String>();
+					while(line != null){
+						line = line.trim();
+						if(line.startsWith("(")){
+							String[] transition_state = xml.parseComment(line, memory, name, enumerations);
+							String state = transition_state[0].substring(0, transition_state[0].indexOf('.')).trim();
+							if(initializers.containsKey(state)){
+								if(initializers.get(state).contains("State " + transition_state[1])){
+									initializers.put(state, initializers.get(state) + transition_state[0]);
+								}else
+									initializers.put(state, "State " + transition_state[1] + ", " + initializers.get(state) + transition_state[0]);
+							}else{
+								initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + transition_state[0]);
+							}
+						}
+						line = br.readLine();
+					}
+					memory.append("\n}");
+					StringBuilder body = new StringBuilder();
+					for(Entry<String, String> transition : initializers.entrySet()){
+						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\",1);");
+						String call_line = transition.getValue().split("\n")[0];
+						String parameters = call_line.substring(call_line.indexOf("State"), call_line.indexOf(')'));
+						parameters = parameters.replaceAll("State ", "");
+						constructor.append("\n\tinitialize" + transition.getKey() + "(inputs, outputs, " + parameters + ");");
+						body.append("\n public void initialize" + transition.getKey() + "(ComChannelList inputs, ComChannelList outputs, ");
+						body.append(transition.getValue()); 
+						body.append("\n\tadd(" + transition.getKey() + ");\n}");
+					}
+					constructor.insert(0,"\npublic " + name + "(ComChannelList inputs, ComChannelList outputs) {");
+					constructor.append("\n}");
+					StringBuilder enums = new StringBuilder();
+					for(Entry<String, String> enumeration : enumerations.entrySet()){
+						enums.append(enumeration.getValue() + "\n}");
+					}
+					File new_file = file.getParentFile().getParentFile();
+					for(File temp : new_file.listFiles()){
+						if(temp.getName().equals("actors")){
+							new_file = temp;
+							break;
 						}
 					}
-					line = br.readLine();
+					new_file = new File(new_file.getPath() + "/" + name + ".java");
+					new_file.createNewFile();
+					System.out.println(new_file.toPath());
+					PrintWriter writer = new PrintWriter(new_file);
+					writer.print("package model.actors;\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.close();
 				}
-				StringBuilder body = new StringBuilder();
-				for(Entry<String, String> transition : initializers.entrySet()){
-					constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\");");
-					constructor.append("\n\tinitialize" + transition.getKey() + "(inputs, outputs);");
-					body.append("\n public void initialize" + transition.getKey() + "(ComChannelList inputs, ComChannelList outputs, ");
-					body.append(transition.getValue()); 
-					body.append("\n}");
-				}
-				constructor.insert(0,"\npublic " + name + "(ComChannelList inputs, ComChannelList outputs) {");
-				constructor.append("\n}");
-				System.out.println(constructor.toString() + body.toString());
+//				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -70,7 +97,7 @@ public class CommentParser {
 		}
 	}
 
-	public String[] parseComment(String s){
+	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations){
 		StringBuilder transition = new StringBuilder();
 		int start = s.indexOf('(')+1;
 		int end = s.indexOf(',');
@@ -92,8 +119,8 @@ public class CommentParser {
 			duration = "Duration." + duration + ".getRange()";
 		}
 		String priority = endingValues[endingValues.length-3].trim();
-		transition.append(endState + ", " + priority + ", " + duration + ", " + probability + ") {\n\t\t@Override\n\t\tpublic boolean isEnabled() { ");
-		start = s.indexOf('[');
+		transition.append(endState + ", " + duration + ", "  + priority + ", "+ probability + ") {\n\t\t@Override\n\t\tpublic boolean isEnabled() { ");
+		start = s.indexOf('[')+1;
 		end = s.indexOf(']', start);
 		String[] inputs = s.substring(start,end).split(", ");
 		for(String input : inputs){
@@ -124,27 +151,51 @@ public class CommentParser {
 					prefix = "UAV";
 				}
 				String channel = getChannel(division, prefix);
-				value += channel + "." + division[1];
-				transition.append("\n\t\t\tif(!" + value + ".equals(_inputs.get(Channels." + channel + ".name()).value())) {\n\t\t\treturn false;\n\t\t}");
+				if(value.length() > 0 && name.equals(value.substring(0, value.indexOf('.')))){
+					if(!enumerations.containsKey(channel)){
+						enumerations.put(channel, "\npublic enum " + channel + "{\n\t" + division[1] + ",");
+					}else{
+						if(!enumerations.get(channel).contains(division[1]))
+							enumerations.put(channel, enumerations.get(channel) + "\n\t" + division[1] + ",");
+					}
+				}
+				if(!channel.equals("EVENT")){
+					value += channel + "." + division[1];
+					transition.append("\n\t\t\tif(!" + value + ".equals(_inputs.get(Channels." + channel + ".name()).value())) {\n\t\t\t\treturn false;\n\t\t\t}");
+				}else{
+					transition.append("\n\t\t\tif(_inputs.get(Channels."+division[1]+".name()).value() == null && !(Boolean)_inputs.get(Channels."+division[1]+".name()).value()) {\n\t\t\t\treturn false;\n\t\t\t}");
+				}
+					
 			}
 
-			start = s.indexOf('[',end);
+			start = s.indexOf('[',end)+1;
 			end = s.indexOf(']', start);
 			String[] internals = s.substring(start,end).split(", ");
 			for(String internal : internals){
 				if(internal.contains("=")){
 					String[] division = internal.split("=");
+					boolean add_to_memory = false;
+					if(!memory.toString().contains(division[0])){
+						memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
+						add_to_memory = true;
+					}
 					String value = "";
 					if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
 						value = "new Boolean(" + division[1].toLowerCase() + ")";
+						if(add_to_memory)
+							memory.append("false);");
 					} else {
 						try{
 							value = "new Integer(" + Integer.parseInt(division[1]) + ")";
+							if(add_to_memory)
+								memory.append("0);");
 						}catch(NumberFormatException e){
 							value = "\"" + division[1] + "\"";
+							if(add_to_memory)
+								memory.append("null);");
 						}
 					}
-					transition.append("\n\t\t\tif(!" + value + ".equals(_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\treturn false;\n\t\t}");
+					transition.append("\n\t\t\tif(!" + value + ".equals(_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\t\treturn false;\n\t\t\t}");
 				}
 			}
 		}
@@ -180,6 +231,14 @@ public class CommentParser {
 					prefix = "UAV";
 				}
 				String channel = getChannel(division, prefix);
+				if(name.equals(value.substring(0, value.indexOf('.')))){
+					if(!enumerations.containsKey(channel)){
+						enumerations.put(channel, "\npublic enum " + channel + "{\n\t" + division[1] + ",");
+					}else{
+						if(!enumerations.get(channel).contains(division[1]))
+							enumerations.put(channel, enumerations.get(channel) + "\n\t" + division[1] + ",");
+					}
+				}
 				value += channel + "." + division[1];
 				transition.append("\n\t\t\tsetTempOutput(Channels." + channel + ".name(), " + value + ");");
 			}
@@ -195,7 +254,28 @@ public class CommentParser {
 		for(String temp_internal : temp_internals){
 			if(temp_internal.contains("=")){
 				String[] division = temp_internal.split("=");
-				transition.append("\n\t\t\tsetTempInternalVar(\"" + division[0] + "\", " + division[1].toLowerCase() + ");");
+				boolean add_to_memory = false;
+				if(!memory.toString().contains(division[0])){
+					memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
+					add_to_memory = true;
+				}
+				String value = "";
+				if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
+					value = division[1].toLowerCase();
+					if(add_to_memory)
+						memory.append("false);");
+				} else {
+					try{
+						value = String.valueOf(Integer.parseInt(division[1]));
+						if(add_to_memory)
+							memory.append("0);");
+					}catch(NumberFormatException e){
+						value = "\"" + division[1].toUpperCase() + "\"";
+						if(add_to_memory)
+							memory.append("null);");
+					}
+				}
+				transition.append("\n\t\t\tsetTempInternalVar(\"" + division[0] + "\", " + value + ");");
 			}
 		}
 		transition.append("\n\t\t\treturn true;\n\t\t}\n\t});");
@@ -213,7 +293,7 @@ public class CommentParser {
 		case "A": channel = "AUDIO_";break;
 		case "V": channel = "VIDEO_";break;
 		case "D": channel = "DATA_";break;
-		case "E": channel = "EVENT_";break;
+		case "E": return "EVENT";
 		}
 		channel += prefix + "_" + suffix + "_COMM";
 		return channel;
