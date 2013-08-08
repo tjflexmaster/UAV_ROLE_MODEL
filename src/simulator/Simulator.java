@@ -86,7 +86,7 @@ public class Simulator {
 	{
 		HashMap<String, String> data = new HashMap<String, String>();
 		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
-		String workloadOutput = "";
+//		String workloadOutput = "";
 		MetricDataStruct metric = new MetricDataStruct(0);
 		do {
 			//Get all event and team transitions
@@ -103,32 +103,20 @@ public class Simulator {
 			metric = new MetricDataStruct(_clock.elapsedTime());
 			
 //			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
-			HashMap<Actor, Integer> workload = _team.getWorkload();
-			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
-				String name = actor_workload.getKey()._name;
-				String state = actor_workload.getKey().getCurrentState().toString();
-				int work = actor_workload.getValue();
-				if(data.containsKey(name)){
-					data.put(name, data.get(name)+ "\n" + state + "\t" + work);
-				}else{
-					data.put(name, "\n" + name +"\n" + state + "\t" + work);
-				}
-//				workloadOutput += ("\n" + name + "\t" + state + "\t" + work);
-				System.out.println("\n" + name + "\t" + state + "\t" + work);
-			}
-			
-//			int workload = dt.actor.getWorkload();
-//			if(!(dt.actor instanceof Event)){
-//				System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
-//				PrintWriter workloadWriter;
-//				try {
-//					workloadWriter = new PrintWriter(new File("workload.txt"));
-//					workloadWriter.append("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
-//					workloadWriter.close();
-//				} catch (FileNotFoundException e) {
-//					e.printStackTrace();
+//			HashMap<Actor, Integer> workload = _team.getWorkload();
+//			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
+//				String name = actor_workload.getKey()._name;
+//				String state = actor_workload.getKey().getCurrentState().toString();
+//				int work = actor_workload.getValue();
+//				if(data.containsKey(name)){
+//					data.put(name, data.get(name)+ "\n" + state + "\t" + work);
+//				}else{
+//					data.put(name, "\n" + name +"\n" + state + "\t" + work);
 //				}
+//				workloadOutput += ("\n" + name + "\t" + state + "\t" + work);
+//				System.out.println("\n" + name + "\t" + state + "\t" + work);
 //			}
+			
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.addAll(_clock.getReadyTransitions());

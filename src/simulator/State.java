@@ -85,9 +85,9 @@ public class State implements IState {
 		return _name;
 	}
 
-	public int getWorkload() {
-		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
-		return temp_workload;
-	}
+//	public int getWorkload() {
+//		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
+//		return temp_workload;
+//	}
 
 }

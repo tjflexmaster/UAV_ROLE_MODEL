@@ -104,19 +104,19 @@ public abstract class Actor implements IActor {
 		return this;
 	}
 	
-	public int getWorkload(){
-		int temp_workload = 0;
-		temp_workload += _internal_vars.getWorkload();
-		temp_workload += getCurrentState().getWorkload();
-		
-		if(getCurrentState().equals("IDLE")){
-			_workload = 0;
-		}else{
-			_workload ++;
-		}
-		
-		return _workload + temp_workload;
-	}
+//	public int getWorkload(){
+//		int temp_workload = 0;
+//		temp_workload += _internal_vars.getWorkload();
+//		temp_workload += getCurrentState().getWorkload();
+//		
+//		if(getCurrentState().equals("IDLE")){
+//			_workload = 0;
+//		}else{
+//			_workload ++;
+//		}
+//		
+//		return _workload + temp_workload;
+//	}
 
 	
 	@Override

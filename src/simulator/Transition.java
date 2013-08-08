@@ -335,26 +335,26 @@ public class Transition implements ITransition {
 		return result.toString();
 	}
 
-	public int getWorkload() {
-		int workload = 0;
-		ArrayList<Type> types = new ArrayList<Type>();
-		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
-			if(input.getValue().value() != null){
-				if(types.contains(input.getValue()._type)){
-					workload+=5;
-				}else{
-					types.add(input.getValue()._type);
-				}
-				if(input.getValue().value() instanceof Boolean && !(Boolean) input.getValue().value()){
-					continue;
-				} else if(input.getValue().value() instanceof Integer && ((Integer)input.getValue().value()) == 0){
-					continue;
-				}
-				workload++;
-			}
-		}
-		return workload;
-	}
+//	public int getWorkload() {
+//		int workload = 0;
+//		ArrayList<Type> types = new ArrayList<Type>();
+//		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
+//			if(input.getValue().value() != null){
+//				if(types.contains(input.getValue()._type)){
+//					workload+=5;
+//				}else{
+//					types.add(input.getValue()._type);
+//				}
+//				if(input.getValue().value() instanceof Boolean && !(Boolean) input.getValue().value()){
+//					continue;
+//				} else if(input.getValue().value() instanceof Integer && ((Integer)input.getValue().value()) == 0){
+//					continue;
+//				}
+//				workload++;
+//			}
+//		}
+//		return workload;
+//	}
 	
 	@Override
 	public ComChannelList getInputChannels()
