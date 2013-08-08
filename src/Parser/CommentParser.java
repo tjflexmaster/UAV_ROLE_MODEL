@@ -48,11 +48,11 @@ public class CommentParser {
 							String state = transition_state[0].substring(0, transition_state[0].indexOf('.')).trim();
 							if(initializers.containsKey(state)){
 								if(initializers.get(state).contains("State " + transition_state[1])){
-									initializers.put(state, initializers.get(state) + transition_state[0]);
+									initializers.put(state, initializers.get(state) + "\n\t// " + line + transition_state[0]);
 								}else
-									initializers.put(state, "State " + transition_state[1] + ", " + initializers.get(state) + transition_state[0]);
+									initializers.put(state, "State " + transition_state[1] + ", " + initializers.get(state) + "\n\t// " + line + transition_state[0]);
 							}else{
-								initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + transition_state[0]);
+								initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + "\n\t// " + line + transition_state[0]);
 							}
 						}
 						line = br.readLine();
@@ -86,7 +86,7 @@ public class CommentParser {
 					new_file.createNewFile();
 					System.out.println(new_file.toPath());
 					PrintWriter writer = new PrintWriter(new_file);
-					writer.print("package model.actors;\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.print("package model.actors;\n\nimport model.team.Channels;\nimport model.team.Duration;\nimport simulator.Actor;\nimport simulator.ComChannelList;\nimport simulator.State;\nimport simulator.Transition;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
 					writer.close();
 				}
 //				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
@@ -126,42 +126,18 @@ public class CommentParser {
 		for(String input : inputs){
 			if(input.contains("=")){
 				String[] division = input.split("=");
-				String value = "";
-				String prefix = "";
-				if(division[1].startsWith("MM")){
-					value = "MissionManager.";
-					prefix = "MM";
-				} else if(division[1].startsWith("OP")){
-					value = "Operator.";
-					prefix = "OP";
-				} else if(division[1].startsWith("VO")){
-					value = "VideoOperator.";
-					prefix = "VO";
-				} else if(division[1].startsWith("VGUI")){
-					value = "VideoOperatorGui.";
-					prefix = "VGUI";
-				} else if(division[1].startsWith("OGUI")){
-					value = "OperatorGui.";
-					prefix = "OGUI";
-				} else if(division[1].startsWith("PS")){
-					value = "ParentSearch.";
-					prefix = "PS";
-				} else if(division[1].startsWith("UAV")){
-					value = "UAV.";
-					prefix = "UAV";
-				}
-				String channel = getChannel(division, prefix);
-				if(value.length() > 0 && name.equals(value.substring(0, value.indexOf('.')))){
-					if(!enumerations.containsKey(channel)){
-						enumerations.put(channel, "\npublic enum " + channel + "{\n\t" + division[1] + ",");
+				String[] value_channel = getValue_Channel(division);
+				if(value_channel[0].length() > 0 && name.equals(value_channel[0].substring(0, value_channel[0].indexOf('.')))){
+					if(!enumerations.containsKey(value_channel[1])){
+						enumerations.put(value_channel[1], "\npublic enum " + value_channel[1] + "{\n\t" + division[1] + ",");
 					}else{
-						if(!enumerations.get(channel).contains(division[1]))
-							enumerations.put(channel, enumerations.get(channel) + "\n\t" + division[1] + ",");
+						if(!enumerations.get(value_channel[1]).contains(division[1]))
+							enumerations.put(value_channel[1], enumerations.get(value_channel[1]) + "\n\t" + division[1] + ",");
 					}
 				}
-				if(!channel.equals("EVENT")){
-					value += channel + "." + division[1];
-					transition.append("\n\t\t\tif(!" + value + ".equals(_inputs.get(Channels." + channel + ".name()).value())) {\n\t\t\t\treturn false;\n\t\t\t}");
+				if(!value_channel[1].equals("EVENT")){
+					value_channel[0] += value_channel[1] + "." + division[1];
+					transition.append("\n\t\t\tif(!" + value_channel[0] + ".equals(_inputs.get(Channels." + value_channel[1] + ".name()).value())) {\n\t\t\t\treturn false;\n\t\t\t}");
 				}else{
 					transition.append("\n\t\t\tif(_inputs.get(Channels."+division[1]+".name()).value() == null && !(Boolean)_inputs.get(Channels."+division[1]+".name()).value()) {\n\t\t\t\treturn false;\n\t\t\t}");
 				}
@@ -206,41 +182,17 @@ public class CommentParser {
 		for(String temp_output : temp_outputs){
 			if(temp_output.contains("=")){
 				String[] division = temp_output.split("=");
-				String value = "";
-				String prefix = "";
-				if(division[1].startsWith("MM")){
-					value = "MissionManager.";
-					prefix = "MM";
-				} else if(division[1].startsWith("OP")){
-					value = "Operator.";
-					prefix = "OP";
-				} else if(division[1].startsWith("VO")){
-					value = "VideoOperator.";
-					prefix = "VO";
-				} else if(division[1].startsWith("VGUI")){
-					value = "VideoOperatorGui.";
-					prefix = "VGUI";
-				} else if(division[1].startsWith("OGUI")){
-					value = "OperatorGui.";
-					prefix = "OGUI";
-				} else if(division[1].startsWith("PS")){
-					value = "ParentSearch.";
-					prefix = "PS";
-				} else if(division[1].startsWith("UAV")){
-					value = "UAV.";
-					prefix = "UAV";
-				}
-				String channel = getChannel(division, prefix);
-				if(name.equals(value.substring(0, value.indexOf('.')))){
-					if(!enumerations.containsKey(channel)){
-						enumerations.put(channel, "\npublic enum " + channel + "{\n\t" + division[1] + ",");
+				String[] value_channel = getValue_Channel(division);
+				if(name.equals(value_channel[0].substring(0, value_channel[0].indexOf('.')))){
+					if(!enumerations.containsKey(value_channel[1])){
+						enumerations.put(value_channel[1], "\npublic enum " + value_channel[1] + "{\n\t" + division[1] + ",");
 					}else{
-						if(!enumerations.get(channel).contains(division[1]))
-							enumerations.put(channel, enumerations.get(channel) + "\n\t" + division[1] + ",");
+						if(!enumerations.get(value_channel[1]).contains(division[1]))
+							enumerations.put(value_channel[1], enumerations.get(value_channel[1]) + "\n\t" + division[1] + ",");
 					}
 				}
-				value += channel + "." + division[1];
-				transition.append("\n\t\t\tsetTempOutput(Channels." + channel + ".name(), " + value + ");");
+				value_channel[0] += value_channel[1] + "." + division[1];
+				transition.append("\n\t\t\tsetTempOutput(Channels." + value_channel[1] + ".name(), " + value_channel[0] + ");");
 			}
 		}
 		start = s.indexOf('[', end)+1;
@@ -280,6 +232,52 @@ public class CommentParser {
 		}
 		transition.append("\n\t\t\treturn true;\n\t\t}\n\t});");
 		return new String[]{transition.toString(), endState};
+	}
+
+	/**
+	 * @param division
+	 * @return
+	 */
+	private String[] getValue_Channel(String[] division) {
+		String[] value_channel = new String[2];
+		value_channel[0] = "";
+		String prefix = "";
+		if(division[1].startsWith("MM")){
+			value_channel[0] = "MissionManager.";
+			prefix = "MM";
+		} else if(division[1].startsWith("OP")){
+			value_channel[0] = "Operator.";
+			prefix = "OP";
+		} else if(division[1].startsWith("VO")){
+			value_channel[0] = "VideoOperator.";
+			prefix = "VO";
+		} else if(division[1].startsWith("VGUI")){
+			value_channel[0] = "VideoOperatorGui.";
+			prefix = "VGUI";
+		} else if(division[1].startsWith("OGUI")){
+			value_channel[0] = "OperatorGui.";
+			prefix = "OGUI";
+		} else if(division[1].startsWith("PS")){
+			value_channel[0] = "ParentSearch.";
+			prefix = "PS";
+		} else if(division[1].startsWith("UAV")){
+			value_channel[0] = "UAV.";
+			prefix = "UAV";
+		} else if(division[1].startsWith("UAVHAG")){
+			value_channel[0] = "UAVHeightAboveGround.";
+			prefix = "UAVHAG";
+		} else if(division[1].startsWith("UAVVF")){
+			value_channel[0] = "UAVVideoFeed.";
+			prefix = "UAVVF";
+		} else if(division[1].startsWith("UAVBAT")){
+			value_channel[0] = "UAVBattery.";
+			prefix = "UAVBAT";
+		} else if(division[1].startsWith("UAVFP")){
+			value_channel[0] = "UAVFlightPlan.";
+			prefix = "UAVFP";
+		}
+		value_channel[1] = getChannel(division, prefix);
+		return value_channel;
 	}
 	/**
 	 * @param division
