@@ -19,7 +19,7 @@ public interface ITeam {
 	ArrayList<IEvent> getEvents();
 
 
-	HashMap<Actor, Integer> getWorkload();
+//	HashMap<Actor, Integer> getWorkload();
 	
 	ComChannelList getAllChannels();
 
