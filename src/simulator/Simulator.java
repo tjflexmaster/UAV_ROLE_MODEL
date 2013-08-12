@@ -137,24 +137,23 @@ public class Simulator {
 				metric._states_changed++;
 			}
 			
-			System.out.println(metrics.toString());
+			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
 
-		try {
-			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
-			for(Entry<String, String> actor_workload : data.entrySet())
-				workloadWriter.print(actor_workload.getValue());
-			workloadWriter.close();
-			
-			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
-			for(MetricDataStruct m : metrics) {
-				metricsWriter.println(m.toString());
-			}
-			metricsWriter.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
+//		try {
+//			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
+//			for(Entry<String, String> actor_workload : data.entrySet())
+//				workloadWriter.print(actor_workload.getValue());
+//			workloadWriter.close();
+//			
+//			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+//			for(MetricDataStruct m : metrics) {
+//				metricsWriter.println(m.toString());
+//			}
+//			metricsWriter.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
 		
 	}
 	

@@ -37,4 +37,11 @@ public class Metric {
 		return true;
 	}
 	
+	public String toString() {
+		String result = "";
+		
+		result += name;
+		
+		return result;
+	}
 }
