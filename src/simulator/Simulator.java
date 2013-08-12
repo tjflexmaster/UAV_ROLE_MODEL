@@ -69,6 +69,7 @@ public class Simulator {
 	private Mode _mode;
 	private DurationMode _duration;
 	private Random _random;
+	private MetricManager _metrics;
 	
 	public static Simulator Sim(){
 		return instance;
@@ -81,6 +82,7 @@ public class Simulator {
 		_team = team;
 		_mode = mode;
 		_duration = duration;
+		_metrics = new MetricManager();
 		
 		initializeRandom();
 	}
@@ -249,4 +251,7 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
+	public void addMetric(String actor, String metric, int value){
+		_metrics.addMetric(actor, metric, value);
+	}
 }
