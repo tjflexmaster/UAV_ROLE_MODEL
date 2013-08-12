@@ -15,6 +15,7 @@ import simulator.ComChannel.Type;
 
 
 public class Simulator {
+	private static Simulator instance = null;
 	
 	public class MetricDataStruct
 	{
@@ -69,8 +70,13 @@ public class Simulator {
 	private DurationMode _duration;
 	private Random _random;
 	
+	public static Simulator Sim(){
+		return instance;
+	}
+	
 	public Simulator(ITeam team, Mode mode, DurationMode duration)
 	{
+		instance = this;
 		_clock = new DeltaClock();
 		_team = team;
 		_mode = mode;
@@ -196,7 +202,6 @@ public class Simulator {
 	/**
 	 * HELPER METHODS
 	 */
-	
 	private void initializeRandom() {
 		_random = new Random();
 		_random.setSeed(0); //Always use the same seed
