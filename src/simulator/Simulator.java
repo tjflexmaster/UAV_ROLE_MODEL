@@ -10,12 +10,13 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
 
+import model.team.WiSARTeam;
 import simulator.ComChannel.Type;
 
 
 
 public class Simulator {
-	private static Simulator instance = null;
+	private static Simulator singletonSimulator = new Simulator(DebugMode.DEBUG, DurationMode.MIN);
 	
 	public class MetricDataStruct
 	{
@@ -46,7 +47,7 @@ public class Simulator {
 		}
 	}
 	
-	public enum Mode {
+	public enum DebugMode {
 		DEBUG,
 		PROD
 	}
@@ -60,29 +61,25 @@ public class Simulator {
 	}
 //	public static boolean debug = true;
 	private ITeam _team;
-	private IDeltaClock _clock;
+	private IDeltaClock _clock = new DeltaClock();
 	private Scanner _scanner = new Scanner(System.in);
 	private ArrayList<ITransition> _ready_transitions = new ArrayList<ITransition>();
 //	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
 //	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	private ArrayList<IActor> _active_events = new ArrayList<IActor>();
-	private Mode _mode;
-	private DurationMode _duration;
+	private DebugMode _mode = DebugMode.DEBUG;
+	private DurationMode _duration = DurationMode.MIN;
 	private Random _random;
-	private MetricManager _metrics;
+	private MetricManager _metrics = new MetricManager();
 	
-	public static Simulator Sim(){
-		return instance;
+	public static Simulator getSim(){//access singleton
+		return singletonSimulator;
 	}
 	
-	public Simulator(ITeam team, Mode mode, DurationMode duration)
+	private Simulator(DebugMode mode, DurationMode duration)//construct simulator
 	{
-		instance = this;
-		_clock = new DeltaClock();
-		_team = team;
 		_mode = mode;
 		_duration = duration;
-		_metrics = new MetricManager();
 		
 		initializeRandom();
 	}
@@ -139,6 +136,8 @@ public class Simulator {
 				metric._updated_data_channels = outputs.countChannels(Type.DATA);
 				metric._states_changed++;
 			}
+			
+			System.out.println(metrics.toString());
 		} while (!_ready_transitions.isEmpty());
 
 		try {
@@ -251,7 +250,13 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(String actor, String metric, int value){
+	public void addMetric(String actor, String metric, int value)
+	{
 		_metrics.addMetric(actor, metric, value);
+	}
+	
+	public void assignTeam(ITeam team)
+	{
+		_team = team;
 	}
 }

@@ -324,12 +324,6 @@ public class ParentSearch extends Actor {
 		
 	}
 
-	@Override
-	public int getWorkload() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 //	@Override
 //	public HashMap<IActor, ITransition> getTransitions() {
 //		State state = this.getCurrentState();

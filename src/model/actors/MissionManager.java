@@ -922,10 +922,4 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("FLYBY_REQ_F",false);
 	}
 
-	@Override
-	public int getWorkload() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 }

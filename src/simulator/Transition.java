@@ -275,12 +275,14 @@ public class Transition implements ITransition {
 	protected void setTempOutput(String varname, Object value)
 	{
 		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
+//		Simulator.Sim().addMetric(_internal_vars._variables.get("name").toString(), varname + "_temp_output_set", 1);
 		_temp_outputs.put(varname, value);
 	}
 	
 	protected void setTempInternalVar(String varname, Object value)
 	{
 		assert _temp_outputs.containsKey(varname): "Cannot set temp internal var, variable does not exist";
+//		Simulator.Sim().addMetric(_internal_vars._variables.get("name").toString(), varname + "_temp_internal_set", 1);
 		_temp_internal_vars.put(varname, value);
 	}
 

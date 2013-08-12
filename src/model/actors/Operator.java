@@ -534,12 +534,6 @@ public class Operator extends Actor {
 		this._internal_vars.addVariable("TERMINATE_SEARCH", null);
 	}
 
-	@Override
-	public int getWorkload() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 //	@Override
 //	public HashMap<IActor, ITransition> getTransitions() {
 //		State state = this.getCurrentState();

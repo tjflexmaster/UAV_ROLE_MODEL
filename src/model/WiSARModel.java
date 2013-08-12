@@ -11,9 +11,10 @@ public class WiSARModel {
 	 */
 	public static void main(String[] args) {
 		// TODO Load a Simulator, Load a Team, start the simulator running.
-		ITeam team = new WiSARTeam();
 		
-		Simulator sim = new Simulator(team, Simulator.Mode.DEBUG, Simulator.DurationMode.MIN);
+		Simulator sim = Simulator.getSim();
+		
+		sim.assignTeam(new WiSARTeam());
 		
 		sim.run();
 

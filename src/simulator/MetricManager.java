@@ -15,10 +15,13 @@ public class MetricManager {
 			metrics = new ArrayList<Metric>();
 			actor_metrics.put(_actor, metrics);
 		}
-		Metric metric = metrics.get(metrics.indexOf(_metric));
-		if(metric == null){
+		int metricIndex = metrics.indexOf(_metric);
+		Metric metric = null;
+		if(metricIndex == -1){// == null){
 			metric = new Metric(_metric);
 			metrics.add(metric);
+		}else{
+			metric = metrics.get(metricIndex);
 		}
 		metric.addEntry(_value);
 	}
