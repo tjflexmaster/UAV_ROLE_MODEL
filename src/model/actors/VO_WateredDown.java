@@ -8,7 +8,7 @@ public class VO_WateredDown extends Actor {
 
 	public VO_WateredDown(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "VO_WateredDown";
+		setName("VO_WateredDown");
 
 		//initialize states
 		State IDLE = new State("IDLE",0);

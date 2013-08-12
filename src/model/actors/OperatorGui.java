@@ -23,12 +23,14 @@ public class OperatorGui extends Actor{
 		OGUI_FLYBY_END_SUCCESS,
 		OGUI_BATTERY_LOW,
 		UAV_FLYING_NORMAL,
-		UAV_FLYING_FLYBY, UAV_ON_GROUND
+		UAV_FLYING_FLYBY,
+		UAV_ON_GROUND,
+		OGUI_FLYBY_END_SUCCESS_OP
 	}
 
 	public OperatorGui(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "OPERATOR_GUI";
+		setName("OPERATOR_GUI");
 		//initialize states
 		State NORMAL = new State("NORMAL",0);
 		State ALARM = new State("ALARM",0);

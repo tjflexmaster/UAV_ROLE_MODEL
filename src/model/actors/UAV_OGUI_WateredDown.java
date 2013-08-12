@@ -9,7 +9,7 @@ public class UAV_OGUI_WateredDown extends simulator.Actor {
 
 	public UAV_OGUI_WateredDown(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "UAV_OGUI_WateredDown";
+		setName("UAV_OGUI_WateredDown");
 
 		//initialize states
 		State IDLE = new State("IDLE",0);

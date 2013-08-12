@@ -34,7 +34,7 @@ public class VideoOperator extends Actor {
 
 	public VideoOperator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "VIDEO_OPERATOR";
+		setName("VIDEO_OPERATOR");
 
 		//initialize states
 		State IDLE = new State("IDLE",0);

@@ -12,7 +12,7 @@ public abstract class Actor implements IActor {
 	/**
 	 * this variable represents the name we give to the actor
 	 */
-	protected String _name = "";
+//	protected String _name = "";
 	
 	private int _workload = 0;
 	
@@ -61,7 +61,7 @@ public abstract class Actor implements IActor {
 	
 	public String name()
 	{
-		return _name;
+		return (String) _internal_vars.getVariable("name");
 	}
 	
 	protected void setInternalVariable(String name, Object value)
@@ -89,6 +89,9 @@ public abstract class Actor implements IActor {
 	/**
 	 * HELPER METHODS
 	 */
+	protected void setName(String name){
+		_internal_vars.setVariable("name", name);
+	}
 	protected void startState(State state)
 	{
 		assert _states.contains(state):"Start state not available.";
@@ -128,10 +131,10 @@ public abstract class Actor implements IActor {
 		if (getClass() != obj.getClass())
 			return false;
 		Actor other = (Actor) obj;
-		if (_name == null) {
+		if (_internal_vars.getVariable("name") == null) {
 			if (other.name() != null)
 				return false;
-		} else if (!_name.equals(other.name()))
+		} else if (!_internal_vars.getVariable("name").equals(other.name()))
 			return false;
 		return true;
 	}
@@ -140,7 +143,7 @@ public abstract class Actor implements IActor {
 	@Override
 	public int hashCode()
 	{
-		return _name.hashCode();
+		return _internal_vars.getVariable("name").hashCode();
 	}
 	
 	/**
@@ -150,7 +153,7 @@ public abstract class Actor implements IActor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
+		result += _internal_vars.getVariable("name") + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
 		
 		return result;
 	}

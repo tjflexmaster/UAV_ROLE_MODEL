@@ -11,7 +11,7 @@ public class UAVBattery extends Actor {
 	
 	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//initialize name
-		_name = "UAV_BATTERY";
+		setName("UAV_BATTERY");
 		
 		//initialize states
 		State INACTIVE = new State("INACTIVE",0);

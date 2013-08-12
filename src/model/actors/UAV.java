@@ -22,7 +22,7 @@ public class UAV extends Actor {
 
 	public UAV(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "UAV";
+		setName("UAV");
 		
 		//initialize states
 		State IDLE = new State("IDLE",0);

@@ -1,14 +1,9 @@
 package model.actors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import model.team.Channels;
 import model.team.Duration;
 import simulator.Actor;
 import simulator.ComChannelList;
-import simulator.IActor;
-import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
 
@@ -88,7 +83,7 @@ public class MissionManager extends Actor {
 		State POKE_VGUI = new State("POKE_VGUI",1);
 		State TX_VGUI = new State("TX_VGUI",1);
 		State END_VGUI = new State("END_VGUI",1);
-		_name = "Mission Manager";
+		setName("Mission Manager");
 		this.initializeInternalVariables();
 		
 		//initialize transitions
@@ -925,6 +920,12 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("ANOMALY_DISMISSED_F",false);
 		this._internal_vars.addVariable("FLYBY_REQ_T",false);
 		this._internal_vars.addVariable("FLYBY_REQ_F",false);
+	}
+
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

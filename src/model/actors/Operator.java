@@ -50,7 +50,7 @@ public class Operator extends Actor {
 
 	public Operator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "OPERATOR";
+		setName("OPERATOR");
 		
 		//initialize states
 		State IDLE = new State("IDLE",0);
@@ -532,6 +532,12 @@ public class Operator extends Actor {
 		this._internal_vars.addVariable("END_FLYBY", false);
 		this._internal_vars.addVariable("NEW_SEARCH_AOI", 0);
 		this._internal_vars.addVariable("TERMINATE_SEARCH", null);
+	}
+
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 //	@Override

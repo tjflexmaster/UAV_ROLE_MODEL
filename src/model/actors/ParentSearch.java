@@ -39,7 +39,7 @@ public class ParentSearch extends Actor {
 	 */
 	public ParentSearch(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "PARENT_SEARCH";
+		setName("PARENT_SEARCH");
 		
 		//initialize states
 		State IDLE = new State("IDLE",0);
@@ -322,6 +322,12 @@ public class ParentSearch extends Actor {
 		this._internal_vars.addVariable("SEARCH_COMPLETE", false);
 		this._internal_vars.addVariable("SEARCH_FAILED", false);
 		
+	}
+
+	@Override
+	public int getWorkload() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 //	@Override
