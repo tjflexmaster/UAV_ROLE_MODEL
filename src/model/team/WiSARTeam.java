@@ -83,7 +83,7 @@ public class WiSARTeam extends Team {
 		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		outputs.clear();
 		outputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
+		this.addEvent(new NewSearchEvent(inputs, outputs));
 		
 //		inputs.clear();
 //		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));

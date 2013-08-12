@@ -69,15 +69,35 @@ public class Simulator {
 	private DurationMode _duration;
 	private Random _random;
 	
-	public Simulator(ITeam team, Mode mode, DurationMode duration)
-	{
-		_clock = new DeltaClock();
+	private static volatile Simulator _instance = null;
+	 
+    private Simulator() 
+    {       
+    	_clock = new DeltaClock();
+    	
+    }
+
+    public static Simulator getInstance() 
+    {
+            if (_instance == null) {
+                    synchronized (Simulator .class){
+                            if (_instance == null) {
+                                    _instance = new Simulator();
+                            }
+                    }
+            }
+            return _instance;
+    }
+    
+    public void setup(ITeam team, Mode mode, DurationMode duration) 
+    {
+    	_clock = new DeltaClock();
 		_team = team;
 		_mode = mode;
 		_duration = duration;
 		
 		initializeRandom();
-	}
+    }
 	
 	/**
 	 * Main Simulation method.
