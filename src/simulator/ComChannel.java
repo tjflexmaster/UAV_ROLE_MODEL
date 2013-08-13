@@ -31,12 +31,31 @@ public class ComChannel<T> {
 	@SuppressWarnings("unchecked")
 	public void set(Object value) 
 	{
+		//TODO initialize
+		if(_value == null && (value != null)){
+//				|| (_value instanceof Boolean && (Boolean)_value)
+//				|| (_value instanceof Integer && (Integer)_value!=0))){
+			Simulator.getSim().addMetric(null, "InitializeChannel_"+_name, 1);
+		} else if(value == null && _value != null){
+		//TODO deactivate
+			Simulator.getSim().addMetric(null, "DeactivateChannel_"+_name, 1);
+		} else {
+		//TODO change data
+			Simulator.getSim().addMetric(null, "ChangeChannel_"+_name, 1);
+		}
 //		assert (value instanceof classType):"Invalid ComChannel datatype.";
 		_value = (T) value;
 	}
 	
 	public T value()
 	{
+		Object data = _value;
+		if(data != null
+				|| (data instanceof Boolean && (Boolean)data)
+				|| (data instanceof Integer && (Integer)data != 0)){
+			Simulator.getSim().addMetric(null, "ActiveChannel_"+_name, 1);
+		}
+		Simulator.getSim().addMetric(null, "Channel_"+_name, 1);
 		return _value;
 	}
 	

@@ -1,7 +1,18 @@
 package simulator;
 
 import java.util.*;
-
+/**
+ * Metrics taken care of
+ * accessing internal variables
+ * accessing active internal variables
+ * accessing com channels
+ * accessing active com channels
+ * initializing com_channels
+ * deactivating com_channels
+ * changing com_channel data
+ * @author jaredmoore
+ *
+ */
 public class MetricManager {
 	HashMap<String, ArrayList<Metric>> actor_metrics;
 	public MetricManager(){
