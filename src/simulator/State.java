@@ -34,6 +34,7 @@ public class State implements IState {
 		
 		//The Actor will decide how to handle the transition and how to sort them.
 		_transitions.add(new_transition);
+		new_transition.setIndex(_transitions.indexOf(new_transition));
 		
 		return this;
 	}

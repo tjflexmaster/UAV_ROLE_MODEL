@@ -48,6 +48,12 @@ public class Simulator {
 	private boolean _setup = false;
 	private static Simulator _instance = null;
 	
+	//Actor, State, Transition variable
+	public String actor;
+	public String state;
+	public int transition;
+	
+	
 	/**
 	 * Get simulator singleton
 	 * @return

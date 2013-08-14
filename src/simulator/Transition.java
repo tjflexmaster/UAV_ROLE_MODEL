@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import simulator.ComChannel.Type;
+import simulator.Metric.MetricEnum;
 
 /**
  * this class is a models all transitions in the simulation 
@@ -22,6 +23,7 @@ public class Transition implements ITransition {
 	private double _probability;
 	protected ActorVariableWrapper _internal_vars;
 	private HashMap<String, Object> _temp_internal_vars;
+	private int _transition_number;
 
 
 	/**
@@ -278,7 +280,7 @@ public class Transition implements ITransition {
 	protected void setTempOutput(String varname, Object value)
 	{
 		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
-//		Simulator.Sim().addMetric(_internal_vars._variables.get("name").toString(), varname + "_temp_output_set", 1);
+//		Simulator.getSim().addMetric((String)_internal_vars.getVariable("name"), _transition_number, MetricEnum.CHANNEL_TEMP_A);
 		_temp_outputs.put(varname, value);
 	}
 	
@@ -371,6 +373,11 @@ public class Transition implements ITransition {
 	public ComChannelList getOutputChannels()
 	{
 		return _outputs;
+	}
+
+	@Override
+	public void setIndex(int index) {
+		_transition_number = index;
 	}
 
 }
