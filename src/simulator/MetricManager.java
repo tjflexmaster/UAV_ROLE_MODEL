@@ -10,6 +10,7 @@ import java.util.*;
  * initializing com_channels
  * deactivating com_channels
  * changing com_channel data
+ * 
  * @author jaredmoore
  *
  */
