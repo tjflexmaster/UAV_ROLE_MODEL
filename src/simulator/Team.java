@@ -66,12 +66,12 @@ public abstract class Team implements ITeam {
 //		return workload;
 //	}
 	
-	public IState getState(String actorName){
-		IState state = null;
+	public String getState(String actorName){
+		String state = null;
 		
 		for(IActor actor : _actors)
 			if(actorName.equals(actor.name()))
-				state = actor.getCurrentState();
+				state = actor.getCurrentState().toString();
 		
 		return state;
 	}

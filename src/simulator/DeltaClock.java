@@ -177,7 +177,7 @@ public class DeltaClock implements IDeltaClock {
 	}
 
 	@Override
-	public int elapsedTime() {
+	public int getElapsedTime() {
 		return _elapsedTime;
 	}
 

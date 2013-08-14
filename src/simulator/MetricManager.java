@@ -1,6 +1,8 @@
 package simulator;
 
 import java.util.*;
+
+import simulator.Metric.MetricEnum;
 /**
  * Metrics taken care of
  * accessing internal variables
@@ -13,7 +15,7 @@ import java.util.*;
  * @author jaredmoore
  *
  */
-public class MetricManager {
+public class MetricManager implements IMetricManager {
 	HashMap<String, ArrayList<Metric>> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
 	
 	public MetricManager(){
@@ -48,5 +50,10 @@ public class MetricManager {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public void addMetric(String actor_name, String State, int transition_number, int time, MetricEnum metric) {
+		
 	}
 }

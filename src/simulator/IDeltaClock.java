@@ -55,5 +55,5 @@ public interface IDeltaClock {
 	 * Returns how much time has passed since the delta clock began.
 	 * @return
 	 */
-	int elapsedTime();
+	int getElapsedTime();
 }

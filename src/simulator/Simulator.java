@@ -134,7 +134,7 @@ public class Simulator {
 //				metric._states_changed++;
 			}
 			
-			System.out.println("Looping" + _clock.elapsedTime());
+			System.out.println("Looping" + _clock.getElapsedTime());
 //			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
 		
@@ -250,12 +250,12 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(String actor, MetricEnum metric)
+	public void addMetric(String actor, int transition, MetricEnum metric)
 	{
-		_metrics.addMetric(actor, _team.getState(actor), int transition_number, int time, metric);
+		_metrics.addMetric(actor, _team.getState(actor), transition, _clock.getElapsedTime(), metric);
 	}
 	
 	public Integer getClockTime() {
-		return _clock.elapsedTime();
+		return _clock.getElapsedTime();
 	}
 }
