@@ -16,44 +16,19 @@ import simulator.Metric.MetricEnum;
  *
  */
 public class MetricManager implements IMetricManager {
-	HashMap<String, ArrayList<Metric>> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
+	HashMap<MetricKey,Metric> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
 	
 	public MetricManager(){
-		actor_metrics = new HashMap<String, ArrayList<Metric>>();
-	}
-	
-	public void addMetric(String _actor, String _metric, Integer _value){
-		ArrayList<Metric> metrics = actor_metrics.get(_actor);
-		if(metrics == null){
-			metrics = new ArrayList<Metric>();
-			actor_metrics.put(_actor, metrics);
-		}
-		int metricIndex = metrics.indexOf(_metric);
-		Metric metric = null;
-		if(metricIndex == -1){// == null){
-			metric = new Metric(_metric);
-			metrics.add(metric);
-		}else{
-			metric = metrics.get(metricIndex);
-		}
-		metric.addEntry(_value);
-	}
-	
-	public String toString(){
-		String result = "";
-		
-		Iterator it = actor_metrics.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry pairs = (Map.Entry)it.next();
-			result += "\nACTOR:" + pairs.getKey() + " METRICS:" + pairs.getValue().toString();
-			it.remove();
-		}
-		
-		return result;
+		actor_metrics = new HashMap<MetricKey,Metric>();
 	}
 
 	@Override
-	public void addMetric(String actor_name, String State, int transition_number, int time, MetricEnum metric) {
-		
+	public void addMetric(String actor_name, String state, int transition_number, int time, MetricEnum metric) {
+		MetricKey key = new MetricKey(time, actor_name, state, transition_number);
+		Metric metrics = actor_metrics.get(key);
+		if(metrics == null)
+			metrics = new Metric();
+		metrics.increment(metric);
+		actor_metrics.put(key, metrics);
 	}
 }
