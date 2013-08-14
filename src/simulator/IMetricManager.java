@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.HashMap;
 
+import simulator.Metric.MetricEnum;
+
 public interface IMetricManager {
 	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
 	/**
