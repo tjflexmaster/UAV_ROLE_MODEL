@@ -189,6 +189,9 @@ public class Transition implements ITransition {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void fire(){
+		if(!_internal_vars.getVariable("currentState").equals(_endState)){
+			Simulator.getSim().addMetric((String)_internal_vars.getVariable("name"), "state_change", 1);
+		}
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
