@@ -43,7 +43,7 @@ public class MetricManager {
 		Iterator it = actor_metrics.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pairs = (Map.Entry)it.next();
-			result += pairs.getKey() + " - " + pairs.getValue().toString() + "\n";
+			result += "\nACTOR:" + pairs.getKey() + " METRICS:" + pairs.getValue().toString();
 			it.remove();
 		}
 		

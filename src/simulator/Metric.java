@@ -15,7 +15,7 @@ public class Metric {
 	
 	public void addEntry(Integer _value){
 		//TODO get time
-		Integer time = 0;
+		Integer time = Simulator.getSim().getClockTime();
 		entries.put(time, _value);
 	}
 
@@ -43,11 +43,10 @@ public class Metric {
 	public String toString() {
 		String result = "";
 		
-		result += "\n\t" + name + " : ";
 		Iterator it = entries.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pairs = (Map.Entry)it.next();
-			result += "\t" + pairs.getKey() + " - " + pairs.getValue().toString();
+			result += "\n\t( TIME:" + pairs.getKey() + " , VALUE:" + pairs.getValue().toString() + " , NAME:" + name + " )";
 			it.remove();
 		}
 		

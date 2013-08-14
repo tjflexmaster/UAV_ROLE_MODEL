@@ -4,48 +4,51 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This class uses Actor names to compare objects to one another.
- * @author TJ-ASUS
  *
  */
-class DeltaTime {
-	public int time;
-	public IActor actor;
-	public ITransition transition;
+public class DeltaClock implements IDeltaClock {
 	
-	DeltaTime(int delta, IActor a, ITransition t)
-	{
-		time = delta;
-		actor = a;
-		transition = t;
-	}
-	
-	@Override
-	public boolean equals(Object obj) 
-	{
-		if ( obj == this )
-			return true;
+	/**
+	 * This class uses Actor names to compare objects to one another.
+	 * @author TJ-ASUS
+	 *
+	 */
+	private class DeltaTime {
+		public int time;
+		public IActor actor;
+		public ITransition transition;
 		
-		if (obj instanceof DeltaTime) {
-			if ( ((DeltaTime) obj).actor.name() == actor.name() )
-				return true;
-			//suggested revision
-//			if(((DeltaTime) obj).actor.getClass() == actor.getClass()){
-//				return true;
-//			}
+		DeltaTime(int delta, IActor a, ITransition t)
+		{
+			time = delta;
+			actor = a;
+			transition = t;
 		}
 		
-		return false;
+		@Override
+		public boolean equals(Object obj) 
+		{
+			if ( obj == this )
+				return true;
+			
+			if (obj instanceof DeltaTime) {
+				if ( ((DeltaTime) obj).actor.name() == actor.name() )
+					return true;
+				//suggested revision
+//				if(((DeltaTime) obj).actor.getClass() == actor.getClass()){
+//					return true;
+//				}
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public int hashCode()
+		{
+			return actor.name().hashCode();
+		}
 	}
-	
-	@Override
-	public int hashCode()
-	{
-		return actor.name().hashCode();
-	}
-}
-
-public class DeltaClock implements IDeltaClock {
 
 	private LinkedList<DeltaTime> _clock;
 	private int _elapsedTime = 0;

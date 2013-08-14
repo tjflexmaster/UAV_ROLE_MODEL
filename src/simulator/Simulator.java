@@ -258,4 +258,8 @@ public class Simulator {
 	{
 		_team = team;
 	}
+
+	public Integer getClockTime() {
+		return _clock.elapsedTime();
+	}
 }
