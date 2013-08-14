@@ -16,36 +16,6 @@ import simulator.ComChannel.Type;
 
 
 public class Simulator {
-	private static Simulator singletonSimulator = new Simulator(DebugMode.DEBUG, DurationMode.MIN);
-	
-	public class MetricDataStruct
-	{
-		public int _time = 0;
-		public int _active_channels = 0;
-		public int _read_channels = 0;
-		public int _read_audio_channels = 0;
-		public int _read_visual_channels = 0;
-		public int _read_data_channels = 0;
-//		public int _read_memory = 0;
-		public int _updated_channels = 0;
-		public int _updated_audio_channels = 0;
-		public int _updated_visual_channels = 0;
-		public int _updated_data_channels = 0;
-//		public int _updated_memory = 0;
-		public int _added_transitions = 0;
-		public int _fired_transitions = 0;
-		public int _states_changed = 0;
-		
-		MetricDataStruct(int time)
-		{
-			_time = time;
-		}
-		
-		public String toString()
-		{
-			return String.format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", _time, _active_channels, _added_transitions, _fired_transitions, _read_channels, _read_audio_channels, _read_visual_channels, _read_data_channels, _updated_channels, _updated_audio_channels, _updated_visual_channels, _updated_data_channels);
-		}
-	}
 	
 	public enum DebugMode {
 		DEBUG,
@@ -59,25 +29,47 @@ public class Simulator {
 		MIN_MAX,
 		MIN_MAX_MEAN
 	}
+	
 //	public static boolean debug = true;
 	private ITeam _team;
-	private IDeltaClock _clock = new DeltaClock();
+	private IDeltaClock _clock;// = new DeltaClock();
 	private Scanner _scanner = new Scanner(System.in);
 	private ArrayList<ITransition> _ready_transitions = new ArrayList<ITransition>();
 //	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
 //	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	private ArrayList<IActor> _active_events = new ArrayList<IActor>();
-	private DebugMode _mode = DebugMode.DEBUG;
-	private DurationMode _duration = DurationMode.MIN;
+	private DebugMode _mode;// = DebugMode.DEBUG;
+	private DurationMode _duration;// = DurationMode.MIN;
 	private Random _random;
-	private MetricManager _metrics = new MetricManager();
+	private MetricManager _metrics;// = new MetricManager();
 	
-	public static Simulator getSim(){//access singleton
-		return singletonSimulator;
+	//Singleton variables
+	private boolean _setup = false;
+	private static Simulator _instance = null;
+	
+	/**
+	 * Get simulator singleton
+	 * @return
+	 */
+	public static synchronized Simulator getSim() {
+        if (_instance == null) {
+            _instance = new Simulator();
+        }
+        return _instance;
 	}
 	
-	private Simulator(DebugMode mode, DurationMode duration)//construct simulator
+	private Simulator() {
+		_clock = new DeltaClock();
+		_metrics = new MetricManager();
+	}
+	
+	public void setup(ITeam team, DebugMode mode, DurationMode duration)
 	{
+		_setup = false;
+		_clock = new DeltaClock();
+		_metrics = new MetricManager();
+		
+		_team = team;
 		_mode = mode;
 		_duration = duration;
 		
@@ -89,23 +81,27 @@ public class Simulator {
 	 */
 	public void run()
 	{
-		HashMap<String, String> data = new HashMap<String, String>();
-		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
+		assert _setup : "Simulator not setup correctly";
+	
+//		HashMap<String, String> data = new HashMap<String, String>();
+//		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
 //		String workloadOutput = "";
-		MetricDataStruct metric = new MetricDataStruct(0);
+//		MetricDataStruct metric = new MetricDataStruct(0);
+	
+		System.out.println("Started");
 		do {
 			//Get all event and team transitions
-			loadTransitions(metric);
+			loadTransitions();
 			
 			//Save the metrics
-			metric._active_channels = _team.getAllChannels().countActiveChannels();
-			metrics.add(metric);
+//			metric._active_channels = _team.getAllChannels().countActiveChannels();
+//			metrics.add(metric);
 			
 			//Advance Time
 			_clock.advanceTime();
 			
 			//Start a new metric
-			metric = new MetricDataStruct(_clock.elapsedTime());
+//			metric = new MetricDataStruct(_clock.elapsedTime());
 			
 //			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
 //			HashMap<Actor, Integer> workload = _team.getWorkload();
@@ -128,18 +124,20 @@ public class Simulator {
 			for(ITransition transition : _ready_transitions){
 				//System.out.println('\n' + transition.toString());
 				transition.fire();
-				metric._fired_transitions++;
-				ComChannelList outputs = transition.getOutputChannels();
-				metric._updated_channels = outputs.size();
-				metric._updated_audio_channels = outputs.countChannels(Type.AUDIO);
-				metric._updated_visual_channels = outputs.countChannels(Type.VISUAL);
-				metric._updated_data_channels = outputs.countChannels(Type.DATA);
-				metric._states_changed++;
+//				metric._fired_transitions++;
+//				ComChannelList outputs = transition.getOutputChannels();
+//				metric._updated_channels = outputs.size();
+//				metric._updated_audio_channels = outputs.countChannels(Type.AUDIO);
+//				metric._updated_visual_channels = outputs.countChannels(Type.VISUAL);
+//				metric._updated_data_channels = outputs.countChannels(Type.DATA);
+//				metric._states_changed++;
 			}
 			
-			System.out.println(_metrics.toString());
+			System.out.println("Looping" + _clock.elapsedTime());
+//			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
 
+		System.out.println("Finished");
 //		try {
 //			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
 //			for(Entry<String, String> actor_workload : data.entrySet())
@@ -157,7 +155,7 @@ public class Simulator {
 		
 	}
 	
-	private void loadTransitions(MetricDataStruct metric)
+	private void loadTransitions()
 	{
 		//Get Transitions from the Events
 		for(IEvent e : _team.getEvents() ) {
@@ -181,12 +179,12 @@ public class Simulator {
 		for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
 			ITransition t = entry.getValue();
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
-			metric._added_transitions++;
-			ComChannelList inputs = t.getOutputChannels();
-			metric._read_channels = inputs.size();
-			metric._read_audio_channels = inputs.countChannels(Type.AUDIO);
-			metric._read_visual_channels = inputs.countChannels(Type.VISUAL);
-			metric._read_data_channels = inputs.countChannels(Type.DATA);
+//			metric._added_transitions++;
+//			ComChannelList inputs = t.getOutputChannels();
+//			metric._read_channels = inputs.size();
+//			metric._read_audio_channels = inputs.countChannels(Type.AUDIO);
+//			metric._read_visual_channels = inputs.countChannels(Type.VISUAL);
+//			metric._read_data_channels = inputs.countChannels(Type.DATA);
 		}
 		
 		//deactivate outputs from events after one cycle
@@ -251,11 +249,7 @@ public class Simulator {
 	
 	public void addMetric(String actor, String metric, int value)
 	{
-		_metrics.addMetric(actor, metric, value);
+//		_metrics.addMetric(actor, metric, value);
 	}
 	
-	public void assignTeam(ITeam team)
-	{
-		_team = team;
-	}
 }

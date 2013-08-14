@@ -3,6 +3,8 @@ package model;
 import model.team.WiSARTeam;
 import simulator.ITeam;
 import simulator.Simulator;
+import simulator.Simulator.DebugMode;
+import simulator.Simulator.DurationMode;
 
 public class WiSARModel {
 
@@ -14,7 +16,7 @@ public class WiSARModel {
 		
 		Simulator sim = Simulator.getSim();
 		
-		sim.assignTeam(new WiSARTeam());
+		sim.setup(new WiSARTeam(), DebugMode.DEBUG, DurationMode.MIN);
 		
 		sim.run();
 
