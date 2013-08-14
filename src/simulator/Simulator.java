@@ -136,9 +136,9 @@ public class Simulator {
 				metric._updated_data_channels = outputs.countChannels(Type.DATA);
 				metric._states_changed++;
 			}
-			
-			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
+		
+		System.out.println(_metrics.toString());
 
 //		try {
 //			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));

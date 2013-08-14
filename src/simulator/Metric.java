@@ -1,10 +1,13 @@
 package simulator;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Metric {
-	String name;
-	HashMap<Integer, Integer> entries;
+	String name;//the name of the metric (memory_accessed, input_accessed, ...)
+	HashMap<Integer, Integer> entries;//a hash of the time (key) and value (value) of the metric.
+	
 	public Metric(String _name){
 		name = _name;
 		entries = new HashMap<Integer, Integer>();
@@ -40,7 +43,13 @@ public class Metric {
 	public String toString() {
 		String result = "";
 		
-		result += name;
+		result += "\n\t" + name + " : ";
+		Iterator it = entries.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pairs = (Map.Entry)it.next();
+			result += "\t" + pairs.getKey() + " - " + pairs.getValue().toString();
+			it.remove();
+		}
 		
 		return result;
 	}
