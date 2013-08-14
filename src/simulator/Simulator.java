@@ -136,6 +136,8 @@ public class Simulator {
 			System.out.println("Looping" + _clock.elapsedTime());
 //			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
+		
+		System.out.println(_metrics.toString());
 
 		System.out.println("Finished");
 //		try {
@@ -252,4 +254,7 @@ public class Simulator {
 //		_metrics.addMetric(actor, metric, value);
 	}
 	
+	public Integer getClockTime() {
+		return _clock.elapsedTime();
+	}
 }

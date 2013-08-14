@@ -14,7 +14,8 @@ import java.util.*;
  *
  */
 public class MetricManager {
-	HashMap<String, ArrayList<Metric>> actor_metrics;
+	HashMap<String, ArrayList<Metric>> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
+	
 	public MetricManager(){
 		actor_metrics = new HashMap<String, ArrayList<Metric>>();
 	}
@@ -42,7 +43,7 @@ public class MetricManager {
 		Iterator it = actor_metrics.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pairs = (Map.Entry)it.next();
-			result += pairs.getKey() + " - " + pairs.getValue().toString() + "\n";
+			result += "\nACTOR:" + pairs.getKey() + " METRICS:" + pairs.getValue().toString();
 			it.remove();
 		}
 		
