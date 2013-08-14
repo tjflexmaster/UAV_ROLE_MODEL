@@ -17,6 +17,12 @@ public interface IActor {
 	 * @return
 	 */
 	String name();
+
+	/**
+	 * 
+	 * @return the current state of the actor
+	 */
+	IState getCurrentState();
 	
 //	int getWorkload();
 	

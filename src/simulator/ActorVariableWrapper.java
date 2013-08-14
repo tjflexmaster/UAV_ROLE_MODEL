@@ -3,6 +3,8 @@ package simulator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import simulator.Metric.MetricEnum;
+
 public class ActorVariableWrapper {
 
 	HashMap<String, Object> _variables;
@@ -28,7 +30,7 @@ public class ActorVariableWrapper {
 		Object temp = _variables.get(name);
 		if(temp == null){
 			//TODO add metric for updating a variable that wasn't active
-			Simulator.getSim().addMetric((String)_variables.get("name"), name + "_added", 1);
+			Simulator.getSim().addMetric((String)_variables.get("name"), MetricEnum.CHANNEL_INACTIVE_A);
 		}
 		//TODO add metric for changing an active variable
 		Simulator.getSim().addMetric((String)_variables.get("name"), name + "_changed", 1);

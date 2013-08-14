@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import model.team.WiSARTeam;
 import simulator.ComChannel.Type;
+import simulator.Metric.MetricEnum;
 
 
 
@@ -249,9 +250,9 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(String actor, String metric, int value)
+	public void addMetric(String actor, MetricEnum metric)
 	{
-//		_metrics.addMetric(actor, metric, value);
+		_metrics.addMetric(actor, _team.getState(actor), int transition_number, int time, metric);
 	}
 	
 	public Integer getClockTime() {

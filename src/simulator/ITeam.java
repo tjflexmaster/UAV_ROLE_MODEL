@@ -23,4 +23,11 @@ public interface ITeam {
 	
 	ComChannelList getAllChannels();
 
+	/**
+	 * 
+	 * @param actor's name
+	 * @return the current state of the referenced actor
+	 */
+	IState getState(String actor);
+
 }
