@@ -258,7 +258,12 @@ public class Simulator {
 	
 	public void addMetric(String actor, int transition, MetricEnum metric)
 	{
-		_metrics.addMetric(actor, _team.getState(actor), transition, _clock.getElapsedTime(), metric);
+		String actorName = actor;
+		String actorState = "unknown";//_team.getStateName(actorName);
+		int transitionIndex = transition;
+		int clockTime = _clock.getElapsedTime();
+		MetricEnum metricToBeAdded = metric;
+		_metrics.addMetric(actorName, actorState, transitionIndex, clockTime, metricToBeAdded);
 	}
 	
 	public Integer getClockTime() {

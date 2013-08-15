@@ -27,8 +27,8 @@ public class Metric {
 		CHANNEL_FIRE_V,
 		CHANNEL_FIRE_D,
 		CHANNEL_FIRE_O,
-		MEMORY_TEMP_O,
-		MEMORY_FIRE_A,
+		MEMORY_TEMP,
+		MEMORY_FIRE,
 		
 	}
 	

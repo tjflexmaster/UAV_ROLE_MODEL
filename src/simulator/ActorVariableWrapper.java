@@ -28,12 +28,12 @@ public class ActorVariableWrapper {
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
 		Object temp = _variables.get(name);
-		if(temp == null){
-			//TODO add metric for updating a variable that wasn't active
-			Simulator.getSim().addMetric((String)_variables.get("name"), MetricEnum.CHANNEL_INACTIVE_A);
-		}
+//		if(temp == null){
+//			//TODO add metric for updating a variable that wasn't active
+//			Simulator.getSim().addMetric((String)_variables.get("name"), -1, MetricEnum.MEMORY_FIRE);
+//		}
 		//TODO add metric for changing an active variable
-		Simulator.getSim().addMetric((String)_variables.get("name"), name + "_changed", 1);
+		Simulator.getSim().addMetric((String)_variables.get("name"), -1, MetricEnum.MEMORY_FIRE);
 		_variables.put(name, o);
 	}
 	
@@ -43,10 +43,11 @@ public class ActorVariableWrapper {
 		Object temp = _variables.get(name);
 		if(temp != null){
 			//TODO update metric for referencing active variable
-			Simulator.getSim().addMetric((String)_variables.get("name"), name + "_accessed_active", 1);
+			Simulator.getSim().addMetric((String)_variables.get("name"), -1, MetricEnum.MEMORY_INACTIVE);
+		}else{
+			//TODO update metric for referencing a variable
+			Simulator.getSim().addMetric((String)_variables.get("name"), -1, MetricEnum.MEMORY_ACTIVE);
 		}
-		//TODO update metric for referencing a variable
-		Simulator.getSim().addMetric((String)_variables.get("name"), name + "_accessed", 1);
 		return _variables.get(name);
 	}
 	

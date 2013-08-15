@@ -28,6 +28,6 @@ public interface ITeam {
 	 * @param actor's name
 	 * @return the current state of the referenced actor
 	 */
-	String getState(String actor);
+	String getStateName(String actor);
 
 }

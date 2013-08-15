@@ -7,6 +7,7 @@ import model.actors.VideoOperatorGui;
 import model.team.Channels;
 import model.team.Duration;
 import simulator.ComChannelList;
+import simulator.IState;
 import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
@@ -38,6 +39,12 @@ public class VguiValidationReqFMMEvent extends simulator.Event {
 	public ITransition getEnabledTransition() {
 		if(_transition.isEnabled())
 			return _transition;
+		return null;
+	}
+
+	@Override
+	public IState getCurrentState() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }
