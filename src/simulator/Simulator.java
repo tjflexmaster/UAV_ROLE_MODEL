@@ -192,7 +192,7 @@ public class Simulator {
 		}
 		output += "\n";
 		
-		//add all keys and metrics
+		//add all keys and metrics (in order)
 		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
 		for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
 			//add key
@@ -232,7 +232,7 @@ public class Simulator {
 					case "MEMORY_FIRE" : MF = metric.getValue().toString(); break;
 				}
 			}
-			output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF + "\n";
+			output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF+"/n";
 		}
 		
 		//print output to a file
