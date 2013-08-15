@@ -49,8 +49,7 @@ public class NewSearchEvent extends Event {
 
 	@Override
 	public IState getCurrentState() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getState();
 	}
 
 }
