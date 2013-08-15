@@ -43,9 +43,19 @@ public class ComChannel<T> {
 		if(data != null
 				|| (data instanceof Boolean && (Boolean)data)
 				|| (data instanceof Integer && (Integer)data != 0)){
-			Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_A);
+			if(_type == Type.AUDIO)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_A);
+			else if(_type == Type.VISUAL)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_V);
+			else if (_type == Type.DATA)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_D);
 		}else{
-			Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_A);
+			if(_type == Type.AUDIO)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_A);
+			else if(_type == Type.VISUAL)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_V);
+			else if (_type == Type.DATA)
+				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_D);
 		}
 		return _value;
 	}
