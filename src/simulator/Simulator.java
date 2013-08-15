@@ -168,19 +168,43 @@ public class Simulator {
 	}
 	
 	private void printMetrics() {
+		String output = "";
+		
+		//header
+		output += "time,";
+		output += "actor,";
+		output += "state,";
+		output += "transition,";
+		for(MetricEnum metricName : MetricEnum.values()){
+			output += metricName.name() + ",";
+		}
+		
+		//add all keys and metrics
 		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
 		for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
+			//add key
 			MetricKey metricKey = metrics.getKey();
-			System.out.print(metricKey._time.toString() + ",");
-			System.out.print(metricKey._actor_name + ",");
-			System.out.print(metricKey._state + ",");
-			System.out.print(metricKey._transition.toString() + ",");
-
+			output += metricKey._time + ",";
+			output += metricKey._actor_name + ",";
+			output += metricKey._state + ",";
+			output += metricKey._transition + ",";
+			
+			//add metric
 			Metric value = metrics.getValue();
 			HashMap<MetricEnum, Integer> values = value.metrics;
 			for(Map.Entry<MetricEnum, Integer> metric : values.entrySet()){
-				System.out.print(metric.getValue() + ",");
+				output += metric.getValue() + ",";
 			}
+			output += "\n";
+		}
+		
+		//print output to a file
+		try {
+			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+			metricsWriter.print(output);
+			metricsWriter.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
