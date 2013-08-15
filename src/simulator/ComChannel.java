@@ -49,6 +49,8 @@ public class ComChannel<T> {
 				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_V);
 			else if (_type == Type.DATA)
 				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_D);
+			else
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_O);
 		}else{
 			if(_type == Type.AUDIO)
 				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_A);
@@ -56,6 +58,8 @@ public class ComChannel<T> {
 				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_V);
 			else if (_type == Type.DATA)
 				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_D);
+			else
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_O);
 		}
 		return _value;
 	}

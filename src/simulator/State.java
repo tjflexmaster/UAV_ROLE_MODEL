@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.ArrayList;
 
+import simulator.Metric.MetricEnum;
+
 
 /**
  * this class represents a the state of an actor (state machine)
@@ -41,12 +43,23 @@ public class State implements IState {
 	
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
+		//TODO Send state to the metric manager
+		Simulator.getSim()._metrics.currentKey._state = this._name;
+		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {
 			ITransition t = _transitions.get(i);
+			
+			//TODO send transition to the metric manager
+			Simulator.getSim()._metrics.currentKey._transition = t.getIndex();
+			
+			
 			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
 				enabled.add((ITransition) new Transition((Transition)t));
+				
+				//TODO send enabled metric
+				Simulator.getSim().addMetric(MetricEnum.ENABLED);
 			}
 		}
 		return enabled;
@@ -77,6 +90,12 @@ public class State implements IState {
 		} else if (!_name.equals(other._name))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return _name;
 	}
 
 	/**

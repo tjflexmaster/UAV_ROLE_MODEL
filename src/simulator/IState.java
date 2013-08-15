@@ -9,4 +9,6 @@ public interface IState {
 	 * @return
 	 */
 	ArrayList<ITransition> getEnabledTransitions();
+	
+	String getName();
 }

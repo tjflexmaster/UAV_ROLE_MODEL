@@ -1,10 +1,10 @@
 package simulator;
 
 public class MetricKey {
-	private int _time;
-	private String _actor_name;
-	private String _state;
-	private int _transition;
+	public int _time;
+	public String _actor_name;
+	public String _state;
+	public int _transition;
 	public MetricKey(int time, String actor_name, String state,
 			int transition_number) {
 		// TODO Auto-generated constructor stub

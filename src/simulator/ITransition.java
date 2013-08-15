@@ -35,4 +35,5 @@ public interface ITransition {
 	ComChannelList getOutputChannels();
 
 	void setIndex(int indexOf);
+	int getIndex();
 }

@@ -3,6 +3,8 @@ package simulator;
 import java.io.*;
 import java.util.*;
 
+import simulator.Metric.MetricEnum;
+
 /**
  *
  */
@@ -70,6 +72,12 @@ public class DeltaClock implements IDeltaClock {
 		if ( transition != null ) {
 			//Then add the transition
 			DeltaTime newTime = new DeltaTime(time, actor, transition);
+			
+			//Add active metric to this transition
+			Simulator.getSim()._metrics.currentKey._actor_name = actor.name();
+			Simulator.getSim()._metrics.currentKey._state = actor.getCurrentState().getName();
+			Simulator.getSim()._metrics.currentKey._transition = transition.getIndex();
+			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE);
 			
 			//Loop through the linked list and insert this transition at the correct point.
 			int total_time = 0;

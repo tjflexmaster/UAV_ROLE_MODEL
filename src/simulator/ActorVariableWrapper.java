@@ -43,10 +43,10 @@ public class ActorVariableWrapper {
 		Object temp = _variables.get(name);
 		if(temp != null){
 			//TODO update metric for referencing active variable
-			Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE);
+			Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE);
 		}else{
 			//TODO update metric for referencing a variable
-			Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE);
+			Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE);
 		}
 		return _variables.get(name);
 	}

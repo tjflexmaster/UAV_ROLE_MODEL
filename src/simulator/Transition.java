@@ -379,5 +379,11 @@ public class Transition implements ITransition {
 	public void setIndex(int index) {
 		_transition_number = index;
 	}
+	
+	@Override
+	public int getIndex()
+	{
+		return _transition_number;
+	}
 
 }
