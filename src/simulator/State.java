@@ -44,7 +44,7 @@ public class State implements IState {
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
 		//TODO Send state to the metric manager
-		Simulator.getSim()._metrics.currentKey._state = this._name;
+		Simulator.getSim()._metrics.currentKey._state = this.getName();
 		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {

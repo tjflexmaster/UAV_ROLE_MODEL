@@ -10,8 +10,13 @@ public class MetricKey {
 			int transition_number) {
 		_time = time;
 		_actor_name = actor_name;
-		_state  =_state;
+		_state  = state;
 		_transition = transition_number;
+	}
+	
+	public String toString()
+	{
+		return _time + ":" + _actor_name + ":" + _state + ":" + _transition;
 	}
 	
 	@Override

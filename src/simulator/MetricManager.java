@@ -31,7 +31,7 @@ public class MetricManager implements IMetricManager {
 			metrics = new Metric();
 		metrics.increment(metric);
 		MetricKey key = currentKey.clone();
-		System.out.println("MetricKey:" + key.hashCode());
+		System.out.println("MetricKey: " + key.toString() +  ":" + metric.name() + " - " + key.hashCode());
 		actor_metrics.put(key, metrics);
 	}
 }
