@@ -190,6 +190,7 @@ public class Simulator {
 		for(MetricEnum metricName : MetricEnum.values()){
 			output += metricName.name() + ",";
 		}
+		output += "\n";
 		
 		//add all keys and metrics
 		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
@@ -201,13 +202,37 @@ public class Simulator {
 			output += metricKey._state + ",";
 			output += metricKey._transition + ",";
 			
-			//add metric
+			//add metric (in order)
+			String CAA="",CAV="",CAD="",CAO="",CIA="",CIV="",CID="",CIO="",ENABLED="",ACTIVE="",MA="",MI="",CTA="",CTV="",CTD="",CTO="",CFA="",CFV="",CFD="",CFO="",MT="",MF="";
 			Metric value = metrics.getValue();
 			HashMap<MetricEnum, Integer> values = value.metrics;
 			for(Map.Entry<MetricEnum, Integer> metric : values.entrySet()){
-				output += metric.getValue() + ",";
+				switch (metric.getKey().name()){
+					case "CHANNEL_ACTIVE_A" : CAA = metric.getValue().toString(); break;
+					case "CHANNEL_ACTIVE_V" : CAV = metric.getValue().toString(); break;
+					case "CHANNEL_ACTIVE_D" : CAD = metric.getValue().toString(); break;
+					case "CHANNEL_ACTIVE_O" : CAO = metric.getValue().toString(); break;
+					case "CHANNEL_INACTIVE_A" : CIA = metric.getValue().toString(); break;
+					case "CHANNEL_INACTIVE_V" : CIV = metric.getValue().toString(); break;
+					case "CHANNEL_INACTIVE_D" : CID = metric.getValue().toString(); break;
+					case "CHANNEL_INACTIVE_O" : CIO = metric.getValue().toString(); break;
+					case "ENABLED" : ENABLED = metric.getValue().toString(); break;
+					case "ACTIVE" : ACTIVE = metric.getValue().toString(); break;
+					case "MEMORY_ACTIVE" : MA = metric.getValue().toString(); break;
+					case "MEMORY_INACTIVE" : MI = metric.getValue().toString(); break;
+					case "CHANNEL_TEMP_A" : CTA = metric.getValue().toString(); break;
+					case "CHANNEL_TEMP_V" : CTV = metric.getValue().toString(); break;
+					case "CHANNEL_TEMP_D" : CTD = metric.getValue().toString(); break;
+					case "CHANNEL_TEMP_O" : CTO = metric.getValue().toString(); break;
+					case "CHANNEL_FIRE_A" : CFA = metric.getValue().toString(); break;
+					case "CHANNEL_FIRE_V" : CFV = metric.getValue().toString(); break;
+					case "CHANNEL_FIRE_D" : CFD = metric.getValue().toString(); break;
+					case "CHANNEL_FIRE_O" : CFO = metric.getValue().toString(); break;
+					case "MEMORY_TEMP" : MT = metric.getValue().toString(); break;
+					case "MEMORY_FIRE" : MF = metric.getValue().toString(); break;
+				}
 			}
-			output += "\n";
+			output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF + "\n";
 		}
 		
 		//print output to a file
