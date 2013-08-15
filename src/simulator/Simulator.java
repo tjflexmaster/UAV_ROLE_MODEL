@@ -153,6 +153,10 @@ public class Simulator {
 			
 			System.out.println("Looping" + _clock.getElapsedTime());
 //			System.out.println(_metrics.toString());
+			printMetrics();
+			
+			System.out.println("Test");
+			
 		} while (!_ready_transitions.isEmpty());
 		
 		printMetrics();

@@ -5,9 +5,20 @@ public class MetricKey {
 	public String _actor_name;
 	public String _state;
 	public int _transition;
+	
 	public MetricKey(int time, String actor_name, String state,
 			int transition_number) {
-		// TODO Auto-generated constructor stub
+		_time = time;
+		_actor_name = actor_name;
+		_state  =_state;
+		_transition = transition_number;
+	}
+	
+	@Override
+	public MetricKey clone()
+	{
+		MetricKey key = new MetricKey(_time, _actor_name, _state, _transition);
+		return key;
 	}
 	
 	@Override

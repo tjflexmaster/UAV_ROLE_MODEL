@@ -16,6 +16,8 @@ import simulator.Metric.MetricEnum;
  *
  */
 public class MetricManager implements IMetricManager {
+	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
+	MetricKey currentKey = new MetricKey(-1, "", "", -1);
 	HashMap<MetricKey,Metric> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
 	
 	public MetricManager(){
@@ -28,6 +30,8 @@ public class MetricManager implements IMetricManager {
 		if(metrics == null)
 			metrics = new Metric();
 		metrics.increment(metric);
-		actor_metrics.put(currentKey, metrics);
+		MetricKey key = currentKey.clone();
+		System.out.println("MetricKey:" + key.hashCode());
+		actor_metrics.put(key, metrics);
 	}
 }
