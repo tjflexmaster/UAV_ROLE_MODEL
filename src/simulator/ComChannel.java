@@ -32,7 +32,7 @@ public class ComChannel<T> {
 	@SuppressWarnings("unchecked")
 	public void set(Object value) 
 	{
-		Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_FIRE_A);
+		Simulator.getSim().addMetric(MetricEnum.CHANNEL_FIRE_A);
 //		assert (value instanceof classType):"Invalid ComChannel datatype.";
 		_value = (T) value;
 	}
@@ -44,18 +44,18 @@ public class ComChannel<T> {
 				|| (data instanceof Boolean && (Boolean)data)
 				|| (data instanceof Integer && (Integer)data != 0)){
 			if(_type == Type.AUDIO)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_A);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_A);
 			else if(_type == Type.VISUAL)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_V);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_V);
 			else if (_type == Type.DATA)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_ACTIVE_D);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_ACTIVE_D);
 		}else{
 			if(_type == Type.AUDIO)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_A);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_A);
 			else if(_type == Type.VISUAL)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_V);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_V);
 			else if (_type == Type.DATA)
-				Simulator.getSim().addMetric("unknown", -1, MetricEnum.CHANNEL_INACTIVE_D);
+				Simulator.getSim().addMetric(MetricEnum.CHANNEL_INACTIVE_D);
 		}
 		return _value;
 	}

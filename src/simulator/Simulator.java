@@ -144,7 +144,7 @@ public class Simulator {
 //			System.out.println(_metrics.toString());
 		} while (!_ready_transitions.isEmpty());
 		
-		System.out.println(_metrics.toString());
+		printMetrics();
 
 		System.out.println("Finished");
 //		try {
@@ -164,6 +164,13 @@ public class Simulator {
 		
 	}
 	
+	private void printMetrics() {
+		HashMap<MetricKey, Metric> metrics = _metrics.actor_metrics;
+		for(Map.Entry<MetricKey, Metric> metric : metrics.entrySet()){
+			
+		}
+	}
+
 	private void loadTransitions()
 	{
 		//Get Transitions from the Events
@@ -256,14 +263,9 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(String actor, int transition, MetricEnum metric)
+	public void addMetric(MetricEnum metric)
 	{
-		String actorName = actor;
-		String actorState = "unknown";//_team.getStateName(actorName);
-		int transitionIndex = transition;
-		int clockTime = _clock.getElapsedTime();
-		MetricEnum metricToBeAdded = metric;
-		_metrics.addMetric(actorName, actorState, transitionIndex, clockTime, metricToBeAdded);
+		_metrics.addMetric(metric);
 	}
 	
 	public Integer getClockTime() {

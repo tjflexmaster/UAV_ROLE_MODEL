@@ -23,12 +23,11 @@ public class MetricManager implements IMetricManager {
 	}
 
 	@Override
-	public void addMetric(String actor_name, String state, int transition_number, int time, MetricEnum metric) {
-		MetricKey key = new MetricKey(time, actor_name, state, transition_number);
-		Metric metrics = actor_metrics.get(key);
+	public void addMetric(MetricEnum metric) {
+		Metric metrics = actor_metrics.get(currentKey);
 		if(metrics == null)
 			metrics = new Metric();
 		metrics.increment(metric);
-		actor_metrics.put(key, metrics);
+		actor_metrics.put(currentKey, metrics);
 	}
 }
