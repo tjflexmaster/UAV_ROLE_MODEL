@@ -35,7 +35,7 @@ public class Simulator {
 	private ITeam _team;
 	private IDeltaClock _clock;// = new DeltaClock();
 	private Scanner _scanner = new Scanner(System.in);
-	private ArrayList<ITransition> _ready_transitions = new ArrayList<ITransition>();
+	private HashMap<IActor, ITransition> _ready_transitions = new HashMap<IActor, ITransition>();
 //	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
 //	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	private ArrayList<IActor> _active_events = new ArrayList<IActor>();
@@ -130,10 +130,18 @@ public class Simulator {
 			
 			//Process Ready Transitions
 			_ready_transitions.clear();
-			_ready_transitions.addAll(_clock.getReadyTransitions());
-			for(ITransition transition : _ready_transitions){
+			_ready_transitions.putAll(_clock.getReadyTransitions());
+			for(Entry e : _ready_transitions.entrySet()){
 				//System.out.println('\n' + transition.toString());
-				transition.fire();
+				
+				//Set metric key
+				IActor a = (IActor) e.getKey();
+				ITransition t = (ITransition) e.getValue();
+				Simulator.getSim()._metrics.currentKey._actor_name = a.name();
+				Simulator.getSim()._metrics.currentKey._state = a.getCurrentState().getName();
+				Simulator.getSim()._metrics.currentKey._transition = t.getIndex();
+				
+				t.fire();
 //				metric._fired_transitions++;
 //				ComChannelList outputs = transition.getOutputChannels();
 //				metric._updated_channels = outputs.size();

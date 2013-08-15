@@ -170,13 +170,13 @@ public class DeltaClock implements IDeltaClock {
 	}
 
 	@Override
-	public ArrayList<ITransition> getReadyTransitions() {
-		ArrayList<ITransition> result = new ArrayList<ITransition>();
+	public HashMap<IActor, ITransition> getReadyTransitions() {
+		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
 		
 		for( int i=0; i<_clock.size(); i++) {
 			DeltaTime dt = _clock.get(i);
 			if ( dt.time == 0 ){
-				result.add(dt.transition);
+				result.put(dt.actor, dt.transition);
 			}else
 				break;
 			

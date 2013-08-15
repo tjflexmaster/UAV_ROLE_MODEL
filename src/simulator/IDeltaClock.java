@@ -1,6 +1,7 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface IDeltaClock {
 
@@ -49,7 +50,7 @@ public interface IDeltaClock {
 	 * Returns a list of transitions that are ready to be fired
 	 * @return
 	 */
-	ArrayList<ITransition> getReadyTransitions();
+	HashMap<IActor, ITransition> getReadyTransitions();
 	
 	/**
 	 * Returns how much time has passed since the delta clock began.
