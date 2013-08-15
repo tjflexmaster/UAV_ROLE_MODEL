@@ -42,7 +42,7 @@ public class Simulator {
 	private DebugMode _mode;// = DebugMode.DEBUG;
 	private DurationMode _duration;// = DurationMode.MIN;
 	private Random _random;
-	private MetricManager _metrics;// = new MetricManager();
+	public MetricManager _metrics;// = new MetricManager();
 	
 	//Singleton variables
 	private boolean _setup = false;
@@ -106,6 +106,9 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
+			
+			//Save time for the current Key in the metric manager
+			_metrics.currentKey._time = _clock.getElapsedTime();
 			
 			//Start a new metric
 //			metric = new MetricDataStruct(_clock.elapsedTime());

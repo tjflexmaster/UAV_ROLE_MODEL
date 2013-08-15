@@ -44,14 +44,16 @@ public class State implements IState {
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
 		//TODO Send state to the metric manager
+		Simulator.getSim()._metrics.currentKey._state = this._name;
 		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {
+			ITransition t = _transitions.get(i);
 			
 			//TODO send transition to the metric manager
-			Simulator.getSim().
+			Simulator.getSim()._metrics.currentKey._transition = t.getIndex();
 			
-			ITransition t = _transitions.get(i);
+			
 			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
 				enabled.add((ITransition) new Transition((Transition)t));
@@ -88,6 +90,12 @@ public class State implements IState {
 		} else if (!_name.equals(other._name))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return _name;
 	}
 
 	/**
