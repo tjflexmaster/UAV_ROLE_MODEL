@@ -165,9 +165,19 @@ public class Simulator {
 	}
 	
 	private void printMetrics() {
-		HashMap<MetricKey, Metric> metrics = _metrics.actor_metrics;
-		for(Map.Entry<MetricKey, Metric> metric : metrics.entrySet()){
-			
+		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
+		for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
+			MetricKey metricKey = metrics.getKey();
+			System.out.print(metricKey._time.toString() + ",");
+			System.out.print(metricKey._actor_name + ",");
+			System.out.print(metricKey._state + ",");
+			System.out.print(metricKey._transition.toString() + ",");
+
+			Metric value = metrics.getValue();
+			HashMap<MetricEnum, Integer> values = value.metrics;
+			for(Map.Entry<MetricEnum, Integer> metric : values.entrySet()){
+				System.out.print(metric.getValue() + ",");
+			}
 		}
 	}
 
