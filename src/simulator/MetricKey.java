@@ -74,13 +74,13 @@ public class MetricKey implements Comparable {
 		if ( arg0 instanceof MetricKey) {
 			MetricKey key = (MetricKey) arg0;
 			if ( key._time > _time ) {
-				return 1;
+				return -1;
 			} else if ( key._time == _time ) {
 				int actor = _actor_name.compareTo(key._actor_name);
 				if ( actor == 0 ) {
 					int state = _state.compareTo(key._state);
 					if ( state == 0 ) {
-						return key._transition - _transition;
+						return _transition - key._transition;
 					} else {
 						return state;
 					}
@@ -88,7 +88,7 @@ public class MetricKey implements Comparable {
 					return actor;
 				}
 			} else {
-				return -1;
+				return 1;
 			}
 		} else
 			return 0;
