@@ -57,6 +57,24 @@ public class ActorVariableWrapper {
 		return _variables.get(name);
 	}
 	
+	public Object getVariable(String name, boolean measuring)
+	{
+		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
+		Object temp = _variables.get(name);
+		if(!name.equals("name") && !name.equals("currentState") && measuring){
+			if(temp != null
+					|| (temp instanceof Boolean && (Boolean)temp)
+					|| (temp instanceof Integer && (Integer)temp != 0)){
+				//TODO update metric for referencing active variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE);
+			}else{
+				//TODO update metric for referencing a variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE);
+			}
+		}
+		return _variables.get(name);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public HashMap<String, Object> getAllVariables()
 	{
