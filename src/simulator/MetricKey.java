@@ -1,6 +1,6 @@
 package simulator;
 
-public class MetricKey {
+public class MetricKey implements Comparable {
 	public int _time;
 	public String _actor_name;
 	public String _state;
@@ -67,6 +67,31 @@ public class MetricKey {
 	public boolean equals(int time, String actor_name, String state,
 			int transition_number) {
 		return time == _time && actor_name.equals(_actor_name) && state.equals(_state) && transition_number == _transition;
+	}
+
+	@Override
+	public int compareTo(Object arg0) {
+		if ( arg0 instanceof MetricKey) {
+			MetricKey key = (MetricKey) arg0;
+			if ( key._time > _time ) {
+				return 1;
+			} else if ( key._time == _time ) {
+				int actor = _actor_name.compareTo(key._actor_name);
+				if ( actor == 0 ) {
+					int state = _state.compareTo(key._state);
+					if ( state == 0 ) {
+						return key._transition - _transition;
+					} else {
+						return state;
+					}
+				} else {
+					return actor;
+				}
+			} else {
+				return -1;
+			}
+		} else
+			return 0;
 	}
 
 }

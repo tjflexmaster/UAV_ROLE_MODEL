@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import model.team.WiSARTeam;
 import simulator.ComChannel.Type;
@@ -151,11 +152,11 @@ public class Simulator {
 //				metric._states_changed++;
 			}
 			
-			System.out.println("Looping" + _clock.getElapsedTime());
+//			System.out.println("Looping" + _clock.getElapsedTime());
 //			System.out.println(_metrics.toString());
-			printMetrics();
+//			printMetrics();
 			
-			System.out.println("Test");
+//			System.out.println("Test");
 			
 		} while (!_ready_transitions.isEmpty());
 		
@@ -193,7 +194,8 @@ public class Simulator {
 		output += "\n";
 		
 		//add all keys and metrics (in order)
-		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
+//		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
+		TreeMap<MetricKey, Metric> keys = _metrics.actor_metrics;
 		for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
 			//add key
 			MetricKey metricKey = metrics.getKey();

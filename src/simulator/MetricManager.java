@@ -18,10 +18,12 @@ import simulator.Metric.MetricEnum;
 public class MetricManager implements IMetricManager {
 	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
 	MetricKey currentKey = new MetricKey(-1, "", "", -1);
-	HashMap<MetricKey,Metric> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
+	TreeMap<MetricKey, Metric> actor_metrics;
+//	HashMap<MetricKey,Metric> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
 	
 	public MetricManager(){
-		actor_metrics = new HashMap<MetricKey,Metric>();
+//		actor_metrics = new HashMap<MetricKey,Metric>();
+		actor_metrics = new TreeMap<MetricKey, Metric>();
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class MetricManager implements IMetricManager {
 			metrics = new Metric();
 		metrics.increment(metric);
 		MetricKey key = currentKey.clone();
-		System.out.println("MetricKey: " + key.toString() +  ":" + metric.name() + " - " + key.hashCode());
+//		System.out.println("MetricKey: " + key.toString() +  ":" + metric.name() + " - " + key.hashCode());
 		actor_metrics.put(key, metrics);
 	}
 }
