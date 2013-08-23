@@ -2,7 +2,6 @@ package simulator;
 
 import java.util.ArrayList;
 
-
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
@@ -15,19 +14,12 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
-	private ArrayList<Assertion> _assertions;
-	private int _workload;
-	/**
-	 * this constructor is used for creating new states
-	 * @param name
-	 */
-	public State(String name, int workload) {
+
+	public State(String name) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
-		_assertions = new ArrayList<Assertion>();
-		_workload = workload*2;
 	}
-	
+
 	public State add(ITransition new_transition)
 	{
 		if(_transitions.contains(new_transition)){
@@ -36,25 +28,20 @@ public class State implements IState {
 		
 		//The Actor will decide how to handle the transition and how to sort them.
 		_transitions.add(new_transition);
+		new_transition.setIndex(_transitions.indexOf(new_transition));
 		
 		return this;
 	}
 	
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
-		for(Assertion assertion : _assertions){
-			assertion.checkAssertion();
-		}
+		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
-		for (ITransition t : _transitions) {
-			if ( t.isEnabled() ) {
+		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {
+			ITransition t = _transitions.get(i);
+			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
-				if(t instanceof Transition)
-					enabled.add((ITransition) new Transition((Transition)t));
-				else if(t instanceof ActivateEventTransition)
-					enabled.add((ITransition) new ActivateEventTransition((ActivateEventTransition)t));
-				else if(t instanceof DeactivateEventTransition)
-					enabled.add((ITransition) new DeactivateEventTransition((DeactivateEventTransition)t));
+				enabled.add((ITransition) new Transition((Transition)t));
 			}
 		}
 		return enabled;
@@ -78,36 +65,27 @@ public class State implements IState {
 			return true;
 		if (!(obj instanceof State))
 			return false;
-		if(obj.getClass().equals(State.class)){
-			State other = (State) obj;
-			if (_name == null) {
-				if (other._name != null)
-					return false;
-			} else if (!_name.equals(other._name))
+		State other = (State) obj;
+		if (_name == null) {
+			if (other._name != null)
 				return false;
-		}
+		} else if (!_name.equals(other._name))
+			return false;
 		return true;
 	}
 	
-	public String getName() {
+	@Override
+	public String getName()
+	{
 		return _name;
 	}
-	
+
 	/**
 	 * this method works like a normal toString method
 	 * @return return the string representation of this state
 	 */
 	public String toString() {
 		return _name;
-	}
-
-	public void addAssertion(Assertion assertion) {
-		_assertions.add(assertion);
-	}
-	
-	public int getWorkload() {
-		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
-		return temp_workload;
 	}
 
 }

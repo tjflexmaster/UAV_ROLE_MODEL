@@ -1,10 +1,7 @@
 package simulator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import simulator.ComChannel.Type;
 
 /**
  * this class is a models all transitions in the simulation 
@@ -22,6 +19,7 @@ public class Transition implements ITransition {
 	private double _probability;
 	protected ActorVariableWrapper _internal_vars;
 	private HashMap<String, Object> _temp_internal_vars;
+	private int _transition_number;
 
 
 	/**
@@ -159,33 +157,24 @@ public class Transition implements ITransition {
 		}
 	}
 	
-	private void clearTempData(){
+	public void clearTempData(){
 		_temp_outputs.clear();
 		_temp_internal_vars.clear();
 	}
 	
-	protected void clearTempValues(){
+	public boolean updateTransition(){
 		for(Entry<String, Object> internal : _temp_internal_vars.entrySet()){
 			if(internal.getValue() != null){
 				_temp_internal_vars.put(internal.getKey(), null);
 			}
 		}
-		
-		for(Entry<String, Object> internal : _temp_outputs.entrySet()){
-			if(internal.getValue() != null){
-				_temp_outputs.put(internal.getKey(), null);
-			}
-		}
-		
+		return isEnabled();
 	}
 	
 	/**
 	 * @return return whether the transition can be made based on the state of the ComChannels
 	 */
 	public boolean isEnabled() {
-		//Clear Temp Data first
-		clearTempValues();
-		
 		return true;
 	}
 	
@@ -198,10 +187,8 @@ public class Transition implements ITransition {
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
-				//if ( temp != null ){
-					output.set(temp);
-					_temp_outputs.put(output.name(), null);
-				//}
+				output.set(temp);
+				_temp_outputs.put(output.name(), null);
 			}
 		}
 		
@@ -324,8 +311,6 @@ public class Transition implements ITransition {
 		if(_outputs != null){
 			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
 				if(output.getValue() != null)
-//						&& (!(output.getValue() instanceof Boolean) || (Boolean)output.getValue())
-//						&& (!(output.getValue() instanceof Integer) || (Integer)output.getValue() != 0))
 					result.append(output.toString() + ", ");
 			}
 		}
@@ -333,33 +318,10 @@ public class Transition implements ITransition {
 		//internals
 		for(Entry<String, Object> variable : _temp_internal_vars.entrySet()){
 			if(variable.getValue() != null)
-//					&& (!(variable.getValue() instanceof Boolean) || (Boolean)variable.getValue())
-//					&& (!(variable.getValue() instanceof Integer) || (Integer)variable.getValue() != 0))
 				result.append(variable.toString() + ", ");
 		}
 		result.append(" ])");
 		return result.toString();
-	}
-
-	public int getWorkload() {
-		int workload = 0;
-		ArrayList<Type> types = new ArrayList<Type>();
-		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
-			if(input.getValue().value() != null){
-				if(types.contains(input.getValue()._type)){
-					workload+=5;
-				}else{
-					types.add(input.getValue()._type);
-				}
-				if(input.getValue().value() instanceof Boolean && !(Boolean) input.getValue().value()){
-					continue;
-				} else if(input.getValue().value() instanceof Integer && ((Integer)input.getValue().value()) == 0){
-					continue;
-				}
-				workload++;
-			}
-		}
-		return workload;
 	}
 	
 	@Override
@@ -372,6 +334,17 @@ public class Transition implements ITransition {
 	public ComChannelList getOutputChannels()
 	{
 		return _outputs;
+	}
+
+	@Override
+	public void setIndex(int index) {
+		_transition_number = index;
+	}
+	
+	@Override
+	public int getIndex()
+	{
+		return _transition_number;
 	}
 
 }

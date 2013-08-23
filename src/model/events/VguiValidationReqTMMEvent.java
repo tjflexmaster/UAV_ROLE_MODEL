@@ -8,6 +8,7 @@ import model.team.Channels;
 import model.team.Duration;
 import simulator.ComChannel;
 import simulator.ComChannelList;
+import simulator.IState;
 import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
@@ -48,8 +49,8 @@ public class VguiValidationReqTMMEvent extends simulator.Event {
 	}
 
 	@Override
-	public int getWorkload() {
+	public IState getCurrentState() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 }

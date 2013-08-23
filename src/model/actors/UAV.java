@@ -20,14 +20,19 @@ public class UAV extends Actor {
 
 	}
 
+	public enum DATA_UAV_COMM {
+		UAV_LANDED_UAVHAG, UAVHAG_INACTIVE_UAV, UAVHAG_LOW_UAV, UAVHAG_CRASHED_UAV, UAVHAG_GOOD_UAV
+		
+	}
+
 	public UAV(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "UAV";
+		setName("UAV");
 		
 		//initialize states
-		State IDLE = new State("IDLE",0);
-		State TAKE_OFF = new State("TAKE_OFF",0); 
-		State FLY_LOITER = new State("FLY_LOITER",0); 
+		State IDLE = new State("IDLE");
+		State TAKE_OFF = new State("TAKE_OFF"); 
+		State FLY_LOITER = new State("FLY_LOITER"); 
 		
 		//add transitions
 //		initializeIDLE(inputs, IDLE, TAKE_OFF);

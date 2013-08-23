@@ -2,10 +2,10 @@ package model.events;
 
 
 import model.team.Channels;
-
 import simulator.ComChannel;
 import simulator.ComChannelList;
 import simulator.Event;
+import simulator.IState;
 import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
@@ -48,9 +48,8 @@ public class NewSearchEvent extends Event {
 	}
 
 	@Override
-	public int getWorkload() {
-		// TODO Auto-generated method stub
-		return 0;
+	public IState getCurrentState() {
+		return this.getState();
 	}
 
 }

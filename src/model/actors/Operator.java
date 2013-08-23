@@ -1,17 +1,7 @@
 package model.actors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
-import model.team.Channels;
-import model.team.Duration;
-import simulator.Actor;
-import simulator.ComChannelList;
-import simulator.IActor;
-import simulator.ITransition;
-import simulator.State;
-import simulator.Transition;
+import model.team.*;
+import simulator.*;
 
 public class Operator extends Actor {
 
@@ -39,7 +29,7 @@ public class Operator extends Actor {
 		OP_ACK_VO
 	}
 	public enum DATA_OP_UAV_COMM {
-		OP_POST_FLIGHT_COMPLETE, TAKE_OFF
+		OP_POST_FLIGHT_COMPLETE, TAKE_OFF, OP_MODIFY_FLIGHT_PLAN_UAV, OP_TAKE_OFF_UAV
 	}
 	
 	public enum DATA_OP_OGUI_COMM {
@@ -50,27 +40,27 @@ public class Operator extends Actor {
 
 	public Operator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "OPERATOR";
+		setName("OPERATOR");
 		
 		//initialize states
-		State IDLE = new State("IDLE",0);
-		State POST_FLIGHT = new State("POST_FLIGHT",6);
-		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE",1);
-		State LAUNCH_UAV = new State("LAUNCH_UAV",6);
-		State OBSERVE_GUI = new State("OBSERVE_GUI",3);
-		State OBSERVE_UAV = new State("OBSERVE_UAV",3);
+		State IDLE = new State("IDLE");
+		State POST_FLIGHT = new State("POST_FLIGHT");
+		State POST_FLIGHT_COMPLETE = new State("POST_FLIGHT_COMPLETE");
+		State LAUNCH_UAV = new State("LAUNCH_UAV");
+		State OBSERVE_GUI = new State("OBSERVE_GUI");
+		State OBSERVE_UAV = new State("OBSERVE_UAV");
 		//comm with mission manager
-		State POKE_MM = new State("POKE_MM",1);
-		State TX_MM = new State("TX_MM",1);
-		State END_MM = new State("END_MM",1);
-		State RX_MM = new State("RX_MM",1);
+		State POKE_MM = new State("POKE_MM");
+		State TX_MM = new State("TX_MM");
+		State END_MM = new State("END_MM");
+		State RX_MM = new State("RX_MM");
 		//comm with the video operator
-		State RX_VO = new State("RX_VO",1);
-		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY",5);
+		State RX_VO = new State("RX_VO");
+		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY");
 		//comm with the operator gui
-		State POKE_OGUI = new State("POKE_OGUI",1);
-		State TX_OGUI = new State("TX_OGUI",1);
-		State END_OGUI = new State("END_OGUI",1);
+		State POKE_OGUI = new State("POKE_OGUI");
+		State TX_OGUI = new State("TX_OGUI");
+		State END_OGUI = new State("END_OGUI");
 		
 		this.initializeInternalVariables();
 
@@ -134,11 +124,12 @@ public class Operator extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_GUI){
 			@Override
 			public boolean isEnabled(){
-				if(OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_NORMAL.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
-					return true;
-				} else if (OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_FLYBY.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
-					
-				}
+//				Object VIDEO_OGUI_OP_COMM = _inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()).value();
+//				if(OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_NORMAL.equals(VIDEO_OGUI_OP_COMM)){
+//					return true;
+//				} else if (OperatorGui.VIDEO_OGUI_OP_COMM.UAV_FLYING_FLYBY.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM))){
+//					
+//				}
 				return false;
 			}
 		});
@@ -234,10 +225,11 @@ public class Operator extends Actor {
 		OBSERVE_GUI.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI, Duration.NEXT.getRange(),1){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_F)){
+				Object VIDEO_OGUI_OP_COMM = _inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()).value();
+				if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_F.equals(VIDEO_OGUI_OP_COMM)){
 //					this.setTempOutput("VISUAL_OP_OGUI_COMM", Operator.VISUAL_OP_OGUI_COMM.OP_POKE_OGUI);
 					return true;
-				}else if(_inputs.get("VIDEO_OGUI_OP_COMM").equals(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_T)){
+				}else if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_REQ_T.equals(VIDEO_OGUI_OP_COMM)){
 //					this.setTempOutput("VISUAL_OP_OGUI_COMM", Operator.VISUAL_OP_OGUI_COMM.OP_POKE_OGUI);
 					return true;
 				} else if((Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") > 0){
@@ -382,16 +374,17 @@ public class Operator extends Actor {
 		RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())){
-					this.setTempInternalVar("NEW_SEARCH_AOI", (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI")+1);
+				Object AUDIO_MM_OP_COMM = _inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value();
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI.equals(AUDIO_MM_OP_COMM)){
+					this.setTempInternalVar("NEW_SEARCH_AOI", (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI", false)+1);
 					return true;
 				}
-				if(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())){
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH.equals(AUDIO_MM_OP_COMM)){
 					this.setTempInternalVar("TERMINATE_SEARCH", "NEW");
 					this.setTempInternalVar("LAND_UAV", true);
 					return true;
 				}
-				if(MissionManager.AUDIO_MM_OP_COMM.MM_END_OP.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value()))
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_END_OP.equals(AUDIO_MM_OP_COMM))
 					return true;
 				return false;
 			}
@@ -409,10 +402,9 @@ public class Operator extends Actor {
 		RX_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get(Channels.AUDIO_VO_OP_COMM.name()) != null){
-					if(VideoOperator.AUDIO_VO_OP_COMM.VO_BAD_STREAM.equals(_inputs.get(Channels.AUDIO_VO_OP_COMM.name()))){
-						this.setTempInternalVar("BAD_STREAM", true);
-					}
+				Object AUDIO_VO_OP_COMM = _inputs.get(Channels.AUDIO_VO_OP_COMM.name()).value();
+				if(AUDIO_VO_OP_COMM != null && VideoOperator.AUDIO_VO_OP_COMM.VO_BAD_STREAM.equals(AUDIO_VO_OP_COMM)){
+					this.setTempInternalVar("BAD_STREAM", true);
 					return true;
 				}
 				return false;
@@ -429,9 +421,10 @@ public class Operator extends Actor {
 		OBSERVE_FLYBY.add(new Transition(_internal_vars, inputs, outputs, POKE_OGUI){
 			@Override
 			public boolean isEnabled(){
-				if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_FAILED.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()))){
+				Object VIDEO_OGUI_OP_COMM = _inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()).value();
+				if(VIDEO_OGUI_OP_COMM != null && OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_FAILED.equals(VIDEO_OGUI_OP_COMM)){
 					this._internal_vars.setVariable("END_FLYBY", true);
-				} else if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_SUCCESS.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()))){
+				} else if(VIDEO_OGUI_OP_COMM != null && OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYBY_END_SUCCESS.equals(VIDEO_OGUI_OP_COMM)){
 					this._internal_vars.setVariable("END_FLYBY", true);
 				}
 				return false;
