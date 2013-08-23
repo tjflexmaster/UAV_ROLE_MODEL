@@ -1,50 +1,22 @@
 package simulator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import simulator.ComChannel.Type;
-
-public class Event implements IActor {
+public abstract class Event implements IEvent, IActor {
 	
 	private int _count = 0;
 	protected String _name;
-	private ArrayList<IState> _states = new ArrayList<IState>();
-	protected ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
-//	protected ComChannelList _outputs;
+	protected ITransition _transition;
+	protected ComChannelList _outputs;
 	
-	Event(String name, int count, final HashMap<ComChannel<?>, IPredicate> inputs, ComChannel<?> output_channel, Object output_value)
-	{
-		this._name = name;
-		this.setEventCount(count);
-		
-		//Build the states and transitions for the event
-		State active = new State("active", 1);
-		State inactive = new State("inactive", 1);
-		
-		ActivateEventTransition t = new ActivateEventTransition(inputs.keySet(), output_channel, output_value, _internal_vars, inactive) {
-			@Override
-			public boolean isEnabled()
-			{
-				for(Entry<ComChannel<?>, IPredicate> input : inputs.entrySet()) {
-					IPredicate p = input.getValue();
-					ComChannel<?> c = input.getKey();
-					if ( !p.evaluate(c.value()) )
-						return false;
-				}
-				
-				return true;
-			}
-		};
-		active.add(t);
-		
-		DeactivateEventTransition d = new DeactivateEventTransition(output_channel, _internal_vars, active);
-		inactive.add(d);
-		_states.add(active);
-		_states.add(inactive);
-		_internal_vars.setVariable("currentState", active);
-	}
+	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	
+	/**
+	 * This method returns an enabled transition.  Events only have a single transition.
+	 * @return
+	 */
+	public abstract ITransition getEnabledTransition();
 	
 	public void setEventCount(int count)
 	{
@@ -54,11 +26,11 @@ public class Event implements IActor {
 			_count = 0;
 	}
 	
-//	public void deactivate(){
-//		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
-//			c.getValue().set(null);
-//		}
-//	}
+	public void deactivate(){
+		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
+			c.getValue().set(null);
+		}
+	}
 	
 	public int getEventCount()
 	{
@@ -88,28 +60,22 @@ public class Event implements IActor {
 		return _name;
 	}
 	
-	public State getCurrentState() {
-		return (State) _internal_vars.getVariable("currentState");
-	}
-	
-	@Override
 	public HashMap<IActor, ITransition> getTransitions()
 	{
-		State state = this.getCurrentState();
-		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
-		if(enabledTransitions.size() == 0)
-			return null;
-		ITransition nextTransition = enabledTransitions.get(0);
-		HashMap<IActor, ITransition> transitions = new HashMap<IActor, ITransition>();
-		if(_count > 0 || nextTransition instanceof DeactivateEventTransition)
-			transitions.put(this, nextTransition);
-		return transitions;
+		HashMap<IActor, ITransition> result = new HashMap<IActor, ITransition>();
 		
+		result.put(this, getEnabledTransition());
+		return result;
 	}
-	@Override
-	public int getWorkload()
+	
+	protected ActorVariableWrapper getInternalVars()
 	{
-		return 1;
+		return _internal_vars;
+	}
+	
+	protected State getState()
+	{
+		return (State) _internal_vars.getVariable("currentState");
 	}
 	
 	@Override
@@ -134,10 +100,5 @@ public class Event implements IActor {
 	public int hashCode()
 	{
 		return _name.hashCode();
-	}
-	
-	@Override
-	public String toString(){
-		return "Name: " + _name + " CurrentState: " + _internal_vars.getVariable("currentState") + " EventsRemaining: " + _count;
 	}
 }

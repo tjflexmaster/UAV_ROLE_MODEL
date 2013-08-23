@@ -9,12 +9,6 @@ import java.util.*;
  *
  */
 public abstract class Actor implements IActor {
-	/**
-	 * this variable represents the name we give to the actor
-	 */
-	protected String _name = "";
-	
-	private int _workload = 0;
 	
 	private ArrayList<IState> _states = new ArrayList<IState>();
 	
@@ -30,6 +24,7 @@ public abstract class Actor implements IActor {
 	 * @return
 	 */
 	public HashMap<IActor, ITransition> getTransitions(){
+		
 		State state = this.getCurrentState();
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
 		if(enabledTransitions.size() == 0)
@@ -61,7 +56,7 @@ public abstract class Actor implements IActor {
 	
 	public String name()
 	{
-		return _name;
+		return (String) _internal_vars.getVariable("name");
 	}
 	
 	protected void setInternalVariable(String name, Object value)
@@ -83,12 +78,13 @@ public abstract class Actor implements IActor {
 	{
 		_subactors.add(a);
 	}
-
-	
 	
 	/**
 	 * HELPER METHODS
 	 */
+	protected void setName(String name){
+		_internal_vars.setVariable("name", name);
+	}
 	protected void startState(State state)
 	{
 		assert _states.contains(state):"Start state not available.";
@@ -104,21 +100,6 @@ public abstract class Actor implements IActor {
 		return this;
 	}
 	
-	public int getWorkload(){
-		int temp_workload = 0;
-		temp_workload += _internal_vars.getWorkload();
-		temp_workload += getCurrentState().getWorkload();
-		
-		if(getCurrentState().equals("IDLE")){
-			_workload = 0;
-		}else{
-			_workload ++;
-		}
-		
-		return _workload + temp_workload;
-	}
-
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -128,19 +109,18 @@ public abstract class Actor implements IActor {
 		if (getClass() != obj.getClass())
 			return false;
 		Actor other = (Actor) obj;
-		if (_name == null) {
+		if (_internal_vars.getVariable("name") == null) {
 			if (other.name() != null)
 				return false;
-		} else if (!_name.equals(other.name()))
+		} else if (!_internal_vars.getVariable("name").equals(other.name()))
 			return false;
 		return true;
 	}
-	
 
 	@Override
 	public int hashCode()
 	{
-		return _name.hashCode();
+		return _internal_vars.getVariable("name").hashCode();
 	}
 	
 	/**
@@ -150,7 +130,7 @@ public abstract class Actor implements IActor {
 	public String toString() {
 		String result = "";
 		
-		result += _name + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
+		result += _internal_vars.getVariable("name") + "(" + "): " + ((State)_internal_vars.getVariable("currentState")).toString() + " X ";
 		
 		return result;
 	}

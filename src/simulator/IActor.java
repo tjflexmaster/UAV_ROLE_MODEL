@@ -17,11 +17,13 @@ public interface IActor {
 	 * @return
 	 */
 	String name();
-	
+
 	/**
-	 * Returns the calculated workload of the Actor
-	 * @return
+	 * 
+	 * @return the current state of the actor
 	 */
-	int getWorkload();
+	IState getCurrentState();
+	
+//	int getWorkload();
 	
 }

@@ -11,13 +11,13 @@ public class UAVBattery extends Actor {
 	
 	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
 		//initialize name
-		_name = "UAV_BATTERY";
+		setName("UAV_BATTERY");
 		
 		//initialize states
-		State INACTIVE = new State("INACTIVE",0);
-		State ACTIVE = new State("ACTIVE",0);
-		State LOW = new State("LOW",0);
-		State DEAD = new State("DEAD",0);
+		State INACTIVE = new State("INACTIVE");
+		State ACTIVE = new State("ACTIVE");
+		State LOW = new State("LOW");
+		State DEAD = new State("DEAD");
 		
 //		INACTIVE.addTransition(
 //				new UDO[]{inputs.get(UDO.OGUI_TAKE_OFF_UAV.name())},

@@ -1,15 +1,8 @@
 package model.events;
 
-import model.actors.MissionManager;
-import model.actors.Operator;
-import model.actors.VideoOperator;
-import model.actors.VideoOperatorGui;
-import model.team.Channels;
-import model.team.Duration;
-import simulator.ComChannelList;
-import simulator.ITransition;
-import simulator.State;
-import simulator.Transition;
+import model.actors.*;
+import model.team.*;
+import simulator.*;
 
 public class VguiValidationReqFMMEvent extends simulator.Event {
 	public VguiValidationReqFMMEvent(final ComChannelList inputs, final ComChannelList outputs)
@@ -22,8 +15,7 @@ public class VguiValidationReqFMMEvent extends simulator.Event {
 		_outputs = new ComChannelList();
 		_outputs.putAll(outputs);
 		//Define the Event transitions
-		_transition = new Transition(getInternalVars(), inputs, outputs, state, Duration.VO_TX_MM.getRange()) {
-			@SuppressWarnings("unchecked")
+		_transition = new Transition(getInternalVars(), inputs, outputs, state, Duration.VO_TX_MM.getRange()) { 
 			@Override 
 			public boolean isEnabled() {
 				this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_VALIDATION_REQ_F);
@@ -42,8 +34,8 @@ public class VguiValidationReqFMMEvent extends simulator.Event {
 	}
 
 	@Override
-	public int getWorkload() {
+	public IState getCurrentState() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 }

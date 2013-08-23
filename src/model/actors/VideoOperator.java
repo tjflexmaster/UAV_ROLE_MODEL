@@ -34,25 +34,25 @@ public class VideoOperator extends Actor {
 
 	public VideoOperator(ComChannelList inputs, ComChannelList outputs) {
 		//initialize name
-		_name = "VIDEO_OPERATOR";
+		setName("VIDEO_OPERATOR");
 
 		//initialize states
-		State IDLE = new State("IDLE",0);
+		State IDLE = new State("IDLE");
 		//comm with mission manager
-		State RX_MM = new State("RX_MM",0);
-		State POKE_MM = new State("POKE_MM",0);
-		State TX_MM = new State("TX_MM",0);
-		State END_MM = new State("END_MM",0);
+		State RX_MM = new State("RX_MM");
+		State POKE_MM = new State("POKE_MM");
+		State TX_MM = new State("TX_MM");
+		State END_MM = new State("END_MM");
 		//comm with operator
-		State POKE_OP = new State("POKE_OP",0);
-		State TX_OP = new State("TX_OP",0);
-		State END_OP = new State("END_OP",0);
+		State POKE_OP = new State("POKE_OP");
+		State TX_OP = new State("TX_OP");
+		State END_OP = new State("END_OP");
 		//comm with video gui
-		State OBSERVE_NORMAL = new State("OBSERVE_NORMAL",0);
-		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY",0);
-		State POKE_GUI = new State("POKE_GUI",0);
-		State TX_GUI = new State("TX_GUI",0);
-		State END_GUI = new State("END_GUI",0);
+		State OBSERVE_NORMAL = new State("OBSERVE_NORMAL");
+		State OBSERVE_FLYBY = new State("OBSERVE_FLYBY");
+		State POKE_GUI = new State("POKE_GUI");
+		State TX_GUI = new State("TX_GUI");
+		State END_GUI = new State("END_GUI");
 
 		//initialize transitions
 		initializeIDLE(inputs, outputs, IDLE, RX_MM, OBSERVE_NORMAL);

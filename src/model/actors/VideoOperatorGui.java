@@ -1,9 +1,5 @@
 package model.actors;
 
-import java.util.HashMap;
-
-import model.team.UDO;
-
 import simulator.*;
 
 public class VideoOperatorGui extends Actor {
@@ -41,11 +37,4 @@ public class VideoOperatorGui extends Actor {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public HashMap<IActor, ITransition> getTransitions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

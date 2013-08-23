@@ -1,14 +1,8 @@
 package model.events;
 
-import model.actors.MissionManager;
-import model.actors.Operator;
-import model.team.Channels;
-import model.team.Duration;
-import simulator.ComChannel;
-import simulator.ComChannelList;
-import simulator.ITransition;
-import simulator.State;
-import simulator.Transition;
+import model.actors.*;
+import model.team.*;
+import simulator.*;
 
 public class OpPokeMMEvent extends simulator.Event {
 	public OpPokeMMEvent(final ComChannelList inputs, final ComChannelList outputs)
@@ -22,7 +16,6 @@ public class OpPokeMMEvent extends simulator.Event {
 		_outputs.putAll(outputs);
 		//Define the Event transitions
 		_transition = new Transition(getInternalVars(), inputs, outputs, state, Duration.NEXT.getRange()) {
-			@SuppressWarnings("unchecked")
 			@Override 
 			public boolean isEnabled() {
 				this.setTempOutput(Channels.AUDIO_OP_MM_COMM.name(), Operator.AUDIO_OP_MM_COMM.OP_POKE_MM);
@@ -41,8 +34,8 @@ public class OpPokeMMEvent extends simulator.Event {
 	}
 
 	@Override
-	public int getWorkload() {
+	public IState getCurrentState() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 }

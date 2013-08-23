@@ -1,51 +1,14 @@
 package simulator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Scanner;
-
-import simulator.ComChannel.Type;
-
-
 
 public class Simulator {
 	
-	public class MetricDataStruct
-	{
-		public int _time = 0;
-		public int _active_channels = 0;
-		public int _read_channels = 0;
-		public int _read_audio_channels = 0;
-		public int _read_visual_channels = 0;
-		public int _read_data_channels = 0;
-//		public int _read_memory = 0;
-		public int _updated_channels = 0;
-		public int _updated_audio_channels = 0;
-		public int _updated_visual_channels = 0;
-		public int _updated_data_channels = 0;
-//		public int _updated_memory = 0;
-		public int _added_transitions = 0;
-		public int _fired_transitions = 0;
-		public int _states_changed = 0;
-		
-		MetricDataStruct(int time)
-		{
-			_time = time;
-		}
-		
-		public String toString()
-		{
-			return String.format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", _time, _active_channels, _added_transitions, _fired_transitions, _read_channels, _read_audio_channels, _read_visual_channels, _read_data_channels, _updated_channels, _updated_audio_channels, _updated_visual_channels, _updated_data_channels);
-		}
-	}
-	
-	public enum Mode {
+	public enum DebugMode {
 		DEBUG,
 		PROD
 	}
@@ -57,167 +20,100 @@ public class Simulator {
 		MIN_MAX,
 		MIN_MAX_MEAN
 	}
-//	public static boolean debug = true;
+	
 	private ITeam _team;
 	private IDeltaClock _clock;
-	private Scanner _scanner = new Scanner(System.in);
-	private ArrayList<ITransition> _ready_transitions = new ArrayList<ITransition>();
-//	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
-//	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
-	private ArrayList<IActor> _active_events = new ArrayList<IActor>();
-	private Mode _mode;
-	private DurationMode _duration;
+	private HashMap<IActor, ITransition> _ready_transitions = new HashMap<IActor, ITransition>();
+	private DebugMode _debugMode;
+	private DurationMode _durationMode;
 	private Random _random;
 	
-	private static volatile Simulator _instance = null;
-	 
-    private Simulator() 
-    {       
-    	_clock = new DeltaClock();
-    	
-    }
-
-    public static Simulator getInstance() 
-    {
-            if (_instance == null) {
-                    synchronized (Simulator .class){
-                            if (_instance == null) {
-                                    _instance = new Simulator();
-                            }
-                    }
-            }
-            return _instance;
-    }
-    
-    public void setup(ITeam team, Mode mode, DurationMode duration) 
-    {
-    	_clock = new DeltaClock();
+	//Singleton variables
+	private boolean _setup = false;
+	private static Simulator _instance = null;
+	private Date _date = null;
+	
+	public String dbname = "";
+	
+	
+	/**
+	 * Get simulator singleton
+	 * @return
+	 */
+	public static synchronized Simulator getSim() {
+        if (_instance == null) {
+            _instance = new Simulator();
+        }
+        return _instance;
+	}
+	
+	private Simulator() {
+		_clock = new DeltaClock();
+		_date = new Date();
+		_debugMode = DebugMode.DEBUG;
+	}
+	
+	public void setup(ITeam team, DebugMode mode, DurationMode duration)
+	{
+		_setup = false;
+		dbname = "databases/MetricDB" + _date.getTime() + ".sqlite";
+		_clock = new DeltaClock();
+		
 		_team = team;
-		_mode = mode;
-		_duration = duration;
+		_debugMode = mode;
+		_durationMode = duration;
 		
 		initializeRandom();
-    }
+		
+		_setup = true;
+		
+	}
 	
 	/**
 	 * Main Simulation method.
 	 */
 	public void run()
 	{
-		HashMap<String, String> data = new HashMap<String, String>();
-		ArrayList<MetricDataStruct> metrics = new ArrayList<MetricDataStruct>();
-		String workloadOutput = "";
-		MetricDataStruct metric = new MetricDataStruct(0);
+		assert _setup : "Simulator not setup correctly";
+	
+		if(_debugMode == DebugMode.DEBUG)
+			System.out.println("Started");	
 		do {
 			//Get all event and team transitions
-			loadTransitions(metric);
-			
-			//Save the metrics
-			metric._active_channels = _team.getAllChannels().countActiveChannels();
-			metrics.add(metric);
+			loadTransitions();
 			
 			//Advance Time
 			_clock.advanceTime();
 			
-			//Start a new metric
-			metric = new MetricDataStruct(_clock.elapsedTime());
-			
-//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
-			HashMap<Actor, Integer> workload = _team.getWorkload();
-			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
-				String name = actor_workload.getKey()._name;
-				String state = actor_workload.getKey().getCurrentState().toString();
-				int work = actor_workload.getValue();
-				if(data.containsKey(name)){
-					data.put(name, data.get(name)+ "\n" + state + "\t" + work);
-				}else{
-					data.put(name, "\n" + name +"\n" + state + "\t" + work);
-				}
-//				workloadOutput += ("\n" + name + "\t" + state + "\t" + work);
-				System.out.println("\n" + name + "\t" + state + "\t" + work);
-			}
-			
-//			int workload = dt.actor.getWorkload();
-//			if(!(dt.actor instanceof Event)){
-//				System.out.print("\nActor: " + name + " State: " + ((Actor)dt.actor).getCurrentState() + " Workload: " + workload);
-//				PrintWriter workloadWriter;
-//				try {
-//					workloadWriter = new PrintWriter(new File("workload.txt"));
-//					workloadWriter.append("\n" + name + "\t" + ((Actor)dt.actor).getCurrentState() + "\t" + workload);
-//					workloadWriter.close();
-//				} catch (FileNotFoundException e) {
-//					e.printStackTrace();
-//				}
-//			}
 			//Process Ready Transitions
 			_ready_transitions.clear();
-			_ready_transitions.addAll(_clock.getReadyTransitions());
-			for(ITransition transition : _ready_transitions){
-				//System.out.println('\n' + transition.toString());
-				transition.fire();
-				metric._fired_transitions++;
-				ComChannelList outputs = transition.getOutputChannels();
-				metric._updated_channels = outputs.size();
-				metric._updated_audio_channels = outputs.countChannels(Type.AUDIO);
-				metric._updated_visual_channels = outputs.countChannels(Type.VISUAL);
-				metric._updated_data_channels = outputs.countChannels(Type.DATA);
-				metric._states_changed++;
+			_ready_transitions.putAll(_clock.getReadyTransitions());
+			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
+				ITransition t = (ITransition) e.getValue();
+				t.fire();
 			}
 			
 		} while (!_ready_transitions.isEmpty());
-		
-		//Add the last metric
-		metrics.add(metric);
 
-		try {
-			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
-			for(Entry<String, String> actor_workload : data.entrySet())
-				workloadWriter.print(actor_workload.getValue());
-			workloadWriter.close();
-			
-			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
-			for(MetricDataStruct m : metrics) {
-				metricsWriter.println(m.toString());
-			}
-			metricsWriter.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		
+		if(_debugMode == DebugMode.DEBUG)
+			System.out.println("Finished");
 	}
-	
-	private void loadTransitions(MetricDataStruct metric)
+
+	private void loadTransitions()
 	{
 		//Get Transitions from the Events
-		for(Event e : _team.getEvents() ) {
-			HashMap<IActor, ITransition> transitions = e.getTransitions();
+		for(IEvent e : _team.getEvents() ) {
+			ITransition t = e.getEnabledTransition();
 			if ( _clock.getActorTransition((IActor) e) == null ) {
-				for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
-					ITransition t = entry.getValue();
-					if ( t.getDurationRange() == null )
-						_clock.addTransition(e, t, random(0, 10000));
-					else
-						_clock.addTransition(e, t, duration(t.getDurationRange()));
-					if(e.getCurrentState().equals("active"))
-						e.decrementCount();
+				if ( t != null && !e.isFinished() ) {
+					_clock.addTransition((IActor) e, t, random(t.getDurationRange().min(),t.getDurationRange().max()));
+					e.decrementCount();
 				}
 			} else {
-				if ( transitions.isEmpty() ) {
-					_clock.removeTransition(e);
-				}else{
-					for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
-						ITransition t = entry.getValue();
-						if ( t.getDurationRange() == null )
-							_clock.addTransition(e, t, random(0, 10000));
-						else
-							_clock.addTransition(e, t, duration(t.getDurationRange()));
-						if(e.getCurrentState().equals("active"))
-							e.decrementCount();
-					}
+				if ( t == null ) {
+					_clock.removeTransition((IActor) e);
 				}
 			}
-				
 		}
 		
 		//Get Transitions from the Actor
@@ -225,21 +121,20 @@ public class Simulator {
 		for(Map.Entry<IActor, ITransition> entry : transitions.entrySet() ) {
 			ITransition t = entry.getValue();
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
-			metric._added_transitions++;
-			ComChannelList inputs = t.getOutputChannels();
-			metric._read_channels = inputs.size();
-			metric._read_audio_channels = inputs.countChannels(Type.AUDIO);
-			metric._read_visual_channels = inputs.countChannels(Type.VISUAL);
-			metric._read_data_channels = inputs.countChannels(Type.DATA);
 		}
 		
+		//deactivate outputs from events after one cycle
+		for(IEvent e : _team.getEvents() ) {
+			ITransition t = e.getEnabledTransition();
+			if(t == null){
+				e.deactivate();
+			}
+		}
 	}
-	
 	
 	/**
 	 * HELPER METHODS
 	 */
-	
 	private void initializeRandom() {
 		_random = new Random();
 		_random.setSeed(0); //Always use the same seed
@@ -247,7 +142,7 @@ public class Simulator {
 	
 	public int duration(Range range)
 	{
-		switch(_duration) {
+		switch(_durationMode) {
 			case MIN:
 				return range.min();
 			case MAX:
@@ -287,4 +182,7 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
+	public Integer getClockTime() {
+		return _clock.getElapsedTime();
+	}
 }

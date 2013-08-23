@@ -11,7 +11,8 @@ public class ActorVariableWrapper {
 	ActorVariableWrapper()
 	{
 		_variables = new HashMap<String, Object>();
-		addVariable("currentState", new State("start",0));
+		addVariable("currentState", new State("start"));
+		addVariable("name", "default actor");
 	}
 	
 	public void addVariable(String name, Object o)
@@ -23,28 +24,21 @@ public class ActorVariableWrapper {
 	public void setVariable(String name, Object o)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
-		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
-			
+		if( o!=null && _variables.get(name)!=null )
+			assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
 		_variables.put(name, o);
 	}
-
+	
 	public Object getVariable(String name)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
 		return _variables.get(name);
 	}
-	public String getVariableType(String name)
+	
+	public Object getVariable(String name, boolean measuring)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
-		
-		if( _variables.get(name).getClass() == String.class){
-			return "String";
-		} else if( _variables.get(name).getClass() == Integer.class){
-			return "Integer";
-		} else if( _variables.get(name).getClass() == Boolean.class){
-			return "Boolean";
-		}
-		return null;
+		return _variables.get(name);
 	}
 	
 	@SuppressWarnings("unchecked")

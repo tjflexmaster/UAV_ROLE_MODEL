@@ -1,14 +1,9 @@
 package model.actors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import model.team.Channels;
 import model.team.Duration;
 import simulator.Actor;
 import simulator.ComChannelList;
-import simulator.IActor;
-import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
 
@@ -67,28 +62,28 @@ public class MissionManager extends Actor {
 	}
 	public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		//initialize states
-		State IDLE = new State("IDLE",0);
+		State IDLE = new State("IDLE");
 		//comm with PS
-		State POKE_PS = new State("POKE_PS",1);
-		State TX_PS = new State("TX_PS",1);
-		State END_PS = new State("END_PS",1);
-		State RX_PS = new State("RX_PS",1);
+		State POKE_PS = new State("POKE_PS");
+		State TX_PS = new State("TX_PS");
+		State END_PS = new State("END_PS");
+		State RX_PS = new State("RX_PS");
 		//comm with OP
-		State POKE_OP = new State("POKE_OP",1);
-		State TX_OP = new State("TX_OP",1);
-		State END_OP = new State("END_OP",1);
-		State RX_OP = new State("RX_OP",1);
+		State POKE_OP = new State("POKE_OP");
+		State TX_OP = new State("TX_OP");
+		State END_OP = new State("END_OP");
+		State RX_OP = new State("RX_OP");
 		//comm with VO
-		State POKE_VO = new State("POKE_VO",1);
-		State TX_VO = new State("TX_VO",1);
-		State END_VO = new State("END_VO",1);
-		State RX_VO = new State("RX_VO",1);
+		State POKE_VO = new State("POKE_VO");
+		State TX_VO = new State("TX_VO");
+		State END_VO = new State("END_VO");
+		State RX_VO = new State("RX_VO");
 		//comm with VGUI
-		State OBSERVING_VGUI = new State("OBSERVING_VGUI",6);
-		State POKE_VGUI = new State("POKE_VGUI",1);
-		State TX_VGUI = new State("TX_VGUI",1);
-		State END_VGUI = new State("END_VGUI",1);
-		_name = "Mission Manager";
+		State OBSERVING_VGUI = new State("OBSERVING_VGUI");
+		State POKE_VGUI = new State("POKE_VGUI");
+		State TX_VGUI = new State("TX_VGUI");
+		State END_VGUI = new State("END_VGUI");
+		setName("Mission Manager");
 		this.initializeInternalVariables();
 		
 		//initialize transitions
@@ -141,7 +136,7 @@ public class MissionManager extends Actor {
 			@Override
 			public boolean isEnabled(){
 				if(Operator.AUDIO_OP_MM_COMM.OP_POKE_MM.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value())){
-					this.setTempOutput("AUDIO_MM_OP_COMM", MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP);
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP);
 				}
 				return false;
 			}
@@ -175,12 +170,10 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value() != null){
-					
-					if ( ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value()) ) {
+				Object input = _inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value();
+				if(input != null && ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM.equals(input) ) {
 						this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_ACK_PS);
 						result = true;
-					}
 				}
 				return result;		
 			}
@@ -234,7 +227,8 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				if ( this._internal_vars.getVariable("AREA_OF_INTEREST") != null && this._internal_vars.getVariable("AREA_OF_INTEREST").equals("NEW") ) {
+				String aoi = (String) _internal_vars.getVariable("AREA_OF_INTEREST");
+				if ( aoi != null && aoi.equals("NEW") ) {
 					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP);
 					result = true;
 				}
@@ -260,7 +254,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("ANOMALY_DISMISSED_T") != null && (Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_T")){
+				Boolean anomoly_dismissed = (Boolean) _internal_vars.getVariable("ANOMALY_DISMISSED_T");
+				if(anomoly_dismissed != null && anomoly_dismissed){
 					this.setTempInternalVar("ANOMALY_DISMISSED_T", true);
 					return true;
 				}
@@ -272,7 +267,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("ANOMALY_DISMISSED_F") != null && (Boolean)_internal_vars.getVariable("ANOMALY_DISMISSED_F")){
+				Boolean anomoly_dismissed = (Boolean) _internal_vars.getVariable("ANOMALY_DISMISSED_F");
+				if(anomoly_dismissed != null && anomoly_dismissed){
 					this.setTempInternalVar("ANOMALY_DISMISSED_F", true);
 					return true;
 				}
@@ -284,7 +280,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("FLYBY_REQ_T") != null && (Boolean)_internal_vars.getVariable("FLYBY_REQ_T")){
+				Boolean flyby_req = (Boolean) _internal_vars.getVariable("FLYBY_REQ_T");
+				if(flyby_req != null && flyby_req){
 					this.setTempInternalVar("FLYBY_REQ_T", true);
 					return true;
 				}
@@ -296,7 +293,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VGUI){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("FLYBY_REQ_F") != null && (Boolean)_internal_vars.getVariable("FLYBY_REQ_F")){
+				Boolean flyby_req = (Boolean) _internal_vars.getVariable("FLYBY_REQ_F");
+				if(flyby_req != null && flyby_req){
 					this.setTempInternalVar("FLYBY_REQ_F", true);
 					return true;
 				}
@@ -308,7 +306,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("TARGET_SIGHTED_F") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
+				Boolean TARGET_SIGHTED_F = (Boolean) _internal_vars.getVariable("TARGET_SIGHTED_F");
+				if(TARGET_SIGHTED_F != null && TARGET_SIGHTED_F){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
 				}
@@ -320,10 +319,12 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("TARGET_SIGHTED_T") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_T")){
+				Boolean TARGET_SIGHTED_T = (Boolean) _internal_vars.getVariable("TARGET_SIGHTED_T");
+				Boolean TARGET_SIGHTED_F = (Boolean) _internal_vars.getVariable("TARGET_SIGHTED_F");
+				if(TARGET_SIGHTED_T != null && TARGET_SIGHTED_T){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
-				} else if(_internal_vars.getVariable("TARGET_SIGHTED_F") != null && (Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
+				} else if(TARGET_SIGHTED_F != null && TARGET_SIGHTED_F){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
 				}
@@ -335,7 +336,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("SEARCH_COMPLETE") != null && (Boolean)_internal_vars.getVariable("SEARCH_COMPLETE")){
+				Boolean SEARCH_COMPLETE = (Boolean) _internal_vars.getVariable("SEARCH_COMPLETE");
+				if(SEARCH_COMPLETE != null && SEARCH_COMPLETE){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
 				}
@@ -346,7 +348,8 @@ public class MissionManager extends Actor {
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS){
 			@Override
 			public boolean isEnabled(){
-				if(_internal_vars.getVariable("SEARCH_FAILED") != null && (Boolean)_internal_vars.getVariable("SEARCH_FAILED")){
+				Boolean SEARCH_FAILED = (Boolean) _internal_vars.getVariable("SEARCH_FAILED");
+				if(SEARCH_FAILED != null && SEARCH_FAILED){
 					this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
 					return true;
 				}
@@ -471,7 +474,7 @@ public class MissionManager extends Actor {
 	 * (RX_PS, [PS_END_MM], [])->(IDLE, [], [])<br>
 	 * (RX_PS, [PS_AREA_OF_INTEREST_MM], [])->(IDLE, [], [TARGET_DESCRIPTION])<br>
 	 * (RX_PS, [PS_TARGET_DESCRIPTION_MM], [])->(IDLE, [], [PS_TARGET_DESCRIPTION_MM])<br>
-	 * (RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])<br>
+	 * (RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [TERMINATE_SEARCH])<br>
 	 */
 	private void initializeRX_PS(ComChannelList inputs, ComChannelList outputs, State IDLE, State RX_PS, State POKE_OP) {
 		//(RX_PS, [PS_END_MM], [])->(IDLE, [], [])
@@ -499,7 +502,7 @@ public class MissionManager extends Actor {
 			}
 		});
 		
-		//(RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [NEW_TERMINATE_SEARCH])
+		//(RX_PS, [PS_TERMINATE_SEARCH], [])->(IDLE, [], [TERMINATE_SEARCH])
 		RX_PS.add(new Transition(this._internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled() 
@@ -609,7 +612,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				this.setTempOutput("MM_OP", "END");
+				this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
 				this.setTempInternalVar("AREA_OF_INTEREST", "CURRENT");
 				result = true;
 				return result;		
@@ -633,13 +636,14 @@ public class MissionManager extends Actor {
 		RX_OP.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
 			public boolean isEnabled() {
-				if(_inputs.get("AUDIO_OP_MM_COMM").value() != null){
-					if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_END_MM)){
+				Object input = _inputs.get("AUDIO_OP_MM_COMM").value();
+				if(input != null){
+					if(input.equals(Operator.AUDIO_OP_MM_COMM.OP_END_MM)){
 						return true;
-					} else if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_COMPLETE)){
+					} else if(input.equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_COMPLETE)){
 						this.setTempInternalVar("SEARCH_COMPLETE", true);
 						return true;
-					} else if(_inputs.get("AUDIO_OP_MM_COMM").value().equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED)){
+					} else if(input.equals(Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED)){
 						this.setTempInternalVar("SEARCH_FAILED", true);
 						return true;
 					}
@@ -702,9 +706,10 @@ public class MissionManager extends Actor {
 					this.setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
 					result = true;
 				}
-				if(_internal_vars.getVariable("NEW_TERMINATE_SEARCH") != null && (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH") > 0){
+				Integer TERMINATE_SEARCH = (Integer)_internal_vars.getVariable("TERMINATE_SEARCH");
+				if(TERMINATE_SEARCH != null && TERMINATE_SEARCH > 0){
 					this.setTempOutput("AUDIO_MM_VO_COMM", MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH);
-					this.setTempInternalVar("NEW_TERMINATE_SEARCH", (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH")-1);
+					this.setTempInternalVar("TERMINATE_SEARCH", TERMINATE_SEARCH-1);
 					result = true;
 				}
 				return result;		
@@ -728,7 +733,7 @@ public class MissionManager extends Actor {
 			public boolean isEnabled() 
 			{
 				boolean result = false;
-				this.setTempOutput("MM_OP", "END");
+				this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
 				this.setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
 				result = true;
 				return result;		
@@ -751,15 +756,16 @@ public class MissionManager extends Actor {
 		RX_VO.add(new Transition(_internal_vars,inputs,outputs,IDLE){
 			@Override
 			public boolean isEnabled(){
-					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+				Object input = _inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value();
+					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(input)){
 						this.setTempInternalVar("TARGET_SIGHTED_F", true);
 						return true;
 					}
-					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+					if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(input)){
 						this.setTempInternalVar("TARGET_SIGHTED_T", true);
 						return true;
 					}
-					if(VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+					if(VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM.equals(input)){
 						return true;
 					}
 				return false;
@@ -925,6 +931,10 @@ public class MissionManager extends Actor {
 		this._internal_vars.addVariable("ANOMALY_DISMISSED_F",false);
 		this._internal_vars.addVariable("FLYBY_REQ_T",false);
 		this._internal_vars.addVariable("FLYBY_REQ_F",false);
+		this._internal_vars.addVariable("TARGET_SIGHTED_T",false);
+		this._internal_vars.addVariable("TARGET_SIGHTED_F",false);
+		this._internal_vars.addVariable("SEARCH_COMPLETE",false);
+		this._internal_vars.addVariable("SEARCH_FAILED",false);
 	}
 
 }

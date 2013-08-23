@@ -1,41 +1,34 @@
 package simulator;
 
-import simulator.ComChannel.Type;
-
 public class ComChannel<T> {
 	public enum Type
 	{
 		VISUAL,
 		AUDIO,
-		DATA,
-		EVENT
+		DATA
 	}
 	
 	T _value;
 	String _name;
 	Type _type;
-	String _value_type;
 	
-	public ComChannel(String name, Type type, String value_type)
+	public ComChannel(String name, Type type)
 	{
 		_name = name;
 		_type = type;
-		_value_type = value_type;
 	}
 	
-	public ComChannel(String name, T value, Type type, String value_type)
+	public ComChannel(String name, T value, Type type)
 	{
 		_name = name;
 		_type = type;
 		_value = value;
-		_value_type = value_type;
 	}
 	
 	
 	@SuppressWarnings("unchecked")
 	public void set(Object value) 
 	{
-//		assert (value instanceof classType):"Invalid ComChannel datatype.";
 		_value = (T) value;
 	}
 	
@@ -47,11 +40,6 @@ public class ComChannel<T> {
 	public String name()
 	{
 		return _name;
-	}
-	
-	public Type type()
-	{
-		return _type;
 	}
 	
 	public boolean isEqual(T value)
@@ -92,4 +80,7 @@ public class ComChannel<T> {
 		return _value.toString();
 	}
 
+	public Type type() {
+		return _type;
+	}
 }

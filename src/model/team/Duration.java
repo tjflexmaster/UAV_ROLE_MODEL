@@ -48,7 +48,7 @@ public enum Duration {
 	POKE(5,20),
 	OP_OBSERVE_GUI(5,20),
 	OP_POST_FLIGHT_COMPLETE(5,20),
-	RANDOM(5,100);
+	RANDOM(5,100), PS_TX_MM(5,20), PS_RX_MM(5,20), MM_TO_IDLE(5,20), UAV_ADJUST_PATH(20,100);
 	
 	private Integer _minimum;
 	private Integer _maximum;

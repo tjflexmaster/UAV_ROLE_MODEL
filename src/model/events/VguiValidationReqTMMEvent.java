@@ -1,16 +1,8 @@
 package model.events;
 
-import model.actors.MissionManager;
-import model.actors.Operator;
-import model.actors.VideoOperator;
-import model.actors.VideoOperatorGui;
-import model.team.Channels;
-import model.team.Duration;
-import simulator.ComChannel;
-import simulator.ComChannelList;
-import simulator.ITransition;
-import simulator.State;
-import simulator.Transition;
+import model.actors.*;
+import model.team.*;
+import simulator.*;
 
 public class VguiValidationReqTMMEvent extends simulator.Event {
 	public VguiValidationReqTMMEvent(final ComChannelList inputs, final ComChannelList outputs)
@@ -48,8 +40,8 @@ public class VguiValidationReqTMMEvent extends simulator.Event {
 	}
 
 	@Override
-	public int getWorkload() {
+	public IState getCurrentState() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 }

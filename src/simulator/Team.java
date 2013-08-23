@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class Team implements ITeam {
 	
-	ArrayList<Event> _events = new ArrayList<Event>();
+	ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	ArrayList<IActor> _actors = new ArrayList<IActor>();
 	public ComChannelList _com_channels;
 	
@@ -23,7 +23,7 @@ public abstract class Team implements ITeam {
 	}
 	
 	@Override
-	public ArrayList<Event> getEvents() {
+	public ArrayList<IEvent> getEvents() {
 		return _events;
 	}
 	
@@ -40,9 +40,10 @@ public abstract class Team implements ITeam {
 		_actors.add(actor);
 	}
 	
-	protected void addEvent(Event event) 
+	protected void addEvent(IEvent event, int count) 
 	{
 		assert !_events.contains(event):"Event is already a part of the team";
+		event.setEventCount(count);
 		_events.add(event);
 	}
 	
@@ -57,16 +58,21 @@ public abstract class Team implements ITeam {
 		return _com_channels.get(name);
 	}
 	
-	protected final ComChannelList getComChannels()
-	{
-		return (ComChannelList) _com_channels.clone();
-	}
-
-	public HashMap<Actor, Integer> getWorkload(){
-		HashMap<Actor, Integer> workload = new HashMap<Actor, Integer>();
-		for(IActor a : _actors){
-			workload.put((Actor)a, a.getWorkload());
-		}
-		return workload;
+//	public HashMap<Actor, Integer> getWorkload(){
+//		HashMap<Actor, Integer> workload = new HashMap<Actor, Integer>();
+//		for(IActor a : _actors){
+//			workload.put((Actor)a, a.getWorkload());
+//		}
+//		return workload;
+//	}
+	
+	public String getStateName(String actorName){
+		String state = null;
+		
+		for(IActor actor : _actors)
+			if(actorName.equals(actor.name()))
+				state = actor.getCurrentState().toString();
+		
+		return state;
 	}
 }
