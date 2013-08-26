@@ -132,12 +132,13 @@ public class Simulator {
 		      //Create another table for individual metrics
 		      stmt = c.createStatement();
 		      String tablesql = "CREATE TABLE singlemetric " +
-		                   "(id 				INT PRIMARY KEY     NOT NULL," +
+		                   "(" +
 		                   " time           	INT    NOT NULL, " + 
 		                   " actor            	TEXT     NOT NULL, " + 
 		                   " state        		TEXT, " + 
 		                   "transition_id		INT, " +
-	                   	   "metric				TEXT " +
+	                   	   "metric				TEXT, " +
+		                   "name				TEXT " +
 		                   ")"; 
 		      stmt.executeUpdate(tablesql);
 		      stmt.close();
@@ -443,9 +444,9 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(MetricEnum metric)
+	public void addMetric(MetricEnum metric, String name)
 	{
-		_metrics.addMetric(metric);
+		_metrics.addMetric(metric, name);
 	}
 	
 	public Integer getClockTime() {

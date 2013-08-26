@@ -77,7 +77,7 @@ public class DeltaClock implements IDeltaClock {
 			Simulator.getSim()._metrics.currentKey._actor_name = actor.name();
 			Simulator.getSim()._metrics.currentKey._state = actor.getCurrentState().getName();
 			Simulator.getSim()._metrics.currentKey._transition = transition.getIndex();
-			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE);
+			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE, "ACTIVE_TRANSITION");
 			
 			//Loop through the linked list and insert this transition at the correct point.
 			int total_time = 0;

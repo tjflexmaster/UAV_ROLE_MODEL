@@ -281,7 +281,7 @@ public class Transition implements ITransition {
 	{
 		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
 //		Simulator.getSim().addMetric((String)_internal_vars.getVariable("name"), _transition_number, MetricEnum.CHANNEL_TEMP_A);
-		Simulator.getSim().addMetric(MetricEnum.CHANNEL_TEMP_O);
+		Simulator.getSim().addMetric(MetricEnum.CHANNEL_TEMP_O, varname);
 		_temp_outputs.put(varname, value);
 	}
 	
@@ -289,7 +289,7 @@ public class Transition implements ITransition {
 	{
 		assert _temp_outputs.containsKey(varname): "Cannot set temp internal var, variable does not exist";
 //		Simulator.Sim().addMetric(_internal_vars._variables.get("name").toString(), varname + "_temp_internal_set", 1);
-		Simulator.getSim().addMetric(MetricEnum.MEMORY_TEMP);
+		Simulator.getSim().addMetric(MetricEnum.MEMORY_TEMP, varname);
 		_temp_internal_vars.put(varname, value);
 	}
 

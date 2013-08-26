@@ -10,4 +10,5 @@ public interface IMetricManager {
 	 * creates the metric key and adds 1 to the metric
 	 */
 	public void addMetric(MetricEnum metric);
+	public void addMetric(MetricEnum metric, String name);
 }

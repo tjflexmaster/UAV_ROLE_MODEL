@@ -59,7 +59,7 @@ public class State implements IState {
 				enabled.add((ITransition) new Transition((Transition)t));
 				
 				//TODO send enabled metric
-				Simulator.getSim().addMetric(MetricEnum.ENABLED);
+				Simulator.getSim().addMetric(MetricEnum.ENABLED, "TRANSITION");
 			}
 		}
 		return enabled;

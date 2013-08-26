@@ -30,27 +30,28 @@ public class MetricManager implements IMetricManager {
 //		actor_metrics = new HashMap<MetricKey,Metric>();
 		actor_metrics = new TreeMap<MetricKey, Metric>();
 		
-//		try {
-//			Class.forName("org.sqlite.JDBC");
-//			String db = Simulator.getSim().dbname;
-//			c = DriverManager.getConnection("jdbc:sqlite:"+db+".db");
-//		} catch (Exception e) {
-//			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-//			System.exit(0);
-//		}
+		try {
+			Class.forName("org.sqlite.JDBC");
+			String db = Simulator.getSim().dbname;
+			c = DriverManager.getConnection("jdbc:sqlite:"+db+".db");
+		} catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+			System.exit(0);
+		}
 	}
 	
 	public void close()
 	{
-//		try {
-//			c.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			c.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
-
+	
 	@Override
-	public void addMetric(MetricEnum metric) {
+	public void addMetric(MetricEnum metric, String name)
+	{
 		Metric metrics = actor_metrics.get(currentKey);
 		if(metrics == null)
 			metrics = new Metric();
@@ -59,15 +60,20 @@ public class MetricManager implements IMetricManager {
 //		System.out.println("MetricKey: " + key.toString() +  ":" + metric.name() + " - " + key.hashCode());
 		actor_metrics.put(key, metrics);
 		
-//		Statement stmt = null;
-//		try {
-//			stmt = c.createStatement();
-//			String sql = "INSERT INTO singlemetric (time, actor, state, transition_id, metric) " +
-//					"VALUES (" + key._time + "," + key._actor_name + "," + key._state + "," + key._transition + "," + metric.name() + ");";
-//			stmt.executeUpdate(sql);
-//			stmt.close();
-//		} catch (Exception e) {
-//			System.out.println("SQL insert error: " + e.getMessage());
-//		}
+		Statement stmt = null;
+		try {
+			stmt = c.createStatement();
+			String sql = "INSERT INTO singlemetric " +
+					"VALUES (" + key._time + ",'" + key._actor_name + "','" + key._state + "'," + key._transition + ",'" + metric.name() + "','" + name + "');";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		} catch (Exception e) {
+			System.out.println("SQL insert error: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void addMetric(MetricEnum metric) {
+		addMetric(metric, "Unknown");
 	}
 }
