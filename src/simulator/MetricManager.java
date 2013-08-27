@@ -20,7 +20,7 @@ import simulator.Metric.MetricEnum;
  *
  */
 public class MetricManager implements IMetricManager {
-	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
+//	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
 	MetricKey currentKey = new MetricKey(-1, "", "", -1);
 	TreeMap<MetricKey, Metric> actor_metrics;
 //	Connection c = null;
