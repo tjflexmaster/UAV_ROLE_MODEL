@@ -3,10 +3,10 @@ package simulator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.sql.Timestamp;
+//import java.sql.Connection;
+//import java.sql.DriverManager;
+//import java.sql.Statement;
+//import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class Simulator {
 //	public static boolean debug = true;
 	private ITeam _team;
 	private IDeltaClock _clock;// = new DeltaClock();
-	private Scanner _scanner = new Scanner(System.in);
+//	private Scanner _scanner = new Scanner(System.in);
 	private HashMap<IActor, ITransition> _ready_transitions = new HashMap<IActor, ITransition>();
 //	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
 //	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
@@ -55,7 +55,7 @@ public class Simulator {
 	private static Simulator _instance = null;
 	private Date _date = null;
 	
-	public String dbname = "";
+//	public String dbname = "";
 	
 	
 	/**
@@ -78,7 +78,7 @@ public class Simulator {
 	public void setup(ITeam team, DebugMode mode, DurationMode duration)
 	{
 		_setup = false;
-		dbname = "MetricDB" + _date.getTime();
+//		dbname = "MetricDB" + _date.getTime();
 		_clock = new DeltaClock();
 		_metrics = new MetricManager();
 		
@@ -89,66 +89,67 @@ public class Simulator {
 		initializeRandom();
 		
 		//Setup the database
-		Connection c = null;
-		Statement stmt = null;
-		try {
-			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
-			System.out.println("Opened database successfully");
-			
-			stmt = c.createStatement();
-		      String sql = "CREATE TABLE metrics " +
-		                   "(" +
-		                   " time           INT    NOT NULL, " + 
-		                   " actor            TEXT     NOT NULL, " + 
-		                   " state        TEXT, " + 
-		                   "transition_id		INT, " +
-	                   	   "CHANNEL_ACTIVE_A	INT, " +
-	                   	   "CHANNEL_ACTIVE_V	INT, " +
-	                   	   "CHANNEL_ACTIVE_D	INT, " +
-	                   	   "CHANNEL_ACTIVE_O	INT, " +
-	                   	   "CHANNEL_INACTIVE_A	INT, " +
-	                   	   "CHANNEL_INACTIVE_V	INT, " +
-	                   	   "CHANNEL_INACTIVE_D	INT, " +
-	                   	   "CHANNEL_INACTIVE_O	INT, " +
-	                   	   "ENABLED				INT, " +
-	                   	   "ACTIVE				INT, " +
-	                   	   "MEMORY_ACTIVE		INT, " +
-	                   	   "MEMORY_INACTIVE		INT, " +
-	                   	   "CHANNEL_TEMP_A		INT, " +
-	                   	   "CHANNEL_TEMP_V		INT, " +
-	                   	   "CHANNEL_TEMP_D		INT, " +
-	                   	   "CHANNEL_TEMP_O		INT, " +
-	                   	   "CHANNEL_FIRE_A		INT, " +
-	                   	   "CHANNEL_FIRE_V		INT, " +
-	                   	   "CHANNEL_FIRE_D		INT, " +
-	                   	   "CHANNEL_FIRE_O		INT, " +
-	                   	   "MEMORY_TEMP			INT, " +
-	                   	   "MEMORY_FIRE			INT " +
-		                   ")"; 
-		      stmt.executeUpdate(sql);
-		      stmt.close();
-		      
-		      //Create another table for individual metrics
-		      stmt = c.createStatement();
-		      String tablesql = "CREATE TABLE singlemetric " +
-		                   "(" +
-		                   " time           	INT    NOT NULL, " + 
-		                   " actor            	TEXT     NOT NULL, " + 
-		                   " state        		TEXT, " + 
-		                   "transition_id		INT, " +
-	                   	   "metric				TEXT, " +
-		                   "name				TEXT " +
-		                   ")"; 
-		      stmt.executeUpdate(tablesql);
-		      stmt.close();
-		      
-		      c.close();
-		} catch (Exception e) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-			System.exit(0);
-		}
-		System.out.println("Table created successfully");
+//		Connection c = null;
+//		Statement stmt = null;
+//		try {
+//			Class.forName("org.sqlite.JDBC");
+//			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
+//			System.out.println("Opened database successfully");
+//			
+//			stmt = c.createStatement();
+//		      String sql = "CREATE TABLE metrics " +
+//		                   "(" +
+//		                   " time           INT    NOT NULL, " + 
+//		                   " actor            TEXT     NOT NULL, " + 
+//		                   " state        TEXT, " + 
+//		                   "transition_id		INT, " +
+//	                   	   "CHANNEL_ACTIVE_A	INT, " +
+//	                   	   "CHANNEL_ACTIVE_V	INT, " +
+//	                   	   "CHANNEL_ACTIVE_D	INT, " +
+//	                   	   "CHANNEL_ACTIVE_O	INT, " +
+//	                   	   "CHANNEL_INACTIVE_A	INT, " +
+//	                   	   "CHANNEL_INACTIVE_V	INT, " +
+//	                   	   "CHANNEL_INACTIVE_D	INT, " +
+//	                   	   "CHANNEL_INACTIVE_O	INT, " +
+//	                   	   "ENABLED				INT, " +
+//	                   	   "ACTIVE				INT, " +
+//	                   	   "MEMORY_ACTIVE		INT, " +
+//	                   	   "MEMORY_INACTIVE		INT, " +
+//	                   	   "CHANNEL_TEMP_A		INT, " +
+//	                   	   "CHANNEL_TEMP_V		INT, " +
+//	                   	   "CHANNEL_TEMP_D		INT, " +
+//	                   	   "CHANNEL_TEMP_O		INT, " +
+//	                   	   "CHANNEL_FIRE_A		INT, " +
+//	                   	   "CHANNEL_FIRE_V		INT, " +
+//	                   	   "CHANNEL_FIRE_D		INT, " +
+//	                   	   "CHANNEL_FIRE_O		INT, " +
+//	                   	   "MEMORY_TEMP			INT, " +
+//	                   	   "MEMORY_FIRE			INT " +
+//		                   ")"; 
+//		      stmt.executeUpdate(sql);
+//		      stmt.close();
+//		      
+//		      //Create another table for individual metrics
+//		      stmt = c.createStatement();
+//		      String tablesql = "CREATE TABLE singlemetric " +
+//		                   "(" +
+//		                   " time           	INT    NOT NULL, " + 
+//		                   " actor            	TEXT     NOT NULL, " + 
+//		                   " state        		TEXT, " + 
+//		                   "transition_id		INT, " +
+//	                   	   "metric				TEXT, " +
+//		                   "name				TEXT " +
+//		                   ")"; 
+//		      stmt.executeUpdate(tablesql);
+//		      stmt.close();
+//		      
+//		      c.close();
+//		} catch (Exception e) {
+//			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+//			System.exit(0);
+//		}
+//		System.out.println("Table created successfully");
+		_setup = true;
 		
 		
 	}
@@ -232,7 +233,7 @@ public class Simulator {
 		printMetrics();
 
 		System.out.println("Finished");
-		_metrics.close();
+//		_metrics.close();
 //		try {
 //			PrintWriter workloadWriter = new PrintWriter(new File("workload.txt"));
 //			for(Entry<String, String> actor_workload : data.entrySet())
@@ -267,15 +268,15 @@ public class Simulator {
 //		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
 		TreeMap<MetricKey, Metric> keys = _metrics.actor_metrics;
 		
-		Connection c = null;
-		Statement stmt = null;
+//		Connection c = null;
+//		Statement stmt = null;
 		
 		//print output to a file
 		try {
 			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
 			
-			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
+//			Class.forName("org.sqlite.JDBC");
+//			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
 			
 			
 			//header
@@ -331,22 +332,22 @@ public class Simulator {
 				output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF;
 				metricsWriter.println(output);
 				
-				try {
-					stmt = c.createStatement();
-					String sql = "INSERT INTO metrics "+ //(time, actor, state, transition_id, CHANNEL_ACTIVE_A, CHANNEL_ACTIVE_V, CHANNEL_ACTIVE_D, CHANNEL_ACTIVE_O, CHANNEL_INACTIVE_A, CHANNEL_INACTIVE_V, CHANNEL_INACTIVE_D, CHANNEL_INACTIVE_O, ENABLED, ACTIVE, " +
-							//"MEMORY_ACTIVE, MEMORY_INACTIVE, CHANNEL_TEMP_A, CHANNEL_TEMP_V, CHANNEL_TEMP_D, CHANNEL_TEMP_O, CHANNEL_FIRE_A, CHANNEL_FIRE_V, CHANNEL_FIRE_D,CHANNEL_FIRE_O, MEMORY_TEMP, MEMORY_FIRE) " +
-							"VALUES (" + output + ");";
-					stmt.executeUpdate(sql);
-					stmt.close();
-				} catch (Exception e) {
-					System.out.println("SQL insert error: " + e.getMessage());
-				}
+//				try {
+//					stmt = c.createStatement();
+//					String sql = "INSERT INTO metrics "+ //(time, actor, state, transition_id, CHANNEL_ACTIVE_A, CHANNEL_ACTIVE_V, CHANNEL_ACTIVE_D, CHANNEL_ACTIVE_O, CHANNEL_INACTIVE_A, CHANNEL_INACTIVE_V, CHANNEL_INACTIVE_D, CHANNEL_INACTIVE_O, ENABLED, ACTIVE, " +
+//							//"MEMORY_ACTIVE, MEMORY_INACTIVE, CHANNEL_TEMP_A, CHANNEL_TEMP_V, CHANNEL_TEMP_D, CHANNEL_TEMP_O, CHANNEL_FIRE_A, CHANNEL_FIRE_V, CHANNEL_FIRE_D,CHANNEL_FIRE_O, MEMORY_TEMP, MEMORY_FIRE) " +
+//							"VALUES (" + output + ");";
+//					stmt.executeUpdate(sql);
+//					stmt.close();
+//				} catch (Exception e) {
+//					System.out.println("SQL insert error: " + e.getMessage());
+//				}
 			}
 			
 			
 			metricsWriter.close();
 			
-			c.close();
+//			c.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

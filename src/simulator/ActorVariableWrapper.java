@@ -26,17 +26,19 @@ public class ActorVariableWrapper {
 	public void setVariable(String name, Object o)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
-		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
-		Object temp = _variables.get(name);
-		if(!name.equals("name") && !name.equals("currentState")){
-			if(o != null){
-				//TODO add metric for setting a variable
-				Simulator.getSim().addMetric(MetricEnum.MEMORY_FIRE, name);
-			}else{
-				//TODO add metric for clearing a variable ???-rob
+		if(_variables.get(name) != null && o != null){
+			assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
+			Object temp = _variables.get(name);
+			if(!name.equals("name") && !name.equals("currentState")){
+				if(o != null){
+					//TODO add metric for setting a variable
+					Simulator.getSim().addMetric(MetricEnum.MEMORY_FIRE, name);
+				}else{
+					//TODO add metric for clearing a variable ???-rob
+				}
 			}
+			_variables.put(name, o);
 		}
-		_variables.put(name, o);
 	}
 	
 	public Object getVariable(String name)
