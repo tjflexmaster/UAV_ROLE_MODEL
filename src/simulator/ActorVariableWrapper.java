@@ -3,6 +3,8 @@ package simulator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import simulator.Metric.MetricEnum;
+
 public class ActorVariableWrapper {
 
 	HashMap<String, Object> _variables;
@@ -24,20 +26,52 @@ public class ActorVariableWrapper {
 	public void setVariable(String name, Object o)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
-		if( o!=null && _variables.get(name)!=null )
-			assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
+		assert _variables.get(name).getClass() == o.getClass() : "Incompatible value type";
+		Object temp = _variables.get(name);
+		if(!name.equals("name") && !name.equals("currentState")){
+			if(o != null){
+				//TODO add metric for setting a variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_FIRE, name);
+			}else{
+				//TODO add metric for clearing a variable ???-rob
+			}
+		}
 		_variables.put(name, o);
 	}
 	
 	public Object getVariable(String name)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
+		Object temp = _variables.get(name);
+		if(!name.equals("name") && !name.equals("currentState")){
+			if(temp != null
+					|| (temp instanceof Boolean && (Boolean)temp)
+					|| (temp instanceof Integer && (Integer)temp != 0)){
+				//TODO update metric for referencing active variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
+			}else{
+				//TODO update metric for referencing a variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
+			}
+		}
 		return _variables.get(name);
 	}
 	
 	public Object getVariable(String name, boolean measuring)
 	{
 		assert _variables.containsKey(name):"Variable '"+ name + "' doesn't exist";
+		Object temp = _variables.get(name);
+		if(!name.equals("name") && !name.equals("currentState") && measuring){
+			if(temp != null
+					|| (temp instanceof Boolean && (Boolean)temp)
+					|| (temp instanceof Integer && (Integer)temp != 0)){
+				//TODO update metric for referencing active variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
+			}else{
+				//TODO update metric for referencing a variable
+				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
+			}
+		}
 		return _variables.get(name);
 	}
 	

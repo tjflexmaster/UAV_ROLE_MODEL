@@ -9,6 +9,12 @@ import java.util.*;
  *
  */
 public abstract class Actor implements IActor {
+	/**
+	 * this variable represents the name we give to the actor
+	 */
+//	protected String _name = "";
+	
+	private int _workload = 0;
 	
 	private ArrayList<IState> _states = new ArrayList<IState>();
 	
@@ -24,6 +30,8 @@ public abstract class Actor implements IActor {
 	 * @return
 	 */
 	public HashMap<IActor, ITransition> getTransitions(){
+		//TODO Add Actor id to the metric manager
+		Simulator.getSim()._metrics.currentKey._actor_name = this.name();
 		
 		State state = this.getCurrentState();
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
@@ -78,6 +86,8 @@ public abstract class Actor implements IActor {
 	{
 		_subactors.add(a);
 	}
+
+	
 	
 	/**
 	 * HELPER METHODS
@@ -100,6 +110,21 @@ public abstract class Actor implements IActor {
 		return this;
 	}
 	
+//	public int getWorkload(){
+//		int temp_workload = 0;
+//		temp_workload += _internal_vars.getWorkload();
+//		temp_workload += getCurrentState().getWorkload();
+//		
+//		if(getCurrentState().equals("IDLE")){
+//			_workload = 0;
+//		}else{
+//			_workload ++;
+//		}
+//		
+//		return _workload + temp_workload;
+//	}
+
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -116,6 +141,7 @@ public abstract class Actor implements IActor {
 			return false;
 		return true;
 	}
+	
 
 	@Override
 	public int hashCode()

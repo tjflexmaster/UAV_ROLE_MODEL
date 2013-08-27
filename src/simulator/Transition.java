@@ -1,7 +1,11 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import simulator.ComChannel.Type;
+import simulator.Metric.MetricEnum;
 
 /**
  * this class is a models all transitions in the simulation 
@@ -163,6 +167,9 @@ public class Transition implements ITransition {
 	}
 	
 	public boolean updateTransition(){
+//		for(Entry<String, Object> internal : _internal_vars.getAllVariables().entrySet()){
+//			this.setTempInternalVar(internal.getKey(), internal.getValue());
+//		}
 		for(Entry<String, Object> internal : _temp_internal_vars.entrySet()){
 			if(internal.getValue() != null){
 				_temp_internal_vars.put(internal.getKey(), null);
@@ -182,12 +189,18 @@ public class Transition implements ITransition {
 	 * 
 	 * @return the new state of the actor after the transition is processes 
 	 */
+	@SuppressWarnings("rawtypes")
 	public void fire(){
+//		if(!_internal_vars.getVariable("currentState").equals(_endState)){
+//			Simulator.getSim().addMetric((String)_internal_vars.getVariable("name"), "state_change", 1);
+//		}
 		if(!_temp_outputs.isEmpty()){
 			for(ComChannel<?> output : _outputs.values()){
 				Object temp = _temp_outputs.get(output.name());
-				output.set(temp);
-				_temp_outputs.put(output.name(), null);
+				//if ( temp != null ){
+					output.set(temp);
+					_temp_outputs.put(output.name(), null);
+				//}
 			}
 		}
 		
@@ -266,13 +279,17 @@ public class Transition implements ITransition {
 	
 	protected void setTempOutput(String varname, Object value)
 	{
-		assert _temp_outputs.containsKey(varname): "Cannot set: " + varname;
+		assert _temp_outputs.containsKey(varname): "Cannot set temp output, variable does not exist";
+//		Simulator.getSim().addMetric((String)_internal_vars.getVariable("name"), _transition_number, MetricEnum.CHANNEL_TEMP_A);
+		Simulator.getSim().addMetric(MetricEnum.CHANNEL_TEMP_O, varname);
 		_temp_outputs.put(varname, value);
 	}
 	
 	protected void setTempInternalVar(String varname, Object value)
 	{
-		assert _temp_internal_vars.containsKey(varname): "Cannot set: " + varname;
+		assert _temp_outputs.containsKey(varname): "Cannot set temp internal var, variable does not exist";
+//		Simulator.Sim().addMetric(_internal_vars._variables.get("name").toString(), varname + "_temp_internal_set", 1);
+		Simulator.getSim().addMetric(MetricEnum.MEMORY_TEMP, varname);
 		_temp_internal_vars.put(varname, value);
 	}
 
@@ -310,6 +327,8 @@ public class Transition implements ITransition {
 		if(_outputs != null){
 			for(Entry<String, Object> output : _temp_outputs.entrySet()) {
 				if(output.getValue() != null)
+//						&& (!(output.getValue() instanceof Boolean) || (Boolean)output.getValue())
+//						&& (!(output.getValue() instanceof Integer) || (Integer)output.getValue() != 0))
 					result.append(output.toString() + ", ");
 			}
 		}
@@ -317,11 +336,34 @@ public class Transition implements ITransition {
 		//internals
 		for(Entry<String, Object> variable : _temp_internal_vars.entrySet()){
 			if(variable.getValue() != null)
+//					&& (!(variable.getValue() instanceof Boolean) || (Boolean)variable.getValue())
+//					&& (!(variable.getValue() instanceof Integer) || (Integer)variable.getValue() != 0))
 				result.append(variable.toString() + ", ");
 		}
 		result.append(" ])");
 		return result.toString();
 	}
+
+//	public int getWorkload() {
+//		int workload = 0;
+//		ArrayList<Type> types = new ArrayList<Type>();
+//		for(Entry<String, ComChannel<?>> input : _inputs.entrySet()){
+//			if(input.getValue().value() != null){
+//				if(types.contains(input.getValue()._type)){
+//					workload+=5;
+//				}else{
+//					types.add(input.getValue()._type);
+//				}
+//				if(input.getValue().value() instanceof Boolean && !(Boolean) input.getValue().value()){
+//					continue;
+//				} else if(input.getValue().value() instanceof Integer && ((Integer)input.getValue().value()) == 0){
+//					continue;
+//				}
+//				workload++;
+//			}
+//		}
+//		return workload;
+//	}
 	
 	@Override
 	public ComChannelList getInputChannels()
