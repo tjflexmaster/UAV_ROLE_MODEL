@@ -45,28 +45,65 @@ public class MetricListener extends ListenerAdapter {
     			String parName = parameter.getName( );//name
     			Object value = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( parName );//value
     			
-    			//TODO build metric map
     			switch( parName ){
     			case "time" :
-    				_currentKey.setBDMTime( ( Integer ) value ); 
+    				_currentKey.setBDMTime( ( int ) value ); 
     				break;
     			case "actor_name" :
-    				MetricEnum val = (MetricEnum) value;//_currentKey.setBDMActor( ( String ) value );
+    				_currentKey.setBDMActor( DEIToString( value ) );
     				break;
     			case "state_name" :
-    				_currentKey.setBDMState( ( String ) value );
+    				_currentKey.setBDMState( DEIToString( value ) );
     				break;
     			case "transition" :
-    				_currentKey.setBDMTransition( ( Integer ) value );
+    				_currentKey.setBDMTransition( ( int ) value );
     				break;
     			case "metric" :
-    				_metrics.put( _currentKey, ( simulator.Metric.MetricEnum ) value );
+    				MetricEnum metric = DEIToMetricEnum( value );
+    				Metric metrics = _metrics.get( _currentKey );
+    				if ( metrics == null )
+    					metrics = new Metric( );
+    				else
+    					metrics.increment( metric );
+    				MetricKey key = _currentKey.clone( );
+    				_metrics.put( key, metrics );
     				break;
     			}
     			
     			//debug
-    			System.out.println( _currentKey + "--" + parName );
+    			System.out.println( _currentKey );
     		}
 		}
+	}
+	
+	/**
+	 * must always return a !null MetricEnum
+	 * @param object a generic object returned by getLocalOrFieldValue
+	 * @return the appropriate MetricEnum
+	 */
+	private MetricEnum DEIToMetricEnum( Object object ) {
+		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
+		MetricEnum result = null;
+		
+//		System.out.println( DEI.getStringChars( ) );
+		result = MetricEnum.ACTIVE;
+		
+		return result;
+	}
+
+	/**
+	 * must always return a !null string
+	 * @param object a generic object returned by getLocalOrFieldValue
+	 * @return a string representation of the object
+	 */
+	private String DEIToString( Object object ) {
+		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
+		String result = "";
+		
+		char[] stringChars = DEI.getStringChars( );
+		for( char nextChar : stringChars )
+			result += nextChar;
+		
+		return result;
 	}
 }
