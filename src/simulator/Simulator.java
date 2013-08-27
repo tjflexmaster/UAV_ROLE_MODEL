@@ -179,7 +179,7 @@ public class Simulator {
 			_clock.advanceTime();
 			
 			//Save time for the current Key in the metric manager
-			_metrics.currentKey._time = _clock.getElapsedTime();
+			_metrics.currentKey.setTime(_clock.getElapsedTime());
 			
 			//Start a new metric
 //			metric = new MetricDataStruct(_clock.elapsedTime());
@@ -208,9 +208,9 @@ public class Simulator {
 				//Set metric key
 				IActor a = (IActor) e.getKey();
 				ITransition t = (ITransition) e.getValue();
-				Simulator.getSim()._metrics.currentKey._actor_name = a.name();
-				Simulator.getSim()._metrics.currentKey._state = a.getCurrentState().getName();
-				Simulator.getSim()._metrics.currentKey._transition = t.getIndex();
+				Simulator.getSim()._metrics.currentKey.setActor(a.name());
+				Simulator.getSim()._metrics.currentKey.setState(a.getCurrentState().getName());
+				Simulator.getSim()._metrics.currentKey.setTransition(t.getIndex());
 				
 				t.fire();
 //				metric._fired_transitions++;
@@ -294,10 +294,10 @@ public class Simulator {
 				
 				//add key
 				MetricKey metricKey = metrics.getKey();
-				output += metricKey._time + ",";
-				output += "'"+metricKey._actor_name + "',";
-				output += "'"+metricKey._state + "',";
-				output += metricKey._transition + ",";
+				output += metricKey.getTime() + ",";
+				output += "'"+metricKey.getActor() + "',";
+				output += "'"+metricKey.getState() + "',";
+				output += metricKey.getTransition() + ",";
 				
 				//add metric (in order)
 				String CAA="",CAV="",CAD="",CAO="",CIA="",CIV="",CID="",CIO="",ENABLED="",ACTIVE="",MA="",MI="",CTA="",CTV="",CTD="",CTO="",CFA="",CFV="",CFD="",CFO="",MT="",MF="";
