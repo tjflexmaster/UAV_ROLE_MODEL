@@ -3,6 +3,7 @@ package listeners;
 import java.util.TreeMap;
 
 import simulator.Metric;
+import simulator.Metric.MetricEnum;
 import simulator.MetricKey;
 import gov.nasa.jpf.*;
 import gov.nasa.jpf.vm.*;
@@ -50,21 +51,21 @@ public class MetricListener extends ListenerAdapter {
     				_currentKey.setBDMTime( ( Integer ) value ); 
     				break;
     			case "actor_name" :
-//    				_currentKey.setBDMActor( ( String ) value );
+    				MetricEnum val = (MetricEnum) value;//_currentKey.setBDMActor( ( String ) value );
     				break;
     			case "state_name" :
-//    				_currentKey.setBDMState( ( String ) value );
+    				_currentKey.setBDMState( ( String ) value );
     				break;
     			case "transition" :
     				_currentKey.setBDMTransition( ( Integer ) value );
     				break;
     			case "metric" :
-//    				_metrics.put( _currentKey, ( Metric ) value );
+    				_metrics.put( _currentKey, ( simulator.Metric.MetricEnum ) value );
     				break;
     			}
     			
     			//debug
-    			System.out.println( _currentKey );
+    			System.out.println( _currentKey + "--" + parName );
     		}
 		}
 	}
