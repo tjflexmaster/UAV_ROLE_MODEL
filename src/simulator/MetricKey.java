@@ -10,11 +10,19 @@ public class MetricKey implements Comparable {
 		_time = time;
 	}
 	
+	public void setBDMTime(int time) {//BDM:=But Don't Measure
+		_time = time;
+	}
+	
 	public int getTime() {
 		return _time;
 	}
 	
 	public void setActor(String actor_name) {
+		_actor_name = actor_name;
+	}
+	
+	public void setBDMActor(String actor_name) {//BDM:=But Don't Measure
 		_actor_name = actor_name;
 	}
 	
@@ -26,11 +34,19 @@ public class MetricKey implements Comparable {
 		_state_name = state_name;
 	}
 	
+	public void setBDMState(String state_name) {//BDM:=But Don't Measure
+		_state_name = state_name;
+	}
+	
 	public String getState() {
 		return _state_name;
 	}
 	
 	public void setTransition(int transition) {
+		_transition = transition;
+	}
+	
+	public void setBDMTransition(int transition) {//BDM:=But Don't Measure
 		_transition = transition;
 	}
 	

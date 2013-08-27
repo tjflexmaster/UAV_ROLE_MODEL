@@ -11,7 +11,8 @@ public class MetricListener extends ListenerAdapter {
 	/**
 	 * stores the metrics
 	 */
-	//TODO create storage variable (can't use MetricKey or Metric Manager classes, this would create an infinite loop)
+	MetricKey _currentKey = new MetricKey(-1, "", "", -1);
+	TreeMap<MetricKey, Metric> _metrics = new TreeMap<MetricKey, Metric>();
 	
 //	/**
 //	 * constructs the class (commented out because jpf didn't like this of constructor)
@@ -27,47 +28,43 @@ public class MetricListener extends ListenerAdapter {
 	@Override
 	public void executeInstruction ( VM vm, ThreadInfo ti, Instruction insnToExecute ) {
 		//get the methods information
-		MethodInfo mi = insnToExecute.getMethodInfo();
-		String mname = mi.getFullName();
+		MethodInfo mi = insnToExecute.getMethodInfo( );
+		String mname = mi.getFullName( );
 		
 		//only act on these methods
-		if ( mname.contains("setTime") || mname.contains("setActor") || mname.contains("setState") || mname.contains("setTransition") || mname.contains("addMetric") ) {
+		if ( mname.contains( "setTime" )
+				|| mname.contains( "setActor" )
+				|| mname.contains( "setState" )
+				|| mname.contains( "setTransition" )
+				|| mname.contains( "addMetric" ) ) {
 			
-			//find the desired parameter
-    		LocalVarInfo parameter = mi.getLocalVar(1, 1);
-    		if(parameter != null){
-    			//get the parameters information
-    			String parName = parameter.getName();
-    			String parType = parameter.getType();
-    			StackFrame s = ti.getStackFrameExecuting(insnToExecute, 0);
-    			
-    			//reform the parameter's value
-    			Object value = ( parType.contains("Integer") ) ? (Integer) s.getLocalOrFieldValue(parName) :
-//    				( varType.contains("String") ) ? (java.lang.String) s.getLocalOrFieldValue(varName) : 
-//        			( varType.contains("MetricEnum") ) ? (simulator.Metric.MetricEnum) s.getLocalOrFieldValue(varName) : 
-    				s.getLocalOrFieldValue(parName);
+    		LocalVarInfo parameter = mi.getLocalVar( 1, 1 );
+    		if( parameter != null ){
+    			//get the desired parameter's information
+    			String parName = parameter.getName( );//name
+    			Object value = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( parName );//value
     			
     			//TODO build metric map
-    			switch(parName){
+    			switch( parName ){
     			case "time" :
-    				//TODO update storage variable's time
+    				_currentKey.setBDMTime( ( Integer ) value ); 
     				break;
     			case "actor_name" :
-    				//TODO update storage variable's actor_name
+//    				_currentKey.setBDMActor( ( String ) value );
     				break;
     			case "state_name" :
-    				//TODO update storage variable's state_name
+//    				_currentKey.setBDMState( ( String ) value );
     				break;
     			case "transition" :
-    				//TODO update storage variable's transition
+    				_currentKey.setBDMTransition( ( Integer ) value );
     				break;
     			case "metric" :
-    				//TODO add metric to storage variable
+//    				_metrics.put( _currentKey, ( Metric ) value );
     				break;
     			}
     			
     			//debug
-    			System.out.println(parName);
+    			System.out.println( _currentKey );
     		}
 		}
 	}
