@@ -48,15 +48,23 @@ public class MetricListener extends ListenerAdapter {
     			switch( parName ){
     			case "time" :
     				_currentKey.setBDMTime( ( int ) value ); 
+        			//debug
+        			System.out.println( _currentKey );
     				break;
     			case "actor_name" :
     				_currentKey.setBDMActor( DEIToString( value ) );
+        			//debug
+        			System.out.println( _currentKey );
     				break;
     			case "state_name" :
     				_currentKey.setBDMState( DEIToString( value ) );
+        			//debug
+        			System.out.println( _currentKey );
     				break;
     			case "transition" :
     				_currentKey.setBDMTransition( ( int ) value );
+        			//debug
+        			System.out.println( _currentKey );
     				break;
     			case "metric" :
     				MetricEnum metric = DEIToMetricEnum( value );
@@ -67,11 +75,10 @@ public class MetricListener extends ListenerAdapter {
     					metrics.increment( metric );
     				MetricKey key = _currentKey.clone( );
     				_metrics.put( key, metrics );
+        			//debug
+        			System.out.println( metric + "--" + metrics.toString() );
     				break;
     			}
-    			
-    			//debug
-    			System.out.println( _currentKey );
     		}
 		}
 	}
@@ -85,8 +92,32 @@ public class MetricListener extends ListenerAdapter {
 		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
 		MetricEnum result = null;
 		
-//		System.out.println( DEI.getStringChars( ) );
-		result = MetricEnum.ACTIVE;
+		Fields fields = DEI.getFields( );
+		int enumIndex = fields.getIntValue( 1 );
+		switch ( enumIndex ) {
+		case 0 : result = MetricEnum.CHANNEL_ACTIVE_A;break;
+		case 1 : result = MetricEnum.CHANNEL_ACTIVE_V;break;
+		case 2 : result = MetricEnum.CHANNEL_ACTIVE_D;break;
+		case 3 : result = MetricEnum.CHANNEL_ACTIVE_O;break;
+		case 4 : result = MetricEnum.CHANNEL_INACTIVE_A;break;
+		case 5 : result = MetricEnum.CHANNEL_INACTIVE_V;break;
+		case 6 : result = MetricEnum.CHANNEL_INACTIVE_D;break;
+		case 7 : result = MetricEnum.CHANNEL_INACTIVE_O;break;
+		case 8 : result = MetricEnum.ENABLED;break;
+		case 9 : result = MetricEnum.ACTIVE;break;
+		case 10 : result = MetricEnum.MEMORY_ACTIVE;break;
+		case 11 : result = MetricEnum.MEMORY_INACTIVE;break;
+		case 12 : result = MetricEnum.CHANNEL_TEMP_A;break;
+		case 13 : result = MetricEnum.CHANNEL_TEMP_V;break;
+		case 14 : result = MetricEnum.CHANNEL_TEMP_D;break;
+		case 15 : result = MetricEnum.CHANNEL_TEMP_O;break;
+		case 16 : result = MetricEnum.CHANNEL_FIRE_A;break;
+		case 17 : result = MetricEnum.CHANNEL_FIRE_V;break;
+		case 18 : result = MetricEnum.CHANNEL_FIRE_D;break;
+		case 19 : result = MetricEnum.CHANNEL_FIRE_O;break;
+		case 20 : result = MetricEnum.MEMORY_TEMP;break;
+		case 21 : result = MetricEnum.MEMORY_FIRE;break;
+		}
 		
 		return result;
 	}
