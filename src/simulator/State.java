@@ -2,6 +2,9 @@ package simulator;
 
 import java.util.ArrayList;
 
+import simulator.Metric.MetricEnum;
+
+
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
@@ -14,12 +17,15 @@ public class State implements IState {
 	 */
 	private String _name;
 	private ArrayList<ITransition> _transitions;
-
+	/**
+	 * this constructor is used for creating new states
+	 * @param name
+	 */
 	public State(String name) {
 		_name = name;
 		_transitions = new ArrayList<ITransition>();
 	}
-
+	
 	public State add(ITransition new_transition)
 	{
 		if(_transitions.contains(new_transition)){
@@ -35,13 +41,23 @@ public class State implements IState {
 	
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
+		//TODO Send state to the metric manager
+		Simulator.getSim()._metrics.currentKey.setState(this.getName());
 		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {
 			ITransition t = _transitions.get(i);
+			
+			//TODO send transition to the metric manager
+			Simulator.getSim()._metrics.currentKey.setTransition(t.getIndex());
+			
+			
 			if ( t.updateTransition() ) {
 				//Copy the transition if it is enabled
 				enabled.add((ITransition) new Transition((Transition)t));
+				
+				//TODO send enabled metric
+				Simulator.getSim().addMetric(MetricEnum.ENABLED, "TRANSITION");
 			}
 		}
 		return enabled;
@@ -87,5 +103,10 @@ public class State implements IState {
 	public String toString() {
 		return _name;
 	}
+
+//	public int getWorkload() {
+//		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
+//		return temp_workload;
+//	}
 
 }

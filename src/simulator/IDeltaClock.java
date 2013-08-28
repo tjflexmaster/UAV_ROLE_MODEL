@@ -1,6 +1,7 @@
 package simulator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface IDeltaClock {
 
