@@ -32,7 +32,7 @@ public class MetricManager {
 		return _instance;
 	}
 
-	public static void setDecisionWorkload(int time, String actor, String state, int workload)
+	public void setDecisionWorkload(int time, String actor, String state, int workload)
 	{
 		//Do nothing JPF will handle the data
 	}
@@ -48,12 +48,12 @@ public class MetricManager {
 	 * @param actor
 	 * @param channel_type
 	 */
-	public static void setChannelConflict(int time, String actor, String channel_type)
+	public void setChannelConflict(int time, String actor, String channel_type)
 	{
 		//Do nothing JPF will handle the data
 	}
 	
-	public static void setChannelLoad(int time, String actor, String channel_type, int load)
+	public void setChannelLoad(int time, String actor, String channel_type, int load)
 	{
 		//Do nothing JPF will handle the data
 	}

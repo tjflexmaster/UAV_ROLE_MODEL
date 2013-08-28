@@ -35,7 +35,7 @@ public abstract class Actor implements IActor {
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
 		
 		//Log this with JPF
-		MetricManager.setDecisionWorkload(Simulator.getSim().getClockTime(), this.name(), this.getCurrentState().getName(), enabledTransitions.size());
+		MetricManager.instance().setDecisionWorkload(Simulator.getSim().getClockTime(), this.name(), this.getCurrentState().getName(), enabledTransitions.size());
 		
 		if(enabledTransitions.size() == 0)
 			return null;
