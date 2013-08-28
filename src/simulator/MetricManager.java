@@ -19,61 +19,32 @@ import simulator.Metric.MetricEnum;
  * @author jaredmoore
  *
  */
-public class MetricManager implements IMetricManager {
-//	HashMap<MetricKey, Metric> metric_map = new HashMap<MetricKey, Metric>();
-	MetricKey currentKey = new MetricKey(-1, "", "", -1);
-	TreeMap<MetricKey, Metric> actor_metrics;
-//	Connection c = null;
-//	HashMap<MetricKey,Metric> actor_metrics;//a hash of the actors (keys) and the metrics applied to them (values)
+public class MetricManager {
 	
-	public MetricManager(){
-//		actor_metrics = new HashMap<MetricKey,Metric>();
-		actor_metrics = new TreeMap<MetricKey, Metric>();
-		
-//		try {
-//			Class.forName("org.sqlite.JDBC");
-//			String db = Simulator.getSim().dbname;
-//			c = DriverManager.getConnection("jdbc:sqlite:"+db+".db");
-//		} catch (Exception e) {
-//			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-//			System.exit(0);
-//		}
-	}
+	private static MetricManager _instance = null;
 	
-//	public void close()
-//	{
-//		try {
-//			c.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	private MetricManager() {}
 	
-	@Override
-	public void addMetric(MetricEnum metric, String name)
-	{
-		Metric metrics = actor_metrics.get(currentKey);
-		if(metrics == null)
-			metrics = new Metric();
-		metrics.increment(metric);
-		MetricKey key = currentKey.clone();
-//		System.out.println("MetricKey: " + key.toString() +  ":" + metric.name() + " - " + key.hashCode());
-		actor_metrics.put(key, metrics);
-		
-//		Statement stmt = null;
-//		try {
-//			stmt = c.createStatement();
-//			String sql = "INSERT INTO singlemetric " +
-//					"VALUES (" + key._time + ",'" + key._actor_name + "','" + key._state + "'," + key._transition + ",'" + metric.name() + "','" + name + "');";
-//			stmt.executeUpdate(sql);
-//			stmt.close();
-//		} catch (Exception e) {
-//			System.out.println("SQL insert error: " + e.getMessage());
-//		}
+	public static synchronized MetricManager instance() {
+		if ( _instance == null ) {
+			_instance = new MetricManager();
+		}
+		return _instance;
 	}
 
-	@Override
-	public void addMetric(MetricEnum metric) {
-		addMetric(metric, "Unknown");
+	public static void setDecisionWorkload(int time, String actor, String state, int workload)
+	{
+		//Do nothing JPF will handle the data
 	}
+	
+	public static void setChannelConflict(int time, String actor, String channel_type)
+	{
+		//Do nothing JPF will handle the data
+	}
+	
+	public static void setChannelLoad(int time, String actor, String channel_type, int load)
+	{
+		//Do nothing JPF will handle the data
+	}
+	
 }
