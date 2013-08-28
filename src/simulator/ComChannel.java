@@ -14,11 +14,15 @@ public class ComChannel<T> {
 	T _value;
 	String _name;
 	Type _type;
+	String _source;
+	String _target;
 	
 	public ComChannel(String name, Type type)
 	{
 		_name = name;
 		_type = type;
+		_source = "None";
+		_target = "None";
 	}
 	
 	public ComChannel(String name, T value, Type type)
@@ -26,6 +30,25 @@ public class ComChannel<T> {
 		_name = name;
 		_type = type;
 		_value = value;
+		_source = "None";
+		_target = "None";
+	}
+	
+	public ComChannel(String name, Type type, String source, String target)
+	{
+		_name = name;
+		_type = type;
+		_source = source;
+		_target = target;
+	}
+	
+	public ComChannel(String name, T value, Type type, String source, String target)
+	{
+		_name = name;
+		_type = type;
+		_value = value;
+		_source = source;
+		_target = target;
 	}
 	
 	
@@ -68,6 +91,17 @@ public class ComChannel<T> {
 	{
 		return _name;
 	}
+	
+	public String source()
+	{
+		return _source;
+	}
+	
+	public String target()
+	{
+		return _target;
+	}
+	
 	
 	public boolean isEqual(T value)
 	{
