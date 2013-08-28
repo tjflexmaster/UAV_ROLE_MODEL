@@ -202,15 +202,44 @@ public class DeltaClock implements IDeltaClock {
 			HashMap<String, Object> result = t.transition.getTempOutputChannels();
 			ComChannelList outputs = t.transition.getOutputChannels();
 			
+			HashMap<String, HashMap<String, Integer> > conflicts = new HashMap<String, HashMap<String, Integer> >();
+			
 			//Second go through the list and mark which ones are not null
 			for(Entry<String, Object> e : result.entrySet() ) {
 				if ( e.getValue() != null ) {
-					//Send those to the 
-//					outputs.get(
+					//Find out who the information is going too
+					ComChannel<?> o = outputs.get(e.getKey());
+					if ( o != null ) {
+						String target = o.target();
+						if ( target != "None" ) {
+							//Save this information to be passed to JPF
+							if ( conflicts.containsKey(target) ) {
+								HashMap<String, Integer> channels = conflicts.get(target);
+								if ( channels.containsKey(o.type().name()) ) {
+									channels.put(o.type().name(), channels.get(o.type().name()) + 1);
+								} else {
+									channels.put(o.type().name(), 1);
+								}
+								
+							} else {
+								HashMap<String, Integer> channels = new HashMap<String, Integer>();
+								channels.put(o.type().name(), 1);
+								conflicts.put(target, channels);
+							}
+						}
+					}
 				}
 			}
+//			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), target, o.type().name());
 //			int time = Simulator.getSim().duration(t.transition.getDurationRange());
-//			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), channel_type);
+			
+			//Send all the data to JPF
+			for(Entry<String, HashMap<String, Integer> > e : conflicts.entrySet()) {
+				for(Entry<String, Integer> c : e.getValue().entrySet()) {
+					MetricManager.instance().setChannelConflict(_elapsedTime, e.getKey(), c.getKey(), c.getValue());
+				}
+			}
+			
 		}
 	}
 //	/**

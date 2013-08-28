@@ -48,7 +48,7 @@ public class MetricManager {
 	 * @param actor
 	 * @param channel_type
 	 */
-	public void setChannelConflict(int time, String actor, String channel_type)
+	public void setChannelConflict(int time, String actor_target, String channel_type, int load)
 	{
 		//Do nothing JPF will handle the data
 	}
