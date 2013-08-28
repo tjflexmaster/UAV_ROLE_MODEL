@@ -2,6 +2,7 @@ package simulator;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import simulator.Metric.MetricEnum;
 
@@ -74,10 +75,10 @@ public class DeltaClock implements IDeltaClock {
 			DeltaTime newTime = new DeltaTime(time, actor, transition);
 			
 			//Add active metric to this transition
-			Simulator.getSim()._metrics.currentKey.setActor(actor.name());
-			Simulator.getSim()._metrics.currentKey.setState(actor.getCurrentState().getName());
-			Simulator.getSim()._metrics.currentKey.setTransition(transition.getIndex());
-			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE, "ACTIVE_TRANSITION");
+//			Simulator.getSim()._metrics.currentKey.setActor(actor.name());
+//			Simulator.getSim()._metrics.currentKey.setState(actor.getCurrentState().getName());
+//			Simulator.getSim()._metrics.currentKey.setTransition(transition.getIndex());
+//			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE, "ACTIVE_TRANSITION");
 			
 			//Loop through the linked list and insert this transition at the correct point.
 			int total_time = 0;
@@ -167,6 +168,9 @@ public class DeltaClock implements IDeltaClock {
 				dt.time = 0;
 			}
 		}
+		
+		//Send the channel conflict data
+		sendChannelConflictData();
 	}
 	
 
@@ -190,6 +194,25 @@ public class DeltaClock implements IDeltaClock {
 		return _elapsedTime;
 	}
 
+	
+	public void sendChannelConflictData()
+	{
+		for(DeltaTime t : _clock) {
+			//First get a list of all outputs that the transition might change
+			HashMap<String, Object> result = t.transition.getTempOutputChannels();
+			ComChannelList outputs = t.transition.getOutputChannels();
+			
+			//Second go through the list and mark which ones are not null
+			for(Entry<String, Object> e : result.entrySet() ) {
+				if ( e.getValue() != null ) {
+					//Send those to the 
+//					outputs.get(
+				}
+			}
+//			int time = Simulator.getSim().duration(t.transition.getDurationRange());
+//			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), channel_type);
+		}
+	}
 //	/**
 //	 * this checks to see if the clock is full and advances the time
 //	 * @param clock

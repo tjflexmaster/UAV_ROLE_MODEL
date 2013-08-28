@@ -376,6 +376,12 @@ public class Transition implements ITransition {
 	{
 		return _outputs;
 	}
+	
+	@Override
+	public HashMap<String, Object> getTempOutputChannels()
+	{
+		return _temp_outputs;
+	}
 
 	@Override
 	public void setIndex(int index) {

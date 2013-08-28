@@ -1,5 +1,7 @@
 package simulator;
 
+import java.util.HashMap;
+
 public interface ITransition {
 
 	/**
@@ -33,6 +35,8 @@ public interface ITransition {
 	ComChannelList getInputChannels();
 	
 	ComChannelList getOutputChannels();
+	
+	HashMap<String, Object> getTempOutputChannels();
 
 	void setIndex(int indexOf);
 	int getIndex();
