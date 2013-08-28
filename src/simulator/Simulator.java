@@ -80,7 +80,7 @@ public class Simulator {
 		_setup = false;
 //		dbname = "MetricDB" + _date.getTime();
 		_clock = new DeltaClock();
-		_metrics = new MetricManager();
+//		_metrics = new MetricManager();
 		
 		_team = team;
 		_mode = mode;
@@ -179,7 +179,7 @@ public class Simulator {
 			_clock.advanceTime();
 			
 			//Save time for the current Key in the metric manager
-			_metrics.currentKey.setTime(_clock.getElapsedTime());
+//			_metrics.currentKey.setTime(_clock.getElapsedTime());
 			
 			//Start a new metric
 //			metric = new MetricDataStruct(_clock.elapsedTime());
@@ -208,9 +208,9 @@ public class Simulator {
 				//Set metric key
 				IActor a = (IActor) e.getKey();
 				ITransition t = (ITransition) e.getValue();
-				Simulator.getSim()._metrics.currentKey.setActor(a.name());
-				Simulator.getSim()._metrics.currentKey.setState(a.getCurrentState().getName());
-				Simulator.getSim()._metrics.currentKey.setTransition(t.getIndex());
+//				Simulator.getSim()._metrics.currentKey.setActor(a.name());
+//				Simulator.getSim()._metrics.currentKey.setState(a.getCurrentState().getName());
+//				Simulator.getSim()._metrics.currentKey.setTransition(t.getIndex());
 				
 				t.fire();
 //				metric._fired_transitions++;
@@ -230,7 +230,7 @@ public class Simulator {
 			
 		} while (!_ready_transitions.isEmpty());
 		
-		printMetrics();
+//		printMetrics();
 
 		System.out.println("Finished");
 //		_metrics.close();
@@ -251,107 +251,107 @@ public class Simulator {
 		
 	}
 	
-	private void printMetrics() {
-		String output = "";
-		
-//		//header
-//		output += "time,";
-//		output += "actor,";
-//		output += "state,";
-//		output += "transition,";
-//		for(MetricEnum metricName : MetricEnum.values()){
-//			output += metricName.name() + ",";
-//		}
-//		output += "\n";
-		
-		//add all keys and metrics (in order)
-//		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
-		TreeMap<MetricKey, Metric> keys = _metrics.actor_metrics;
-		
-//		Connection c = null;
-//		Statement stmt = null;
-		
-		//print output to a file
-		try {
-			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
-			
-//			Class.forName("org.sqlite.JDBC");
-//			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
-			
-			
-			//header
-			output += "time,";
-			output += "actor,";
-			output += "state,";
-			output += "transition,";
-			for(MetricEnum metricName : MetricEnum.values()){
-				output += metricName.name() + ",";
-			}
-			metricsWriter.println(output);
-			
-			for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
-				output = "";
-				
-				//add key
-				MetricKey metricKey = metrics.getKey();
-				output += metricKey.getTime() + ",";
-				output += "'"+metricKey.getActor() + "',";
-				output += "'"+metricKey.getState() + "',";
-				output += metricKey.getTransition() + ",";
-				
-				//add metric (in order)
-				String CAA="",CAV="",CAD="",CAO="",CIA="",CIV="",CID="",CIO="",ENABLED="",ACTIVE="",MA="",MI="",CTA="",CTV="",CTD="",CTO="",CFA="",CFV="",CFD="",CFO="",MT="",MF="";
-				Metric value = metrics.getValue();
-				HashMap<MetricEnum, Integer> values = value.metrics;
-				for(Map.Entry<MetricEnum, Integer> metric : values.entrySet()){
-					switch (metric.getKey().name()){
-						case "CHANNEL_ACTIVE_A" : CAA = metric.getValue().toString(); break;
-						case "CHANNEL_ACTIVE_V" : CAV = metric.getValue().toString(); break;
-						case "CHANNEL_ACTIVE_D" : CAD = metric.getValue().toString(); break;
-						case "CHANNEL_ACTIVE_O" : CAO = metric.getValue().toString(); break;
-						case "CHANNEL_INACTIVE_A" : CIA = metric.getValue().toString(); break;
-						case "CHANNEL_INACTIVE_V" : CIV = metric.getValue().toString(); break;
-						case "CHANNEL_INACTIVE_D" : CID = metric.getValue().toString(); break;
-						case "CHANNEL_INACTIVE_O" : CIO = metric.getValue().toString(); break;
-						case "ENABLED" : ENABLED = metric.getValue().toString(); break;
-						case "ACTIVE" : ACTIVE = metric.getValue().toString(); break;
-						case "MEMORY_ACTIVE" : MA = metric.getValue().toString(); break;
-						case "MEMORY_INACTIVE" : MI = metric.getValue().toString(); break;
-						case "CHANNEL_TEMP_A" : CTA = metric.getValue().toString(); break;
-						case "CHANNEL_TEMP_V" : CTV = metric.getValue().toString(); break;
-						case "CHANNEL_TEMP_D" : CTD = metric.getValue().toString(); break;
-						case "CHANNEL_TEMP_O" : CTO = metric.getValue().toString(); break;
-						case "CHANNEL_FIRE_A" : CFA = metric.getValue().toString(); break;
-						case "CHANNEL_FIRE_V" : CFV = metric.getValue().toString(); break;
-						case "CHANNEL_FIRE_D" : CFD = metric.getValue().toString(); break;
-						case "CHANNEL_FIRE_O" : CFO = metric.getValue().toString(); break;
-						case "MEMORY_TEMP" : MT = metric.getValue().toString(); break;
-						case "MEMORY_FIRE" : MF = metric.getValue().toString(); break;
-					}
-				}
-				output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF;
-				metricsWriter.println(output);
-				
-//				try {
-//					stmt = c.createStatement();
-//					String sql = "INSERT INTO metrics "+ //(time, actor, state, transition_id, CHANNEL_ACTIVE_A, CHANNEL_ACTIVE_V, CHANNEL_ACTIVE_D, CHANNEL_ACTIVE_O, CHANNEL_INACTIVE_A, CHANNEL_INACTIVE_V, CHANNEL_INACTIVE_D, CHANNEL_INACTIVE_O, ENABLED, ACTIVE, " +
-//							//"MEMORY_ACTIVE, MEMORY_INACTIVE, CHANNEL_TEMP_A, CHANNEL_TEMP_V, CHANNEL_TEMP_D, CHANNEL_TEMP_O, CHANNEL_FIRE_A, CHANNEL_FIRE_V, CHANNEL_FIRE_D,CHANNEL_FIRE_O, MEMORY_TEMP, MEMORY_FIRE) " +
-//							"VALUES (" + output + ");";
-//					stmt.executeUpdate(sql);
-//					stmt.close();
-//				} catch (Exception e) {
-//					System.out.println("SQL insert error: " + e.getMessage());
+//	private void printMetrics() {
+//		String output = "";
+//		
+////		//header
+////		output += "time,";
+////		output += "actor,";
+////		output += "state,";
+////		output += "transition,";
+////		for(MetricEnum metricName : MetricEnum.values()){
+////			output += metricName.name() + ",";
+////		}
+////		output += "\n";
+//		
+//		//add all keys and metrics (in order)
+////		HashMap<MetricKey, Metric> keys = _metrics.actor_metrics;
+////		TreeMap<MetricKey, Metric> keys = _metrics.actor_metrics;
+//		
+////		Connection c = null;
+////		Statement stmt = null;
+//		
+//		//print output to a file
+//		try {
+//			PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+//			
+////			Class.forName("org.sqlite.JDBC");
+////			c = DriverManager.getConnection("jdbc:sqlite:"+dbname+".db");
+//			
+//			
+//			//header
+//			output += "time,";
+//			output += "actor,";
+//			output += "state,";
+//			output += "transition,";
+//			for(MetricEnum metricName : MetricEnum.values()){
+//				output += metricName.name() + ",";
+//			}
+//			metricsWriter.println(output);
+//			
+//			for(Map.Entry<MetricKey, Metric> metrics : keys.entrySet()){
+//				output = "";
+//				
+//				//add key
+//				MetricKey metricKey = metrics.getKey();
+//				output += metricKey.getTime() + ",";
+//				output += "'"+metricKey.getActor() + "',";
+//				output += "'"+metricKey.getState() + "',";
+//				output += metricKey.getTransition() + ",";
+//				
+//				//add metric (in order)
+//				String CAA="",CAV="",CAD="",CAO="",CIA="",CIV="",CID="",CIO="",ENABLED="",ACTIVE="",MA="",MI="",CTA="",CTV="",CTD="",CTO="",CFA="",CFV="",CFD="",CFO="",MT="",MF="";
+//				Metric value = metrics.getValue();
+//				HashMap<MetricEnum, Integer> values = value.metrics;
+//				for(Map.Entry<MetricEnum, Integer> metric : values.entrySet()){
+//					switch (metric.getKey().name()){
+//						case "CHANNEL_ACTIVE_A" : CAA = metric.getValue().toString(); break;
+//						case "CHANNEL_ACTIVE_V" : CAV = metric.getValue().toString(); break;
+//						case "CHANNEL_ACTIVE_D" : CAD = metric.getValue().toString(); break;
+//						case "CHANNEL_ACTIVE_O" : CAO = metric.getValue().toString(); break;
+//						case "CHANNEL_INACTIVE_A" : CIA = metric.getValue().toString(); break;
+//						case "CHANNEL_INACTIVE_V" : CIV = metric.getValue().toString(); break;
+//						case "CHANNEL_INACTIVE_D" : CID = metric.getValue().toString(); break;
+//						case "CHANNEL_INACTIVE_O" : CIO = metric.getValue().toString(); break;
+//						case "ENABLED" : ENABLED = metric.getValue().toString(); break;
+//						case "ACTIVE" : ACTIVE = metric.getValue().toString(); break;
+//						case "MEMORY_ACTIVE" : MA = metric.getValue().toString(); break;
+//						case "MEMORY_INACTIVE" : MI = metric.getValue().toString(); break;
+//						case "CHANNEL_TEMP_A" : CTA = metric.getValue().toString(); break;
+//						case "CHANNEL_TEMP_V" : CTV = metric.getValue().toString(); break;
+//						case "CHANNEL_TEMP_D" : CTD = metric.getValue().toString(); break;
+//						case "CHANNEL_TEMP_O" : CTO = metric.getValue().toString(); break;
+//						case "CHANNEL_FIRE_A" : CFA = metric.getValue().toString(); break;
+//						case "CHANNEL_FIRE_V" : CFV = metric.getValue().toString(); break;
+//						case "CHANNEL_FIRE_D" : CFD = metric.getValue().toString(); break;
+//						case "CHANNEL_FIRE_O" : CFO = metric.getValue().toString(); break;
+//						case "MEMORY_TEMP" : MT = metric.getValue().toString(); break;
+//						case "MEMORY_FIRE" : MF = metric.getValue().toString(); break;
+//					}
 //				}
-			}
-			
-			
-			metricsWriter.close();
-			
-//			c.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//				output += CAA+","+CAV+","+CAD+","+CAO+","+CIA+","+CIV+","+CID+","+CIO+","+ENABLED+","+ACTIVE+","+MA+","+MI+","+CTA+","+CTV+","+CTD+","+CTO+","+CFA+","+CFV+","+CFD+","+CFO+","+MT+","+MF;
+//				metricsWriter.println(output);
+//				
+////				try {
+////					stmt = c.createStatement();
+////					String sql = "INSERT INTO metrics "+ //(time, actor, state, transition_id, CHANNEL_ACTIVE_A, CHANNEL_ACTIVE_V, CHANNEL_ACTIVE_D, CHANNEL_ACTIVE_O, CHANNEL_INACTIVE_A, CHANNEL_INACTIVE_V, CHANNEL_INACTIVE_D, CHANNEL_INACTIVE_O, ENABLED, ACTIVE, " +
+////							//"MEMORY_ACTIVE, MEMORY_INACTIVE, CHANNEL_TEMP_A, CHANNEL_TEMP_V, CHANNEL_TEMP_D, CHANNEL_TEMP_O, CHANNEL_FIRE_A, CHANNEL_FIRE_V, CHANNEL_FIRE_D,CHANNEL_FIRE_O, MEMORY_TEMP, MEMORY_FIRE) " +
+////							"VALUES (" + output + ");";
+////					stmt.executeUpdate(sql);
+////					stmt.close();
+////				} catch (Exception e) {
+////					System.out.println("SQL insert error: " + e.getMessage());
+////				}
+//			}
+//			
+//			
+//			metricsWriter.close();
+//			
+////			c.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	private void loadTransitions()
 	{
@@ -445,10 +445,10 @@ public class Simulator {
 		return _random.nextInt(max - min + 1) + min;
 	}
 	
-	public void addMetric(MetricEnum metric, String name)
-	{
-		_metrics.addMetric(metric, name);
-	}
+//	public void addMetric(MetricEnum metric, String name)
+//	{
+//		_metrics.addMetric(metric, name);
+//	}
 	
 	public Integer getClockTime() {
 		return _clock.getElapsedTime();

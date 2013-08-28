@@ -32,7 +32,7 @@ public class ActorVariableWrapper {
 			if(!name.equals("name") && !name.equals("currentState")){
 				if(o != null){
 					//TODO add metric for setting a variable
-					Simulator.getSim().addMetric(MetricEnum.MEMORY_FIRE, name);
+//					Simulator.getSim().addMetric(MetricEnum.MEMORY_FIRE, name);
 				}else{
 					//TODO add metric for clearing a variable ???-rob
 				}
@@ -50,10 +50,10 @@ public class ActorVariableWrapper {
 					|| (temp instanceof Boolean && (Boolean)temp)
 					|| (temp instanceof Integer && (Integer)temp != 0)){
 				//TODO update metric for referencing active variable
-				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
+//				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
 			}else{
 				//TODO update metric for referencing a variable
-				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
+//				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
 			}
 		}
 		return _variables.get(name);
@@ -68,10 +68,10 @@ public class ActorVariableWrapper {
 					|| (temp instanceof Boolean && (Boolean)temp)
 					|| (temp instanceof Integer && (Integer)temp != 0)){
 				//TODO update metric for referencing active variable
-				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
+//				Simulator.getSim().addMetric(MetricEnum.MEMORY_ACTIVE, name);
 			}else{
 				//TODO update metric for referencing a variable
-				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
+//				Simulator.getSim().addMetric(MetricEnum.MEMORY_INACTIVE, name);
 			}
 		}
 		return _variables.get(name);

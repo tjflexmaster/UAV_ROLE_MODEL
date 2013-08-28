@@ -31,7 +31,7 @@ public abstract class Actor implements IActor {
 	 */
 	public HashMap<IActor, ITransition> getTransitions(){
 		//TODO Add Actor id to the metric manager
-		Simulator.getSim()._metrics.currentKey.setActor(this.name());
+//		Simulator.getSim()._metrics.currentKey.setActor(this.name());
 		
 		State state = this.getCurrentState();
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
