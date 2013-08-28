@@ -30,11 +30,13 @@ public abstract class Actor implements IActor {
 	 * @return
 	 */
 	public HashMap<IActor, ITransition> getTransitions(){
-		//TODO Add Actor id to the metric manager
-		Simulator.getSim()._metrics.currentKey.setActor(this.name());
 		
 		State state = this.getCurrentState();
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		
+		//Log this with JPF
+		MetricManager.setDecisionWorkload(Simulator.getSim().getClockTime(), this.name(), this.getCurrentState().getName(), enabledTransitions.size());
+		
 		if(enabledTransitions.size() == 0)
 			return null;
 		ITransition nextTransition = enabledTransitions.get(0);
