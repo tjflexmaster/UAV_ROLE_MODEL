@@ -22,25 +22,55 @@ public class MetricListener extends ListenerAdapter {
 				|| mname.contains( "setChannelConflict" )
 				|| mname.contains( "setChannelLoad" ) ) {
 			
+			System.out.println( mname ); //debug
+			
 			int currentPC = ti.getPC( ).getPosition( );
     		LocalVarInfo parameter = mi.getLocalVar( 1, currentPC );
     		if( parameter != null ){
     			//get the desired parameter's information
-    			String parName = parameter.getName( );//name
-    			Object value = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( parName );//value
+    			String parName = parameter.getName( ); //name
+    			Object value = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( parName ); //value
     			
     			switch( parName ){
-    			case "time" : ;
-    			case "actor" : ;
-    			case "state" : ;
-    			case "workload" : ;
-    			case "channel_type" : ;
-    			case "load" : ;
+	    			case "time" :
+	    				value = ( int ) value;
+	    				break;
+	    			case "actor" :
+	    				value = DEIToString( value );
+	    				break;
+	    			case "state" :
+	    				value = DEIToString( value );
+	    				break;
+	    			case "channel_type" :
+						value = DEIToString( value );
+	    				break;
+	    			case "workload" :
+	    				value = ( int ) value;
+	    				break;
+	    			case "load" :
+	    				value = ( int ) value;
+	    				break;
     			}
     			
-    			System.out.println( parName );
+    			System.out.println( parName ); //debug
     		}
 		}
+	}
+
+	/**
+	 * must always return a !null string
+	 * @param object a generic object returned by getLocalOrFieldValue
+	 * @return a string representation of the object
+	 */
+	private String DEIToString( Object object ) {
+		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
+		String result = "";
+		
+		char[] stringChars = DEI.getStringChars( );
+		for( char nextChar : stringChars )
+			result += nextChar;
+		
+		return result;
 	}
 	
 //	/**
@@ -81,20 +111,4 @@ public class MetricListener extends ListenerAdapter {
 //		
 //		return result;
 //	}
-
-	/**
-	 * must always return a !null string
-	 * @param object a generic object returned by getLocalOrFieldValue
-	 * @return a string representation of the object
-	 */
-	private String DEIToString( Object object ) {
-		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
-		String result = "";
-		
-		char[] stringChars = DEI.getStringChars( );
-		for( char nextChar : stringChars )
-			result += nextChar;
-		
-		return result;
-	}
 }
