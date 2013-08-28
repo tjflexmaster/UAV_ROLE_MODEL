@@ -4,6 +4,7 @@ import model.team.Channels;
 import model.team.Duration;
 import simulator.Actor;
 import simulator.ComChannelList;
+import simulator.Range;
 import simulator.State;
 import simulator.Transition;
 
@@ -400,7 +401,7 @@ public class MissionManager extends Actor {
 	 */
 	private void initializeTX_PS(ComChannelList inputs, ComChannelList outputs, State TX_PS, State END_PS) {
 		//(TX_PS,[],[SearchComplete])x(END_PS,[MM_SEARCH_COMPLETE],[])
-				TX_PS.add(new Transition(_internal_vars, inputs, outputs, END_PS){
+				TX_PS.add(new Transition(_internal_vars, inputs, outputs, END_PS, new Range(300, 1800)){
 					@Override
 					public boolean isEnabled(){
 						if((new Boolean(true)).equals(_internal_vars.getVariable("SEARCH_COMPLETE"))){
@@ -413,7 +414,7 @@ public class MissionManager extends Actor {
 				});
 				
 				//(TX_PS,[],[SearchFailed])x(END_PS,[MM_SEARCH_FAILED],[])
-				TX_PS.add(new Transition(_internal_vars, inputs, outputs, END_PS){
+				TX_PS.add(new Transition(_internal_vars, inputs, outputs, END_PS, new Range(300, 1800)){
 					@Override
 					public boolean isEnabled(){
 						if((new Boolean(true)).equals(_internal_vars.getVariable("SEARCH_FAILED"))){

@@ -40,35 +40,35 @@ public class WiSARTeam extends Team {
 		_com_channels.add(new ComChannel<Boolean>(Channels.TARGET_DESCRIPTION_EVENT.name(),false,ComChannel.Type.AUDIO));
 		
 		//add PS channels
-		_com_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO) );
+		_com_channels.add( new ComChannel<ParentSearch.AUDIO_PS_MM_COMM>(Channels.AUDIO_PS_MM_COMM.name(), ComChannel.Type.AUDIO, "PS", "MM") );
 		
 		//add MM channels
-		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO) );
-		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO) );
-		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO) );
-		_com_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL) );
-		_com_channels.add(new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.VISUAL_MM_VGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO, "MM", "PS") );
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO, "MM", "VO") );
+		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO, "MM", "OP") );
+		_com_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL, "MM", "VGUI") );
+		_com_channels.add(new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.VISUAL_MM_VGUI_COMM.name(), ComChannel.Type.DATA, "MM", "VGUI") );
 		
 		//add OP channels
-		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.AUDIO_OP_MM_COMM.name(), ComChannel.Type.AUDIO));
-		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.VISUAL_OP_OGUI_COMM.name(), ComChannel.Type.VISUAL));
-		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.VISUAL_OP_UAV_COMM.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.AUDIO_OP_MM_COMM.name(), ComChannel.Type.AUDIO, "OP", "MM"));
+		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.VISUAL_OP_OGUI_COMM.name(), ComChannel.Type.VISUAL, "OP", "OGUI"));
+		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.VISUAL_OP_UAV_COMM.name(), ComChannel.Type.VISUAL, "OP", "UAV"));
 		
 		//add VGUI channels
-		_com_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL) );
+		_com_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL, "VGUI", "MM") );
 		
 		//add OGUI channels
-		_com_channels.add(new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>(Channels.VIDEO_OGUI_OP_COMM.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>(Channels.VIDEO_OGUI_OP_COMM.name(), ComChannel.Type.VISUAL, "OGUI", "OP"));
 		
 		//add UAV channels
-		_com_channels.add(new ComChannel<UAV.VISUAL_UAV_OP_COMM>(Channels.VIDEO_UAV_OP_COMM.name(), ComChannel.Type.VISUAL));
-		_com_channels.add(new ComChannel<UAV.DATA_UAV_OGUI>(Channels.DATA_UAV_OGUI_COMM.name(), ComChannel.Type.DATA));
-		_com_channels.add(new ComChannel<UAV.DATA_UAV_VGUI>(Channels.DATA_UAV_VGUI_COMM.name(), ComChannel.Type.DATA));
+		_com_channels.add(new ComChannel<UAV.VISUAL_UAV_OP_COMM>(Channels.VIDEO_UAV_OP_COMM.name(), ComChannel.Type.VISUAL, "UAV", "OP"));
+		_com_channels.add(new ComChannel<UAV.DATA_UAV_OGUI>(Channels.DATA_UAV_OGUI_COMM.name(), ComChannel.Type.DATA, "UAV", "OGUI"));
+		_com_channels.add(new ComChannel<UAV.DATA_UAV_VGUI>(Channels.DATA_UAV_VGUI_COMM.name(), ComChannel.Type.DATA, "UAV", "VGUI"));
 		
 		//add VO channels
-		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO));
-		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>(Channels.AUDIO_VO_OP_COMM.name(), ComChannel.Type.AUDIO));
-		_com_channels.add(new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>(Channels.VISUAL_VO_VGUI.name(), ComChannel.Type.VISUAL));
+		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_MM_COMM>(Channels.AUDIO_VO_MM_COMM.name(), ComChannel.Type.AUDIO, "VO", "MM"));
+		_com_channels.add(new ComChannel<VideoOperator.AUDIO_VO_OP_COMM>(Channels.AUDIO_VO_OP_COMM.name(), ComChannel.Type.AUDIO, "VO", "OP"));
+		_com_channels.add(new ComChannel<VideoOperator.VISUAL_VO_VGUI_COMM>(Channels.VISUAL_VO_VGUI.name(), ComChannel.Type.VISUAL, "VO", "VGUI"));
 		
 		//initialize inputs and outputs (temporary lists)
 		ComChannelList inputs = new ComChannelList();
