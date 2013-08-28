@@ -158,6 +158,7 @@ public class DeltaClock implements IDeltaClock {
 			}
 		}
 	}
+	
 
 	@Override
 	public HashMap<IActor, ITransition> getReadyTransitions() {
