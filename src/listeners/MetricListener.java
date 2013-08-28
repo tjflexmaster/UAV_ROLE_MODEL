@@ -22,7 +22,7 @@ public class MetricListener extends ListenerAdapter {
 				|| mname.contains( "setChannelConflict" )
 				|| mname.contains( "setChannelLoad" ) ) {
 			
-			int currentPC = ti.getPC().getPosition();
+			int currentPC = ti.getPC( ).getPosition( );
     		LocalVarInfo parameter = mi.getLocalVar( 1, currentPC );
     		if( parameter != null ){
     			//get the desired parameter's information
@@ -37,6 +37,8 @@ public class MetricListener extends ListenerAdapter {
     			case "channel_type" : ;
     			case "load" : ;
     			}
+    			
+    			System.out.println( parName );
     		}
 		}
 	}
