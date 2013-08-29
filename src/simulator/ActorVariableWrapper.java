@@ -3,8 +3,6 @@ package simulator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import simulator.Metric.MetricEnum;
-
 public class ActorVariableWrapper {
 
 	HashMap<String, Object> _variables;

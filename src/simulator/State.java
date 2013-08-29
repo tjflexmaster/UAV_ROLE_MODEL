@@ -2,9 +2,6 @@ package simulator;
 
 import java.util.ArrayList;
 
-import simulator.Metric.MetricEnum;
-
-
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team

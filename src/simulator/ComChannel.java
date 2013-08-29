@@ -1,7 +1,6 @@
 package simulator;
 
 import simulator.ComChannel.Type;
-import simulator.Metric.MetricEnum;
 
 public class ComChannel<T> {
 	public enum Type

@@ -1,11 +1,7 @@
 package simulator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import simulator.ComChannel.Type;
-import simulator.Metric.MetricEnum;
 
 /**
  * this class is a models all transitions in the simulation 

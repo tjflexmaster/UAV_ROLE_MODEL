@@ -1,26 +1,11 @@
 package simulator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.Statement;
-//import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Scanner;
-import java.util.TreeMap;
-
-import model.team.WiSARTeam;
-import simulator.ComChannel.Type;
-import simulator.Metric.MetricEnum;
-
-
 
 public class Simulator {
 	
@@ -37,18 +22,14 @@ public class Simulator {
 		MIN_MAX_MEAN
 	}
 	
-//	public static boolean debug = true;
 	private ITeam _team;
-	private IDeltaClock _clock;// = new DeltaClock();
-//	private Scanner _scanner = new Scanner(System.in);
+	private IDeltaClock _clock;
 	private HashMap<IActor, ITransition> _ready_transitions = new HashMap<IActor, ITransition>();
-//	private HashMap<IEvent, Integer> _events = new HashMap<IEvent, Integer>();
-//	private ArrayList<IEvent> _events = new ArrayList<IEvent>();
 	private ArrayList<IActor> _active_events = new ArrayList<IActor>();
-	private DebugMode _mode;// = DebugMode.DEBUG;
-	private DurationMode _duration;// = DurationMode.MIN;
+	private DebugMode _mode;
+	private DurationMode _duration;
 	private Random _random;
-	public MetricManager _metrics;// = new MetricManager();
+	public MetricManager _metrics;
 	
 	//Singleton variables
 	private boolean _setup = false;

@@ -1,12 +1,16 @@
 package listeners;
 
+import java.util.HashMap;
+
 import gov.nasa.jpf.*;
 import gov.nasa.jpf.vm.*;
+import simulator.*;
 
 public class MetricListener extends ListenerAdapter {
 	/**
 	 * stores the metrics
 	 */
+	HashMap<MetricKey, Metric> _metrics = new HashMap<MetricKey, Metric>( );
 	
 	/**
 	 * acts whenever methods execute
@@ -15,45 +19,37 @@ public class MetricListener extends ListenerAdapter {
 	public void executeInstruction ( VM vm, ThreadInfo ti, Instruction insnToExecute ) {
 		//get the methods information
 		MethodInfo mi = insnToExecute.getMethodInfo( );
-		String mname = mi.getFullName( );
-		
+		String fullMethodName = mi.getFullName( );
+
 		//only act on these methods
-		if ( mname.contains( "setDecisionWorkload" )
-				|| mname.contains( "setChannelConflict" )
-				|| mname.contains( "setChannelLoad" ) ) {
-			
-			System.out.println( mname ); //debug
-			
+		if ( fullMethodName.contains( "setDecisionWorkload" ) ) {
+			//get the desired parameters
 			int currentPC = ti.getPC( ).getPosition( );
-    		LocalVarInfo parameter = mi.getLocalVar( 1, currentPC );
-    		if( parameter != null ){
-    			//get the desired parameter's information
-    			String parName = parameter.getName( ); //name
-    			Object value = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( parName ); //value
-    			
-    			switch( parName ){
-	    			case "time" :
-	    				value = ( int ) value;
-	    				break;
-	    			case "actor" :
-	    				value = DEIToString( value );
-	    				break;
-	    			case "state" :
-	    				value = DEIToString( value );
-	    				break;
-	    			case "channel_type" :
-						value = DEIToString( value );
-	    				break;
-	    			case "workload" :
-	    				value = ( int ) value;
-	    				break;
-	    			case "load" :
-	    				value = ( int ) value;
-	    				break;
-    			}
-    			
-    			System.out.println( parName ); //debug
-    		}
+			
+			//get parameter information
+    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+    		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
+    		LocalVarInfo stateInfo = mi.getLocalVar( 3, currentPC );
+    		LocalVarInfo workloadInfo = mi.getLocalVar( 4, currentPC );
+    		
+    		//get parameter values
+			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			
+			//form metrics and keys
+			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
+			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			
+			//store metric
+			_metrics.put( currentKey, currentMetric );
+		} else if ( fullMethodName.contains( "setChannelConflict" ) ) {
+			
+			//int time, String actor_target, String channel_type, int load
+		} else if ( fullMethodName.contains( "setChannelLoad" ) ) {
+			
+			//int time, String actor, String channel_type, int load
 		}
 	}
 
