@@ -23,6 +23,7 @@ public class MetricListener extends ListenerAdapter {
 
 		//only act on these methods
 		if ( fullMethodName.contains( "setDecisionWorkload" ) ) {
+			
 			//get the desired parameters
 			int currentPC = ti.getPC( ).getPosition( );
 			
@@ -34,9 +35,9 @@ public class MetricListener extends ListenerAdapter {
     		
     		//get parameter values
 			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
+			Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( stateInfo.getName( ) );
+			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
@@ -44,12 +45,55 @@ public class MetricListener extends ListenerAdapter {
 			
 			//store metric
 			_metrics.put( currentKey, currentMetric );
+			
 		} else if ( fullMethodName.contains( "setChannelConflict" ) ) {
 			
-			//int time, String actor_target, String channel_type, int load
+			//get the desired parameters
+			int currentPC = ti.getPC( ).getPosition( );
+			
+			//get parameter information
+    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+    		LocalVarInfo actor_targetInfo = mi.getLocalVar( 2, currentPC );
+    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
+    		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
+    		
+    		//get parameter values
+			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object actor_targetValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actor_targetInfo.getName( ) );
+			Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
+			Object loadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+			
+			//form metrics and keys
+			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
+			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) loadValue );
+			
+			//store metric
+			_metrics.put( currentKey, currentMetric );
+			
 		} else if ( fullMethodName.contains( "setChannelLoad" ) ) {
 			
-			//int time, String actor, String channel_type, int load
+			//get the desired parameters
+			int currentPC = ti.getPC( ).getPosition( );
+			
+			//get parameter information
+    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+    		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
+    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
+    		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
+    		
+    		//get parameter values
+			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
+			Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
+			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+			
+			//form metrics and keys
+			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( channel_typeValue ) );
+			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			
+			//store metric
+			_metrics.put( currentKey, currentMetric );
+			
 		}
 	}
 
