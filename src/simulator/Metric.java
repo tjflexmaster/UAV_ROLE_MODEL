@@ -7,10 +7,11 @@ public class Metric {
 		_actor_target,
 		_workload,
 		_load,
+		_unknown
 	}
 
-	public TypeEnum _type;
-	public int _value;
+	public TypeEnum _type = TypeEnum._unknown;
+	public int _value = -1;
 	
 	public Metric (TypeEnum type, int value) {
 		_type = type;
@@ -23,6 +24,10 @@ public class Metric {
 		result += "(" + _type.name() + ", " + _value + ")";
 		
 		return result;
+	}
+
+	public void add(int value) {
+		_value += value;
 	}
 	
 //	public enum MetricEnum{

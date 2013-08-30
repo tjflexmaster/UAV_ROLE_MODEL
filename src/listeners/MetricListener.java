@@ -45,7 +45,12 @@ public class MetricListener extends ListenerAdapter {
 			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) workloadValue );
+			}
 			
 		} else if ( fullMethodName.contains( "setChannelConflict" ) ) {
 			
@@ -69,7 +74,12 @@ public class MetricListener extends ListenerAdapter {
 			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) loadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) loadValue );
+			}
 			
 		} else if ( fullMethodName.contains( "setChannelLoad" ) ) {
 			
@@ -93,7 +103,12 @@ public class MetricListener extends ListenerAdapter {
 			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) workloadValue );
+			}
 			
 		} else if ( fullMethodName.contains( "endSimulation" ) ) {
 			
@@ -104,7 +119,7 @@ public class MetricListener extends ListenerAdapter {
 
 	private void printSimpleMetrics() {
 		for( Entry<MetricKey, Metric> metric : _metrics.entrySet( ) ){
-			System.out.println( metric.getKey() + " : " + metric.getValue() );
+			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
 		}
 	}
 
