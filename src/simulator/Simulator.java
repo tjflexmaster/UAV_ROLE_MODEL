@@ -183,7 +183,7 @@ public class Simulator {
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.putAll(_clock.getReadyTransitions());
-			for(Entry e : _ready_transitions.entrySet()){
+			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
 				//System.out.println('\n' + transition.toString());
 				
 				//Set metric key
@@ -213,6 +213,7 @@ public class Simulator {
 		
 //		printMetrics();
 
+		MetricManager.instance().endSimulation();
 		System.out.println("Finished");
 //		_metrics.close();
 //		try {

@@ -1,6 +1,7 @@
 package listeners;
 
-import java.util.HashMap;
+import java.util.*;
+import java.util.Map.*;
 
 import gov.nasa.jpf.*;
 import gov.nasa.jpf.vm.*;
@@ -94,6 +95,16 @@ public class MetricListener extends ListenerAdapter {
 			//store metric
 			_metrics.put( currentKey, currentMetric );
 			
+		} else if ( fullMethodName.contains( "endSimulation" ) ) {
+			
+			printSimpleMetrics();
+			
+		}
+	}
+
+	private void printSimpleMetrics() {
+		for( Entry<MetricKey, Metric> metric : _metrics.entrySet( ) ){
+			System.out.println( metric.getKey() + " : " + metric.getValue() );
 		}
 	}
 

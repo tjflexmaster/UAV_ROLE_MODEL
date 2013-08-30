@@ -11,11 +11,18 @@ public class Metric {
 
 	public TypeEnum _type;
 	public int _value;
-	public int _class;
 	
 	public Metric (TypeEnum type, int value) {
 		_type = type;
 		_value = value;
+	}
+	
+	public String toString() {
+		String result = "";
+		
+		result += "(" + _type.name() + ", " + _value + ")";
+		
+		return result;
 	}
 	
 //	public enum MetricEnum{
