@@ -42,7 +42,7 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
 			
 			//store metric
 			Metric metric = _metrics.get( currentKey );
@@ -71,7 +71,7 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) loadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
 			
 			//store metric
 			Metric metric = _metrics.get( currentKey );
@@ -100,7 +100,7 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
 			
 			//store metric
 			Metric metric = _metrics.get( currentKey );

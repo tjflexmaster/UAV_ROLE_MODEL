@@ -3,10 +3,9 @@ package simulator;
 public class Metric {
 	
 	public enum TypeEnum {
-		_channel_type,
-		_actor_target,
-		_workload,
-		_load,
+		setDecisionWorkload,
+		setChannelConflict,
+		setChannelLoad,
 		_unknown
 	}
 
