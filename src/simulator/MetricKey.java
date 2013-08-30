@@ -1,10 +1,10 @@
 package simulator;
 
 public class MetricKey {
-	private int _time;
-	private String _actor_name;
-	private String _state_name;
-	private int _transition;
+	private int _time = -1;
+	private String _actor_name = null;
+	private String _state_name = null;
+	private int _transition = -1;
 	
 	public void setTime(int time) {
 		_time = time;
@@ -54,6 +54,30 @@ public class MetricKey {
 		_actor_name = actor_name;
 		_state_name  = state_name;
 		_transition = transition_number;
+	}
+	
+	public String toString() {
+		String result = "";
+		
+		result += "(";
+		if(_time != -1){
+			result += _time;
+		}
+		result += ", ";
+		if(_actor_name != null){
+			result += _actor_name;
+		}
+		result += ", ";
+		if (_state_name != null){
+			result += _state_name;
+		}
+		result += ", ";
+		if (_transition != -1){
+			result += _transition;
+		}
+		result += ")";
+		
+		return result;
 	}
 //	
 //	public String toString()

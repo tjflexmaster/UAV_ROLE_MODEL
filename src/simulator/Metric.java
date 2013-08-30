@@ -3,19 +3,30 @@ package simulator;
 public class Metric {
 	
 	public enum TypeEnum {
-		_channel_type,
-		_actor_target,
-		_workload,
-		_load,
+		setDecisionWorkload,
+		setChannelConflict,
+		setChannelLoad,
+		_unknown
 	}
 
-	public TypeEnum _type;
-	public int _value;
-	public int _class;
+	public TypeEnum _type = TypeEnum._unknown;
+	public int _value = -1;
 	
 	public Metric (TypeEnum type, int value) {
 		_type = type;
 		_value = value;
+	}
+	
+	public String toString() {
+		String result = "";
+		
+		result += "(" + _type.name() + ", " + _value + ")";
+		
+		return result;
+	}
+
+	public void add(int value) {
+		_value += value;
 	}
 	
 //	public enum MetricEnum{

@@ -51,4 +51,8 @@ public class MetricManager {
 		//Do nothing JPF will handle the data
 	}
 	
+	public void endSimulation()
+	{
+		//Do nothing JPF recognizes this and prints
+	}
 }

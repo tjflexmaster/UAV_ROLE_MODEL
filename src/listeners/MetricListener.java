@@ -1,6 +1,7 @@
 package listeners;
 
-import java.util.HashMap;
+import java.util.*;
+import java.util.Map.*;
 
 import gov.nasa.jpf.*;
 import gov.nasa.jpf.vm.*;
@@ -41,10 +42,15 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) workloadValue );
+			}
 			
 		} else if ( fullMethodName.contains( "setChannelConflict" ) ) {
 			
@@ -65,10 +71,15 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) loadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) loadValue );
+			}
 			
 		} else if ( fullMethodName.contains( "setChannelLoad" ) ) {
 			
@@ -91,11 +102,26 @@ public class MetricListener extends ListenerAdapter {
 			
 			//form metrics and keys
 			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorSourceValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum._workload, (int) workloadValue );
+			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
 			
 			//store metric
-			_metrics.put( currentKey, currentMetric );
+			Metric metric = _metrics.get( currentKey );
+			if ( metric == null ) { 
+				_metrics.put( currentKey, currentMetric );
+			} else {
+				 metric.add( (int) workloadValue );
+			}
 			
+		} else if ( fullMethodName.contains( "endSimulation" ) ) {
+			
+			printSimpleMetrics();
+			
+		}
+	}
+
+	private void printSimpleMetrics() {
+		for( Entry<MetricKey, Metric> metric : _metrics.entrySet( ) ){
+			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
 		}
 	}
 
