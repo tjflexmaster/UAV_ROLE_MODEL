@@ -105,6 +105,9 @@ public class DeltaClock implements IDeltaClock {
 				newTime.time = newTime.time - total_time;
 				_clock.addLast(newTime);
 			}
+			
+			//Save channel load metric
+			sendChannelLoad(actor, transition, time);
 		}
 	}
 
@@ -228,7 +231,7 @@ public class DeltaClock implements IDeltaClock {
 				}
 			}
 //			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), target, o.type().name());
-//			int time = Simulator.getSim().duration(t.transition.getDurationRange());
+//			
 			
 			//Send all the data to JPF
 			for(Entry<String, HashMap<String, Integer> > e : conflicts.entrySet()) {
@@ -239,6 +242,27 @@ public class DeltaClock implements IDeltaClock {
 			
 		}
 	}
+	
+	public void sendChannelLoad(IActor a, ITransition t, int time)
+	{
+		//First get a list of all outputs that the transition might change
+		HashMap<String, Object> result = t.getTempOutputChannels();
+		ComChannelList outputs = t.getOutputChannels();
+		
+		HashMap<String, HashMap<String, Integer> > conflicts = new HashMap<String, HashMap<String, Integer> >();
+		
+		//Second go through the list and mark which ones are not null
+		for(Entry<String, Object> e : result.entrySet() ) {
+			if ( e.getValue() != null ) {
+				//Find out who the information is going too
+				ComChannel<?> o = outputs.get(e.getKey());
+				if ( o != null ) {
+					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), time);
+				}
+			}
+		}
+	}
+	
 //	/**
 //	 * this checks to see if the clock is full and advances the time
 //	 * @param clock
