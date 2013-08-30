@@ -88,18 +88,20 @@ public class MetricListener extends ListenerAdapter {
 			
 			//get parameter information
     		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-    		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
-    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
-    		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
+    		LocalVarInfo actorSource = mi.getLocalVar( 2, currentPC );
+    		LocalVarInfo actorTarget = mi.getLocalVar(3, currentPC);
+    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 4, currentPC );
+    		LocalVarInfo loadInfo = mi.getLocalVar( 5, currentPC );
     		
     		//get parameter values
 			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
+			Object actorSourceValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorSource.getName( ) );
+			Object actorTargetValue = ti.getStackFrameExecuting( insnToExecute, 0).getLocalOrFieldValue( actorTarget.getName() );
 			Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
 			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 			
 			//form metrics and keys
-			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( channel_typeValue ) );
+			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorSourceValue ), DEIToString( channel_typeValue ) );
 			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
 			
 			//store metric
