@@ -1,5 +1,7 @@
 package simulator;
 
+import gov.nasa.jpf.vm.Verify;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -424,7 +426,8 @@ public class Simulator {
 	
 	public int random(int min, int max)
 	{
-		return _random.nextInt(max - min + 1) + min;
+		return Verify.getInt(min, max);
+//		return _random.nextInt(max - min + 1) + min;
 	}
 	
 //	public void addMetric(MetricEnum metric, String name)

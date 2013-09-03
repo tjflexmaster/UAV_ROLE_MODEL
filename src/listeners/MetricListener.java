@@ -13,6 +13,7 @@ public class MetricListener extends ListenerAdapter {
 	 * A path stores non-deterministic workload metrics.
 	 */
 	public class Path {
+		
 		public HashMap<MetricKey, Metric> _metrics;
 		public Path _parentPath;
 		public ArrayList<Path> _childPaths;
@@ -38,6 +39,7 @@ public class MetricListener extends ListenerAdapter {
 			
 			return highestPath;
 		}
+		
 	}
 	
 	/**
@@ -62,8 +64,6 @@ public class MetricListener extends ListenerAdapter {
 			storeChannelConflict( vm, ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
-		else if ( fullMethodName.contains( "backtrack" ) )
-			handleBacktrack( );
 		else if ( fullMethodName.contains( "endSimulation" ) )
 			printSimpleMetrics( );
 	}
@@ -181,19 +181,19 @@ public class MetricListener extends ListenerAdapter {
 		
 	}
 
-	private void handleBacktrack( ) {
-		
-		Path newPath = new Path();
-		assert _currentPath._parentPath != null : "There is no parent path.";
-		_currentPath._parentPath._childPaths.add( newPath );
-		_currentPath = newPath;
-		
-	}
+//	private void handleBacktrack( ) {
+//		
+//		Path newPath = new Path();
+//		assert _currentPath._parentPath != null : "There is no parent path.";
+//		_currentPath._parentPath._childPaths.add( newPath );
+//		_currentPath = newPath;
+//		
+//	}
 
 	private void printSimpleMetrics( ) {
 		
 		for( Entry<MetricKey, Metric> metric : _currentPath._metrics.entrySet( ) ){
-//			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
+			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
 		}
 		
 	}
