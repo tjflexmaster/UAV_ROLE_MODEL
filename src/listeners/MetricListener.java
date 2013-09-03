@@ -8,9 +8,41 @@ import gov.nasa.jpf.vm.*;
 import simulator.*;
 
 public class MetricListener extends ListenerAdapter {
+
+	/**
+	 * A path stores non-deterministic workload metrics.
+	 */
+	public class Path {
+		HashMap<MetricKey, Metric> _metrics;
+		ArrayList<Path> _childPaths;
+		double _totalWorkload;
+		int _totalTimeElapsed;
+		
+		Path ( ) {
+			_metrics = new HashMap<MetricKey, Metric>();
+			_childPaths = new ArrayList<Path>();
+			_totalWorkload = 0.0;
+			_totalTimeElapsed = 0;
+		}
+		
+		public Path getLowest( ) {
+			Path lowestPath = null;
+			
+			return lowestPath;
+		}
+		
+		public Path getHighest( ) {
+			Path highestPath = null;
+			
+			return highestPath;
+		}
+	}
+	
 	/**
 	 * stores the metrics
 	 */
+	Path _parentPath = new Path();
+	Path _currentPath = _parentPath;
 	HashMap<MetricKey, Metric> _metrics = new HashMap<MetricKey, Metric>( );
 	
 	/**
@@ -23,103 +55,112 @@ public class MetricListener extends ListenerAdapter {
 		String fullMethodName = mi.getFullName( );
 
 		//only act on these methods
-		if ( fullMethodName.contains( "setDecisionWorkload" ) ) {
-			
-			//get the desired parameters
-			int currentPC = ti.getPC( ).getPosition( );
-			
-			//get parameter information
-    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-    		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
-    		LocalVarInfo stateInfo = mi.getLocalVar( 3, currentPC );
-    		LocalVarInfo workloadInfo = mi.getLocalVar( 4, currentPC );
-    		
-    		//get parameter values
-			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
-			Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( stateInfo.getName( ) );
-			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
-			
-			//form metrics and keys
-			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
-			
-			//store metric
-			Metric metric = _metrics.get( currentKey );
-			if ( metric == null ) { 
-				_metrics.put( currentKey, currentMetric );
-			} else {
-				 metric.add( (int) workloadValue );
-			}
-			
-		} else if ( fullMethodName.contains( "setChannelConflict" ) ) {
-			
-			//get the desired parameters
-			int currentPC = ti.getPC( ).getPosition( );
-			
-			//get parameter information
-    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-    		LocalVarInfo actor_targetInfo = mi.getLocalVar( 2, currentPC );
-    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
-    		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
-    		
-    		//get parameter values
-			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object actor_targetValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actor_targetInfo.getName( ) );
-			Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
-			Object loadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
-			
-			//form metrics and keys
-			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
-			
-			//store metric
-			Metric metric = _metrics.get( currentKey );
-			if ( metric == null ) { 
-				_metrics.put( currentKey, currentMetric );
-			} else {
-				 metric.add( (int) loadValue );
-			}
-			
-		} else if ( fullMethodName.contains( "setChannelLoad" ) ) {
-			
-			//get the desired parameters
-			int currentPC = ti.getPC( ).getPosition( );
-			
-			//get parameter information
-    		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-    		LocalVarInfo actorSource = mi.getLocalVar( 2, currentPC );
-    		LocalVarInfo actorTarget = mi.getLocalVar(3, currentPC);
-    		LocalVarInfo channel_typeInfo = mi.getLocalVar( 4, currentPC );
-    		LocalVarInfo loadInfo = mi.getLocalVar( 5, currentPC );
-    		
-    		//get parameter values
-			Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-			Object actorSourceValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorSource.getName( ) );
-			Object actorTargetValue = ti.getStackFrameExecuting( insnToExecute, 0).getLocalOrFieldValue( actorTarget.getName() );
-			Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
-			Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
-			
-			//form metrics and keys
-			MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorSourceValue ), DEIToString( channel_typeValue ) );
-			Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
-			
-			//store metric
-			Metric metric = _metrics.get( currentKey );
-			if ( metric == null ) { 
-				_metrics.put( currentKey, currentMetric );
-			} else {
-				 metric.add( (int) workloadValue );
-			}
-			
-		} else if ( fullMethodName.contains( "endSimulation" ) ) {
-			
+		if ( fullMethodName.contains( "setDecisionWorkload" ) )
+			storeDecisionWorkload( vm, ti, insnToExecute, mi );
+		else if ( fullMethodName.contains( "setChannelConflict" ) )
+			storeChannelConflict( vm, ti, insnToExecute, mi );
+		else if ( fullMethodName.contains( "setChannelLoad" ) )
+			storeChannelLoad( vm, ti, insnToExecute, mi);
+		else if ( fullMethodName.contains( "endSimulation" ) )
 			printSimpleMetrics();
-			
-		}
 	}
 
-	private void printSimpleMetrics() {
+	private void storeDecisionWorkload(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
+		
+		//get the desired parameters
+		int currentPC = ti.getPC( ).getPosition( );
+		
+		//get parameter information
+		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
+		LocalVarInfo stateInfo = mi.getLocalVar( 3, currentPC );
+		LocalVarInfo workloadInfo = mi.getLocalVar( 4, currentPC );
+		
+		//get parameter values
+		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+		Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
+		Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( stateInfo.getName( ) );
+		Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
+		
+		//form metrics and keys
+		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
+		
+		//store metric
+		Metric metric = _metrics.get( currentKey );
+		if ( metric == null ) { 
+			_metrics.put( currentKey, currentMetric );
+		} else {
+			 metric.add( (int) workloadValue );
+		}
+		
+	}
+	
+	private void storeChannelConflict(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+		
+		//get the desired parameters
+		int currentPC = ti.getPC( ).getPosition( );
+		
+		//get parameter information
+		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+		LocalVarInfo actor_targetInfo = mi.getLocalVar( 2, currentPC );
+		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
+		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
+		
+		//get parameter values
+		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+		Object actor_targetValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actor_targetInfo.getName( ) );
+		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
+		Object loadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+		
+		//form metrics and keys
+		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
+		
+		//store metric
+		Metric metric = _metrics.get( currentKey );
+		if ( metric == null ) { 
+			_metrics.put( currentKey, currentMetric );
+		} else {
+			 metric.add( (int) loadValue );
+		}
+		
+	}
+
+	private void storeChannelLoad(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+		
+		//get the desired parameters
+		int currentPC = ti.getPC( ).getPosition( );
+		
+		//get parameter information
+		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+		LocalVarInfo actorSource = mi.getLocalVar( 2, currentPC );
+		LocalVarInfo actorTarget = mi.getLocalVar(3, currentPC);
+		LocalVarInfo channel_typeInfo = mi.getLocalVar( 4, currentPC );
+		LocalVarInfo loadInfo = mi.getLocalVar( 5, currentPC );
+		
+		//get parameter values
+		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+		Object actorSourceValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorSource.getName( ) );
+		Object actorTargetValue = ti.getStackFrameExecuting( insnToExecute, 0).getLocalOrFieldValue( actorTarget.getName() );
+		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
+		Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+		
+		//form metrics and keys
+		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
+		
+		//store metric
+		Metric metric = _metrics.get( currentKey );
+		if ( metric == null ) { 
+			_metrics.put( currentKey, currentMetric );
+		} else {
+			 metric.add( (int) workloadValue );
+		}
+		
+	}
+
+	private void printSimpleMetrics( ) {
 		for( Entry<MetricKey, Metric> metric : _metrics.entrySet( ) ){
 			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
 		}
