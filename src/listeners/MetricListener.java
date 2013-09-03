@@ -49,7 +49,7 @@ public class MetricListener extends ListenerAdapter {
 	Path _currentPath = _rootPath;
 	
 	/**
-	 * acts whenever methods execute
+	 * acts whenever certain methods execute
 	 */
 	@Override
 	public void executeInstruction ( VM vm, ThreadInfo ti, Instruction insnToExecute ) {
@@ -160,6 +160,53 @@ public class MetricListener extends ListenerAdapter {
 		} else {
 			 metric.add( (int) workloadValue );
 		}
+		
+	}
+	
+	/**
+	 * acts whenever a choice generator is set (at the first point of non-determinism).
+	 * at this point we start a new child path.
+	 */
+	@Override
+	public void choiceGeneratorSet (VM vm, ChoiceGenerator<?> newCG) {
+		
+//		Path newPath = new Path();
+//		newPath._parentPath = _currentPath;
+//		_currentPath._childPaths.add( newPath );
+//		_currentPath = newPath;
+		//debug
+		System.out.println("choiceGeneratorSet");
+		
+	}
+
+	/**
+	 * acts whenever a choice generator is advanced (at the following points of non-determinism).
+	 * at this point we return to the parent path and start a new path.
+	 */
+	@Override
+	public void choiceGeneratorAdvanced (VM vm, ChoiceGenerator<?> currentCG) {
+		
+//		Path oldPath = _currentPath;
+//		_currentPath = _currentPath._parentPath;
+//		Path newPath = new Path();
+//		newPath._parentPath = _currentPath;
+//		_currentPath._childPaths.add( newPath );
+//		_currentPath = newPath;
+		//debug
+		System.out.println("choiceGeneratorAdvanced");
+		
+	}
+	
+	/**
+	 * acts when a choice generator completes all possible choices.
+	 * at this point we return to the parent path
+	 */
+	@Override
+	public void choiceGeneratorProcessed (VM vm, ChoiceGenerator<?> processedCG) {
+		
+//		_currentPath = _currentPath._parentPath;
+		//debug
+		System.out.println("choiceGeneratorProcessed");
 		
 	}
 
