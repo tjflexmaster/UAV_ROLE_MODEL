@@ -13,13 +13,15 @@ public class MetricListener extends ListenerAdapter {
 	 * A path stores non-deterministic workload metrics.
 	 */
 	public class Path {
-		HashMap<MetricKey, Metric> _metrics;
-		ArrayList<Path> _childPaths;
-		double _totalWorkload;
-		int _totalTimeElapsed;
+		public HashMap<MetricKey, Metric> _metrics;
+		public Path _parentPath;
+		public ArrayList<Path> _childPaths;
+		public double _totalWorkload;
+		public int _totalTimeElapsed;
 		
 		Path ( ) {
 			_metrics = new HashMap<MetricKey, Metric>();
+			_parentPath = null;
 			_childPaths = new ArrayList<Path>();
 			_totalWorkload = 0.0;
 			_totalTimeElapsed = 0;
@@ -41,9 +43,8 @@ public class MetricListener extends ListenerAdapter {
 	/**
 	 * stores the metrics
 	 */
-	Path _parentPath = new Path();
-	Path _currentPath = _parentPath;
-	HashMap<MetricKey, Metric> _metrics = new HashMap<MetricKey, Metric>( );
+	Path _rootPath = new Path();
+	Path _currentPath = _rootPath;
 	
 	/**
 	 * acts whenever methods execute
@@ -61,8 +62,10 @@ public class MetricListener extends ListenerAdapter {
 			storeChannelConflict( vm, ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
+		else if ( fullMethodName.contains( "backtrack" ) )
+			handleBacktrack( );
 		else if ( fullMethodName.contains( "endSimulation" ) )
-			printSimpleMetrics();
+			printSimpleMetrics( );
 	}
 
 	private void storeDecisionWorkload(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -87,9 +90,9 @@ public class MetricListener extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
 		
 		//store metric
-		Metric metric = _metrics.get( currentKey );
+		Metric metric = _currentPath._metrics.get( currentKey );
 		if ( metric == null ) { 
-			_metrics.put( currentKey, currentMetric );
+			_currentPath._metrics.put( currentKey, currentMetric );
 		} else {
 			 metric.add( (int) workloadValue );
 		}
@@ -118,9 +121,9 @@ public class MetricListener extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
 		
 		//store metric
-		Metric metric = _metrics.get( currentKey );
+		Metric metric = _currentPath._metrics.get( currentKey );
 		if ( metric == null ) { 
-			_metrics.put( currentKey, currentMetric );
+			_currentPath._metrics.put( currentKey, currentMetric );
 		} else {
 			 metric.add( (int) loadValue );
 		}
@@ -151,19 +154,13 @@ public class MetricListener extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
 		
 		//store metric
-		Metric metric = _metrics.get( currentKey );
+		Metric metric = _currentPath._metrics.get( currentKey );
 		if ( metric == null ) { 
-			_metrics.put( currentKey, currentMetric );
+			_currentPath._metrics.put( currentKey, currentMetric );
 		} else {
 			 metric.add( (int) workloadValue );
 		}
 		
-	}
-
-	private void printSimpleMetrics( ) {
-		for( Entry<MetricKey, Metric> metric : _metrics.entrySet( ) ){
-			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
-		}
 	}
 
 	/**
@@ -172,6 +169,7 @@ public class MetricListener extends ListenerAdapter {
 	 * @return a string representation of the object
 	 */
 	private String DEIToString( Object object ) {
+		
 		DynamicElementInfo DEI = ( DynamicElementInfo ) object;
 		String result = "";
 		
@@ -180,6 +178,24 @@ public class MetricListener extends ListenerAdapter {
 			result += nextChar;
 		
 		return result;
+		
+	}
+
+	private void handleBacktrack( ) {
+		
+		Path newPath = new Path();
+		assert _currentPath._parentPath != null : "There is no parent path.";
+		_currentPath._parentPath._childPaths.add( newPath );
+		_currentPath = newPath;
+		
+	}
+
+	private void printSimpleMetrics( ) {
+		
+		for( Entry<MetricKey, Metric> metric : _currentPath._metrics.entrySet( ) ){
+//			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
+		}
+		
 	}
 	
 //	/**
