@@ -21,23 +21,20 @@ public class MetricListener extends ListenerAdapter {
 		public int _totalTimeElapsed;
 		
 		Path ( ) {
-			_metrics = new HashMap<MetricKey, Metric>();
+			_metrics = new HashMap<MetricKey, Metric>( );
 			_parentPath = null;
-			_childPaths = new ArrayList<Path>();
+			_childPaths = new ArrayList<Path>( );
 			_totalWorkload = 0.0;
 			_totalTimeElapsed = 0;
 		}
 		
-		public Path getLowest( ) {
-			Path lowestPath = null;
+		public String toString( ) {
+			String result = "";
 			
-			return lowestPath;
-		}
-		
-		public Path getHighest( ) {
-			Path highestPath = null;
+			for ( Entry<MetricKey, Metric> metric : this._metrics.entrySet( ) )
+				result += "(" + metric.getKey() + ", " + metric.getValue() + ")--";
 			
-			return highestPath;
+			return result;
 		}
 		
 	}
@@ -45,7 +42,7 @@ public class MetricListener extends ListenerAdapter {
 	/**
 	 * stores the metrics
 	 */
-	Path _rootPath = new Path();
+	Path _rootPath = new Path( );
 	Path _currentPath = _rootPath;
 	
 	/**
@@ -53,6 +50,7 @@ public class MetricListener extends ListenerAdapter {
 	 */
 	@Override
 	public void executeInstruction ( VM vm, ThreadInfo ti, Instruction insnToExecute ) {
+		
 		//get the methods information
 		MethodInfo mi = insnToExecute.getMethodInfo( );
 		String fullMethodName = mi.getFullName( );
@@ -65,10 +63,11 @@ public class MetricListener extends ListenerAdapter {
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
 		else if ( fullMethodName.contains( "endSimulation" ) )
-			printSimpleMetrics( );
+			printMetrics(_rootPath, "");
+		
 	}
 
-	private void storeDecisionWorkload(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
+	private void storeDecisionWorkload( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		
 		//get the desired parameters
 		int currentPC = ti.getPC( ).getPosition( );
@@ -99,7 +98,7 @@ public class MetricListener extends ListenerAdapter {
 		
 	}
 	
-	private void storeChannelConflict(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+	private void storeChannelConflict( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		
 		//get the desired parameters
 		int currentPC = ti.getPC( ).getPosition( );
@@ -130,7 +129,7 @@ public class MetricListener extends ListenerAdapter {
 		
 	}
 
-	private void storeChannelLoad(VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+	private void storeChannelLoad( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		
 		//get the desired parameters
 		int currentPC = ti.getPC( ).getPosition( );
@@ -155,11 +154,22 @@ public class MetricListener extends ListenerAdapter {
 		
 		//store metric
 		Metric metric = _currentPath._metrics.get( currentKey );
-		if ( metric == null ) { 
+		if ( metric == null )
 			_currentPath._metrics.put( currentKey, currentMetric );
-		} else {
+		else
 			 metric.add( (int) workloadValue );
-		}
+		
+	}
+
+	private void printMetrics(Path currentPath, String metrics) {
+		
+		metrics += ">>" + currentPath.toString();
+		
+		if( !currentPath._childPaths.isEmpty() )
+			for( Path childPath : currentPath._childPaths )
+				printMetrics( childPath, metrics );
+		else
+			System.out.println(metrics);
 		
 	}
 	
@@ -168,14 +178,22 @@ public class MetricListener extends ListenerAdapter {
 	 * at this point we start a new child path.
 	 */
 	@Override
-	public void choiceGeneratorSet (VM vm, ChoiceGenerator<?> newCG) {
+	public void choiceGeneratorSet ( VM vm, ChoiceGenerator<?> newCG ) {
 		
-//		Path newPath = new Path();
-//		newPath._parentPath = _currentPath;
-//		_currentPath._childPaths.add( newPath );
-//		_currentPath = newPath;
-		//debug
-		System.out.println("choiceGeneratorSet");
+		//get the methods information
+		MethodInfo mi = newCG.getInsn( ).getMethodInfo( );
+		String fullMethodName = mi.getFullName( );
+		
+		//form a new branch
+		if( fullMethodName.contains( "updateTransition" ) ) {
+			Path newPath = new Path( );
+			newPath._parentPath = _currentPath;
+			_currentPath._childPaths.add( newPath );
+			_currentPath = newPath;
+			
+//			//debug
+//			System.out.println( "choiceGeneratorSet" );
+		}
 		
 	}
 
@@ -184,31 +202,43 @@ public class MetricListener extends ListenerAdapter {
 	 * at this point we return to the parent path and start a new path.
 	 */
 	@Override
-	public void choiceGeneratorAdvanced (VM vm, ChoiceGenerator<?> currentCG) {
+	public void choiceGeneratorAdvanced ( VM vm, ChoiceGenerator<?> currentCG ) {
 		
-//		Path oldPath = _currentPath;
-//		_currentPath = _currentPath._parentPath;
-//		Path newPath = new Path();
-//		newPath._parentPath = _currentPath;
-//		_currentPath._childPaths.add( newPath );
-//		_currentPath = newPath;
-		//debug
-		System.out.println("choiceGeneratorAdvanced");
+		//get the methods information
+		MethodInfo mi = currentCG.getInsn( ).getMethodInfo( );
+		String fullMethodName = mi.getFullName( );
+		
+		//form a new branch
+		if( fullMethodName.contains( "updateTransition" ) ) {
+			_currentPath = _currentPath._parentPath;
+			Path newPath = new Path( );
+			newPath._parentPath = _currentPath;
+			_currentPath._childPaths.add( newPath );
+			_currentPath = newPath;
+			
+//			//debug
+//			System.out.println( "choiceGeneratorAdvanced" );
+		}
 		
 	}
 	
-	/**
-	 * acts when a choice generator completes all possible choices.
-	 * at this point we return to the parent path
-	 */
-	@Override
-	public void choiceGeneratorProcessed (VM vm, ChoiceGenerator<?> processedCG) {
-		
-//		_currentPath = _currentPath._parentPath;
-		//debug
-		System.out.println("choiceGeneratorProcessed");
-		
-	}
+//	/**
+//	 * acts when a choice generator completes all possible choices.
+//	 * at this point we return to the parent path
+//	 */
+//	@Override
+//	public void choiceGeneratorProcessed ( VM vm, ChoiceGenerator<?> processedCG ) {
+//		
+//		//get the methods information
+//		MethodInfo mi = processedCG.getInsn().getMethodInfo( );
+//		String fullMethodName = mi.getFullName( );
+//		
+//		if( fullMethodName.contains( "updateTransition" ) ) {
+//			_currentPath = _currentPath._parentPath;
+//			System.out.println( "choiceGeneratorProcessed" );
+//		}
+//		
+//	}
 
 	/**
 	 * must always return a !null string
@@ -236,14 +266,6 @@ public class MetricListener extends ListenerAdapter {
 //		_currentPath = newPath;
 //		
 //	}
-
-	private void printSimpleMetrics( ) {
-		
-		for( Entry<MetricKey, Metric> metric : _currentPath._metrics.entrySet( ) ){
-			System.out.println( "(" + metric.getKey() + ", " + metric.getValue() + ")" );
-		}
-		
-	}
 	
 //	/**
 //	 * must always return a !null MetricEnum
