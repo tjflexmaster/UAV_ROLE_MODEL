@@ -108,6 +108,7 @@ public class DeltaClock implements IDeltaClock {
 			
 			//Save channel load metric
 			sendChannelLoad(actor, transition, time);
+			
 		}
 	}
 
@@ -166,11 +167,16 @@ public class DeltaClock implements IDeltaClock {
 			} else {
 				_elapsedTime += dt.time;
 				dt.time = 0;
+				
+				//Send channel conflict data
+				sendChannelConflictData();
+				
+				//Send actor output data
+				sendActorOutput();
+				
 			}
 		}
 		
-		//Send the channel conflict data
-		sendChannelConflictData();
 	}
 	
 
@@ -249,7 +255,6 @@ public class DeltaClock implements IDeltaClock {
 		HashMap<String, Object> result = t.getTempOutputChannels();
 		ComChannelList outputs = t.getOutputChannels();
 		
-		HashMap<String, HashMap<String, Integer> > conflicts = new HashMap<String, HashMap<String, Integer> >();
 		
 		//Second go through the list and mark which ones are not null
 		for(Entry<String, Object> e : result.entrySet() ) {
@@ -260,6 +265,37 @@ public class DeltaClock implements IDeltaClock {
 					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), time);
 				}
 			}
+		}
+	}
+	
+	public void sendActorOutput()
+	{
+		//IActor a, ITransition t, int time
+		for(DeltaTime t : _clock) {
+			//First get a list of all outputs that the transition might change
+			HashMap<String, Object> tempOutputs = t.transition.getTempOutputChannels();
+		
+			//Second loop through those outputs
+			int outputCount = 0;
+			for(Entry<String, Object> e : tempOutputs.entrySet() ) {
+				if ( e.getValue() != null ) {
+					outputCount++;
+				}
+			}
+		
+		
+			//First get a list of all outputs that the transition might change
+			HashMap<String, Object> tempMemory = t.transition.getTempOutputChannels();
+			
+			//Second loop through those outputs
+			int memoryCount = 0;
+			for(Entry<String, Object> e : tempMemory.entrySet() ) {
+				if ( e.getValue() != null ) {
+					memoryCount++;
+				}
+			}
+		
+			MetricManager.instance().setActorOutput(_elapsedTime, t.actor.name(), memoryCount, outputCount);
 		}
 	}
 	

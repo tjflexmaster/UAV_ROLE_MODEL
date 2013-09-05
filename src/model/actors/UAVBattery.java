@@ -9,7 +9,7 @@ import simulator.*;
 public class UAVBattery extends Actor {
 
 	
-	public UAVBattery(HashMap<String, UDO> inputs, HashMap<String, UDO> outputs) {
+	public UAVBattery(HashMap<String, Object> inputs, HashMap<String, Object> outputs) {
 		//initialize name
 		setName("UAV_BATTERY");
 		

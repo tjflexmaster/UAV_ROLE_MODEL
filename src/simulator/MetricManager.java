@@ -51,6 +51,11 @@ public class MetricManager {
 		//Do nothing JPF will handle the data
 	}
 	
+	public void setActorOutput(int time, String actor, int memory, int output)
+	{
+		//Do nothing JPF will handle the data
+	}
+	
 	public void endSimulation()
 	{
 		//Do nothing JPF recognizes this and prints
