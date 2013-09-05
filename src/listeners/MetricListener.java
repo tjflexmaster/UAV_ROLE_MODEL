@@ -14,14 +14,14 @@ public class MetricListener extends ListenerAdapter {
 	 */
 	public class Path {
 		
-		public HashMap<MetricKey, Metric> _metrics;
+		public TreeMap<MetricKey, Metric> _metrics;
 		public Path _parentPath;
 		public ArrayList<Path> _childPaths;
 		public double _totalWorkload;
 		public int _totalTimeElapsed;
 		
 		Path ( ) {
-			_metrics = new HashMap<MetricKey, Metric>( );
+			_metrics = new TreeMap<MetricKey, Metric>( );
 			_parentPath = null;
 			_childPaths = new ArrayList<Path>( );
 			_totalWorkload = 0.0;
@@ -182,10 +182,10 @@ public class MetricListener extends ListenerAdapter {
 		
 		//get the methods information
 		MethodInfo mi = newCG.getInsn( ).getMethodInfo( );
-		String fullMethodName = mi.getFullName( );
+		String methodName = mi.getName( );
 		
 		//form a new branch
-		if( fullMethodName.contains( "updateTransition" ) ) {
+		if( methodName.equals( "duration" ) ) {
 			Path newPath = new Path( );
 			newPath._parentPath = _currentPath;
 			_currentPath._childPaths.add( newPath );
@@ -206,10 +206,10 @@ public class MetricListener extends ListenerAdapter {
 		
 		//get the methods information
 		MethodInfo mi = currentCG.getInsn( ).getMethodInfo( );
-		String fullMethodName = mi.getFullName( );
+		String methodName = mi.getName( );
 		
 		//form a new branch
-		if( fullMethodName.contains( "updateTransition" ) ) {
+		if( methodName.equals( "duration" ) ) {
 			_currentPath = _currentPath._parentPath;
 			Path newPath = new Path( );
 			newPath._parentPath = _currentPath;

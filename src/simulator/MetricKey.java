@@ -1,6 +1,6 @@
 package simulator;
 
-public class MetricKey {
+public class MetricKey implements Comparable<MetricKey>{
 	private int _time = -1;
 	private String _actor_name = null;
 	private String _state_name = null;
@@ -79,6 +79,28 @@ public class MetricKey {
 		
 		return result;
 	}
+
+	@Override
+	public int compareTo(MetricKey o) {
+		if (_time < o._time) {
+			return -1;
+		} else {
+			return 1;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((_actor_name == null) ? 0 : _actor_name.hashCode());
+		result = prime * result + ((_state_name == null) ? 0 : _state_name.hashCode());
+		result = prime * result + _time;
+		result = prime * result + _transition;
+		return result;
+	}
+
 //	
 //	public String toString()
 //	{
@@ -92,18 +114,6 @@ public class MetricKey {
 //		return key;
 //	}
 //	
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result
-//				+ ((_actor_name == null) ? 0 : _actor_name.hashCode());
-//		result = prime * result + ((_state_name == null) ? 0 : _state_name.hashCode());
-//		result = prime * result + _time;
-//		result = prime * result + _transition;
-//		return result;
-//	}
-//
 //	@Override
 //	public boolean equals(Object obj) {
 //		if (this == obj)
@@ -134,7 +144,7 @@ public class MetricKey {
 //			int transition_number) {
 //		return time == _time && actor_name.equals(_actor_name) && state.equals(_state_name) && transition_number == _transition;
 //	}
-
+//
 //	@Override
 //	public int compareTo(Object arg0) {
 //		if ( arg0 instanceof MetricKey) {
