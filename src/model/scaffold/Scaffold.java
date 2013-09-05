@@ -1,12 +1,19 @@
 package model.scaffold;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Builds a team of actors from lists of transitions in the model/transitions package.
- * Transition := (CurrentState,[Channel=InputData*],[Memory=InputValue*],Priority,Duration,Probability)x(NextState,[Channel=OutputData*],[Memory=OutputValue*])
+ * Transition := (CurrentState,[Channel=InputData*],[Memory{=||>||<...}InputValue*],Priority,Duration,Probability)x(NextState,[Channel=OutputData*],[Memory=OutputValue*])
  * CurrentState := Name
  * Name := string
  * Channel := ChannelType
@@ -26,7 +33,16 @@ import java.util.Map.*;
 public class Scaffold {
 	public static void main(String[] args){
 		Scaffold xml = new Scaffold();
-		File f = new File("/Users/rob/git/UAV_ROLE_MODEL/");
+//		String test = "(IDLE,[V!=UAV_LANDED_OP],[NEW_SEARCH_AOI>0],1,NEXT,1.0)x(POKE_OGUI,[],[])";
+//		if(!xml.correctFormat(test))
+//			System.out.println(test);
+		File f = null;
+		try {
+			f = new File(new File(Scaffold.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent());
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		for(File file : f.listFiles()){
 			if(file.getName().equals("src"))
 				f = file;
@@ -36,7 +52,7 @@ public class Scaffold {
 				f = file;
 		}
 		for(File file : f.listFiles()){
-			if(file.getName().equals("transitions"))
+			if(file.getName().equals("scaffold"))
 				f = file;
 		}
 		//each actor
@@ -57,7 +73,7 @@ public class Scaffold {
 					HashMap<String, String> enumerations = new HashMap<String, String>();
 					while(line != null){
 						line = line.trim();
-						if(line.startsWith("(")){
+						if(xml.correctFormat(line)){
 							String[] transition_state = xml.parseComment(line, memory, name, enumerations);
 							String state = transition_state[0].substring(0, transition_state[0].indexOf('.')).trim();
 							if(initializers.containsKey(state)){
@@ -68,13 +84,14 @@ public class Scaffold {
 							}else{
 								initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + "\n\t// " + line + transition_state[0]);
 							}
-						}
+						}else if(line.length() > 0 && !line.startsWith("//"))
+							System.out.println("error with comment: " + line);
 						line = br.readLine();
 					}
 					memory.append("\n}");
 					StringBuilder body = new StringBuilder();
 					for(Entry<String, String> transition : initializers.entrySet()){
-						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\",1);");
+						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\");");
 						String call_line = transition.getValue().split("\n")[0];
 						String parameters = call_line.substring(call_line.indexOf("State"), call_line.indexOf(')'));
 						parameters = parameters.replaceAll("State ", "");
@@ -91,7 +108,7 @@ public class Scaffold {
 					}
 					File new_file = file.getParentFile().getParentFile();
 					for(File temp : new_file.listFiles()){
-						if(temp.getName().equals("actors")){
+						if(temp.getName().equals("completed_actors")){
 							new_file = temp;
 							break;
 						}
@@ -100,7 +117,7 @@ public class Scaffold {
 					new_file.createNewFile();
 					System.out.println(new_file.toPath());
 					PrintWriter writer = new PrintWriter(new_file);
-					writer.print("package model.actors;\n\nimport model.team.Channels;\nimport model.team.Duration;\nimport simulator.Actor;\nimport simulator.ComChannelList;\nimport simulator.State;\nimport simulator.Transition;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.print("package model.completed_actors;\n\nimport model.team.Channels;\nimport model.team.Duration;\nimport simulator.Actor;\nimport simulator.ComChannelList;\nimport simulator.State;\nimport simulator.Transition;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
 					writer.close();
 				}
 //				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
@@ -110,9 +127,18 @@ public class Scaffold {
 			}
 		}
 	}
-
+	/**
+	 * takes a comment line and converts it into the source code of the corresponding transition
+	 * Transition := (CurrentState,[Channel=InputData*],[Memory{=||>||<...}InputValue*],Priority,Duration,Probability)x(NextState,[Channel=OutputData*],[Memory=OutputValue*])
+	 * @param s
+	 * @param memory
+	 * @param name String identifier for the class
+	 * @param enumerations mapping of all enumerations defined within the class
+	 * @return the source code and the end state to be added into the file itself
+	 */
 	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations){
 		StringBuilder transition = new StringBuilder();
+		//method call
 		int start = s.indexOf('(')+1;
 		int end = s.indexOf(',');
 		String startState = s.substring(start, end);
@@ -120,7 +146,6 @@ public class Scaffold {
 		start = s.indexOf('(', end)+1;
 		end = s.indexOf(',',start);
 		String endState = s.substring(start, end);
-		
 		String[] endingValues = s.substring(0,s.indexOf(')')).split(",");
 		String probability = endingValues[endingValues.length-1].trim();
 		String duration = endingValues[endingValues.length-2].trim();
@@ -133,66 +158,79 @@ public class Scaffold {
 			duration = "Duration." + duration + ".getRange()";
 		}
 		String priority = endingValues[endingValues.length-3].trim();
-		transition.append(endState + ", " + duration + ", "  + priority + ", "+ probability + ") {\n\t\t@Override\n\t\tpublic boolean isEnabled() { ");
+		transition.append(endState + ", " + duration + ", "  + priority + ", "+ probability + ") {");
+		//end method call generation
+		
+		transition.append("\n\t\t@Override\n\t\tpublic boolean isEnabled() { ");
 		start = s.indexOf('[')+1;
 		end = s.indexOf(']', start);
-		String[] inputs = s.substring(start,end).split(", ");
+		String[] inputs;
+		if(s.substring(start,end).contains(","))
+			inputs = s.substring(start,end).split(",");
+		else
+			inputs = new String[]{s.substring(start,end)};
+			
+		//process input prerequisites
 		for(String input : inputs){
-			if(input.contains("=")){
-				String[] division = input.split("=");
-				String[] value_channel = getValue_Channel(division);
-				if(value_channel[0].length() > 0 && name.equals(value_channel[0].substring(0, value_channel[0].indexOf('.')))){
-					if(!enumerations.containsKey(value_channel[1])){
-						enumerations.put(value_channel[1], "\npublic enum " + value_channel[1] + "{\n\t" + division[1] + ",");
-					}else{
-						if(!enumerations.get(value_channel[1]).contains(division[1]))
-							enumerations.put(value_channel[1], enumerations.get(value_channel[1]) + "\n\t" + division[1] + ",");
-					}
-				}
-				if(!value_channel[1].equals("EVENT")){
-					value_channel[0] += value_channel[1] + "." + division[1];
-					transition.append("\n\t\t\tif(!" + value_channel[0] + ".equals(_inputs.get(Channels." + value_channel[1] + ".name()).value())) {\n\t\t\t\treturn false;\n\t\t\t}");
-				}else{
-					transition.append("\n\t\t\tif(_inputs.get(Channels."+division[1]+".name()).value() == null && !(Boolean)_inputs.get(Channels."+division[1]+".name()).value()) {\n\t\t\t\treturn false;\n\t\t\t}");
-				}
-					
-			}
+			String comparator = null;
+			if(input.contains("!="))
+				comparator = "!=";
+			else if(input.contains("="))
+				comparator = "=";
+			else
+				continue;
+			String[] division = input.split(comparator);
+			String[] value_channel = getValue_Channel(division);
 
-			start = s.indexOf('[',end)+1;
-			end = s.indexOf(']', start);
-			String[] internals = s.substring(start,end).split(", ");
-			for(String internal : internals){
-				if(internal.contains("=")){
-					String[] division = internal.split("=");
-					boolean add_to_memory = false;
-					if(!memory.toString().contains(division[0])){
-						memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
-						add_to_memory = true;
-					}
-					String value = "";
-					if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
-						value = "new Boolean(" + division[1].toLowerCase() + ")";
-						if(add_to_memory)
-							memory.append("false);");
-					} else {
-						try{
-							value = "new Integer(" + Integer.parseInt(division[1]) + ")";
-							if(add_to_memory)
-								memory.append("0);");
-						}catch(NumberFormatException e){
-							value = "\"" + division[1] + "\"";
-							if(add_to_memory)
-								memory.append("null);");
-						}
-					}
-					transition.append("\n\t\t\tif(!" + value + ".equals(_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\t\treturn false;\n\t\t\t}");
+			//adds to the enumerations if not already present
+			if(value_channel[0].length() > 0 && name.equals(value_channel[0].substring(0, value_channel[0].indexOf('.')))){
+				if(!enumerations.containsKey(value_channel[1])){
+					enumerations.put(value_channel[1], "\npublic enum " + value_channel[1] + "{\n\t" + division[1] + ",");
+				}else{
+					if(!enumerations.get(value_channel[1]).contains(division[1]))
+						enumerations.put(value_channel[1], enumerations.get(value_channel[1]) + "\n\t" + division[1] + ",");
 				}
+			}
+			//adds a check for transition prerequisites and the return false if those are not met
+			if(!value_channel[1].equals("EVENT")){
+				//if not event
+				value_channel[0] += value_channel[1] + "." + division[1];
+				transition.append("\n\t\t\tif(");
+				if(comparator.equals("="))
+					transition.append("!");
+				transition.append(value_channel[0] + ".equals(_inputs.get(Channels." + 
+						value_channel[1] + ".name()).value())) {\n\t\t\t\treturn false;\n\t\t\t}");
+			}else{
+				//if event
+				transition.append("\n\t\t\tif(_inputs.get(Channels." +
+						division[1] + ".name()).value() == null && !(Boolean)_inputs.get(Channels." +
+						division[1] + ".name()).value()) {\n\t\t\t\treturn false;\n\t\t\t}");
 			}
 		}
+		
+		
+		//process internal variable prerequisites
+		start = s.indexOf('[',end)+1;
+		end = s.indexOf(']', start);
+		String[] internals;
+		if(s.substring(start,end).contains(","))
+			internals = s.substring(start,end).split(",");
+		else
+			internals = new String[]{s.substring(start,end)};
+			
+		for(String internal : internals){
+			generateInternalEvaluation(memory, transition, internal);
+		}
 
+		//handle temp outputs
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
-		String[] temp_outputs = s.substring(start, end).split(", ");
+		String[] temp_outputs;
+		if(s.substring(start,end).contains(","))
+			temp_outputs = s.substring(start, end).split(",");
+		else
+			temp_outputs = new String[]{s.substring(start,end)};
+		
 		for(String temp_output : temp_outputs){
 			if(temp_output.contains("=")){
 				String[] division = temp_output.split("=");
@@ -209,6 +247,8 @@ public class Scaffold {
 				transition.append("\n\t\t\tsetTempOutput(Channels." + value_channel[1] + ".name(), " + value_channel[0] + ");");
 			}
 		}
+		
+		//handle temp internals
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
 		String[] temp_internals;
@@ -218,34 +258,176 @@ public class Scaffold {
 			temp_internals = s.substring(start, end).split(",");
 		}
 		for(String temp_internal : temp_internals){
-			if(temp_internal.contains("=")){
-				String[] division = temp_internal.split("=");
-				boolean add_to_memory = false;
-				if(!memory.toString().contains(division[0])){
-					memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
-					add_to_memory = true;
-				}
-				String value = "";
-				if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
-					value = division[1].toLowerCase();
-					if(add_to_memory)
-						memory.append("false);");
-				} else {
-					try{
-						value = String.valueOf(Integer.parseInt(division[1]));
-						if(add_to_memory)
-							memory.append("0);");
-					}catch(NumberFormatException e){
-						value = "\"" + division[1].toUpperCase() + "\"";
-						if(add_to_memory)
-							memory.append("null);");
-					}
-				}
-				transition.append("\n\t\t\tsetTempInternalVar(\"" + division[0] + "\", " + value + ");");
-			}
+			generateTempInternalAssignment(memory, transition, temp_internal);
 		}
+		//finish the source code and return the needed data
 		transition.append("\n\t\t\treturn true;\n\t\t}\n\t});");
 		return new String[]{transition.toString(), endState};
+	}
+	/**
+	 * Transition := (CurrentState,[Channel=InputData*],[Memory{=||>||<...}InputValue*],Priority,Duration,Probability)x(NextState,[Channel=OutputData*],[Memory=OutputValue*])
+	 * @param s
+	 * @return
+	 */
+	private boolean correctFormat(String s) {
+		Pattern pattern = Pattern.compile("\\([[A-Z]_]*,"
+				+ "\\[([A-Z_]*(=|!=)[A-Z_]*)?(,[A-Z_]*[=(!=)][A-Z_]*)*\\],"
+				+ "\\[([A-Z_]*[(=)(>)(<)(!=)(<=)(>=)][A-Z_0-9]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_0-9]*)*\\],"
+				+ "\\d*,"
+				+ "([A-Z_]*|\\[\\d*\\-\\d*\\]),"
+				+ "\\d?\\.\\d*\\)"
+				+ "[xX]"
+				+ "\\([[A-Z]_]*,"
+				+ "\\[([A-Z_]*=[A-Z_]*)?(,[A-Z_]*=[A-Z_]*)*\\],"
+				+ "\\[([A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)*\\]\\)");
+		Matcher matcher = pattern.matcher(s);
+		boolean match = matcher.find();
+		if(s.length() > 0 && s.startsWith("(")){
+			pattern = Pattern.compile("\\([[A-Z]_]*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(1);
+			pattern = Pattern.compile("\\(.*,\\[([A-Z_]*(=|!=)[A-Z_]*)?(,[A-Z_]*[=(!=)][A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(2);
+			pattern = Pattern.compile("\\(.*,.*,\\[([A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)?(,[A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)*\\],.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(3);
+			pattern = Pattern.compile("\\(.*,.*,.*,\\d*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(4);
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,([A-Z_]*|\\[\\d*\\-\\d*\\]),.*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(5);
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,\\d?\\.\\d*\\)[xX]\\(.*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(6);
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\([[A-Z]_]*,.*,.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(7);
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\(.*,\\[([A-Z_]*=[A-Z_]*)?(,[A-Z_]*=[A-Z_]*)*\\],.*\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(8);
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,\\[([A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)*\\]\\)");
+			if(!pattern.matcher(s).find())
+				System.out.println(9);
+			
+		}
+		return match;
+	}
+	
+	/**
+	 * @param memory
+	 * @param transition
+	 * @param temp_internal
+	 */
+	private void generateTempInternalAssignment(StringBuilder memory,
+			StringBuilder transition, String temp_internal) {
+		if(temp_internal.contains("=")){
+			String[] division = temp_internal.split("=");
+			boolean add_to_memory = false;
+			if(!memory.toString().contains(division[0])){
+				memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
+				add_to_memory = true;
+			}
+			String value = "";
+			if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
+				value = division[1].toLowerCase();
+				if(add_to_memory)
+					memory.append("false);");
+			} else if(division[1].equals("++")){
+				value = "(Integer)_internal_vars.getVariable(\"" + division[1] + "\") + 1";
+			} else if(division[1].equals("--")){
+				value = "(Integer)_internal_vars.getVariable(\"" + division[1] + "\") - 1";
+			} else {
+			
+				try{
+					value = String.valueOf(Integer.parseInt(division[1]));
+					if(add_to_memory)
+						memory.append("0);");
+				}catch(NumberFormatException e){
+					value = "\"" + division[1].toUpperCase() + "\"";
+					if(add_to_memory)
+						memory.append("null);");
+				}
+			}
+			transition.append("\n\t\t\tsetTempInternalVar(\"" + division[0] + "\", " + value + ");");
+		}
+	}
+	/**
+	 * @param memory
+	 * @param transition
+	 * @param internal
+	 */
+	private void generateInternalEvaluation(StringBuilder memory,
+			StringBuilder transition, String internal) {
+		//check for any of the comparison operators and terminate the source generation if they aren't found
+		String operator = null;
+		if(internal.contains("<="))
+			operator = "<=";
+		else if(internal.contains(">="))
+			operator = ">=";
+		else if(internal.contains("!="))
+			operator = "!=";
+		else if(internal.contains("="))
+			operator = "=";
+		else if(internal.contains("<"))
+			operator = "<";
+		else if(internal.contains(">"))
+			operator = ">";
+		else
+			return;
+		
+		String[] division = internal.split(operator);
+		//add the source for the initializeInternalVariables method
+		boolean add_to_memory = false;
+		if(!memory.toString().contains(division[0])){
+			memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
+			add_to_memory = true;
+		}
+		String value = "";
+		//if boolean, integer, or object set the string for value and finish the source for the initializeInternalVariables if necessary
+		if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
+			value = "new Boolean(" + division[1].toLowerCase() + ")";
+			//add the source for the initializeInternalVariables method
+			if(add_to_memory)
+				memory.append("false);");
+		} else {
+			try{
+				value = "new Integer(" + Integer.parseInt(division[1]) + ")";
+				//add the source for the initializeInternalVariables method
+				if(add_to_memory)
+					memory.append("0);");
+			}catch(NumberFormatException e){
+				value = "\"" + division[1] + "\"";
+				//add the source for the initializeInternalVariables method
+				if(add_to_memory)
+					memory.append("null);");
+			}
+		}
+		
+		//add the source code
+		transition.append("\n\t\t\tif(");
+		switch(operator){
+		case "=":
+			transition.append("!" + value + ".equals(");
+			break;
+		case "<":
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < ");
+			break;
+		case ">":
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > ");
+			break;
+		case "!=":
+			transition.append(value + ".equals(");
+			break;
+		case "<=":
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= ");
+			break;
+		case ">=":
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= ");
+			break;
+		}
+		transition.append("_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\t\treturn false;\n\t\t\t}");
 	}
 
 	/**
