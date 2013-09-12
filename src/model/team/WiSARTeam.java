@@ -1,19 +1,8 @@
 package model.team;
 
-import model.actors.MissionManager;
-import model.actors.Operator;
-import model.actors.OperatorGui;
-import model.actors.ParentSearch;
-import model.actors.UAV;
-import model.actors.UAV_OGUI_WateredDown;
-import model.actors.VO_WateredDown;
-import model.actors.VideoOperator;
-import model.actors.VideoOperatorGui;
-import model.events.NewSearchEvent;
-//import model.events.VoAckEvent;
-import simulator.ComChannel;
-import simulator.ComChannelList;
-import simulator.Team;
+import model.actors.*;
+import model.events.*;
+import simulator.*;
 
 /**
  * 

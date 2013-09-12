@@ -378,6 +378,12 @@ public class Transition implements ITransition {
 	{
 		return _temp_outputs;
 	}
+	
+	@Override
+	public HashMap<String, Object> getTempInternalVars() 
+	{
+		return _temp_internal_vars;
+	}
 
 	@Override
 	public void setIndex(int index) {
@@ -389,5 +395,6 @@ public class Transition implements ITransition {
 	{
 		return _transition_number;
 	}
+
 
 }

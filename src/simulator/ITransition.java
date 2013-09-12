@@ -37,6 +37,7 @@ public interface ITransition {
 	ComChannelList getOutputChannels();
 	
 	HashMap<String, Object> getTempOutputChannels();
+	HashMap<String, Object> getTempInternalVars();
 
 	void setIndex(int indexOf);
 	int getIndex();
