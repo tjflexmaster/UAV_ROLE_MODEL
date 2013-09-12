@@ -55,6 +55,10 @@ public class Scaffold {
 			if(file.getName().equals("scaffold"))
 				f = file;
 		}
+		for(File file : f.listFiles()){
+			if(file.getName().equals("comments"))
+				f = file;
+		}
 		//each actor
 		for(File file : f.listFiles()){
 			BufferedReader br;
@@ -106,7 +110,7 @@ public class Scaffold {
 					for(Entry<String, String> enumeration : enumerations.entrySet()){
 						enums.append(enumeration.getValue() + "\n}");
 					}
-					File new_file = file.getParentFile().getParentFile();
+					File new_file = file.getParentFile().getParentFile().getParentFile();
 					for(File temp : new_file.listFiles()){
 						if(temp.getName().equals("completed_actors")){
 							new_file = temp;
@@ -117,7 +121,7 @@ public class Scaffold {
 					new_file.createNewFile();
 					System.out.println(new_file.toPath());
 					PrintWriter writer = new PrintWriter(new_file);
-					writer.print("package model.completed_actors;\n\nimport model.team.Channels;\nimport model.team.Duration;\nimport simulator.Actor;\nimport simulator.ComChannelList;\nimport simulator.State;\nimport simulator.Transition;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.print("package model.completed_actors;\n\nimport model.team.*;\nimport simulator.*;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
 					writer.close();
 				}
 //				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
@@ -271,14 +275,14 @@ public class Scaffold {
 	 */
 	private boolean correctFormat(String s) {
 		Pattern pattern = Pattern.compile("\\([[A-Z]_]*,"
-				+ "\\[([A-Z_]*(=|!=)[A-Z_]*)?(,[A-Z_]*[=(!=)][A-Z_]*)*\\],"
+				+ "\\[([A-Z](=|!=)[A-Z_]*)?(,[A-Z][=(!=)][A-Z_]*)*\\],"
 				+ "\\[([A-Z_]*[(=)(>)(<)(!=)(<=)(>=)][A-Z_0-9]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_0-9]*)*\\],"
 				+ "\\d*,"
 				+ "([A-Z_]*|\\[\\d*\\-\\d*\\]),"
 				+ "\\d?\\.\\d*\\)"
 				+ "[xX]"
 				+ "\\([[A-Z]_]*,"
-				+ "\\[([A-Z_]*=[A-Z_]*)?(,[A-Z_]*=[A-Z_]*)*\\],"
+				+ "\\[([A-Z]=[A-Z_]*)?(,[A-Z]=[A-Z_]*)*\\],"
 				+ "\\[([A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)*\\]\\)");
 		Matcher matcher = pattern.matcher(s);
 		boolean match = matcher.find();
@@ -286,7 +290,7 @@ public class Scaffold {
 			pattern = Pattern.compile("\\([[A-Z]_]*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(1);
-			pattern = Pattern.compile("\\(.*,\\[([A-Z_]*(=|!=)[A-Z_]*)?(,[A-Z_]*[=(!=)][A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			pattern = Pattern.compile("\\(.*,\\[([A-Z](=|!=)[A-Z_]*)?(,[A-Z][=(!=)][A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(2);
 			pattern = Pattern.compile("\\(.*,.*,\\[([A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)?(,[A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)*\\],.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
@@ -412,22 +416,26 @@ public class Scaffold {
 			transition.append("!" + value + ".equals(");
 			break;
 		case "<":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < (Integer) ");
 			break;
 		case ">":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > (Integer) ");
 			break;
 		case "!=":
 			transition.append(value + ".equals(");
 			break;
 		case "<=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= (Integer) ");
 			break;
 		case ">=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= (Integer) ");
 			break;
 		}
-		transition.append("_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\t\treturn false;\n\t\t\t}");
+		if(transition.toString().endsWith("("))
+			transition.append("_internal_vars.getVariable (\"" + division[0] + "\"))) {\n\t\t\t\treturn false;\n\t\t\t}");
+		else
+			transition.append("_internal_vars.getVariable (\"" + division[0] + "\")) {\n\t\t\t\treturn false;\n\t\t\t}");
+
 	}
 
 	/**
@@ -472,6 +480,15 @@ public class Scaffold {
 			value_channel[0] = "UAVFlightPlan.";
 			prefix = "UAVFP";
 		}
+//		} else if(division[1].startsWith("HAG")){
+//			value_channel[0] = "HeightAboveGroundEvent.";
+//		} else if(division[1].startsWith("")){
+//			
+//		} else if(division[1].startsWith("")){
+//			
+//		}else{
+//			System.out.println("uncaught: " + division[1]);
+//		}
 		value_channel[1] = getChannel(division, prefix);
 		return value_channel;
 	}
