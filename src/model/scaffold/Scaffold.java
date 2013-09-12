@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -75,10 +76,11 @@ public class Scaffold {
 					String line = br.readLine();
 					HashMap<String, String> initializers = new HashMap<String, String>();
 					HashMap<String, String> enumerations = new HashMap<String, String>();
+					ArrayList<String> states = new ArrayList<String>();
 					while(line != null){
 						line = line.trim();
 						if(xml.correctFormat(line)){
-							String[] transition_state = xml.parseComment(line, memory, name, enumerations);
+							String[] transition_state = xml.parseComment(line, memory, name, enumerations, states);
 							String state = transition_state[0].substring(0, transition_state[0].indexOf('.')).trim();
 							if(initializers.containsKey(state)){
 								if(initializers.get(state).contains("State " + transition_state[1])){
@@ -88,14 +90,16 @@ public class Scaffold {
 							}else{
 								initializers.put(state, "State " + state + ", State " + transition_state[1] + ") {" + "\n\t// " + line + transition_state[0]);
 							}
-						}else if(line.length() > 0 && !line.startsWith("//"))
+						}else if(line.length() > 0 && line.startsWith("("))
 							System.out.println("error with comment: " + line);
 						line = br.readLine();
 					}
 					memory.append("\n}");
 					StringBuilder body = new StringBuilder();
+					for(String state : states)
+						constructor.insert(0, "\n\tState " + state + " = new State(\"" + state + "\");");
 					for(Entry<String, String> transition : initializers.entrySet()){
-						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\");");
+//						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\");");
 						String call_line = transition.getValue().split("\n")[0];
 						String parameters = call_line.substring(call_line.indexOf("State"), call_line.indexOf(')'));
 						parameters = parameters.replaceAll("State ", "");
@@ -140,7 +144,7 @@ public class Scaffold {
 	 * @param enumerations mapping of all enumerations defined within the class
 	 * @return the source code and the end state to be added into the file itself
 	 */
-	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations){
+	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations, ArrayList<String> states){
 		StringBuilder transition = new StringBuilder();
 		//method call
 		int start = s.indexOf('(')+1;
@@ -150,6 +154,10 @@ public class Scaffold {
 		start = s.indexOf('(', end)+1;
 		end = s.indexOf(',',start);
 		String endState = s.substring(start, end);
+		if(!states.contains(startState))
+			states.add(startState);
+		if(!states.contains(endState))
+			states.add(endState);
 		String[] endingValues = s.substring(0,s.indexOf(')')).split(",");
 		String probability = endingValues[endingValues.length-1].trim();
 		String duration = endingValues[endingValues.length-2].trim();
@@ -225,7 +233,7 @@ public class Scaffold {
 		for(String internal : internals){
 			generateInternalEvaluation(memory, transition, internal);
 		}
-
+		end = s.indexOf('(', end);
 		//handle temp outputs
 		start = s.indexOf('[', end)+1;
 		end = s.indexOf(']', start);
@@ -275,22 +283,22 @@ public class Scaffold {
 	 */
 	private boolean correctFormat(String s) {
 		Pattern pattern = Pattern.compile("\\([[A-Z]_]*,"
-				+ "\\[([A-Z](=|!=)[A-Z_]*)?(,[A-Z][=(!=)][A-Z_]*)*\\],"
-				+ "\\[([A-Z_]*[(=)(>)(<)(!=)(<=)(>=)][A-Z_0-9]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_0-9]*)*\\],"
+				+ "\\[([ADVE](=|!=)[A-Z_]*)?(,[ADVE](=|!=)[A-Z_]*)*\\],"
+				+ "\\[([A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)?(,[A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)*\\],"
 				+ "\\d*,"
 				+ "([A-Z_]*|\\[\\d*\\-\\d*\\]),"
 				+ "\\d?\\.\\d*\\)"
 				+ "[xX]"
 				+ "\\([[A-Z]_]*,"
-				+ "\\[([A-Z]=[A-Z_]*)?(,[A-Z]=[A-Z_]*)*\\],"
+				+ "\\[([ADVE]*=[A-Z_]*)?(,[ADVE]*=[A-Z_]*)*\\],"
 				+ "\\[([A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)*\\]\\)");
 		Matcher matcher = pattern.matcher(s);
-		boolean match = matcher.find();
+		boolean match = matcher.matches();
 		if(s.length() > 0 && s.startsWith("(")){
 			pattern = Pattern.compile("\\([[A-Z]_]*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(1);
-			pattern = Pattern.compile("\\(.*,\\[([A-Z](=|!=)[A-Z_]*)?(,[A-Z][=(!=)][A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			pattern = Pattern.compile("\\(.*,\\[([ADVE](=|!=)[A-Z_]*)?(,[ADVE](=|!=)[A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(2);
 			pattern = Pattern.compile("\\(.*,.*,\\[([A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)?(,[A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)*\\],.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
@@ -464,9 +472,6 @@ public class Scaffold {
 		} else if(division[1].startsWith("PS")){
 			value_channel[0] = "ParentSearch.";
 			prefix = "PS";
-		} else if(division[1].startsWith("UAV")){
-			value_channel[0] = "UAV.";
-			prefix = "UAV";
 		} else if(division[1].startsWith("UAVHAG")){
 			value_channel[0] = "UAVHeightAboveGround.";
 			prefix = "UAVHAG";
@@ -479,6 +484,9 @@ public class Scaffold {
 		} else if(division[1].startsWith("UAVFP")){
 			value_channel[0] = "UAVFlightPlan.";
 			prefix = "UAVFP";
+		} else if(division[1].startsWith("UAV")){
+			value_channel[0] = "UAV.";
+			prefix = "UAV";
 		}
 //		} else if(division[1].startsWith("HAG")){
 //			value_channel[0] = "HeightAboveGroundEvent.";
