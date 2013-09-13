@@ -484,6 +484,9 @@ public class Scaffold {
 		} else if(division[1].startsWith("UAVFP")){
 			value_channel[0] = "UAVFlightPlan.";
 			prefix = "UAVFP";
+		} else if(division[1].startsWith("UAVS")){
+			value_channel[0] = "UAVSignal.";
+			prefix = "UAVS";
 		} else if(division[1].startsWith("UAV")){
 			value_channel[0] = "UAV.";
 			prefix = "UAV";
@@ -535,6 +538,16 @@ public class Scaffold {
 			suffix = "OGUI";
 		} else if(division[1].endsWith("PS")){
 			suffix = "PS";
+		} else if(division[1].endsWith("UAVBAT")){
+			suffix = "UAVBAT";
+		} else if(division[1].endsWith("UAVFP")){
+			suffix = "UAVFP";
+		} else if(division[1].endsWith("UAVS")){
+			suffix = "UAVS";
+		} else if(division[1].endsWith("UAVVF")){
+			suffix = "UAVVF";
+		} else if(division[1].endsWith("UAVHAG")){
+			suffix = "UAVHAG";
 		} else if(division[1].endsWith("UAV")){
 			suffix = "UAV";
 		}
