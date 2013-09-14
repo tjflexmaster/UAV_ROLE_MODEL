@@ -2,9 +2,11 @@ package model.scaffold;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -552,5 +554,232 @@ public class Scaffold {
 			suffix = "UAV";
 		}
 		return suffix;
+	}
+	
+	/**
+	 * builds WiSARTeam.java
+	 * @param tuple This is a map of actor names, Strings, to the channels they use, represented as a list of String[3].
+	 * The key is the actor/event name.
+	 * The first element of a channel array is the channel name.
+	 * The second element of a channel array is the channel type (must be "VISUAL", "AUDIO", or "DATA").
+	 * The third element of a channel array is the channel direction (aka "OUTPUT" or "INPUT").
+	 */
+	public void buildTeamClass(HashMap<String, ArrayList<String[]>> channelsByActor){
+		//initialize text for new team class
+		String text = "";
+		text += "package model.team;"
+				+ "\n"
+				+ "\nimport model.actors.*;"
+				+ "\nimport model.events.*;"
+				+ "\nimport simulator.*;"
+				+ "\n"
+				+ "\npublic class WiSARTeam extends Team {"
+				+ "\n"
+				+ "\n\tpublic WiSARTeam() {"
+				+ "\n"
+				+ "\n\t\t_com_channels = new ComChannelList();";
+		
+		//add communication channels to data structure
+	    for (Entry<String, ArrayList<String[]>> actor : channelsByActor.entrySet()) {
+	        String actorName = actor.getKey();
+	        
+	        ArrayList<String[]> channelList = actor.getValue();
+	        for(String[] channel : channelList){
+		        String channelName = channel[0];
+		        String channelType = channel[1];
+		        
+		        if(Pattern.matches(".*[eE][vV][eE][nN][tT].*", channelName)){
+		        	text += "\n\t\t_com_channels.add( new ComChannel<Boolean>(Channels." + channelName + ".name(), false, ComChannel.Type.AUDIO) );";
+		        }else{
+		        	text += "\n\t\t_com_channels.add( new ComChannel<" + actorName + "." + channelName + ">(Channels." + channelName + ".name(), false, ComChannel.Type." + channelType + ", " + getSource(channelName) + ", " + getDestination(channelName) + ") );";
+		        }
+	        }
+	    }
+				
+		text += "\n"
+				+ "\n\t\tComChannelList inputs = new ComChannelList();"
+				+ "\n\t\tComChannelList outputs = new ComChannelList();"
+				+ "\n";
+		
+		//add channel assignments
+	    for (Entry<String, ArrayList<String[]>> actor : channelsByActor.entrySet()) {
+	        String actorName = actor.getKey();
+	        
+	        text += "\n\t\tinputs.clear();";
+	        text += "\n\t\toutputs.clear();";
+	        
+	        ArrayList<String[]> channelList = actor.getValue();
+	        for(String[] channel : channelList){
+		        String channelName = channel[0];
+		        String channelDirection = channel[2];
+
+		        if(channelDirection.equals("INPUT")){
+		        	text += "\n\t\tinputs.add(_com_channels.get(Channels." + channelName + ".name()));";
+		        }else{
+		        	text += "\n\t\tinputs.add(_com_channels.get(Channels." + channelName + ".name()));";
+		        }
+	        }
+	        
+	        if(Pattern.matches(".*[eE][vV][eE][nN][tT].*", actorName)){
+		        text += "\n\t\tthis.addEvent(new " + actorName + "(inputs, outputs), 1);";
+	        }else{
+	        	text += "\n\t\tthis.addActor(new " + actorName + "(inputs, outputs));";
+	        }
+	        text += "\n";
+	    }
+		
+		//terminate class
+		text += "\n\t}"
+				+ "\n"
+				+ "\n}";
+		
+		//print the class
+		try {
+			//PrintWriter writer = new PrintWriter("src/model/team/WiSARTeam.java", "UTF-8");
+			PrintWriter writer = new PrintWriter("WiSARTeam.java", "UTF-8");
+			writer.println(text);
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String getSource(String channelName) {
+		String result = "";
+		
+		int parsingSource = 0;
+		for(int i=0; i<channelName.length() && parsingSource<3; i++){
+			char nextChar = channelName.charAt(i);
+			if(nextChar == '_'){
+				parsingSource++;
+			}else if(parsingSource == 2){
+				result += nextChar;
+			}
+		}
+		
+		return result;
+	}
+
+	private String getDestination(String channelName) {
+		String result = "";
+		
+		int parsingDestination = 0;
+		for(int i=0; i<channelName.length() && parsingDestination<2; i++){
+			char nextChar = channelName.charAt(i);
+			if(nextChar == '_'){
+				parsingDestination++;
+			}else if(parsingDestination == 1){
+				result += nextChar;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * builds Durations.java
+	 * @param durations This is a list of arrays of strings three long that represent a duration.
+	 * The first string of the array represents the name.
+	 * The second string of the array represents the minimum duration.
+	 * The third string of the array represents the maximum duration.  
+	 */
+	public void buildDurationClass(ArrayList<String[]> durations){
+		//initialize text of the class
+		String text = "";
+		text = "package model.team;"
+				+ "\n"
+				+ "\nimport simulator.Range;"
+				+ "\n"
+				+ "\npublic enum Duration {";
+		
+		//add durations
+		for(String[] duration : durations){
+			String name = duration[0];
+			String min = duration[1];
+			String max = duration[2];
+			text += "\n\t" + name + "(" + min + "," + max + "),";
+		}
+		
+		//add duration methods
+		text += "\n"
+				+ "\n\tprivate Integer _minimum;"
+				+ "\n\tprivate Integer _maximum;"
+				+ "\n\tprivate Range _range;"
+				+ "\n"
+				+ "\n\tDuration(int minimum, int maximum) {"
+				+ "\n\t\t_minimum = minimum;"
+				+ "\n\t\t_maximum = maximum;"
+				+ "\n\t\t_range = new Range(_minimum, _maximum);"
+				+ "\n\t}"
+				+ "\n"
+				+ "\n\tDuration(Integer duration){"
+				+ "\n\t\t_minimum = duration;"
+				+ "\n\t\t_maximum = duration;"
+				+ "\n\t\t_range = new Range(_minimum, _maximum);"
+				+ "\n\t}"
+				+ "\n"
+				+ "\n\tpublic Duration update(Integer duration){"
+				+ "\n\t\t_minimum = duration;"
+				+ "\n\t\t_maximum = duration;"
+				+ "\n\t\t_range = new Range(_minimum, _maximum);"
+				+ "\n\t\treturn this;"
+				+ "\n\t}"
+				+ "\n"
+				+ "\n\tpublic String toString() {"
+				+ "\n\t\tString result = \"\";"
+				+ "\n\t\tif (_minimum == _maximum) {"
+				+ "\n\t\t\tresult = Integer.toString(_maximum);"
+				+ "\n\t\t} else {"
+				+ "\n\t\t\tresult = \"(\" + Integer.toString(_minimum) + \"-\" + Integer.toString(_maximum) + \")\";"
+				+ "\n\t\t}"
+				+ "\n\t\treturn result;"
+				+ "\n\t}"
+				+ "\n"
+				+ "\n\tpublic Range getRange() {"
+				+ "\n\t\treturn _range;"
+				+ "\n\t}"
+				+ "\n}";
+		
+		try {
+			PrintWriter writer = new PrintWriter("Duration.java", "UTF-8");
+			//PrintWriter writer = new PrintWriter("src/model/team/Duration.java", "UTF-8");
+			writer.println(text);
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * builds Channels.java
+	 * @param channels This is a list of all communication channel names.
+	 */
+	public void buildClass(ArrayList<String> channels){
+		//initialize the text of the class
+		String text = "";
+		text = "package model.team;\n\npublic enum Channels {";
+		
+		//add the channels
+		for(String channelName : channels){
+			text += "\n\t" + channelName + ",";
+		}
+		
+		//terminate the class
+		text += "\n}";
+		
+		//print the text
+		try {
+			PrintWriter writer = new PrintWriter("Channels.java", "UTF-8");
+			writer.println(text);
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 }
