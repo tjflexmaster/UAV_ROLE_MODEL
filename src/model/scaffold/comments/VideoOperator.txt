@@ -1,3 +1,13 @@
+
+Function:
+	Accepts instructions from Mission Manager to start search or cease searching
+	Tells Operator if the Video Feed is bad quality
+	Passes requests for flyby when unsure
+	Passes requests for the mission manager to confirm sighting when unsure through the gui
+	Tells the Mission Manager when a sighting has been confirmed
+TODO:
+	Accepts instructions from Mission Manager to start search or cease searching
+
 (IDLE,[A=MM_POKE_VO],[],3,[1-1],1.0)x(RX_MM,[A=VO_ACK_MM],[])
 (IDLE,[],[SEARCH_ACTIVE=TRUE],1,[1-1],1.0)x(OBSERVING_NORMAL,[],[])
 (IDLE,[],[FLYBY_REQ_F=TRUE],2,[1-1],1.0)X(POKE_VGUI,[D=VO_POKE_VGUI],[])
@@ -16,6 +26,8 @@
 (POKE_MM,[A=MM_POKE_VO],[],1,[1-1],1.0)X(RX_MM,[A=VO_ACK_MM],[])
 
 (TX_MM,[],[],0,[60-1800],1.0)x(END_MM,[A=VO_END_MM],[])
+(TX_MM,[],[TARGET_SIGHTING_T=TRUE],1,VO_TX_MM,1.0)X(END_MM,[A=VO_TARGET_FOUND_T_MM],[TARGET_SIGHTING_T=FALSE])
+(TX_MM,[],[TARGET_SIGHTING_F=TRUE],1,VO_TX_MM,1.0)X(END_MM,[A=VO_TARGET_FOUND_T_MM],[TARGET_SIGHTING_F=FALSE])
 
 (END_MM,[],[],0,[1-1],1.0)x(IDLE,[],[])
 (END_MM,[],[FLYBY_REQ_F=TRUE],2,[1-1],1.0)X(POKE_VGUI,[D=VO_POKE_VGUI],[])

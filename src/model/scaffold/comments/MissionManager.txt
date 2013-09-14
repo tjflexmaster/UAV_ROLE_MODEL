@@ -1,3 +1,15 @@
+Function:			--all functions this class currently handles
+	When the VGUI sends an alert goes to check the anomalies
+	When Observing the VGUI to verify anomaly gives 75% likelihood to dismiss false
+		 and pursue true anomalies and 25% likelihood to dismiss true and pursue false anomalies.
+	Accepts target sighting info from VO and passes it to PS
+	Accepts NewSearchAOI and TerminateSearch instructions from the PS and passes that to the OP
+	Accepts TerminateSearch and TargetDescription info from PS and passes it to the VO
+	Can handle the PS ending transmission without sending data
+	When transmitting to PS if nothing to transmit just sends an end comm
+	Accepts SearchComplete and SearchFailed info from OP and passes it to the PS
+TODO:
+
 (IDLE,[A=OP_POKE_MM],[],1,NEXT,1.0)x(RX_OP,[A=MM_ACK_OP],[])
 (IDLE,[A=VO_POKE_MM],[],1,NEXT,1.0)x(RX_VO,[A=MM_ACK_VO],[])
 (IDLE,[A=VGUI_ALERT_MM],[],1,NEXT,1.0)x(OBSERVING_VGUI,[],[])
@@ -11,11 +23,9 @@
 (IDLE,[],[FLYBY_REQ_F=TRUE],1,NEXT,1.0)x(POKE_VGUI,[],[FLYBY_REQ_F=TRUE])
 (IDLE,[],[TARGET_SIGHTED_F=TRUE],1,NEXT,1.0)x(POKE_PS,[A=MM_POKE_PS],[])
 (IDLE,[],[TARGET_SIGHTED_T=TRUE],1,NEXT,1.0)x(POKE_PS,[A=MM_POKE_PS],[])
-
 (IDLE,[],[SEARCH_COMPLETE=TRUE],1,NEXT,1.0)x(POKE_OP,[A=MM_POKE_PS],[])
 (IDLE,[],[SEARCH_FAILED=TRUE],1,NEXT,1.0)x(POKE_OP,[A=MM_POKE_PS],[])
 
-//(POKE_PS,[A=PS_BUSY_MM],[],1,NEXT,1.0)x(IDLE,[],[])			--IMPOSSIBLE
 (POKE_PS,[A=PS_ACK_MM],[],1,NEXT,1.0)x(TX_PS,[],[])
 
 (TX_PS,[],[SEARCH_COMPLETE=TRUE],1,MM_TX_PS,1.0)x(END_PS,[A=MM_SEARCH_COMPLETE_PS],[SEARCH_COMPLETE=FALSE])
@@ -23,7 +33,7 @@
 (TX_PS,[],[TARGET_SIGHTED_T=TRUE],1,MM_TX_PS,1.0)x(END_PS,[A=MM_TARGET_SIGHTED_T_PS],[TARGET_SIGHTED_T=FALSE])
 (TX_PS,[],[TARGET_SIGHTED_F=TRUE],1,MM_TX_PS,1.0)x(END_PS,[A=MM_TARGET_SIGHTED_F_PS],[TARGET_SIGHTED_F=FALSE])
 
-(END_PS,[],[],1,NEXT,1.0)x(IDLE,[],[])
+(END_PS,[],[],1,NEXT,1.0)x(IDLE,[A=MM_END_PS],[])
 
 (RX_PS,[A=PS_END_MM],[],1,NEXT,1.0)x(IDLE,[],[])
 (RX_PS,[A=PS_NEW_SEARCH_AOI_MM],[],1,NEXT,1.0)x(IDLE,[],[AREA_OF_INTEREST=NEW])
@@ -52,10 +62,10 @@
 (RX_VO,[A=VO_TARGET_SIGHTING_T_MM],[],1,NEXT,1.0)x(IDLE,[],[TARGET_SIGHTING_T=TRUE])
 
 (OBSERVING_VGUI,[],[],1,MM_TO_IDLE,1.0)x(IDLE,[],[])
-(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_T_MM],[],1,NEXT,1.0)x(IDLE,[],[FLYBY_REQ_T=TRUE])
-(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_T_MM],[],1,NEXT,1.0)x(IDLE,[],[ANOMALY_DISMISSED_T=TRUE])
-(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_F_MM],[],1,NEXT,1.0)x(IDLE,[],[FLYBY_REQ_F=TRUE])
-(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_F_MM],[],1,NEXT,1.0)x(IDLE,[],[ANOMALY_DISMISSED_F=TRUE])
+(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_T_MM],[],1,NEXT,.75)x(IDLE,[],[FLYBY_REQ_T=TRUE])
+(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_T_MM],[],1,NEXT,.25)x(IDLE,[],[ANOMALY_DISMISSED_T=TRUE])
+(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_F_MM],[],1,NEXT,.25)x(IDLE,[],[FLYBY_REQ_F=TRUE])
+(OBSERVING_VGUI,[V=VGUI_VALIDATION_REQ_F_MM],[],1,NEXT,.75)x(IDLE,[],[ANOMALY_DISMISSED_F=TRUE])
 
 (POKE_VGUI,[],[],1,NEXT,1.0)x(TX_VGUI,[],[])
 
