@@ -3,7 +3,7 @@ Function:
 	When a new search event occurs passes that information to the MM
 	Passes new search areas to MM
 	Passes new Target descriptions to MM
-	Passes mission temination requests to MM
+	Passes mission termination requests to MM
 	Accepts information from the MM of the following(Search Completion, Failure to execute search, target sightings)
 TODO:
 
