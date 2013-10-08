@@ -1,5 +1,9 @@
 package listeners;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.sql.Time;
 import java.util.*;
 import java.util.Map.*;
 
@@ -36,6 +40,31 @@ public class MetricListener extends ListenerAdapter {
 			_childPaths = new ArrayList<Path>( );
 			_totalWorkload = 0.0;
 			_totalTimeElapsed = 0;
+		}
+		
+		public void toFile() {
+			try {
+				String filename = "metrics_" + new Date().getTime() +".csv";
+				System.out.println("Saving file at: " + filename);
+				PrintWriter workloadWriter = new PrintWriter(new File(filename));
+				for ( DecisionWorkloadMetric m : this._dwmMetrics )
+					workloadWriter.println("dwm," + m);
+				for ( ChannelConflictMetric m : this._ccmMetrics )
+					workloadWriter.println("ccm," + m);
+				for ( ChannelLoadMetric m : this._clmMetrics )
+					workloadWriter.println("clm," + m);
+				for ( ActorOutputMetric m : this._aomMetrics )
+					workloadWriter.println("aom," + m);
+				workloadWriter.close();
+//				
+//				PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+//				for(MetricDataStruct m : metrics) {
+//					metricsWriter.println(m.toString());
+//				}
+//				metricsWriter.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		public String toString( ) {
@@ -91,8 +120,10 @@ public class MetricListener extends ListenerAdapter {
 			storeChannelLoad( vm, ti, insnToExecute, mi);
 		else if ( fullMethodName.contains( "setActorOutput" ) )
 			storeActorOutput( vm, ti, insnToExecute, mi);
-		else if ( fullMethodName.contains( "endSimulation" ) )
-			printMetrics(_rootPath, "");
+		else if ( fullMethodName.contains( "endSimulation" ) ) {
+//			printMetrics(_rootPath, "");
+			saveMetrics(_rootPath);
+		}
 		
 	}
 
@@ -253,6 +284,14 @@ private void storeActorOutput( VM vm, ThreadInfo ti, Instruction insnToExecute, 
 		else
 			System.out.println(metrics);
 		
+	}
+	
+	private void saveMetrics(Path currentPath) {
+		if( !currentPath._childPaths.isEmpty() )
+			for( Path childPath : currentPath._childPaths )
+				childPath.toFile();
+		else
+			currentPath.toFile();
 	}
 	
 	/**

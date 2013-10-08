@@ -285,7 +285,7 @@ public class DeltaClock implements IDeltaClock {
 		
 		
 			//First get a list of all outputs that the transition might change
-			HashMap<String, Object> tempMemory = t.transition.getTempOutputChannels();
+			HashMap<String, Object> tempMemory = t.transition.getTempInternalVars();
 			
 			//Second loop through those outputs
 			int memoryCount = 0;
