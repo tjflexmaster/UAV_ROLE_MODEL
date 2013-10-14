@@ -17,9 +17,9 @@ public class ParentSearch extends Actor {
 		PS_BUSY_MM,
 		PS_ACK_MM,
 		PS_END_MM,
-		PS_NEW_SEARCH_AOI,
-		PS_TERMINATE_SEARCH,
-		PS_TARGET_DESCRIPTION
+		PS_NEW_SEARCH_AOI_MM,
+		PS_TERMINATE_SEARCH_MM,
+		PS_TARGET_DESCRIPTION_MM
 	}
 	
 	/**
@@ -68,18 +68,18 @@ public class ParentSearch extends Actor {
 					Object AUDIO_MM_PS_COMM = _inputs.get(Channels.AUDIO_MM_PS_COMM.name()).value();
 					if(MissionManager.AUDIO_MM_PS_COMM.MM_END_PS.equals(AUDIO_MM_PS_COMM)){
 						return true;
-					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_COMPLETE.equals(AUDIO_MM_PS_COMM)){
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_COMPLETE_PS.equals(AUDIO_MM_PS_COMM)){
 						this.setTempInternalVar("SEARCH_COMPLETE", true);
 						this.setTempInternalVar("SEARCH_ACTIVE", false);
 						return true;
-					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_FAILED.equals(AUDIO_MM_PS_COMM)){
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_FAILED_PS.equals(AUDIO_MM_PS_COMM)){
 						this.setTempInternalVar("SEARCH_FAILED", true);
 						this.setTempInternalVar("SEARCH_ACTIVE", false);
 						return true;
-					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_F.equals(AUDIO_MM_PS_COMM)){
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_F_PS.equals(AUDIO_MM_PS_COMM)){
 						this.setTempInternalVar("TARGET_FOUND", true);
 						return true;
-					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_T.equals(AUDIO_MM_PS_COMM)){
+					} else if(MissionManager.AUDIO_MM_PS_COMM.MM_TARGET_SIGHTED_T_PS.equals(AUDIO_MM_PS_COMM)){
 						this.setTempInternalVar("TARGET_FOUND", true);
 						return true;
 					}
@@ -116,13 +116,13 @@ public class ParentSearch extends Actor {
 				Integer NEW_TARGET_DESCRIPTION = (Integer)_internal_vars.getVariable("NEW_TARGET_DESCRIPTION", false);
 				Integer NEW_TERMINATE_SEARCH = (Integer)_internal_vars.getVariable("NEW_TERMINATE_SEARCH", false);
 				if(NEW_SEARCH_AOI > 0){
-					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_NEW_SEARCH_AOI_MM);
 					this.setTempInternalVar("NEW_SEARCH_AOI", NEW_SEARCH_AOI-1);
 				}else if(NEW_TARGET_DESCRIPTION > 0){
-					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TARGET_DESCRIPTION_MM);
 					this.setTempInternalVar("NEW_TARGET_DESCRIPTION", NEW_TARGET_DESCRIPTION-1);
 				}else if(NEW_TERMINATE_SEARCH > 0){
-					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH);
+					this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH_MM);
 					this.setTempInternalVar("NEW_TERMINATE_SEARCH", NEW_TERMINATE_SEARCH-1);
 					this.setTempInternalVar("SEARCH_ACTIVE", false);
 				}

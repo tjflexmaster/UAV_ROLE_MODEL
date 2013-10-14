@@ -35,11 +35,11 @@ public class VO_WateredDown extends Actor {
 				if(MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO.equals(AUDIO_MM_VO_COMM)){
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_ACK_MM);
 					return true;
-				} else if(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION.equals(AUDIO_MM_VO_COMM)){
+				} else if(MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION_VO.equals(AUDIO_MM_VO_COMM)){
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), null);
 					this.setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
 					return true;
-				} else if(MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH.equals(AUDIO_MM_VO_COMM)){
+				} else if(MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH_VO.equals(AUDIO_MM_VO_COMM)){
 					this.setTempInternalVar("TARGET_DESCRIPTION", null);
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), null);
 				} else if(NEW_TARGET_SIGHTED_F == 1 && MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO.equals(AUDIO_MM_VO_COMM)){
@@ -84,7 +84,7 @@ public class VO_WateredDown extends Actor {
 	protected void initializeInternalVariables() {
 		this._internal_vars.addVariable("NEW_TARGET_SIGHTED_T", 0);
 		this._internal_vars.addVariable("NEW_TARGET_SIGHTED_F", 0);
-		this._internal_vars.addVariable("TARGET_DESCRIPTION", null);
+		this._internal_vars.addVariable("TARGET_DESCRIPTION", "");
 	}
 	
 }

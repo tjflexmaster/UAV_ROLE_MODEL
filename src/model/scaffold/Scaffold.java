@@ -118,7 +118,13 @@ public class Scaffold {
 					}
 					File new_file = file.getParentFile().getParentFile().getParentFile();
 					for(File temp : new_file.listFiles()){
-						if(temp.getName().equals("completed_actors")){
+						if(temp.getName().equals("actors")){
+							new_file = temp;
+							break;
+						}
+					}
+					for(File temp : new_file.listFiles()){
+						if(temp.getName().equals("complete")){
 							new_file = temp;
 							break;
 						}
@@ -127,7 +133,7 @@ public class Scaffold {
 					new_file.createNewFile();
 					System.out.println(new_file.toPath());
 					PrintWriter writer = new PrintWriter(new_file);
-					writer.print("package model.completed_actors;\n\nimport model.team.*;\nimport simulator.*;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.print("package model.actors.complete;\n\nimport model.team.*;\nimport simulator.*;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
 					writer.close();
 				}
 //				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
@@ -284,20 +290,20 @@ public class Scaffold {
 	 * @return
 	 */
 	private boolean correctFormat(String s) {
-		Pattern pattern = Pattern.compile("\\([[A-Z]_]*,"
+		Pattern pattern = Pattern.compile("\\([[A-Z0-9]_]*,"
 				+ "\\[([ADVE](=|!=)[A-Z_]*)?(,[ADVE](=|!=)[A-Z_]*)*\\],"
 				+ "\\[([A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)?(,[A-Z_]*(=|>|<|!=|<=|>=)[A-Z_0-9]*)*\\],"
 				+ "\\d*,"
 				+ "([A-Z_]*|\\[\\d*\\-\\d*\\]),"
 				+ "\\d?\\.\\d*\\)"
 				+ "[xX]"
-				+ "\\([[A-Z]_]*,"
+				+ "\\([[A-Z0-9]_]*,"
 				+ "\\[([ADVE]*=[A-Z_]*)?(,[ADVE]*=[A-Z_]*)*\\],"
 				+ "\\[([A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)?(,[A-Z_]*[=><(!=)(<=)(>=)][A-Z_(++)(--)]*)*\\]\\)");
 		Matcher matcher = pattern.matcher(s);
 		boolean match = matcher.matches();
 		if(s.length() > 0 && s.startsWith("(")){
-			pattern = Pattern.compile("\\([[A-Z]_]*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
+			pattern = Pattern.compile("\\([[A-Z0-9]_]*,.*,.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(1);
 			pattern = Pattern.compile("\\(.*,\\[([ADVE](=|!=)[A-Z_]*)?(,[ADVE](=|!=)[A-Z_]*)*\\],.*,.*,.*,.*\\)[xX]\\(.*,.*,.*\\)");
@@ -315,7 +321,7 @@ public class Scaffold {
 			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,\\d?\\.\\d*\\)[xX]\\(.*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(6);
-			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\([[A-Z]_]*,.*,.*\\)");
+			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\([[A-Z0-9]_]*,.*,.*\\)");
 			if(!pattern.matcher(s).find())
 				System.out.println(7);
 			pattern = Pattern.compile("\\(.*,.*,.*,.*,.*,.*\\)[xX]\\(.*,\\[([A-Z_]*=[A-Z_]*)?(,[A-Z_]*=[A-Z_]*)*\\],.*\\)");

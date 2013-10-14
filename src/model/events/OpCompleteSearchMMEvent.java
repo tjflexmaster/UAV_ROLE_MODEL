@@ -3,6 +3,7 @@ package model.events;
 import model.actors.*;
 import model.team.*;
 import simulator.*;
+import temp_package.MissionManager;
 
 public class OpCompleteSearchMMEvent extends simulator.Event {
 	public OpCompleteSearchMMEvent(final ComChannelList inputs, final ComChannelList outputs)

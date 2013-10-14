@@ -1,8 +1,21 @@
 package model.team;
 
-import model.actors.*;
-import model.events.*;
-import simulator.*;
+import model.actors.MissionCompletionWatcher;
+import model.actors.MissionManager;
+import model.actors.MissionManager.DATA_MM_VGUI_COMM;
+import model.actors.Operator;
+import model.actors.OperatorGui;
+import model.actors.ParentSearch;
+import model.actors.UAV;
+import model.actors.UAV_OGUI_WateredDown;
+import model.actors.VO_WateredDown;
+import model.actors.VideoOperator;
+import model.actors.VideoOperatorGui;
+import model.actors.VideoOperatorGui.VIDEO_VGUI_MM_COMM;
+import model.events.NewSearchEvent;
+import simulator.ComChannel;
+import simulator.ComChannelList;
+import simulator.Team;
 
 /**
  * 
@@ -35,7 +48,7 @@ public class WiSARTeam extends Team {
 		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_PS_COMM>(Channels.AUDIO_MM_PS_COMM.name(), ComChannel.Type.AUDIO, "MM", "PS") );
 		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_VO_COMM>(Channels.AUDIO_MM_VO_COMM.name(), ComChannel.Type.AUDIO, "MM", "VO") );
 		_com_channels.add( new ComChannel<MissionManager.AUDIO_MM_OP_COMM>(Channels.AUDIO_MM_OP_COMM.name(), ComChannel.Type.AUDIO, "MM", "OP") );
-		_com_channels.add( new ComChannel<MissionManager.VISUAL_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL, "MM", "VGUI") );
+		_com_channels.add( new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.VIDEO_MM_VGUI_COMM.name(), ComChannel.Type.VISUAL, "MM", "VGUI") );
 		_com_channels.add(new ComChannel<MissionManager.DATA_MM_VGUI_COMM>(Channels.VISUAL_MM_VGUI_COMM.name(), ComChannel.Type.DATA, "MM", "VGUI") );
 		
 		//add OP channels
@@ -44,7 +57,7 @@ public class WiSARTeam extends Team {
 		_com_channels.add(new ComChannel<Operator.AUDIO_OP_MM_COMM>(Channels.VISUAL_OP_UAV_COMM.name(), ComChannel.Type.VISUAL, "OP", "UAV"));
 		
 		//add VGUI channels
-		_com_channels.add( new ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL, "VGUI", "MM") );
+		_com_channels.add( new ComChannel<VIDEO_VGUI_MM_COMM>(Channels.VIDEO_VGUI_MM_COMM.name(), ComChannel.Type.VISUAL, "VGUI", "MM") );
 		
 		//add OGUI channels
 		_com_channels.add(new ComChannel<OperatorGui.VIDEO_OGUI_OP_COMM>(Channels.VIDEO_OGUI_OP_COMM.name(), ComChannel.Type.VISUAL, "OGUI", "OP"));
@@ -69,7 +82,7 @@ public class WiSARTeam extends Team {
 		outputs.clear();
 		outputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
 		this.addEvent(new NewSearchEvent(inputs, outputs), 1);
-
+		
 		//add the parent search
 		inputs.clear();
 		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
@@ -81,6 +94,27 @@ public class WiSARTeam extends Team {
 		outputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		this.addActor(new ParentSearch(inputs, outputs));
 
+		inputs.clear();
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
+		inputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VISUAL_OP_OGUI_COMM.name()));
+		inputs.add(_com_channels.get(Channels.VISUAL_OP_UAV_COMM.name()));
+		inputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		this.addActor(new MissionCompletionWatcher(inputs,outputs));
+		
 		//add the mission manager
 		inputs.clear();
 		inputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));

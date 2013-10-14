@@ -370,11 +370,11 @@ public class Operator extends Actor {
 			@Override
 			public boolean isEnabled(){
 				Object AUDIO_MM_OP_COMM = _inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value();
-				if(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI.equals(AUDIO_MM_OP_COMM)){
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI_OP.equals(AUDIO_MM_OP_COMM)){
 					this.setTempInternalVar("NEW_SEARCH_AOI", (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI", false)+1);
 					return true;
 				}
-				if(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH.equals(AUDIO_MM_OP_COMM)){
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH_OP.equals(AUDIO_MM_OP_COMM)){
 					this.setTempInternalVar("TERMINATE_SEARCH", "NEW");
 					this.setTempInternalVar("LAND_UAV", true);
 					return true;
@@ -519,6 +519,6 @@ public class Operator extends Actor {
 		this._internal_vars.addVariable("TAKE_OFF", false);
 		this._internal_vars.addVariable("END_FLYBY", false);
 		this._internal_vars.addVariable("NEW_SEARCH_AOI", 0);
-		this._internal_vars.addVariable("TERMINATE_SEARCH", null);
+		this._internal_vars.addVariable("TERMINATE_SEARCH", "");
 	}
 }
