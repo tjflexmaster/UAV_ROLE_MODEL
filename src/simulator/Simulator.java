@@ -160,7 +160,7 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
-			if(_clock.getElapsedTime()==175){
+			if(_clock.getElapsedTime()==76){
 				System.out.println();
 			}
 			//Save time for the current Key in the metric manager

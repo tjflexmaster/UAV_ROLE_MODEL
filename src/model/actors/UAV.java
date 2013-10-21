@@ -13,7 +13,7 @@ public class UAV extends Actor {
 	}
 
 	public enum VISUAL_UAV_OP_COMM {
-		LANDED, FLYING
+		LANDED, FLYING, CRASHED
 
 	}
 

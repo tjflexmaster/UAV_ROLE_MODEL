@@ -1,6 +1,7 @@
 package model.actors;
 
 import model.team.Channels;
+import model.team.Duration;
 import simulator.ComChannelList;
 import simulator.State;
 import simulator.Transition;
@@ -16,12 +17,31 @@ public class UAV_OGUI_WateredDown extends simulator.Actor {
 
 		//initialize memory
 		initializeInternalVariables();
-
+//		IDLE.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 2, 1.0){
+//			@Override
+//			public boolean isEnabled(){
+//				Object UAV_STATE = _internal_vars.getVariable("UAV_STATE");
+//				if("CRASHED".equals(UAV_STATE)){
+//					return false;
+//				}
+//				if(OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_BATTERY_LOW.equals(_outputs.get(Channels.VIDEO_OGUI_OP_COMM.name()).value())){
+//					this.setTempOutput(Channels.VIDEO_UAV_OP_COMM.name(), UAV.VISUAL_UAV_OP_COMM.CRASHED);
+//					this.setTempInternalVar("UAV_STATE", "CRASHED");
+//				} else if("FLYING".equals(_internal_vars.getVariable("UAV_STATE"))){
+//					this.setTempOutput(Channels.VIDEO_OGUI_OP_COMM.name(), OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_BATTERY_LOW);
+//					return true;
+//				}
+//				return false;
+//			}
+//		});
 		IDLE.add(new Transition(_internal_vars, inputs, outputs, IDLE){
 			@Override
 			public boolean isEnabled(){
 				//default outputs
 				Object UAV_STATE = _internal_vars.getVariable("UAV_STATE");
+				if("CRASHED".equals(UAV_STATE)){
+					return false;
+				}
 				Object VISUAL_OP_OGUI_COMM = _inputs.get(Channels.VISUAL_OP_OGUI_COMM.name()).value();
 				Object VISUAL_OP_UAV_COMM = _inputs.get(Channels.VISUAL_OP_UAV_COMM.name()).value();
 				if("LANDED".equals(UAV_STATE)){

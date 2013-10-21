@@ -64,6 +64,8 @@ public class DeltaClock implements IDeltaClock {
 	@Override
 	public void addTransition(IActor actor, ITransition transition, int time) {
 		//First remove this actors transition
+		if(transition.equals(this.getActorTransition(actor)))
+			return;
 		removeTransition(actor);
 		
 		//If transition is not null then add it

@@ -717,7 +717,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 		END_OP.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 			@Override
 			public boolean isEnabled() { 
-				setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
+//				setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
 				return true;
 			}
 		});
@@ -725,7 +725,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			@Override
 			public boolean isEnabled() { 
 				if("NEW".equals(_internal_vars.getVariable("TARGET_DESCRIPTION"))){
-					setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
+//					setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
 					return true;
 				}
 				return false;
