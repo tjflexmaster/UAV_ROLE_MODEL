@@ -160,14 +160,17 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
-			
+			if(_clock.getElapsedTime()==175){
+				System.out.println();
+			}
 			//Save time for the current Key in the metric manager
 //			_metrics.currentKey.setTime(_clock.getElapsedTime());
 			
 			//Start a new metric
 //			metric = new MetricDataStruct(_clock.elapsedTime());
 			
-//			System.out.printf("\nadvanced: %d", _clock.elapsedTime());String name = dt.actor.name();
+			System.out.printf("\nadvanced: %d", _clock.getElapsedTime());
+//			String name = dt.actor.name();
 //			HashMap<Actor, Integer> workload = _team.getWorkload();
 //			for(Entry<Actor, Integer> actor_workload : workload.entrySet()){
 //				String name = actor_workload.getKey()._name;
@@ -186,7 +189,7 @@ public class Simulator {
 			_ready_transitions.clear();
 			_ready_transitions.putAll(_clock.getReadyTransitions());
 			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
-				//System.out.println('\n' + transition.toString());
+				System.out.println('\n' + e.toString());
 				
 				//Set metric key
 				IActor a = (IActor) e.getKey();

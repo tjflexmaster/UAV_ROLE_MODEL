@@ -94,26 +94,26 @@ public class WiSARTeam extends Team {
 		outputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
 		this.addActor(new ParentSearch(inputs, outputs));
 
-		inputs.clear();
-		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		inputs.add(_com_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
-		inputs.add(_com_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
-		inputs.add(_com_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
-		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
-		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
-		inputs.add(_com_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
-		inputs.add(_com_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
-		inputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
-		inputs.add(_com_channels.get(Channels.VISUAL_OP_OGUI_COMM.name()));
-		inputs.add(_com_channels.get(Channels.VISUAL_OP_UAV_COMM.name()));
-		inputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
-		this.addActor(new MissionCompletionWatcher(inputs,outputs));
+//		inputs.clear();
+//		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+//		inputs.add(_com_channels.get(Channels.TERMINATE_SEARCH_EVENT.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_MM_PS_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.NEW_SEARCH_AREA_EVENT.name()));
+//		inputs.add(_com_channels.get(Channels.TARGET_DESCRIPTION_EVENT.name()));
+//		inputs.add(_com_channels.get(Channels.NEW_SEARCH_EVENT.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_PS_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_OP_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VIDEO_VGUI_MM_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_MM_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VIDEO_OGUI_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VIDEO_UAV_OP_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.DATA_UAV_OGUI_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VISUAL_OP_OGUI_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.VISUAL_OP_UAV_COMM.name()));
+//		inputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+//		this.addActor(new MissionCompletionWatcher(inputs,outputs));
 		
 		//add the mission manager
 		inputs.clear();

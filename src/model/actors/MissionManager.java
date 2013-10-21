@@ -56,10 +56,10 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	initializeRX_PS(inputs, outputs, RX_PS, IDLE);
 	initializeIDLE(inputs, outputs, POKE_PS, POKE_VGUI, POKE_OP, POKE_VO, RX_PS, OBSERVING_VGUI, RX_VO, IDLE, RX_OP);
 	initializePOKE_VGUI(inputs, outputs, POKE_VGUI, TX_VGUI);
-	initializePOKE_PS(inputs, outputs, POKE_PS, TX_PS);
+	initializePOKE_PS(inputs, outputs, POKE_PS, TX_PS, RX_PS);
 	initializeEND_VGUI(inputs, outputs, END_VGUI, IDLE);
 	initializeTX_PS(inputs, outputs, TX_PS, END_PS);
-	initializePOKE_VO(inputs, outputs, POKE_VO, TX_VO);
+	initializePOKE_VO(inputs, outputs, POKE_VO, TX_VO, RX_PS);
 	initializeOBSERVING_VGUI(inputs, outputs, OBSERVING_VGUI, IDLE);
 	initializePOKE_OP(inputs, outputs, POKE_OP, TX_OP, RX_PS);
 	initializeRX_OP(inputs, outputs, RX_OP, IDLE);
@@ -68,7 +68,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	initializeTX_OP(inputs, outputs, TX_OP, END_OP);
 	initializeRX_VO(inputs, outputs, RX_VO, IDLE);
 	initializeTX_VO(inputs, outputs, TX_VO, END_VO);
-	initializeEND_OP(inputs, outputs, END_OP, POKE_VO);
+	initializeEND_OP(inputs, outputs, END_OP, POKE_VO,IDLE);
 	initializeEND_VO(inputs, outputs, END_VO, IDLE);
 	startState(IDLE);
 }
@@ -112,14 +112,45 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			if(!ParentSearch.AUDIO_PS_MM_COMM.PS_TERMINATE_SEARCH_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value())) {
 				return false;
 			}
-			setTempInternalVar("NEW_TERMINATE_SEARCH", "NEW");
+			setTempInternalVar("TERMINATE_SEARCH_VO", "NEW");
+			setTempInternalVar("TERMINATE_SEARCH_OP", "NEW");
 			return true;
 		}
 	});
 	add(RX_PS);
 }
  public void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State POKE_VGUI, State POKE_OP, State POKE_VO, State RX_PS, State OBSERVING_VGUI, State RX_VO, State IDLE, State RX_OP) {
-	// (IDLE,[A=OP_POKE_MM],[],1,NEXT,1.0)x(RX_OP,[A=MM_ACK_OP],[])
+	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VO, Duration.NEXT.getRange(), 4,1.0){
+			@Override
+			public boolean isEnabled(){
+				if("NEW".equals(_internal_vars.getVariable("TERMINATE_SEARCH_VO"))){
+					this.setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_POKE_VO);
+					return true;
+				}
+				return false;
+			}
+		});
+	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_OP, Duration.NEXT.getRange(), 4,1.0){
+			@Override
+			public boolean isEnabled(){
+				if("NEW".equals(_internal_vars.getVariable("TERMINATE_SEARCH_OP"))){
+					this.setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_POKE_OP);
+					return true;
+				}
+				return false;
+			}
+		});
+	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS,Duration.NEXT.getRange()){
+		@Override
+		public boolean isEnabled(){
+			if(new Boolean(true).equals(_internal_vars.getVariable("TARGET_SIGHTED_F")) || new Boolean(true).equals(_internal_vars.getVariable("TARGET_SIGHTED_T"))){
+				this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_POKE_PS);
+				return true;
+			}
+			return false;
+		}
+	});
+	 // (IDLE,[A=OP_POKE_MM],[],1,NEXT,1.0)x(RX_OP,[A=MM_ACK_OP],[])
 	IDLE.add(new Transition(_internal_vars, inputs, outputs, RX_OP, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
@@ -295,7 +326,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	});
 	add(POKE_VGUI);
 }
- public void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS) {
+ public void initializePOKE_PS(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State TX_PS, State RX_PS) {
 	// (POKE_PS,[A=PS_ACK_MM],[],1,NEXT,1.0)x(TX_PS,[],[])
 	POKE_PS.add(new Transition(_internal_vars, inputs, outputs, TX_PS, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
@@ -304,6 +335,16 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 			return true;
+		}
+	});
+	POKE_PS.add(new Transition(_internal_vars, inputs, outputs, RX_PS, Duration.NEXT.getRange(),2,1.0){
+		@Override
+		public boolean isEnabled(){
+			if(ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value())){
+				this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_ACK_PS);
+				return true;
+			}
+			return false;
 		}
 	});
 	add(POKE_PS);
@@ -369,7 +410,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	});
 	add(TX_PS);
 }
- public void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State POKE_VO, State TX_VO) {
+ public void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State POKE_VO, State TX_VO,State RX_PS) {
 	// (POKE_VO,[A=VO_ACK_MM],[],1,NEXT,1.0)x(TX_VO,[],[])
 	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, TX_VO, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
@@ -378,6 +419,16 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 			return true;
+		}
+	});
+	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, RX_PS, Duration.NEXT.getRange(), 1, 1.0){
+		@Override
+		public boolean isEnabled(){
+			if(ParentSearch.AUDIO_PS_MM_COMM.PS_POKE_MM.equals(_inputs.get(Channels.AUDIO_PS_MM_COMM.name()).value())){
+				this.setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_ACK_PS);
+				return true;
+			}
+			return false;
 		}
 	});
 	add(POKE_VO);
@@ -571,6 +622,17 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
+	 TX_OP.add(new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_VO.getRange(), 1, 1.0) {
+			@Override
+			public boolean isEnabled() { 
+				if(!"NEW".equals(_internal_vars.getVariable ("TERMINATE_SEARCH_OP"))) {
+					return false;
+				}
+				this.setTempInternalVar("TERMINATE_SEARCH_OP", "current");
+				setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH_OP);
+				return true;
+			}
+		});
 	// (TX_OP,[],[TERMINATE_SEARCH=NEW],1,MM_TX_OP,1.0)x(END_OP,[A=MM_TERMINATE_SEARCH_OP],[TERMINATE_SEARCH=CURRENT])
 	TX_OP.add(new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_OP.getRange(), 1, 1.0) {
 		@Override
@@ -586,25 +648,25 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	add(TX_OP);
 }
  public void initializeRX_VO(ComChannelList inputs, ComChannelList outputs, State RX_VO, State IDLE) {
-	// (RX_VO,[A=VO_TARGET_FOUND_F_MM],[],1,NEXT,1.0)x(IDLE,[],[TARGET_SIGHTING_F=TRUE])
+	// (RX_VO,[A=VO_TARGET_FOUND_F_MM],[],1,NEXT,1.0)x(IDLE,[],[TARGET_SIGHTED_F=TRUE])
 	RX_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())) {
 				return false;
 			}
-			setTempInternalVar("TARGET_SIGHTING_F", true);
+			setTempInternalVar("TARGET_SIGHTED_F", true);
 			return true;
 		}
 	});
-	// (RX_VO,[A=VO_TARGET_FOUND_T_MM],[],1,NEXT,1.0)x(IDLE,[],[TARGET_SIGHTING_T=TRUE])
+	// (RX_VO,[A=VO_TARGET_FOUND_T_MM],[],1,NEXT,1.0)x(IDLE,[],[TARGET_SIGHTED_T=TRUE])
 	RX_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(_inputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())) {
 				return false;
 			}
-			setTempInternalVar("TARGET_SIGHTING_T", true);
+			setTempInternalVar("TARGET_SIGHTED_T", true);
 			return true;
 		}
 	});
@@ -612,18 +674,29 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 }
  public void initializeTX_VO(ComChannelList inputs, ComChannelList outputs, State TX_VO, State END_VO) {
 	// (TX_VO,[],[TARGET_DESCRIPTION=NEW],1,MM_TX_VO,1.0)x(END_VO,[A=MM_TARGET_DESCRIPTION_VO,A=MM_END_VO],[TARGET_DESCRIPTION=CURRENT])
-	TX_VO.add(new Transition(_internal_vars, inputs, outputs, END_VO, Duration.MM_TX_VO.getRange(), 1, 1.0) {
-		@Override
-		public boolean isEnabled() { 
-			if(!"NEW".equals(_internal_vars.getVariable ("TARGET_DESCRIPTION"))) {
-				return false;
+	 TX_VO.add(new Transition(_internal_vars, inputs, outputs, END_VO, Duration.MM_TX_VO.getRange(), 1, 1.0) {
+			@Override
+			public boolean isEnabled() { 
+				if(!"NEW".equals(_internal_vars.getVariable ("TARGET_DESCRIPTION"))) {
+					return false;
+				}
+				setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION_VO);
+				//setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_END_VO);
+				setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
+				return true;
 			}
-			setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_TARGET_DESCRIPTION_VO);
-			//setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_END_VO);
-			setTempInternalVar("TARGET_DESCRIPTION", "CURRENT");
-			return true;
-		}
-	});
+		});
+	 TX_VO.add(new Transition(_internal_vars, inputs, outputs, END_VO, Duration.MM_TX_VO.getRange(), 1, 1.0) {
+			@Override
+			public boolean isEnabled() { 
+				if(!"NEW".equals(_internal_vars.getVariable ("TERMINATE_SEARCH_VO"))) {
+					return false;
+				}
+				setTempOutput(Channels.AUDIO_MM_VO_COMM.name(), MissionManager.AUDIO_MM_VO_COMM.MM_TERMINATE_SEARCH_VO);
+				setTempInternalVar("TERMINATE_SEARCH_VO", "CURRENT");
+				return true;
+			}
+		});
 	// (TX_VO,[],[TERMINATE_SEARCH=NEW],1,MM_TX_VO,1.0)x(END_VO,[A=MM_TERMINATE_SEARCH_VO,A=MM_END_VO],[TERMINATE_SEARCH=CURRENT])
 	TX_VO.add(new Transition(_internal_vars, inputs, outputs, END_VO, Duration.MM_TX_VO.getRange(), 1, 1.0) {
 		@Override
@@ -639,20 +712,30 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	});
 	add(TX_VO);
 }
- public void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State POKE_VO) {
+ public void initializeEND_OP(ComChannelList inputs, ComChannelList outputs, State END_OP, State POKE_VO, State IDLE) {
 	// (END_OP,[],[],1,NEXT,1.0)x(POKE_VO,[A=MM_END_OP],[])
-	END_OP.add(new Transition(_internal_vars, inputs, outputs, POKE_VO, Duration.NEXT.getRange(), 1, 1.0) {
-		@Override
-		public boolean isEnabled() { 
-			setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
-			return true;
-		}
-	});
+		END_OP.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
+			@Override
+			public boolean isEnabled() { 
+				setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
+				return true;
+			}
+		});
+		END_OP.add(new Transition(_internal_vars, inputs, outputs, POKE_VO, Duration.NEXT.getRange(), 2, 1.0) {
+			@Override
+			public boolean isEnabled() { 
+				if("NEW".equals(_internal_vars.getVariable("TARGET_DESCRIPTION"))){
+					setTempOutput(Channels.AUDIO_MM_OP_COMM.name(), MissionManager.AUDIO_MM_OP_COMM.MM_END_OP);
+					return true;
+				}
+				return false;
+			}
+		});
 	add(END_OP);
 }
  public void initializeEND_VO(ComChannelList inputs, ComChannelList outputs, State END_VO, State IDLE) {
 	// (END_VO,[],[],1,MM_TO_IDLE,1.0)x(IDLE,[],[])
-	END_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.MM_TO_IDLE.getRange(), 1, 1.0) {
+	END_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			return true;
@@ -674,8 +757,7 @@ protected void initializeInternalVariables() {
 	_internal_vars.addVariable("SEARCH_COMPLETE", false);
 	_internal_vars.addVariable("SEARCH_FAILED", false);
 	_internal_vars.addVariable("SEARCH_FAILDED", false);
-	_internal_vars.addVariable("NEW_TERMINATE_SEARCH", null);
-	_internal_vars.addVariable("TARGET_SIGHTING_F", false);
-	_internal_vars.addVariable("TARGET_SIGHTING_T", false);
+	_internal_vars.addVariable("TERMINATE_SEARCH_OP", "");
+	_internal_vars.addVariable("TERMINATE_SEARCH_VO", "");
 }
 }
