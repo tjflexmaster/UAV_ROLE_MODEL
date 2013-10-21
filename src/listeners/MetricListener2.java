@@ -11,7 +11,7 @@ import gov.nasa.jpf.*;
 import gov.nasa.jpf.vm.*;
 import simulator.*;
 
-public class MetricListener extends ListenerAdapter {
+public class MetricListener2 extends ListenerAdapter {
 
 	/**
 	 * A path stores non-deterministic workload metrics.
