@@ -40,8 +40,9 @@ public enum Duration {
 	/* UAV Operator Gui Outputs*/
 	
 	/* UAV Battery Outputs*/
-	
-	UAVBAT_ACTIVE_TO_LOW(3600),
+
+	UAVBAT_ACTIVE_TO_LOW(50),
+	UAVBAT_LOW_TO_DEAD(5),
 	UAVBAT_DURATION(3600),
 	UAV_ADJUST_PATH(20,100),
 	UAV_LANDING(5,20),

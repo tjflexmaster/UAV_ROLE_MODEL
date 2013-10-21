@@ -12,12 +12,13 @@ public class VO_WateredDown extends Actor {
 
 		//initialize states
 		State IDLE = new State("IDLE");
+		State CRASHED = new State("CRASHED");
 		
 		//initialize memory
 		initializeInternalVariables();
 
 		//initialize transitions
-		initializeIDLE(inputs, outputs, IDLE);
+		initializeIDLE(inputs, outputs, IDLE, CRASHED);
 		
 		//initialize current state
 		startState(IDLE);
@@ -25,10 +26,22 @@ public class VO_WateredDown extends Actor {
 
 	/**
 	 */
-	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE) {//(IDLE, [], [])->( , [], [])
-		IDLE.add(new Transition(_internal_vars,inputs,outputs,IDLE,Duration.NEXT.getRange(),5){
+	private void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State IDLE, State CRASHED) {//(IDLE, [], [])->( , [], [])
+		IDLE.add(new Transition(_internal_vars, inputs, outputs, CRASHED, Duration.NEXT.getRange(),10,1.0){
 			@Override
 			public boolean isEnabled(){
+				if(UAV.DATA_UAV_VGUI.CRASHED.equals(_inputs.get(Channels.DATA_UAV_VGUI_COMM.name()).value())){
+					return true;
+				}
+				return false;
+			}
+		});
+		IDLE.add(new Transition(_internal_vars,inputs,outputs,IDLE,Duration.NEXT.getRange(),5,1.0){
+			@Override
+			public boolean isEnabled(){
+				if(UAV.DATA_UAV_VGUI.CRASHED.equals(_inputs.get(Channels.DATA_UAV_VGUI_COMM.name()).value())){
+					return false; 
+				}
 				if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())
 						|| VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
 					return true;
@@ -39,6 +52,9 @@ public class VO_WateredDown extends Actor {
 		IDLE.add(new Transition(_internal_vars,inputs,outputs,IDLE){//(IDLE, [], [])->(IDLE , [], [])
 			@Override
 			public boolean isEnabled(){
+				if(UAV.DATA_UAV_VGUI.CRASHED.equals(_inputs.get(Channels.DATA_UAV_VGUI_COMM.name()).value())){
+					return false;
+				}
 				Object AUDIO_MM_VO_COMM = _inputs.get(Channels.AUDIO_MM_VO_COMM.name()).value();
 				Integer NEW_TARGET_SIGHTED_F = (Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F");
 				Integer NEW_TARGET_SIGHTED_T = (Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T");
@@ -68,6 +84,9 @@ public class VO_WateredDown extends Actor {
 		IDLE.add(new Transition(_internal_vars,inputs,outputs,IDLE, Duration.RANDOM.getRange()){//(IDLE, [], [])->(IDLE , [], [])
 			@Override
 			public boolean isEnabled(){
+				if(UAV.DATA_UAV_VGUI.CRASHED.equals(_inputs.get(Channels.DATA_UAV_VGUI_COMM.name()).value())){
+					return false;
+				}
 				Object TARGET_DESCRIPTION = this._internal_vars.getVariable("TARGET_DESCRIPTION");
 				Integer NEW_TARGET_SIGHTED_F = (Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_F");
 				Integer NEW_TARGET_SIGHTED_T = (Integer) this._internal_vars.getVariable("NEW_TARGET_SIGHTED_T");
@@ -76,10 +95,8 @@ public class VO_WateredDown extends Actor {
 					int randInt = (int) (Math.random() * 10);
 					if(randInt >= 5){
 						this.setTempInternalVar("NEW_TARGET_SIGHTED_F", 1);//advance
-//						this.setTempInternalVar("NEW_TARGET_SIGHTED_F", 1);
 					}else{
 						this.setTempInternalVar("NEW_TARGET_SIGHTED_T", 1);//advance
-//						this.setTempInternalVar("NEW_TARGET_SIGHTED_T", 1);
 					}
 					
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_POKE_MM);//(IDLE, [], [])->(IDLE, [(VO_TARGET_SIGHTED_F | VO_TARGET_SIGHTED_T)], [])
@@ -89,6 +106,7 @@ public class VO_WateredDown extends Actor {
 				return false;
 			}
 		});
+		
 		
 		add(IDLE);
 	}

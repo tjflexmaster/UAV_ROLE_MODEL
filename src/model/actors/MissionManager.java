@@ -303,8 +303,8 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
-	// (IDLE,[],[SEARCH_FAILED=TRUE],1,NEXT,1.0)x(POKE_OP,[A=MM_POKE_PS],[])
-	IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_OP, Duration.NEXT.getRange(), 1, 1.0) {
+	// (IDLE,[],[SEARCH_FAILED=TRUE],1,NEXT,1.0)x(POKE_PS,[A=MM_POKE_PS],[])
+	IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!new Boolean(true).equals(_internal_vars.getVariable ("SEARCH_FAILED"))) {
@@ -380,7 +380,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 			setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_SEARCH_FAILED_PS);
-			setTempInternalVar("SEARCH_FAILDED", false);
+			setTempInternalVar("SEARCH_FAILED", false);
 			return true;
 		}
 	});
@@ -534,17 +534,17 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
-//	// (RX_OP,[A=OP_SEARCH_FAILED_MM],[],1,NEXT,1.0)x(IDLE,[],[SEARCH_FAILED=TRUE])
-//	RX_OP.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
-//		@Override
-//		public boolean isEnabled() { 
-//			if(!Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED_MM.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value())) {
-//				return false;
-//			}
-//			setTempInternalVar("SEARCH_FAILED", true);
-//			return true;
-//		}
-//	});
+	// (RX_OP,[A=OP_SEARCH_FAILED_MM],[],1,NEXT,1.0)x(IDLE,[],[SEARCH_FAILED=TRUE])
+	RX_OP.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
+		@Override
+		public boolean isEnabled() { 
+			if(!Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED.equals(_inputs.get(Channels.AUDIO_OP_MM_COMM.name()).value())) {
+				return false;
+			}
+			setTempInternalVar("SEARCH_FAILED", true);
+			return true;
+		}
+	});
 	add(RX_OP);
 }
  public void initializeTX_VGUI(ComChannelList inputs, ComChannelList outputs, State TX_VGUI, State END_VGUI) {
@@ -603,7 +603,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	END_PS.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
-			setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_END_PS);
+//			setTempOutput(Channels.AUDIO_MM_PS_COMM.name(), MissionManager.AUDIO_MM_PS_COMM.MM_END_PS);
 			return true;
 		}
 	});

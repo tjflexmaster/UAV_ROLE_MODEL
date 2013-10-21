@@ -157,6 +157,7 @@ public class WiSARTeam extends Team {
 		//add the video operator (watered down)
 		inputs.clear();
 		inputs.add(_com_channels.get(Channels.AUDIO_MM_VO_COMM.name()));
+		inputs.add(_com_channels.get(Channels.DATA_UAV_VGUI_COMM.name()));
 		outputs.clear();
 		outputs.add(_com_channels.get(Channels.AUDIO_VO_MM_COMM.name()));
 		outputs.add(_com_channels.get(Channels.AUDIO_VO_OP_COMM.name()));

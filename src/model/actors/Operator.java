@@ -65,7 +65,7 @@ public class Operator extends Actor {
 		initializePOST_FLIGHT_COMPLETE(inputs, outputs, POST_FLIGHT_COMPLETE, IDLE);
 		initializeLAUNCH_UAV(inputs, outputs, LAUNCH_UAV, OBSERVE_GUI);
 		initializeOBSERVE_GUI(inputs, outputs, OBSERVE_GUI, POKE_OGUI, POST_FLIGHT, OBSERVE_UAV, RX_MM);
-		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI, RX_MM);
+		initializeOBSERVE_UAV(inputs, outputs, OBSERVE_UAV, POST_FLIGHT, OBSERVE_GUI, RX_MM,POKE_MM);
 		//comm with mission manager
 		initializePOKE_MM(inputs, outputs, POKE_MM, TX_MM);
 		initializeTX_MM(inputs, outputs, TX_MM, END_MM);
@@ -269,7 +269,18 @@ public class Operator extends Actor {
 	 * (OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
 	 * (OBSERVE_UAV,[],[])x(OBSERVE_GUI,[],[])
 	 */
-	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI, State RX_MM) {
+	private void initializeOBSERVE_UAV(ComChannelList inputs, ComChannelList outputs, State OBSERVE_UAV, State POST_FLIGHT, State OBSERVE_GUI, State RX_MM, State POKE_MM) {
+		OBSERVE_UAV.add(new Transition(_internal_vars,inputs,outputs, POKE_MM,Duration.NEXT.getRange(),1){
+			@Override
+			public boolean isEnabled(){
+				if(UAV.VISUAL_UAV_OP_COMM.CRASHED.equals(_inputs.get(Channels.VIDEO_UAV_OP_COMM.name()).value())){
+					this.setTempInternalVar("SEARCH_FAILED", true);
+					this.setTempOutput(Channels.AUDIO_OP_MM_COMM.name(), Operator.AUDIO_OP_MM_COMM.OP_POKE_MM);
+					return true;
+				}
+				return false;
+			}
+		});
 		//(OBSERVE_UAV,[UAV_LANDED],[])x(POST_FLIGHT,[],[])
 		OBSERVE_UAV.add(new Transition(_internal_vars, inputs, outputs, POST_FLIGHT, Duration.NEXT.getRange(), 1){
 			@Override
@@ -307,7 +318,7 @@ public class Operator extends Actor {
 		POKE_MM.add(new Transition(_internal_vars, inputs, outputs, TX_MM, Duration.NEXT.getRange(), 1){
 			@Override
 			public boolean isEnabled(){
-				if(_inputs.get("AUDIO_MM_OP_COMM").equals(MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP)){
+				if(MissionManager.AUDIO_MM_OP_COMM.MM_ACK_OP.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())){
 					return true;
 				}
 				return false;
@@ -327,9 +338,11 @@ public class Operator extends Actor {
 		TX_MM.add(new Transition(_internal_vars, inputs, outputs, END_MM, Duration.NEXT.getRange(), 1){
 			@Override
 			public boolean isEnabled(){
-				if((Boolean) _internal_vars.getVariable("OP_SEARCH_FAILED")){
+				if((Boolean) _internal_vars.getVariable("SEARCH_FAILED")){
+					this.setTempOutput(Channels.AUDIO_OP_MM_COMM.name(), Operator.AUDIO_OP_MM_COMM.OP_SEARCH_FAILED);
 					return true;
 				}else if((Boolean) _internal_vars.getVariable("SEARCH_COMPLETE")){
+					this.setTempOutput(Channels.AUDIO_OP_MM_COMM.name(), Operator.AUDIO_OP_MM_COMM.OP_SEARCH_COMPLETE);
 					return true;
 				}
 				return false;
@@ -513,7 +526,7 @@ public class Operator extends Actor {
 	@Override
 	protected void initializeInternalVariables() {
 		this._internal_vars.addVariable("SEARCH_COMPLETE", false);
-		this._internal_vars.addVariable("OP_SEARCH_COMPLETE", false);
+		this._internal_vars.addVariable("SEARCH_FAILED", false);
 		this._internal_vars.addVariable("BAD_STREAM", false);
 		this._internal_vars.addVariable("LAND_UAV", false);
 		this._internal_vars.addVariable("TAKE_OFF", false);

@@ -5,6 +5,7 @@ import simulator.*;
 public class UAV extends Actor {
 
 	public enum DATA_UAV_VGUI {
+		CRASHED
 
 	}
 
