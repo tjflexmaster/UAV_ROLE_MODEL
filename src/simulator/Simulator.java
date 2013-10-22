@@ -84,11 +84,15 @@ public class Simulator {
 			
 			//Advance Time
 			_clock.advanceTime();
+			//debug mode
+//			System.out.printf("Time: %d\n",_clock.getElapsedTime());
 			
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.putAll(_clock.getReadyTransitions());
 			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
+				//debug mode
+//				System.out.println(e.toString());
 				
 				//Set metric key
 				IActor a = (IActor) e.getKey();
