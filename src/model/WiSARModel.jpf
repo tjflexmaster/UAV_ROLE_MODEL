@@ -4,5 +4,5 @@ classpath=/Users/jaredmoore/git/UAV_ROLE_MODEL/bin/
 sourcepath=/Users/jaredmoore/git/UAV_ROLE_MODEL/src/
 native_classpath+=/Users/jaredmoore/git/UAV_ROLE_MODEL/bin/;
 #listeners
-listener+=listeners.MetricListener2;
+listener+=listeners.MetricListener1;
 method.exclude=model.*;database.*;java.*;

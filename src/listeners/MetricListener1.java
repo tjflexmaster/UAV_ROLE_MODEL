@@ -1,5 +1,9 @@
 package listeners;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.sql.Time;
 import java.util.*;
 import java.util.Map.*;
 
@@ -14,6 +18,11 @@ public class MetricListener1 extends ListenerAdapter {
 	 */
 	public class Path {
 		
+		public TreeSet<DecisionWorkloadMetric> _dwmMetrics;
+		public TreeSet<ChannelConflictMetric> _ccmMetrics;
+		public TreeSet<ChannelLoadMetric> _clmMetrics;
+		public TreeSet<ActorOutputMetric> _aomMetrics;
+		
 		public TreeMap<MetricKey, Metric> _metrics;
 		public Path _parentPath;
 		public ArrayList<Path> _childPaths;
@@ -21,6 +30,11 @@ public class MetricListener1 extends ListenerAdapter {
 		public int _totalTimeElapsed;
 		
 		Path ( ) {
+			_dwmMetrics = new TreeSet<DecisionWorkloadMetric>();
+			_ccmMetrics = new TreeSet<ChannelConflictMetric>();
+			_clmMetrics = new TreeSet<ChannelLoadMetric>();
+			_aomMetrics = new TreeSet<ActorOutputMetric>();
+			
 			_metrics = new TreeMap<MetricKey, Metric>( );
 			_parentPath = null;
 			_childPaths = new ArrayList<Path>( );
@@ -28,11 +42,53 @@ public class MetricListener1 extends ListenerAdapter {
 			_totalTimeElapsed = 0;
 		}
 		
+		public void toFile() {
+			try {
+				String filename = "metrics_" + new Date().getTime() +".csv";
+				System.out.println("Saving file at: " + filename);
+				PrintWriter workloadWriter = new PrintWriter(new File(filename));
+				for ( DecisionWorkloadMetric m : this._dwmMetrics )
+					workloadWriter.println("dwm," + m);
+				for ( ChannelConflictMetric m : this._ccmMetrics )
+					workloadWriter.println("ccm," + m);
+				for ( ChannelLoadMetric m : this._clmMetrics )
+					workloadWriter.println("clm," + m);
+				for ( ActorOutputMetric m : this._aomMetrics )
+					workloadWriter.println("aom," + m);
+				workloadWriter.close();
+//				
+//				PrintWriter metricsWriter = new PrintWriter(new File("metrics.txt"));
+//				for(MetricDataStruct m : metrics) {
+//					metricsWriter.println(m.toString());
+//				}
+//				metricsWriter.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		public String toString( ) {
+			String eol = System.getProperty("line.separator");
 			String result = "";
 			
-			for ( Entry<MetricKey, Metric> metric : this._metrics.entrySet( ) )
-				result += "(" + metric.getKey() + ", " + metric.getValue() + ")--";
+//			for ( Entry<MetricKey, Metric> metric : this._metrics.entrySet( ) )
+//				result += "(" + metric.getKey() + ", " + metric.getValue() + ")--";
+			result += "DecisionWorkload: ";
+			for ( DecisionWorkloadMetric m : this._dwmMetrics )
+				result += m + " | ";
+			result += eol;
+			result += "ChannelConflict: ";
+			for ( ChannelConflictMetric m : this._ccmMetrics )
+				result += m + " | ";
+			result += eol;
+			result += "ChannelLoad: ";
+			for ( ChannelLoadMetric m : this._clmMetrics )
+				result += m + " | ";
+			result += eol;
+			result += "ActorOutput: ";
+			for ( ActorOutputMetric m : this._aomMetrics )
+				result += m + " | ";
+			result += eol;
 			
 			return result;
 		}
@@ -62,8 +118,12 @@ public class MetricListener1 extends ListenerAdapter {
 			storeChannelConflict( vm, ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
-		else if ( fullMethodName.contains( "endSimulation" ) )
-			printMetrics(_rootPath, "");
+		else if ( fullMethodName.contains( "setActorOutput" ) )
+			storeActorOutput( vm, ti, insnToExecute, mi);
+		else if ( fullMethodName.contains( "endSimulation" ) ) {
+//			printMetrics(_rootPath, "");
+			saveMetrics(_rootPath);
+		}
 		
 	}
 
@@ -85,16 +145,24 @@ public class MetricListener1 extends ListenerAdapter {
 		Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
-		
+//		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
+//		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) workloadValue );
 		//store metric
-		Metric metric = _currentPath._metrics.get( currentKey );
-		if ( metric == null ) { 
-			_currentPath._metrics.put( currentKey, currentMetric );
-		} else {
-			 metric.add( (int) workloadValue );
-		}
+//		Metric metric = _currentPath._metrics.get( currentKey );
+//		if ( metric == null ) { 
+//			_currentPath._metrics.put( currentKey, currentMetric );
+//		} else {
+//			 metric.add( (int) workloadValue );
+//		}
+		
+		//store the metric data
+		DecisionWorkloadMetric m = new DecisionWorkloadMetric((int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ), (int) workloadValue); 
+		
+		if ( _currentPath._dwmMetrics.contains(m) ) {
+			assert false : "Duplicate Decision workload metric";
+		} else
+			_currentPath._dwmMetrics.add(m);
+		
 		
 	}
 	
@@ -116,17 +184,22 @@ public class MetricListener1 extends ListenerAdapter {
 		Object loadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
+//		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
+//		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) loadValue );
+//		
+//		//store metric
+//		Metric metric = _currentPath._metrics.get( currentKey );
+//		if ( metric == null ) { 
+//			_currentPath._metrics.put( currentKey, currentMetric );
+//		} else {
+//			 metric.add( (int) loadValue );
+//		}
 		
-		//store metric
-		Metric metric = _currentPath._metrics.get( currentKey );
-		if ( metric == null ) { 
-			_currentPath._metrics.put( currentKey, currentMetric );
-		} else {
-			 metric.add( (int) loadValue );
-		}
-		
+		ChannelConflictMetric m = new ChannelConflictMetric((int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ), (int) loadValue);
+		if ( _currentPath._ccmMetrics.contains(m) ) {
+			assert false : "Duplicate channel conflict metric";
+		} else
+			_currentPath._ccmMetrics.add(m);
 	}
 
 	private void storeChannelLoad( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -148,17 +221,57 @@ public class MetricListener1 extends ListenerAdapter {
 		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
 		Object workloadValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 		
-		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
+//		//form metrics and keys
+//		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
+//		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
+//		
+//		//store metric
+//		Metric metric = _currentPath._metrics.get( currentKey );
+//		if ( metric == null )
+//			_currentPath._metrics.put( currentKey, currentMetric );
+//		else
+//			 metric.add( (int) workloadValue );
 		
-		//store metric
-		Metric metric = _currentPath._metrics.get( currentKey );
-		if ( metric == null )
-			_currentPath._metrics.put( currentKey, currentMetric );
-		else
-			 metric.add( (int) workloadValue );
+		ChannelLoadMetric m = new ChannelLoadMetric((int) timeValue , DEIToString(actorSourceValue), DEIToString( actorTargetValue ), DEIToString( channel_typeValue ), (int) workloadValue);
+		if ( _currentPath._clmMetrics.contains(m) ) {
+			assert false : "Duplicate channel load metric";
+		} else
+			_currentPath._clmMetrics.add(m);
+	}
+	
+private void storeActorOutput( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		
+		//get the desired parameters
+		int currentPC = ti.getPC( ).getPosition( );
+		
+		//get parameter information
+		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
+		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
+		LocalVarInfo memoryInfo = mi.getLocalVar(3, currentPC);
+		LocalVarInfo outputInfo = mi.getLocalVar( 4, currentPC );
+		
+		//get parameter values
+		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
+		Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
+		Object memoryValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( memoryInfo.getName( ) );
+		Object outputValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( outputInfo.getName( ) );
+		
+//		//form metrics and keys
+//		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
+//		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) workloadValue );
+//		
+//		//store metric
+//		Metric metric = _currentPath._metrics.get( currentKey );
+//		if ( metric == null )
+//			_currentPath._metrics.put( currentKey, currentMetric );
+//		else
+//			 metric.add( (int) workloadValue );
+		
+		ActorOutputMetric m = new ActorOutputMetric((int) timeValue , DEIToString(actorValue), (int) memoryValue, (int) outputValue);
+		if ( _currentPath._aomMetrics.contains(m) ) {
+			assert false : "Duplicate actor output metric";
+		} else
+			_currentPath._aomMetrics.add(m);
 	}
 
 	private void printMetrics(Path currentPath, String metrics) {
@@ -171,6 +284,14 @@ public class MetricListener1 extends ListenerAdapter {
 		else
 			System.out.println(metrics);
 		
+	}
+	
+	private void saveMetrics(Path currentPath) {
+		if( !currentPath._childPaths.isEmpty() )
+			for( Path childPath : currentPath._childPaths )
+				childPath.toFile();
+		else
+			currentPath.toFile();
 	}
 	
 	/**
