@@ -59,7 +59,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	initializePOKE_PS(inputs, outputs, POKE_PS, TX_PS, RX_PS);
 	initializeEND_VGUI(inputs, outputs, END_VGUI, IDLE);
 	initializeTX_PS(inputs, outputs, TX_PS, END_PS);
-	initializePOKE_VO(inputs, outputs, POKE_VO, TX_VO, RX_PS);
+	initializePOKE_VO(inputs, outputs, POKE_VO, TX_VO, RX_PS, IDLE);
 	initializeOBSERVING_VGUI(inputs, outputs, OBSERVING_VGUI, IDLE);
 	initializePOKE_OP(inputs, outputs, POKE_OP, TX_OP, RX_PS);
 	initializeRX_OP(inputs, outputs, RX_OP, IDLE);
@@ -410,7 +410,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	});
 	add(TX_PS);
 }
- public void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State POKE_VO, State TX_VO,State RX_PS) {
+ public void initializePOKE_VO(ComChannelList inputs, ComChannelList outputs, State POKE_VO, State TX_VO,State RX_PS, State IDLE) {
 	// (POKE_VO,[A=VO_ACK_MM],[],1,NEXT,1.0)x(TX_VO,[],[])
 	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, TX_VO, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
@@ -431,6 +431,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return false;
 		}
 	});
+	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE,Duration.MM_POKE_VO.getRange(),0,1.0));
 	add(POKE_VO);
 }
  public void initializeOBSERVING_VGUI(ComChannelList inputs, ComChannelList outputs, State OBSERVING_VGUI, State IDLE) {
