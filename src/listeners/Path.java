@@ -21,19 +21,19 @@ public class Path {
 	public int _resourceWorkload;
 	public int _temporalWorkload;
 	public int _decisionWorkload;
-	public int _totalTimeElapsed;
+//	public int _totalTimeElapsed;
 	
-	public Path(Path _currentPath, int _decisionWorkload2,
-			int _resourceWorkload2, int _temporalWorkload2) {
+	public Path(Path parent, int decisionWorkload,
+			int resourceWorkload, int temporalWorkload) {
 		_resourceMetrics = new TreeMap<MetricKey, Metric>( );
 		_temporalMetrics = new TreeMap<MetricKey, Metric>( );
 		_decisionMetrics = new TreeMap<MetricKey, Metric>( );
 		_childPaths = new ArrayList<Path>( );
-		_parentPath = _currentPath;
-		_resourceWorkload = _decisionWorkload2;
-		_temporalWorkload = _resourceWorkload2;
-		_decisionWorkload = _temporalWorkload2;
-		_totalTimeElapsed = 0;
+		_parentPath = parent;
+		_resourceWorkload = decisionWorkload;
+		_temporalWorkload = resourceWorkload;
+		_decisionWorkload = temporalWorkload;
+//		_totalTimeElapsed = 0;
 	}
 
 	public String toString( ) {

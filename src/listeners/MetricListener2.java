@@ -17,6 +17,18 @@ public class MetricListener2 extends ListenerAdapter {
 	 */
 	Path _rootPath = new Path( null, 0, 0, 0 );
 	Path _currentPath = _rootPath;
+	Path HCDW;//Highest Cumulative Decision Workload
+	Path HCRW;//Highest Cumulative Resource Workload
+	Path HCTW;//Highest Cumulative Temporal Workload
+	Path LCDW;//Lowest Cumulative Decision Workload
+	Path LCRW;//Lowest Cumulative Resource Workload
+	Path LCTW;//Lowest Cumulative Temporal Workload
+	Path HPDW;//Highest Peak Decision Workload
+	Path HPRW;//Highest Peak Resource Workload
+	Path HPTW;//Highest Peak Temporal Workload
+	Path LPDW;//Lowest Peak Decision Workload
+	Path LPRW;//Lowest Peak Resource Workload
+	Path LPTW;//Lowest Peak Temporal Workload
 	
 	/**
 	 * acts whenever a choice generator is set (at the first point of non-determinism).
@@ -75,7 +87,7 @@ public class MetricListener2 extends ListenerAdapter {
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
 		else if ( fullMethodName.contains( "endSimulation" ) )
-			printMetricsToFile(_rootPath, "");
+			assignPaths(_rootPath, "");
 	}
 
 	private void storeDecisionWorkload( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -167,23 +179,76 @@ public class MetricListener2 extends ListenerAdapter {
 		_currentPath._temporalWorkload += (int) channelLoad;
 	}
 
-	private void printMetricsToFile(Path currentPath, String metrics) {
+	private void assignPaths(Path currentPath, String metrics) {
+		metrics += currentPath.toString();
+		
+		if ( !currentPath._childPaths.isEmpty() )
+			for ( Path childPath : currentPath._childPaths )
+				assignPaths( comparePeakWorkload( childPath ), metrics );
+		else
+			compareAndPrintCumlativeWorkload( currentPath, metrics );
+	}
+	
+	private Path comparePeakWorkload( Path path ) {
+//		if ( HPDW == null || HPDW. )
+//			
+		Path HPRW;
+		Path HPTW;
+		Path LPDW;
+		Path LPRW;
+		Path LPTW;
+		return path;
+	}
+	
+	private Path compareAndPrintCumlativeWorkload( Path path, String metrics ) {
+		if ( HCDW == null || HCDW._decisionWorkload < path._decisionWorkload) {
+			write( "HCDW.csv", metrics );
+			HCDW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new HCDW.csv");
+		}
+		
+		if ( HCRW == null || HCRW._resourceWorkload < path._resourceWorkload) {
+			write( "HCRW.csv", metrics );
+			HCRW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new HCRW.csv");
+		}
+		
+		if ( HCTW == null || HCTW._temporalWorkload < path._temporalWorkload) {
+			write( "HCTW.csv", metrics );
+			HCTW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new HCTW.csv");
+		}
+		
+		if ( LCDW == null || LCDW._decisionWorkload > path._decisionWorkload) {
+			write( "LCDW.csv", metrics );
+			LCDW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new LCDW.csv");
+		}
+		
+		if ( LCRW == null || LCRW._resourceWorkload > path._resourceWorkload) {
+			write( "LCRW.csv", metrics );
+			LCRW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new LCRW.csv");
+		}
+		
+		if ( LCTW == null || LCTW._temporalWorkload > path._temporalWorkload) {
+			write( "LCTW.csv", metrics );
+			LCTW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+			System.out.println("printed new LCTW.csv");
+		}
+		
+		return path;
+	}
+
+	private void write(String filename, String metrics) {
 		try {
-			FileWriter writer = new FileWriter(new File("metrics.csv"));
-			
-			metrics += currentPath.toString();
-			
-			if ( !currentPath._childPaths.isEmpty() )
-				for ( Path childPath : currentPath._childPaths )
-					printMetricsToFile( childPath, metrics );
-			else
-				writer.write(metrics);
-			
-			System.out.println("printed metrics.csv");
+			FileWriter writer = new FileWriter(new File("src/csvFiles/" + filename));
+	
+			writer.write(metrics);
 			
 			writer.close();
 		} catch (IOException e) {
-			System.err.println("-- couldn't print metrics.csv --");
+			System.err.println("-- couldn't print " + filename + ".csv --");
 			e.printStackTrace();
 		}
 	}
