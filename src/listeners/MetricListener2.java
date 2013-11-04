@@ -15,7 +15,7 @@ public class MetricListener2 extends ListenerAdapter {
 	/**
 	 * stores the metrics
 	 */
-	Path _rootPath = new Path( null, 0, 0, 0 );
+	Path _rootPath = new Path( null, 0, 0, 0, new TreeMap<MetricKey, Metric>(), new TreeMap<MetricKey, Metric>(), new TreeMap<MetricKey, Metric>() );
 	Path _currentPath = _rootPath;
 	Path HCDW;//Highest Cumulative Decision Workload
 	Path HCRW;//Highest Cumulative Resource Workload
@@ -23,12 +23,12 @@ public class MetricListener2 extends ListenerAdapter {
 	Path LCDW;//Lowest Cumulative Decision Workload
 	Path LCRW;//Lowest Cumulative Resource Workload
 	Path LCTW;//Lowest Cumulative Temporal Workload
-	Path HPDW;//Highest Peak Decision Workload
-	Path HPRW;//Highest Peak Resource Workload
-	Path HPTW;//Highest Peak Temporal Workload
-	Path LPDW;//Lowest Peak Decision Workload
-	Path LPRW;//Lowest Peak Resource Workload
-	Path LPTW;//Lowest Peak Temporal Workload
+//	Path HPDW;//Highest Peak Decision Workload
+//	Path HPRW;//Highest Peak Resource Workload
+//	Path HPTW;//Highest Peak Temporal Workload
+//	Path LPDW;//Lowest Peak Decision Workload
+//	Path LPRW;//Lowest Peak Resource Workload
+//	Path LPTW;//Lowest Peak Temporal Workload
 	
 	/**
 	 * acts whenever a choice generator is set (at the first point of non-determinism).
@@ -36,13 +36,7 @@ public class MetricListener2 extends ListenerAdapter {
 	 */
 	@Override
 	public void choiceGeneratorSet ( VM vm, ChoiceGenerator<?> newCG ) {
-		//get the methods information
-		MethodInfo mi = newCG.getInsn( ).getMethodInfo( );
-		String methodName = mi.getName( );
-		
-		//form a new branch
-		if( methodName.equals( "duration" ) )
-			advancePath();
+		makeChoice( newCG.getInsn( ).getMethodInfo( ) );
 	}
 
 	/**
@@ -51,20 +45,23 @@ public class MetricListener2 extends ListenerAdapter {
 	 */
 	@Override
 	public void choiceGeneratorAdvanced ( VM vm, ChoiceGenerator<?> currentCG ) {
-		//get the methods information
-		MethodInfo mi = currentCG.getInsn( ).getMethodInfo( );
+		makeChoice( currentCG.getInsn( ).getMethodInfo( ) );
+	}
+	
+	private void makeChoice( MethodInfo mi ) {
 		String methodName = mi.getName( );
-		
-		//form a new branch
 		if( methodName.equals( "duration" ) )
 			advancePath();
 	}
 	
 	private void advancePath( ) {
 		Path newPath = new Path( _currentPath,
-				_currentPath._decisionWorkload,
-				_currentPath._resourceWorkload,
-				_currentPath._temporalWorkload );
+				_currentPath._cumulativeDecisionWorkload,
+				_currentPath._cumulativeResourceWorkload,
+				_currentPath._cumulativeTemporalWorkload,
+				_currentPath._cumulativeDecisionMetrics,
+				_currentPath._cumulativeResourceMetrics,
+				_currentPath._cumulativeTemporalMetrics);
 		newPath._parentPath = _currentPath;
 		_currentPath._childPaths.add( newPath );
 		_currentPath = newPath;
@@ -87,7 +84,7 @@ public class MetricListener2 extends ListenerAdapter {
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
 			storeChannelLoad( vm, ti, insnToExecute, mi);
 		else if ( fullMethodName.contains( "endSimulation" ) )
-			assignPaths(_rootPath, "");
+			compareAndPrintCumlativeWorkload( _currentPath );
 	}
 
 	private void storeDecisionWorkload( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -111,12 +108,12 @@ public class MetricListener2 extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) availableTransitions );
 		
 		//store metric
-		Metric metric = _currentPath._decisionMetrics.get( currentKey );
+		Metric metric = _currentPath._cumulativeDecisionMetrics.get( currentKey );
 		if ( metric == null )
-			_currentPath._decisionMetrics.put( currentKey, currentMetric );
+			_currentPath._cumulativeDecisionMetrics.put( currentKey, currentMetric );
 		else
 			 metric.add( (int) availableTransitions );
-		_currentPath._decisionWorkload += (int) availableTransitions;
+		_currentPath._cumulativeDecisionWorkload += (int) availableTransitions;
 	}
 	
 	private void storeChannelConflict( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -140,12 +137,12 @@ public class MetricListener2 extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) channelConflicts );
 		
 		//store metric
-		Metric metric = _currentPath._resourceMetrics.get( currentKey );
+		Metric metric = _currentPath._cumulativeResourceMetrics.get( currentKey );
 		if ( metric == null )
-			_currentPath._resourceMetrics.put( currentKey, currentMetric );
+			_currentPath._cumulativeResourceMetrics.put( currentKey, currentMetric );
 		else
 			 metric.add( (int) channelConflicts );
-		_currentPath._resourceWorkload += (int) channelConflicts;
+		_currentPath._cumulativeResourceWorkload += (int) channelConflicts;
 	}
 
 	private void storeChannelLoad( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
@@ -171,27 +168,15 @@ public class MetricListener2 extends ListenerAdapter {
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) channelLoad );
 		
 		//store metric
-		Metric metric = _currentPath._temporalMetrics.get( currentKey );
+		Metric metric = _currentPath._cumulativeTemporalMetrics.get( currentKey );
 		if ( metric == null )
-			_currentPath._temporalMetrics.put( currentKey, currentMetric );
+			_currentPath._cumulativeTemporalMetrics.put( currentKey, currentMetric );
 		else
 			 metric.add( (int) channelLoad );
-		_currentPath._temporalWorkload += (int) channelLoad;
-	}
-
-	private void assignPaths(Path currentPath, String metrics) {
-		metrics += currentPath.toString();
-		
-		if ( !currentPath._childPaths.isEmpty() )
-			for ( Path childPath : currentPath._childPaths )
-				assignPaths( comparePeakWorkload( childPath ), metrics );
-		else
-			compareAndPrintCumlativeWorkload( currentPath, metrics );
+		_currentPath._cumulativeTemporalWorkload += (int) channelLoad;
 	}
 	
 	private Path comparePeakWorkload( Path path ) {
-//		if ( HPDW == null || HPDW. )
-//			
 		Path HPRW;
 		Path HPTW;
 		Path LPDW;
@@ -200,40 +185,40 @@ public class MetricListener2 extends ListenerAdapter {
 		return path;
 	}
 	
-	private Path compareAndPrintCumlativeWorkload( Path path, String metrics ) {
-		if ( HCDW == null || HCDW._decisionWorkload < path._decisionWorkload) {
-			write( "HCDW.csv", metrics );
-			HCDW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+	private Path compareAndPrintCumlativeWorkload( Path path ) {
+		if ( HCDW == null || HCDW._cumulativeDecisionWorkload < path._cumulativeDecisionWorkload) {
+			write( "HCDW.csv", path.toString() );
+			HCDW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new HCDW.csv");
 		}
 		
-		if ( HCRW == null || HCRW._resourceWorkload < path._resourceWorkload) {
-			write( "HCRW.csv", metrics );
-			HCRW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+		if ( HCRW == null || HCRW._cumulativeResourceWorkload < path._cumulativeResourceWorkload) {
+			write( "HCRW.csv", path.toString() );
+			HCRW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new HCRW.csv");
 		}
 		
-		if ( HCTW == null || HCTW._temporalWorkload < path._temporalWorkload) {
-			write( "HCTW.csv", metrics );
-			HCTW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+		if ( HCTW == null || HCTW._cumulativeTemporalWorkload < path._cumulativeTemporalWorkload) {
+			write( "HCTW.csv", path.toString() );
+			HCTW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new HCTW.csv");
 		}
 		
-		if ( LCDW == null || LCDW._decisionWorkload > path._decisionWorkload) {
-			write( "LCDW.csv", metrics );
-			LCDW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+		if ( LCDW == null || LCDW._cumulativeDecisionWorkload > path._cumulativeDecisionWorkload) {
+			write( "LCDW.csv", path.toString() );
+			LCDW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new LCDW.csv");
 		}
 		
-		if ( LCRW == null || LCRW._resourceWorkload > path._resourceWorkload) {
-			write( "LCRW.csv", metrics );
-			LCRW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+		if ( LCRW == null || LCRW._cumulativeResourceWorkload > path._cumulativeResourceWorkload) {
+			write( "LCRW.csv", path.toString() );
+			LCRW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new LCRW.csv");
 		}
 		
-		if ( LCTW == null || LCTW._temporalWorkload > path._temporalWorkload) {
-			write( "LCTW.csv", metrics );
-			LCTW = new Path(path._parentPath, path._decisionWorkload, path._resourceWorkload, path._temporalWorkload);
+		if ( LCTW == null || LCTW._cumulativeTemporalWorkload > path._cumulativeTemporalWorkload) {
+			write( "LCTW.csv", path.toString() );
+			LCTW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
 			System.out.println("printed new LCTW.csv");
 		}
 		
