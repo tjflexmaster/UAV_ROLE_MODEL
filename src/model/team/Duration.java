@@ -6,35 +6,35 @@ public enum Duration {
 	
 	/* Parent Search Durations */
 	
-	PS_SEND_DATA_PS(1,5),
-	PS_POKE_MM(5,20), 
-	PS_TX_DATA_MM(5,20),
+	PS_SEND_DATA_PS(3),
+	PS_POKE_MM(10), 
+	PS_TX_DATA_MM(10),
 	
 	/* Mission Manager Durations */
 	
 	MM_POKE_PS(5,20),
 	MM_POKE_TO_TX_PS(5),
 	MM_RX_PS(22),
-	MM_POKE_VO(5,20),
-	MM_POKE_OP(5, 20),
-	MM_TX_OP(5,20),
-	MM_OBSERVING_VGUI(15,20),
-	MM_TX_VGUI(5,20),
-	MM_TO_IDLE(5,20),
-	MM_TX_PS(5,20),
-	MM_TX_VO(5,20),
+	MM_POKE_VO(10),
+	MM_POKE_OP(10),
+	MM_TX_OP(10),
+	MM_OBSERVING_VGUI(10),
+	MM_TX_VGUI(10),
+	MM_TO_IDLE(10),
+	MM_TX_PS(10),
+	MM_TX_VO(10),
 	
 	/* Video Operator Outputs */
 
 	VO_RX_MM(20),
-	VO_TX_MM(5,20),
+	VO_TX_MM(10),
 	
 	/* Video Operator Gui Outputs */
 	
 	/* UAV Operator Outputs */
 	
-	OP_TX_MM(5,20),
-	OP_TX_OGUI(5,20),
+	OP_TX_MM(10),
+	OP_TX_OGUI(10),
 	OP_RX_MM(22),
 	
 	/* UAV Operator Gui Outputs*/
@@ -44,19 +44,20 @@ public enum Duration {
 	UAVBAT_ACTIVE_TO_LOW(30),
 	UAVBAT_LOW_TO_DEAD(10),
 	UAVBAT_DURATION(3600),
-	UAV_ADJUST_PATH(20,100),
+	UAV_ADJUST_PATH(60),
 	UAV_LANDING(5,20),
 	
 	/* General */
 	
 	ACK(1),
 	NEXT(1),
-	POKE(5,20),
-	OP_OBSERVE_GUI(5,20),
-	OP_POST_FLIGHT_COMPLETE(5,20),
-	RANDOM(5,100),
-	PS_TX_MM(5,20),
-	PS_RX_MM(5,20), UAV_TAKE_OFF(5,20);
+	POKE(10),
+	OP_OBSERVE_GUI(10),
+	OP_POST_FLIGHT_COMPLETE(10),
+	RANDOM(50),
+	PS_TX_MM(10),
+	PS_RX_MM(10),
+	UAV_TAKE_OFF(10);
 	
 	private Integer _minimum;
 	private Integer _maximum;

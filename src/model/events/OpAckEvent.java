@@ -1,5 +1,6 @@
 package model.events;
 
+import model.actors.MissionManager;
 import model.actors.Operator;
 import model.team.Channels;
 import model.team.Duration;
@@ -9,7 +10,6 @@ import simulator.IState;
 import simulator.ITransition;
 import simulator.State;
 import simulator.Transition;
-import temp_package.MissionManager;
 
 public class OpAckEvent extends simulator.Event {
 	public OpAckEvent(final ComChannelList inputs, final ComChannelList outputs)

@@ -19,9 +19,9 @@ public class VguiValidationReqTMMEvent extends simulator.Event {
 			@SuppressWarnings("unchecked")
 			@Override 
 			public boolean isEnabled() {
-				ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM> request = (ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>) _inputs.get(Channels.VIDEO_VGUI_MM_COMM.name());
-				if ( VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM.equals(request.value()) ) {
-					this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_VALIDATION_REQ_T);
+				ComChannel<VideoOperatorGui.VIDEO_VGUI_MM_COMM> request = (ComChannel<VideoOperatorGui.VIDEO_VGUI_MM_COMM>) _inputs.get(Channels.VIDEO_VGUI_MM_COMM.name());
+				if ( VideoOperatorGui.VIDEO_VGUI_MM_COMM.VGUI_ALERT_MM.equals(request.value()) ) {
+					this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VIDEO_VGUI_MM_COMM.VGUI_VALIDATION_REQ_T_MM);
 					return true;
 				} else
 					return false;

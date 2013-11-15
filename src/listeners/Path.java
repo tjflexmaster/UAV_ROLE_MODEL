@@ -37,56 +37,46 @@ public class Path {
 	}
 
 	public String toString( ) {
-		String result = "time, resource workload, temporal workload, decision workload, resource data ((Actor State Value)*), temporal data ((Actor State Value)*), decision data ((Actor State Value)*)\n";
+		String result = "time, resource data ((Actor State Value)*), resource workload, temporal data ((Actor State Value)*), temporal workload, decision data ((Actor State Value)*), decision workload\n";
 		for ( int time = 0; time < 200; time++ )
-			result += time
-					+ "," + getMetricsByTime( _cumulativeResourceMetrics, time )
-					+ "," + getMetricsByTime( _cumulativeTemporalMetrics, time )
-					+ "," + getMetricsByTime( _cumulativeDecisionMetrics, time )
-					+ "," + getActorsByTime( time ) + "\n";
+			result += getMetricsByTime( time );
 		
 		return result;
 	}
 	
-	private int getMetricsByTime( TreeMap<MetricKey, Metric> metrics, int time ) {
-		int result = 0;
-		boolean found = false;
-		for ( Entry<MetricKey, Metric> metric : metrics.entrySet( ) )
-			if ( found && ( metric.getKey().getTime() != time ) )
-				break;
-			else if ( found = ( metric.getKey().getTime() == time ) )
-				result += metric.getValue()._value;
-		
-		return result;
-	}
-	
-	private String getActorsByTime( int time ) {
-		String result = "";
+	private String getMetricsByTime( int time ) {
+		String result = time + ", ";
 
+		int cumulativeResourceValue = 0;
 		boolean found = false;
 		for ( Entry<MetricKey, Metric> metric : _cumulativeResourceMetrics.entrySet( ) )
 			if ( found && ( metric.getKey().getTime() != time ) )
 				break;
 			else if ( found = ( metric.getKey().getTime() == time ) )
-				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + metric.getValue()._value + " ) ";
+				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + (cumulativeResourceValue += metric.getValue()._value) + " ) ";
+		result += ", " + cumulativeResourceValue;
 
+		int cumulativeTemporalValue = 0;
 		result += ",";
 		found = false;
 		for ( Entry<MetricKey, Metric> metric : _cumulativeTemporalMetrics.entrySet( ) )
 			if ( found && ( metric.getKey().getTime() != time ) )
 				break;
 			else if ( found = ( metric.getKey().getTime() == time ) )
-				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + metric.getValue()._value + " ) ";
+				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + (cumulativeTemporalValue += metric.getValue()._value) + " ) ";
+		result += ", " + cumulativeTemporalValue;
 
+		int cumulativeDecisionValue = 0;
 		result += ",";
 		found = false;
 		for ( Entry<MetricKey, Metric> metric : _cumulativeDecisionMetrics.entrySet( ) )
 			if ( found && ( metric.getKey().getTime() != time ) )
 				break;
 			else if ( found = ( metric.getKey().getTime() == time ) )
-				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + metric.getValue()._value + " ) ";
+				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + (cumulativeDecisionValue += metric.getValue()._value) + " ) ";
+		result += ", " + cumulativeDecisionValue;
 		
-		return result;
+		return result + "\n";
 	}
 	
 }

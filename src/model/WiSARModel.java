@@ -12,7 +12,7 @@ public class WiSARModel {
 	public static void main(String[] args) {
 		Simulator sim = Simulator.getSim();
 		
-		sim.setup(new WiSARTeam(), DebugMode.DEBUG, DurationMode.MIN);
+		sim.setup(new WiSARTeam(), DebugMode.DEBUG, DurationMode.MIN_MAX);
 		
 		sim.run();
 	}

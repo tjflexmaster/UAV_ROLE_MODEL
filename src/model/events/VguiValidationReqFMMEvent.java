@@ -18,7 +18,7 @@ public class VguiValidationReqFMMEvent extends simulator.Event {
 		_transition = new Transition(getInternalVars(), inputs, outputs, state, Duration.VO_TX_MM.getRange()) { 
 			@Override 
 			public boolean isEnabled() {
-				this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_VALIDATION_REQ_F);
+				this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VIDEO_VGUI_MM_COMM.VGUI_VALIDATION_REQ_F_MM);
 				return true;
 			};
 		};

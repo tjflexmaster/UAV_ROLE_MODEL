@@ -1,201 +1,201 @@
-time, resource workload, temporal workload, decision workload, resource data ((Actor State Value) ...), temporal data ((Actor State Value) ...), decision data ((Actor State Value) ...)
-0,0,2,1,,( None AUDIO 1 ) ( OP VISUAL 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-1,1,1,1,( OP VISUAL 1 ) ,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-2,1,1,2,( MM AUDIO 1 ) ,( PS AUDIO 1 ) ,( PARENT_SEARCH POKE_MM 1 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-3,1,0,2,( PS AUDIO 1 ) ,,( PARENT_SEARCH POKE_MM 2 ) ( MissionManager RX_PS 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-4,0,5,1,,( MM AUDIO 5 ) ,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-5,0,0,0,,,
-6,0,0,0,,,
-7,0,0,0,,,
-8,0,0,0,,,
-9,1,0,2,( MM AUDIO 1 ) ,,( PARENT_SEARCH END_MM 1 ) ( MissionManager RX_PS 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-10,0,2,2,,( OP AUDIO 1 ) ( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-11,2,3,3,( OP AUDIO 1 ) ( MM AUDIO 1 ) ,( PS AUDIO 1 ) ( OP AUDIO 1 ) ( MM AUDIO 1 ) ,( PARENT_SEARCH POKE_MM 1 ) ( MissionManager POKE_OP 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-12,3,0,2,( PS AUDIO 1 ) ( OP AUDIO 1 ) ( MM AUDIO 1 ) ,,( PARENT_SEARCH POKE_MM 2 ) ( MissionManager RX_PS 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-13,1,5,2,( MM AUDIO 1 ) ,( MM AUDIO 5 ) ,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 0 ) ( OPERATOR RX_MM 1 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-14,1,0,1,( MM AUDIO 1 ) ,,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-15,0,0,0,,,
-16,0,0,0,,,
-17,0,0,0,,,
-18,1,0,2,( MM AUDIO 1 ) ,,( PARENT_SEARCH END_MM 1 ) ( MissionManager RX_PS 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-19,0,1,2,,( VO AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-20,1,1,2,( VO AUDIO 1 ) ,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_VO 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 1 ) 
-21,1,1,3,( MM AUDIO 1 ) ,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_VO 2 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 1 ) 
-22,1,5,1,( MM AUDIO 1 ) ,( VO AUDIO 5 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager TX_VO 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-23,0,0,0,,,
-24,0,0,0,,,
-25,0,0,0,,,
-26,0,0,0,,,
-27,1,0,2,( VO AUDIO 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager END_VO 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 1 ) 
-28,0,1,1,,( OP AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-29,1,1,1,( OP AUDIO 1 ) ,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_OP 0 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-30,1,0,1,( MM AUDIO 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_OP 1 ) ( OPERATOR RX_MM 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-31,0,5,1,,( OP AUDIO 5 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager TX_OP 1 ) ( OPERATOR RX_MM 0 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-32,0,0,0,,,
-33,0,0,0,,,
-34,0,0,0,,,
-35,0,0,0,,,
-36,1,0,2,( OP AUDIO 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager END_OP 1 ) ( OPERATOR RX_MM 1 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-37,0,1,1,,( UAV VISUAL 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 0 ) ( VO_WateredDown IDLE 0 ) 
-38,1,2,1,( UAV VISUAL 1 ) ,( OP VISUAL 1 ) ( OP VISUAL 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR LAUNCH_UAV 0 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-39,2,2,3,( OP VISUAL 2 ) ,( OP VISUAL 1 ) ( OP VISUAL 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR LAUNCH_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 0 ) 
-40,2,30,3,( OP VISUAL 2 ) ,( OP VISUAL 30 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 2 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-41,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR POKE_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-42,1,5,2,( OP VISUAL 1 ) ,( OGUI VISUAL 5 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR TX_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-43,0,0,0,,,
-44,0,0,0,,,
-45,0,0,0,,,
-46,0,0,0,,,
-47,2,0,2,( OGUI VISUAL 1 ) ( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR END_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-48,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-49,0,0,0,,,
-50,0,0,0,,,
-51,0,0,0,,,
-52,0,0,0,,,
-53,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-54,0,0,0,,,
-55,0,0,0,,,
-56,0,0,0,,,
-57,0,0,0,,,
-58,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-59,0,0,0,,,
-60,0,0,0,,,
-61,0,0,0,,,
-62,0,0,0,,,
-63,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-64,0,0,0,,,
-65,0,0,0,,,
-66,0,0,0,,,
-67,0,0,0,,,
-68,1,0,2,( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 0 ) 
-69,0,0,0,,,
-70,1,20,4,( OP VISUAL 1 ) ,( OP VISUAL 10 ) ( VGUI DATA 10 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 0 ) 
-71,0,0,0,,,
-72,0,0,0,,,
-73,2,0,4,( VGUI DATA 1 ) ( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 0 ) 
-74,0,0,0,,,
-75,0,0,0,,,
-76,0,0,0,,,
-77,0,0,0,,,
-78,2,0,4,( VGUI DATA 1 ) ( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 0 ) 
-79,0,0,0,,,
-80,2,0,2,( VGUI DATA 1 ) ( OP VISUAL 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown IDLE 1 ) 
-81,0,0,1,,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-82,0,0,0,,,
-83,0,1,2,,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 2 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-84,1,1,1,( MM AUDIO 1 ) ,( OP AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR POKE_MM 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-85,1,0,1,( OP AUDIO 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 0 ) ( OPERATOR POKE_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-86,0,1,1,,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 0 ) ( OPERATOR TX_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-87,1,0,2,( MM AUDIO 1 ) ,,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 1 ) ( OPERATOR END_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-88,0,1,1,,( PS AUDIO 1 ) ,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-89,1,1,1,( PS AUDIO 1 ) ,( MM AUDIO 1 ) ,( PARENT_SEARCH IDLE 1 ) ( MissionManager POKE_PS 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-90,1,0,1,( MM AUDIO 1 ) ,,( PARENT_SEARCH RX_MM 0 ) ( MissionManager POKE_PS 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-91,0,5,1,,( PS AUDIO 5 ) ,( PARENT_SEARCH RX_MM 0 ) ( MissionManager TX_PS 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-92,0,0,0,,,
-93,0,0,0,,,
-94,0,0,0,,,
-95,0,0,0,,,
-96,1,0,2,( PS AUDIO 1 ) ,,( PARENT_SEARCH RX_MM 1 ) ( MissionManager END_PS 1 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-97,0,0,0,,,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) 
-98,0,0,0,,,
-99,0,0,0,,,
-100,0,0,0,,,
-101,0,0,0,,,
-102,0,0,0,,,
-103,0,0,0,,,
-104,0,0,0,,,
-105,0,0,0,,,
-106,0,0,0,,,
-107,0,0,0,,,
-108,0,0,0,,,
-109,0,0,0,,,
-110,0,0,0,,,
-111,0,0,0,,,
-112,0,0,0,,,
-113,0,0,0,,,
-114,0,0,0,,,
-115,0,0,0,,,
-116,0,0,0,,,
-117,0,0,0,,,
-118,0,0,0,,,
-119,0,0,0,,,
-120,0,0,0,,,
-121,0,0,0,,,
-122,0,0,0,,,
-123,0,0,0,,,
-124,0,0,0,,,
-125,0,0,0,,,
-126,0,0,0,,,
-127,0,0,0,,,
-128,0,0,0,,,
-129,0,0,0,,,
-130,0,0,0,,,
-131,0,0,0,,,
-132,0,0,0,,,
-133,0,0,0,,,
-134,0,0,0,,,
-135,0,0,0,,,
-136,0,0,0,,,
-137,0,0,0,,,
-138,0,0,0,,,
-139,0,0,0,,,
-140,0,0,0,,,
-141,0,0,0,,,
-142,0,0,0,,,
-143,0,0,0,,,
-144,0,0,0,,,
-145,0,0,0,,,
-146,0,0,0,,,
-147,0,0,0,,,
-148,0,0,0,,,
-149,0,0,0,,,
-150,0,0,0,,,
-151,0,0,0,,,
-152,0,0,0,,,
-153,0,0,0,,,
-154,0,0,0,,,
-155,0,0,0,,,
-156,0,0,0,,,
-157,0,0,0,,,
-158,0,0,0,,,
-159,0,0,0,,,
-160,0,0,0,,,
-161,0,0,0,,,
-162,0,0,0,,,
-163,0,0,0,,,
-164,0,0,0,,,
-165,0,0,0,,,
-166,0,0,0,,,
-167,0,0,0,,,
-168,0,0,0,,,
-169,0,0,0,,,
-170,0,0,0,,,
-171,0,0,0,,,
-172,0,0,0,,,
-173,0,0,0,,,
-174,0,0,0,,,
-175,0,0,0,,,
-176,0,0,0,,,
-177,0,0,0,,,
-178,0,0,0,,,
-179,0,0,0,,,
-180,0,0,0,,,
-181,0,0,0,,,
-182,0,0,0,,,
-183,0,0,0,,,
-184,0,0,0,,,
-185,0,0,0,,,
-186,0,0,0,,,
-187,0,0,0,,,
-188,0,0,0,,,
-189,0,0,0,,,
-190,0,0,0,,,
-191,0,0,0,,,
-192,0,0,0,,,
-193,0,0,0,,,
-194,0,0,0,,,
-195,0,0,0,,,
-196,0,0,0,,,
-197,0,0,0,,,
-198,0,0,0,,,
-199,0,0,0,,,
+time, resource data ((Actor State Value)*), resource workload, temporal data ((Actor State Value)*), temporal workload, decision data ((Actor State Value)*), decision workload
+0, , 0,( None AUDIO 1 ) ( OP VISUAL 2 ) , 2,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) , 1
+1, ( OP VISUAL 1 ) , 1,( MM AUDIO 1 ) , 1,( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) , 1
+2, ( MM AUDIO 1 ) , 1,( PS AUDIO 1 ) , 1,( PARENT_SEARCH POKE_MM 1 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+3, ( PS AUDIO 1 ) , 1,, 0,( PARENT_SEARCH POKE_MM 2 ) ( MissionManager RX_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+4, , 0,( MM AUDIO 10 ) , 10,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) , 1
+5, , 0,, 0,, 0
+6, , 0,, 0,, 0
+7, , 0,, 0,, 0
+8, , 0,, 0,, 0
+9, , 0,, 0,, 0
+10, , 0,, 0,, 0
+11, , 0,, 0,, 0
+12, , 0,, 0,, 0
+13, , 0,, 0,, 0
+14, ( MM AUDIO 1 ) , 1,, 0,( PARENT_SEARCH END_MM 1 ) ( MissionManager RX_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+15, , 0,( OP AUDIO 1 ) ( MM AUDIO 2 ) , 2,( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+16, ( OP AUDIO 1 ) ( MM AUDIO 2 ) , 2,( PS AUDIO 1 ) ( OP AUDIO 2 ) ( MM AUDIO 3 ) , 3,( PARENT_SEARCH POKE_MM 1 ) ( MissionManager POKE_OP 2 ) ( OPERATOR IDLE 3 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 3 ) , 3
+17, ( PS AUDIO 1 ) ( OP AUDIO 2 ) ( MM AUDIO 3 ) , 3,, 0,( PARENT_SEARCH POKE_MM 2 ) ( MissionManager RX_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+18, ( MM AUDIO 1 ) , 1,( MM AUDIO 10 ) , 10,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 1 ) ( OPERATOR RX_MM 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+19, ( MM AUDIO 1 ) , 1,, 0,( PARENT_SEARCH TX_MM 1 ) ( MissionManager RX_PS 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) , 1
+20, , 0,, 0,, 0
+21, , 0,, 0,, 0
+22, , 0,, 0,, 0
+23, , 0,, 0,, 0
+24, , 0,, 0,, 0
+25, , 0,, 0,, 0
+26, , 0,, 0,, 0
+27, , 0,, 0,, 0
+28, ( MM AUDIO 1 ) , 1,, 0,( PARENT_SEARCH END_MM 1 ) ( MissionManager RX_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+29, , 0,( VO AUDIO 1 ) , 1,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+30, ( VO AUDIO 1 ) , 1,( MM AUDIO 1 ) , 1,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_VO 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 2 ) , 2
+31, ( MM AUDIO 1 ) , 1,( MM AUDIO 1 ) , 1,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_VO 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 3 ) , 3
+32, ( MM AUDIO 1 ) , 1,( VO AUDIO 10 ) , 10,( PARENT_SEARCH IDLE 0 ) ( MissionManager TX_VO 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) , 1
+33, , 0,, 0,, 0
+34, , 0,, 0,, 0
+35, , 0,, 0,, 0
+36, , 0,, 0,, 0
+37, , 0,, 0,, 0
+38, , 0,, 0,, 0
+39, , 0,, 0,, 0
+40, , 0,, 0,, 0
+41, , 0,, 0,, 0
+42, ( VO AUDIO 1 ) , 1,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager END_VO 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 2 ) , 2
+43, , 0,( OP AUDIO 1 ) ( OP AUDIO 2 ) , 2,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+44, ( OP AUDIO 1 ) ( OP AUDIO 2 ) , 2,( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) , 3,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_OP 0 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager POKE_OP 1 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+45, ( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) , 3,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager POKE_OP 1 ) ( OPERATOR RX_MM 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager POKE_OP 2 ) ( OPERATOR RX_MM 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+46, , 0,( OP AUDIO 10 ) ( OP AUDIO 20 ) , 20,( PARENT_SEARCH IDLE 0 ) ( MissionManager TX_OP 1 ) ( OPERATOR RX_MM 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager TX_OP 2 ) ( OPERATOR RX_MM 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+47, , 0,, 0,, 0
+48, , 0,, 0,, 0
+49, , 0,, 0,, 0
+50, , 0,, 0,, 0
+51, , 0,, 0,, 0
+52, , 0,, 0,, 0
+53, , 0,, 0,, 0
+54, , 0,, 0,, 0
+55, , 0,, 0,, 0
+56, ( OP AUDIO 1 ) ( OP AUDIO 2 ) , 2,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager END_OP 1 ) ( OPERATOR RX_MM 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager END_OP 3 ) ( OPERATOR RX_MM 4 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) , 4
+57, , 0,( UAV VISUAL 1 ) ( UAV VISUAL 2 ) , 2,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+58, ( UAV VISUAL 1 ) ( UAV VISUAL 2 ) , 2,( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) ( OP VISUAL 5 ) ( OP VISUAL 6 ) , 6,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR LAUNCH_UAV 0 ) ( UAV_OGUI_WateredDown IDLE 1 ) ( VO_WateredDown IDLE 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 1 ) ( OPERATOR LAUNCH_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) , 2
+59, ( OP VISUAL 2 ) ( OP VISUAL 4 ) ( OP VISUAL 6 ) , 6,( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR LAUNCH_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager IDLE 3 ) ( OPERATOR LAUNCH_UAV 4 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) , 6
+60, ( OP VISUAL 2 ) ( OP VISUAL 4 ) ( OP VISUAL 6 ) ( OP VISUAL 8 ) , 8,( OP VISUAL 30 ) ( OP VISUAL 60 ) ( OP VISUAL 90 ) ( OP VISUAL 120 ) , 120,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 2 ) ( UAV_OGUI_WateredDown IDLE 3 ) ( VO_WateredDown IDLE 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager IDLE 3 ) ( OPERATOR OBSERVE_GUI 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR OBSERVE_GUI 8 ) ( UAV_OGUI_WateredDown IDLE 9 ) ( VO_WateredDown IDLE 9 ) ( PARENT_SEARCH IDLE 9 ) ( MissionManager IDLE 9 ) ( OPERATOR OBSERVE_GUI 11 ) ( UAV_OGUI_WateredDown IDLE 12 ) ( VO_WateredDown IDLE 12 ) , 12
+61, ( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR POKE_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR POKE_OGUI 3 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR POKE_OGUI 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR POKE_OGUI 7 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) , 8
+62, ( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,( OGUI VISUAL 10 ) ( OGUI VISUAL 20 ) ( OGUI VISUAL 30 ) ( OGUI VISUAL 40 ) , 40,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR TX_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR TX_OGUI 3 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR TX_OGUI 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR TX_OGUI 7 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) , 8
+63, , 0,, 0,, 0
+64, , 0,, 0,, 0
+65, , 0,, 0,, 0
+66, , 0,, 0,, 0
+67, , 0,, 0,, 0
+68, , 0,, 0,, 0
+69, , 0,, 0,, 0
+70, , 0,, 0,, 0
+71, , 0,, 0,, 0
+72, ( OGUI VISUAL 1 ) ( OP VISUAL 2 ) ( OGUI VISUAL 3 ) ( OP VISUAL 4 ) ( OGUI VISUAL 5 ) ( OP VISUAL 6 ) ( OGUI VISUAL 7 ) ( OP VISUAL 8 ) , 8,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR END_OGUI 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR END_OGUI 3 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR END_OGUI 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR END_OGUI 7 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) , 8
+73, ( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR OBSERVE_GUI 3 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_GUI 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR OBSERVE_GUI 7 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) , 8
+74, , 0,, 0,, 0
+75, , 0,, 0,, 0
+76, , 0,, 0,, 0
+77, , 0,, 0,, 0
+78, , 0,, 0,, 0
+79, , 0,, 0,, 0
+80, , 0,, 0,, 0
+81, , 0,, 0,, 0
+82, , 0,, 0,, 0
+83, ( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 2 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR OBSERVE_UAV 3 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_UAV 5 ) ( UAV_OGUI_WateredDown IDLE 6 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR OBSERVE_UAV 7 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) , 8
+84, , 0,, 0,, 0
+85, , 0,, 0,, 0
+86, , 0,, 0,, 0
+87, , 0,, 0,, 0
+88, , 0,, 0,, 0
+89, , 0,, 0,, 0
+90, ( OP VISUAL 1 ) ( OP VISUAL 2 ) ( OP VISUAL 3 ) ( OP VISUAL 4 ) , 4,( OP VISUAL 10 ) ( VGUI DATA 20 ) ( OP VISUAL 30 ) ( VGUI DATA 40 ) ( OP VISUAL 50 ) ( VGUI DATA 60 ) ( OP VISUAL 70 ) ( VGUI DATA 80 ) , 80,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 1 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_UAV 5 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) ( PARENT_SEARCH IDLE 8 ) ( MissionManager IDLE 8 ) ( OPERATOR OBSERVE_UAV 9 ) ( UAV_OGUI_WateredDown IDLE 12 ) ( VO_WateredDown IDLE 12 ) ( PARENT_SEARCH IDLE 12 ) ( MissionManager IDLE 12 ) ( OPERATOR OBSERVE_UAV 13 ) ( UAV_OGUI_WateredDown IDLE 16 ) ( VO_WateredDown IDLE 16 ) , 16
+91, , 0,, 0,, 0
+92, , 0,, 0,, 0
+93, ( VGUI DATA 1 ) ( OP VISUAL 2 ) ( VGUI DATA 3 ) ( OP VISUAL 4 ) ( VGUI DATA 5 ) ( OP VISUAL 6 ) ( VGUI DATA 7 ) ( OP VISUAL 8 ) , 8,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown IDLE 4 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_GUI 5 ) ( UAV_OGUI_WateredDown IDLE 8 ) ( VO_WateredDown IDLE 8 ) ( PARENT_SEARCH IDLE 8 ) ( MissionManager IDLE 8 ) ( OPERATOR OBSERVE_GUI 9 ) ( UAV_OGUI_WateredDown IDLE 12 ) ( VO_WateredDown IDLE 12 ) ( PARENT_SEARCH IDLE 12 ) ( MissionManager IDLE 12 ) ( OPERATOR OBSERVE_GUI 13 ) ( UAV_OGUI_WateredDown IDLE 16 ) ( VO_WateredDown IDLE 16 ) , 16
+94, , 0,, 0,, 0
+95, , 0,, 0,, 0
+96, , 0,, 0,, 0
+97, , 0,, 0,, 0
+98, , 0,, 0,, 0
+99, , 0,, 0,, 0
+100, ( VGUI DATA 1 ) ( OP VISUAL 2 ) ( VGUI DATA 3 ) ( OP VISUAL 4 ) ( VGUI DATA 5 ) ( OP VISUAL 6 ) ( VGUI DATA 7 ) ( OP VISUAL 8 ) , 8,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown IDLE 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR OBSERVE_GUI 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown IDLE 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_GUI 5 ) ( UAV_OGUI_WateredDown CRASHED 5 ) ( VO_WateredDown IDLE 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR OBSERVE_GUI 7 ) ( UAV_OGUI_WateredDown CRASHED 7 ) ( VO_WateredDown IDLE 8 ) , 8
+101, , 0,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_GUI 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 1 ) ( OPERATOR OBSERVE_GUI 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR OBSERVE_GUI 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager IDLE 3 ) ( OPERATOR OBSERVE_GUI 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+102, , 0,, 0,, 0
+103, , 0,( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) , 4,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR OBSERVE_UAV 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 2 ) ( OPERATOR OBSERVE_UAV 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager IDLE 4 ) ( OPERATOR OBSERVE_UAV 6 ) ( UAV_OGUI_WateredDown CRASHED 6 ) ( VO_WateredDown CRASHED 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager IDLE 6 ) ( OPERATOR OBSERVE_UAV 8 ) ( UAV_OGUI_WateredDown CRASHED 8 ) ( VO_WateredDown CRASHED 8 ) , 8
+104, ( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) , 4,( OP AUDIO 1 ) ( OP AUDIO 2 ) ( OP AUDIO 3 ) ( OP AUDIO 4 ) ( OP AUDIO 5 ) ( OP AUDIO 6 ) ( OP AUDIO 7 ) , 7,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR POKE_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 2 ) ( OPERATOR POKE_MM 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 3 ) ( OPERATOR POKE_MM 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager IDLE 4 ) ( OPERATOR POKE_MM 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+105, ( OP AUDIO 1 ) ( OP AUDIO 2 ) ( OP AUDIO 3 ) ( OP AUDIO 4 ) ( OP AUDIO 5 ) ( OP AUDIO 6 ) ( OP AUDIO 7 ) , 7,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 0 ) ( OPERATOR POKE_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager RX_OP 1 ) ( OPERATOR POKE_MM 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager RX_OP 2 ) ( OPERATOR POKE_MM 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager RX_OP 3 ) ( OPERATOR POKE_MM 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+106, , 0,( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) , 4,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 0 ) ( OPERATOR TX_MM 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager RX_OP 1 ) ( OPERATOR TX_MM 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager RX_OP 2 ) ( OPERATOR TX_MM 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager RX_OP 3 ) ( OPERATOR TX_MM 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+107, ( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) , 4,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager RX_OP 1 ) ( OPERATOR END_MM 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager RX_OP 3 ) ( OPERATOR END_MM 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager RX_OP 5 ) ( OPERATOR END_MM 6 ) ( UAV_OGUI_WateredDown CRASHED 6 ) ( VO_WateredDown CRASHED 6 ) ( PARENT_SEARCH IDLE 6 ) ( MissionManager RX_OP 7 ) ( OPERATOR END_MM 8 ) ( UAV_OGUI_WateredDown CRASHED 8 ) ( VO_WateredDown CRASHED 8 ) , 8
+108, , 0,( PS AUDIO 1 ) ( PS AUDIO 2 ) ( PS AUDIO 3 ) ( PS AUDIO 4 ) , 4,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 1 ) ( MissionManager IDLE 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager IDLE 3 ) ( OPERATOR IDLE 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager IDLE 4 ) ( OPERATOR IDLE 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+109, ( PS AUDIO 1 ) ( PS AUDIO 2 ) ( PS AUDIO 3 ) ( PS AUDIO 4 ) , 4,( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) ( MM AUDIO 5 ) ( MM AUDIO 6 ) ( MM AUDIO 7 ) , 7,( PARENT_SEARCH IDLE 1 ) ( MissionManager POKE_PS 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH IDLE 2 ) ( MissionManager POKE_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH IDLE 3 ) ( MissionManager POKE_PS 3 ) ( OPERATOR IDLE 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH IDLE 4 ) ( MissionManager POKE_PS 4 ) ( OPERATOR IDLE 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+110, ( MM AUDIO 1 ) ( MM AUDIO 2 ) ( MM AUDIO 3 ) ( MM AUDIO 4 ) ( MM AUDIO 5 ) ( MM AUDIO 6 ) ( MM AUDIO 7 ) , 7,, 0,( PARENT_SEARCH RX_MM 0 ) ( MissionManager POKE_PS 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH RX_MM 1 ) ( MissionManager POKE_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH RX_MM 2 ) ( MissionManager POKE_PS 3 ) ( OPERATOR IDLE 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH RX_MM 3 ) ( MissionManager POKE_PS 4 ) ( OPERATOR IDLE 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+111, , 0,( PS AUDIO 10 ) ( PS AUDIO 20 ) ( PS AUDIO 30 ) ( PS AUDIO 40 ) , 40,( PARENT_SEARCH RX_MM 0 ) ( MissionManager TX_PS 1 ) ( OPERATOR IDLE 1 ) ( UAV_OGUI_WateredDown CRASHED 1 ) ( VO_WateredDown CRASHED 1 ) ( PARENT_SEARCH RX_MM 1 ) ( MissionManager TX_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH RX_MM 2 ) ( MissionManager TX_PS 3 ) ( OPERATOR IDLE 3 ) ( UAV_OGUI_WateredDown CRASHED 3 ) ( VO_WateredDown CRASHED 3 ) ( PARENT_SEARCH RX_MM 3 ) ( MissionManager TX_PS 4 ) ( OPERATOR IDLE 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) , 4
+112, , 0,, 0,, 0
+113, , 0,, 0,, 0
+114, , 0,, 0,, 0
+115, , 0,, 0,, 0
+116, , 0,, 0,, 0
+117, , 0,, 0,, 0
+118, , 0,, 0,, 0
+119, , 0,, 0,, 0
+120, , 0,, 0,, 0
+121, ( PS AUDIO 1 ) ( PS AUDIO 2 ) ( PS AUDIO 3 ) ( PS AUDIO 4 ) , 4,, 0,( PARENT_SEARCH RX_MM 1 ) ( MissionManager END_PS 2 ) ( OPERATOR IDLE 2 ) ( UAV_OGUI_WateredDown CRASHED 2 ) ( VO_WateredDown CRASHED 2 ) ( PARENT_SEARCH RX_MM 3 ) ( MissionManager END_PS 4 ) ( OPERATOR IDLE 4 ) ( UAV_OGUI_WateredDown CRASHED 4 ) ( VO_WateredDown CRASHED 4 ) ( PARENT_SEARCH RX_MM 5 ) ( MissionManager END_PS 6 ) ( OPERATOR IDLE 6 ) ( UAV_OGUI_WateredDown CRASHED 6 ) ( VO_WateredDown CRASHED 6 ) ( PARENT_SEARCH RX_MM 7 ) ( MissionManager END_PS 8 ) ( OPERATOR IDLE 8 ) ( UAV_OGUI_WateredDown CRASHED 8 ) ( VO_WateredDown CRASHED 8 ) , 8
+122, , 0,, 0,( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) ( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) ( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) ( PARENT_SEARCH IDLE 0 ) ( MissionManager IDLE 0 ) ( OPERATOR IDLE 0 ) ( UAV_OGUI_WateredDown CRASHED 0 ) ( VO_WateredDown CRASHED 0 ) , 0
+123, , 0,, 0,, 0
+124, , 0,, 0,, 0
+125, , 0,, 0,, 0
+126, , 0,, 0,, 0
+127, , 0,, 0,, 0
+128, , 0,, 0,, 0
+129, , 0,, 0,, 0
+130, , 0,, 0,, 0
+131, , 0,, 0,, 0
+132, , 0,, 0,, 0
+133, , 0,, 0,, 0
+134, , 0,, 0,, 0
+135, , 0,, 0,, 0
+136, , 0,, 0,, 0
+137, , 0,, 0,, 0
+138, , 0,, 0,, 0
+139, , 0,, 0,, 0
+140, , 0,, 0,, 0
+141, , 0,, 0,, 0
+142, , 0,, 0,, 0
+143, , 0,, 0,, 0
+144, , 0,, 0,, 0
+145, , 0,, 0,, 0
+146, , 0,, 0,, 0
+147, , 0,, 0,, 0
+148, , 0,, 0,, 0
+149, , 0,, 0,, 0
+150, , 0,, 0,, 0
+151, , 0,, 0,, 0
+152, , 0,, 0,, 0
+153, , 0,, 0,, 0
+154, , 0,, 0,, 0
+155, , 0,, 0,, 0
+156, , 0,, 0,, 0
+157, , 0,, 0,, 0
+158, , 0,, 0,, 0
+159, , 0,, 0,, 0
+160, , 0,, 0,, 0
+161, , 0,, 0,, 0
+162, , 0,, 0,, 0
+163, , 0,, 0,, 0
+164, , 0,, 0,, 0
+165, , 0,, 0,, 0
+166, , 0,, 0,, 0
+167, , 0,, 0,, 0
+168, , 0,, 0,, 0
+169, , 0,, 0,, 0
+170, , 0,, 0,, 0
+171, , 0,, 0,, 0
+172, , 0,, 0,, 0
+173, , 0,, 0,, 0
+174, , 0,, 0,, 0
+175, , 0,, 0,, 0
+176, , 0,, 0,, 0
+177, , 0,, 0,, 0
+178, , 0,, 0,, 0
+179, , 0,, 0,, 0
+180, , 0,, 0,, 0
+181, , 0,, 0,, 0
+182, , 0,, 0,, 0
+183, , 0,, 0,, 0
+184, , 0,, 0,, 0
+185, , 0,, 0,, 0
+186, , 0,, 0,, 0
+187, , 0,, 0,, 0
+188, , 0,, 0,, 0
+189, , 0,, 0,, 0
+190, , 0,, 0,, 0
+191, , 0,, 0,, 0
+192, , 0,, 0,, 0
+193, , 0,, 0,, 0
+194, , 0,, 0,, 0
+195, , 0,, 0,, 0
+196, , 0,, 0,, 0
+197, , 0,, 0,, 0
+198, , 0,, 0,, 0
+199, , 0,, 0,, 0

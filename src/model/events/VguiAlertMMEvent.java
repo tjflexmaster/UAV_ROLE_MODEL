@@ -1,6 +1,7 @@
 package model.events;
 
 import model.actors.*;
+import model.actors.VideoOperatorGui.VIDEO_VGUI_MM_COMM;
 import model.team.*;
 import simulator.*;
 
@@ -19,9 +20,9 @@ public class VguiAlertMMEvent extends simulator.Event {
 			@SuppressWarnings("unchecked")
 			@Override 
 			public boolean isEnabled() {
-				ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM> alert_event = (ComChannel<VideoOperatorGui.VISUAL_VGUI_MM_COMM>) _inputs.get(Channels.VIDEO_VGUI_MM_COMM.name());
-				if ( !VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM.equals(alert_event.value()) ) {
-					this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VISUAL_VGUI_MM_COMM.VGUI_ALERT_MM);
+				ComChannel<VIDEO_VGUI_MM_COMM> alert_event = (ComChannel<VIDEO_VGUI_MM_COMM>) _inputs.get(Channels.VIDEO_VGUI_MM_COMM.name());
+				if ( !VideoOperatorGui.VIDEO_VGUI_MM_COMM.VGUI_ALERT_MM.equals(alert_event.value()) ) {
+					this.setTempOutput(Channels.VIDEO_VGUI_MM_COMM.name(), VideoOperatorGui.VIDEO_VGUI_MM_COMM.VGUI_ALERT_MM);
 					return true;
 				} else
 					return false;

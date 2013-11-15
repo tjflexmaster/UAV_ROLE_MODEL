@@ -3,7 +3,6 @@ package model.events;
 import model.actors.*;
 import model.team.*;
 import simulator.*;
-import temp_package.MissionManager;
 
 public class OpEndMMEvent extends simulator.Event {
 	public OpEndMMEvent(final ComChannelList inputs, final ComChannelList outputs)
