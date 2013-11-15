@@ -1,0 +1,324 @@
+<team name="SmallTeam">
+  <!-- List of all channels that exist within the model -->
+  <channels>
+    <channel name="AUDIO_PS_MM" type="AUDIO" source="ParentSearch" target="MissionManager" dataType="String"/>
+    <channel name="VISUAL_PS_MM" type="VISUAL" source="ParentSearch" target="MissionManager" dataType="String"/>
+    <channel name="AUDIO_MM_PS" type="AUDIO" source="MissionManager" target="ParentSearch" dataType="String"/>
+    <channel name="VISUAL_MM_PS" type="VISUAL" source="MissionManager" target="ParentSearch" dataType="String"/>
+    <channel name="NEW_SEARCH_EVENT" type="EVENT" source="" target="ParentSearch" dataType="String"/>
+  </channels>
+  
+  <!-- List of model actors -->
+  <actors>
+    <actor name="ParentSearch">
+      <inputchannels>
+        <channel>AUDIO_MM_PS</channel>
+        <channel>VISUAL_MM_PS</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>AUDIO_PS_MM</channel>
+        <channel>VISUAL_PS_MM</channel>
+      </outputchannels>
+      
+      <memory name="SEARCH_AREAS" dataType="Integer">0</memory>
+      
+      <startState>IDLE</startState>
+      
+      <states>
+        <state name="IDLE">
+            <!-- Receive a poke from the MM -->
+            <transition durationMin="1" durationMax="1" priority="10">
+              <inputs>
+                <channel name="AUDIO_MM_PS" predicate="eq">POKE</channel>
+              </inputs>
+              <outputs>
+                <channel name="AUDIO_PS_MM">ACK</channel>
+              </outputs>
+              <endState>RX_MM</endState>
+            </transition>
+            
+            <!-- Receive a new search event -->
+            <transition durationMin="1" durationMax="1" priority="10">
+              <inputs>
+                <channel name="NEW_SEARCH_EVENT" predicate=""></channel>
+              </inputs>
+              <outputs>
+                <channel name="AUDIO_PS_MM">POKE</channel>
+                <memory name="SEARCH_AREAS" action="+">1</memory>
+              </outputs>
+              <endState>POKE_MM</endState>
+            </transition>
+        </state>
+        
+        <state name="POKE_MM">
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+              <channel name="AUDIO_MM_PS" predicate="eq">ACK</channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PS_MM"></channel>
+            </outputs>
+            <endState>TX_MM</endState>
+          </transition>
+        </state>
+        
+        <state name="RX_MM">
+          <!-- Receive search complete -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+              <channel name="AUDIO_MM_PS" predicate="eq">SEARCH_COMPLETE</channel>
+              <channel name="VISUAL_MM_PS" predicate="neq"></channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PS_MM"></channel>
+            </outputs>
+            <endState>IDLE</endState>
+          </transition>
+        </state>
+        
+        <state name="TX_MM">
+          <!-- Transmit New search area -->
+          <transition durationMin="30" durationMax="30" priority="1">
+            <inputs>
+              <memory name="SEARCH_AREAS" predicate="gt">0</memory>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PS_MM">NEW_SEARCH_AREA</channel>
+              <channel name="VISUAL_PS_MM">NEW_SEARCH_AREA</channel>
+              <memory name="SEARCH_AREAS" action="-">1</memory>
+            </outputs>
+            <endState>END_MM</endState>
+          </transition>
+          
+          <!-- Default transition -->
+          <transition durationMin="1" durationMax="1" priority="0">
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PS_MM"></channel>
+              <channel name="VISUAL_PS_MM"></channel>
+            </outputs>
+            <endState>END_MM</endState>
+          </transition>
+        </state>
+        
+        <state name="END_MM">
+          <!-- Clear all output channels -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PS_MM"></channel>
+              <channel name="VISUAL_PS_MM"></channel>
+            </outputs>
+            <endState>IDLE</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="MissionManager">
+      <inputchannels>
+        <channel>AUDIO_PS_MM</channel>
+        <channel>VISUAL_PS_MM</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>AUDIO_MM_PS</channel>
+        <channel>VISUAL_MM_PS</channel>
+      </outputchannels>
+      
+      <memory name="SEARCH_AREAS" dataType="Integer">0</memory>
+      
+      <startState>IDLE</startState>
+      <states>
+        <state name="IDLE">
+          <!-- If idle then listen for a PS poke -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+              <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS">ACK</channel>
+            </outputs>
+            <endState>RX_PS</endState>
+          </transition>
+          
+          <!-- Go into a Waiting state -->
+          <transition durationMin="1" durationMax="1" priority="0">
+            <inputs>
+              <memory name="SEARCH_AREAS" predicate="gt">0</memory>
+            </inputs>
+            <outputs>
+            <outputs>
+            <endState>WAITING</endState>
+          </transition>
+        </state>
+        
+        <state name="WAITING">
+          <!-- Listen for a PS poke -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+              <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS">ACK</channel>
+            </outputs>
+            <endState>RX_PS</endState>
+          </transition>
+          
+          <!-- After waiting a bit then send search complete -->
+          <transition durationMin="100" durationMax="100" priority="0">
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS">POKE</channel>
+            <outputs>
+            <endState>POKE_PS</endState>
+          </transition>
+        </state>
+        
+        <state name="RX_PS">
+            <transition durationMin="1" durationMax="1" priority="1">
+              <inputs>
+                <channel name="AUDIO_PS_MM" predicate="eq">NEW_SEARCH_AREA</channel>
+                <channel name="VISUAL_PS_MM" predicate="neq"></channel>
+              </inputs>
+              <outputs>
+                <channel name="AUDIO_MM_PS"></channel>
+              </outputs>
+              <endState>IDLE</endState>
+            </transition>
+        </state>
+        
+        <state name="POKE_PS">
+          <!-- Listen for a PS poke -->
+          <transition durationMin="1" durationMax="1" priority="2">
+            <inputs>
+              <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS">ACK</channel>
+            </outputs>
+            <endState>RX_PS</endState>
+          </transition>
+          
+          <!-- If ACK received then start transmitting -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+              <channel name="AUDIO_PS_MM" predicate="eq">ACK</channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS"></channel>
+            </outputs>
+            <endState>TX_PS</endState>
+          </transition>
+        </state>
+        
+        <state name="TX_PS">
+          <!-- Transmit search complete -->
+          <transition durationMin="50" durationMax="50" priority="1">
+            <inputs>
+              <memory name="SEARCH_AREAS" predicate="gt">0</memory>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS">SEARCH_COMPLETE</channel>
+              <channel name="VISUAL_MM_PS">SEARCH_COMPLETE</channel>
+              <memory name="SEARCH_AREAS" action="-">1</memory>
+            </outputs>
+            <endState>END_PS</endState>
+          </transition>
+          
+          <!-- Default transition -->
+          <transition durationMin="1" durationMax="1" priority="0">
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS"></channel>
+              <channel name="VISUAL_MM_PS"></channel>
+            </outputs>
+            <endState>END_PS</endState>
+          </transition>
+        </state>
+        
+        <state name="END_PS">
+          <!-- Clear all output channels -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_MM_PS"></channel>
+              <channel name="VISUAL_MM_PS"></channel>
+            </outputs>
+            <endState>IDLE</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+  </actors>
+  
+  <!-- System Events -->
+  <events>
+    <event name="NEW_SEARCH_EVENT" count="3">
+      <inputchannels>
+        <channel>AUDIO_PS_MM</channel>
+        <channel>VISUAL_PS_MM</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>NEW_SEARCH_EVENT</channel>
+      </outputchannels>
+      <transition>
+          <inputs>
+            <channel name="AUDIO_PS_MM" predicate="eq"></channel>
+            <channel name="VISUAL_PS_MM" predicate="eq"></channel>
+          </inputs>
+          <outputs>
+            <channel name="NEW_SEARCH_EVENT">NEW_SEARCH_EVENT</channel>
+          </outputs>
+      </transition>
+    </event>
+  </events>
+</team
+
+
+
+<!-- Actor Template
+<actor name="&&&&">
+  <inputchannels>
+    <channel>&&&&</channel>
+  </inputchannels>
+  <outputchannels>
+    <channel>&&&&</channel>
+  </outputchannels>
+  <memory>
+    <variable name="&&&&" dataType="Integer">#</variable>
+    <variable name="&&&&" dataType="String">&&&&</variable>
+    <variable name="&&&&" dataType="Boolean">#</variable>
+  </memory>
+  <startState>&&&&</startState>
+  <states>
+    <state name="&&&&">
+        <transition durationMin="#" durationMax="#" priority="#">
+          <inputs>
+            <channel name="&&&&" predicate="eq">&&&&</channel>
+          </inputs>
+          <outputs>
+            <channel name="&&&&">&&&&</channel>
+          </outputs>
+          <endState>&&&&</endState>
+        </transition>
+    </state>
+    <state name="&&&&">
+        <transition durationMin="#" durationMax="#" priority="#">
+          <inputs>
+            <channel name="&&&&" predicate="eq">&&&&</channel>
+          </inputs>
+          <outputs>
+            <channel name="&&&&">&&&&</channel>
+          </outputs>
+          <endState>&&&&</endState>
+        </transition>
+    </state>
+  </states>
+</actor>
+
+-->

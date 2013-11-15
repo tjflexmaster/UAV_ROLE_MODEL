@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public abstract class Team implements ITeam {
 	
-	ArrayList<IEvent> _events = new ArrayList<IEvent>();
-	ArrayList<IActor> _actors = new ArrayList<IActor>();
+	protected ArrayList<IEvent> _events = new ArrayList<IEvent>();
+	protected ArrayList<IActor> _actors = new ArrayList<IActor>();
 	public ComChannelList _com_channels;
 	
 
