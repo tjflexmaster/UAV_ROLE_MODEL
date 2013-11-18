@@ -23,12 +23,6 @@ public class MetricListener2 extends ListenerAdapter {
 	Path LCDW;//Lowest Cumulative Decision Workload
 	Path LCRW;//Lowest Cumulative Resource Workload
 	Path LCTW;//Lowest Cumulative Temporal Workload
-//	Path HPDW;//Highest Peak Decision Workload
-//	Path HPRW;//Highest Peak Resource Workload
-//	Path HPTW;//Highest Peak Temporal Workload
-//	Path LPDW;//Lowest Peak Decision Workload
-//	Path LPRW;//Lowest Peak Resource Workload
-//	Path LPTW;//Lowest Peak Temporal Workload
 	
 	/**
 	 * acts whenever a choice generator is set (at the first point of non-determinism).
@@ -51,17 +45,18 @@ public class MetricListener2 extends ListenerAdapter {
 	private void makeChoice( MethodInfo mi ) {
 		String methodName = mi.getName( );
 		if( methodName.equals( "duration" ) )
-			advancePath();
+			advancePath( mi );
 	}
 	
-	private void advancePath( ) {
+	private void advancePath( MethodInfo mi ) {
+		System.out.println( "point of non-determinism" );
 		Path newPath = new Path( _currentPath,
 				_currentPath._cumulativeDecisionWorkload,
 				_currentPath._cumulativeResourceWorkload,
 				_currentPath._cumulativeTemporalWorkload,
 				_currentPath._cumulativeDecisionMetrics,
 				_currentPath._cumulativeResourceMetrics,
-				_currentPath._cumulativeTemporalMetrics);
+				_currentPath._cumulativeTemporalMetrics );
 		newPath._parentPath = _currentPath;
 		_currentPath._childPaths.add( newPath );
 		_currentPath = newPath;
@@ -164,7 +159,7 @@ public class MetricListener2 extends ListenerAdapter {
 		Object channelLoad = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
+		MetricKey currentKey = new MetricKey( (int) timeValue + (int) channelLoad, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) channelLoad );
 		
 		//store metric
@@ -176,50 +171,35 @@ public class MetricListener2 extends ListenerAdapter {
 		_currentPath._cumulativeTemporalWorkload += (int) channelLoad;
 	}
 	
-	private Path comparePeakWorkload( Path path ) {
-		Path HPRW;
-		Path HPTW;
-		Path LPDW;
-		Path LPRW;
-		Path LPTW;
-		return path;
-	}
-	
 	private Path compareAndPrintCumlativeWorkload( Path path ) {
 		if ( HCDW == null || HCDW._cumulativeDecisionWorkload < path._cumulativeDecisionWorkload) {
 			write( "HCDW.csv", path.toString() );
 			HCDW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new HCDW.csv");
 		}
 		
 		if ( HCRW == null || HCRW._cumulativeResourceWorkload < path._cumulativeResourceWorkload) {
 			write( "HCRW.csv", path.toString() );
 			HCRW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new HCRW.csv");
 		}
 		
 		if ( HCTW == null || HCTW._cumulativeTemporalWorkload < path._cumulativeTemporalWorkload) {
 			write( "HCTW.csv", path.toString() );
 			HCTW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new HCTW.csv");
 		}
 		
 		if ( LCDW == null || LCDW._cumulativeDecisionWorkload > path._cumulativeDecisionWorkload) {
 			write( "LCDW.csv", path.toString() );
 			LCDW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new LCDW.csv");
 		}
 		
 		if ( LCRW == null || LCRW._cumulativeResourceWorkload > path._cumulativeResourceWorkload) {
 			write( "LCRW.csv", path.toString() );
 			LCRW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new LCRW.csv");
 		}
 		
 		if ( LCTW == null || LCTW._cumulativeTemporalWorkload > path._cumulativeTemporalWorkload) {
 			write( "LCTW.csv", path.toString() );
 			LCTW = new Path(path._parentPath, path._cumulativeDecisionWorkload, path._cumulativeResourceWorkload, path._cumulativeTemporalWorkload, path._cumulativeDecisionMetrics, path._cumulativeResourceMetrics, path._cumulativeTemporalMetrics);
-			System.out.println("printed new LCTW.csv");
 		}
 		
 		return path;

@@ -8,11 +8,11 @@ public enum Duration {
 	
 	PS_SEND_DATA_PS(3),
 	PS_POKE_MM(10), 
-	PS_TX_DATA_MM(10),
+	PS_TX_DATA_MM(5),
 	
 	/* Mission Manager Durations */
 	
-	MM_POKE_PS(5,20),
+	MM_POKE_PS(10),
 	MM_POKE_TO_TX_PS(5),
 	MM_RX_PS(22),
 	MM_POKE_VO(10),
