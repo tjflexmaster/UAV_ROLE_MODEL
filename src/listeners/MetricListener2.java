@@ -98,6 +98,10 @@ public class MetricListener2 extends ListenerAdapter {
 		Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( stateInfo.getName( ) );
 		Object availableTransitions = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
 		
+		//don't measure mock (watered down) model objects
+		if( isMock( DEIToString( actorValue ) ) )
+			return;
+		
 		//form metrics and keys
 		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
 		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) availableTransitions );
@@ -127,8 +131,12 @@ public class MetricListener2 extends ListenerAdapter {
 		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
 		Object channelConflicts = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 		
+		//don't measure mock (watered down) model objects
+		if( isMock( DEIToString( actor_targetValue ) ) )
+			return;
+		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ), DEIToString( channel_typeValue ) );
+		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ) );
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) channelConflicts );
 		
 		//store metric
@@ -158,8 +166,12 @@ public class MetricListener2 extends ListenerAdapter {
 		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
 		Object channelLoad = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
 		
+		//don't measure mock (watered down) model objects
+		if( isMock( DEIToString( actorTargetValue ) ) )
+			return;
+		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue + (int) channelLoad, DEIToString( actorTargetValue ), DEIToString( channel_typeValue ) );
+		MetricKey currentKey = new MetricKey( (int) timeValue + (int) channelLoad, DEIToString( actorTargetValue ) );
 		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) channelLoad );
 		
 		//store metric
@@ -169,6 +181,12 @@ public class MetricListener2 extends ListenerAdapter {
 		else
 			 metric.add( (int) channelLoad );
 		_currentPath._cumulativeTemporalWorkload += (int) channelLoad;
+	}
+	
+	private boolean isMock( String actor ) {
+		if (actor.contains("ater"))
+			return true;
+		return false;
 	}
 	
 	private Path compareAndPrintCumlativeWorkload( Path path ) {

@@ -2,8 +2,8 @@ package simulator;
 
 public class MetricKey implements Comparable<MetricKey>{
 	private int _time = -1;
-	private String _actor_name = null;
-	private String _state_name = null;
+	private String _actor_name = "";
+	private String _state_name = "";
 	private int _transition = -1;
 	
 	public void setTime(int time) {
@@ -63,15 +63,15 @@ public class MetricKey implements Comparable<MetricKey>{
 		if(_time != -1){
 			result += _time;
 		}
-		result += ", ";
+		result += " ";
 		if(_actor_name != null){
 			result += _actor_name;
 		}
-		result += ", ";
+		result += " ";
 		if (_state_name != null){
 			result += _state_name;
 		}
-		result += ", ";
+		result += " ";
 		if (_transition != -1){
 			result += _transition;
 		}
