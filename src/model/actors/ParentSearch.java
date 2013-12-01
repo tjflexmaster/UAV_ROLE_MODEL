@@ -19,7 +19,7 @@ public class ParentSearch extends Actor {
 		PS_END_MM,
 		PS_NEW_SEARCH_AOI_MM,
 		PS_TERMINATE_SEARCH_MM,
-		PS_TARGET_DESCRIPTION_MM
+		PS_TARGET_DESCRIPTION_MM, PS_STOP_MM_COMM_MM
 	}
 	
 	/**
@@ -96,7 +96,13 @@ public class ParentSearch extends Actor {
 	 */
 	private void initializeEndMM(ComChannelList inputs, ComChannelList outputs, State IDLE, State END_MM, State POKE_MM) {
 		//(END_MM, [], []) -> (IDLE, [], [])
-		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE));
+		END_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE){
+			@Override
+			public boolean isEnabled(){
+				this.setTempOutput(Channels.AUDIO_PS_MM_COMM.name(), ParentSearch.AUDIO_PS_MM_COMM.PS_STOP_MM_COMM_MM);
+				return true;
+			}
+		});
 	}
 
 	/**

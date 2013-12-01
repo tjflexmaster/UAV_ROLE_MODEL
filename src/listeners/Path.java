@@ -20,6 +20,7 @@ public class Path {
 	public TreeMap<MetricKey, Metric> _cumulativeResourceMetrics;
 	public TreeMap<MetricKey, Metric> _cumulativeTemporalMetrics;
 	public TreeMap<MetricKey, Metric> _cumulativeDecisionMetrics;
+	public TreeMap<MetricKey, Metric> _actorTasks;
 	public TreeMap<MetricKey, Metric> _actorOutputs;
 	public ArrayList<Path> _childPaths;
 	
@@ -37,12 +38,13 @@ public class Path {
 		_cumulativeResourceWorkload = cumulativeDecisionWorkload;
 		_cumulativeTemporalWorkload = cumulativeResourceWorkload;
 		_cumulativeDecisionWorkload = cumulativeTemporalWorkload;
+		_actorTasks = new TreeMap<MetricKey, Metric>();
 		_actorOutputs = new TreeMap<MetricKey, Metric>();
 		_childPaths = new ArrayList<Path>( );
 	}
 
 	public String toString( ) {
-		String result = "time, resource data ((Actor State Value)*), resource workload, temporal data ((Actor State Value)*), temporal workload, decision data ((Actor State Value)*), decision workload\n";
+		String result = "time, resource data ((Actor State Value)*), resource workload, temporal data ((Actor State Value)*), temporal workload, decision data ((Actor State Value)*), decision workload, task data, fired outputs\n";
 		for ( int time = 0; time < 200; time++ )
 			result += getMetricsByTime( time );
 		
@@ -80,6 +82,18 @@ public class Path {
 			else if ( found = ( metric.getKey().getTime() == time ) )
 				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + (cumulativeDecisionValue += metric.getValue()._value) + " ) ";
 		result += ", " + cumulativeDecisionValue;
+
+		result += ",";
+		found = false;
+		for ( Entry<MetricKey, Metric> metric : _actorTasks.entrySet() )
+			if ( found && ( metric.getKey().getTime() != time ) )
+				break;
+			else if ( found = ( metric.getKey().getTime() == time ) )
+				if ( metric.getValue()._valueString.contains( "START" ) )
+					result += "( " + metric.getKey().getActor() + " " + metric.getValue()._valueString + " START ) ";
+				else
+					result += "( " + metric.getKey().getActor() + " " + metric.getValue()._valueString + " STOP ) ";
+					
 		
 		result += ",";
 		found = false;

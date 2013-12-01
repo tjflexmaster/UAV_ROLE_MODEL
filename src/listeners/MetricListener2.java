@@ -151,7 +151,10 @@ public class MetricListener2 extends ListenerAdapter {
 			_currentPath._cumulativeTemporalMetrics.put( currentKey, currentMetric );
 		else
 			 metric.add( channelLoad );
-		_currentPath._actorOutputs.put(currentKey, currentOutput);
+		if ( outputName.contains("START") || outputName.contains("STOP") )
+			_currentPath._actorTasks.put(currentKey, currentOutput);
+		else
+			_currentPath._actorOutputs.put(currentKey, currentOutput);
 		_currentPath._cumulativeTemporalWorkload += channelLoad;
 	}
 	
