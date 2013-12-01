@@ -12,28 +12,33 @@ import simulator.MetricKey;
  * A path stores non-deterministic workload metrics.
  */
 public class Path {
-	
-	public TreeMap<MetricKey, Metric> _cumulativeResourceMetrics;
-	public TreeMap<MetricKey, Metric> _cumulativeTemporalMetrics;
-	public TreeMap<MetricKey, Metric> _cumulativeDecisionMetrics;
+
+	public Path _parentPath;
 	public int _cumulativeResourceWorkload;
 	public int _cumulativeTemporalWorkload;
 	public int _cumulativeDecisionWorkload;
-	public Path _parentPath;
+	public TreeMap<MetricKey, Metric> _cumulativeResourceMetrics;
+	public TreeMap<MetricKey, Metric> _cumulativeTemporalMetrics;
+	public TreeMap<MetricKey, Metric> _cumulativeDecisionMetrics;
+	public TreeMap<MetricKey, Metric> _actorOutputs;
 	public ArrayList<Path> _childPaths;
-//	public int _totalTimeElapsed;
 	
-	public Path(Path parent, int cumulativeDecisionWorkload, int cumulativeResourceWorkload, int cumulativeTemporalWorkload,
-			TreeMap<MetricKey, Metric> cumulativeDecisionMetrics, TreeMap<MetricKey, Metric> cumulativeResourceMetrics, TreeMap<MetricKey, Metric> cumulativeTemporalMetrics) {
+	public Path(Path parent,
+			int cumulativeDecisionWorkload,
+			int cumulativeResourceWorkload,
+			int cumulativeTemporalWorkload,
+			TreeMap<MetricKey, Metric> cumulativeDecisionMetrics,
+			TreeMap<MetricKey, Metric> cumulativeResourceMetrics,
+			TreeMap<MetricKey, Metric> cumulativeTemporalMetrics) {
+		_parentPath = parent;
 		_cumulativeResourceMetrics = cumulativeResourceMetrics;
 		_cumulativeTemporalMetrics = cumulativeTemporalMetrics;
 		_cumulativeDecisionMetrics = cumulativeDecisionMetrics;
 		_cumulativeResourceWorkload = cumulativeDecisionWorkload;
 		_cumulativeTemporalWorkload = cumulativeResourceWorkload;
 		_cumulativeDecisionWorkload = cumulativeTemporalWorkload;
-		_parentPath = parent;
+		_actorOutputs = new TreeMap<MetricKey, Metric>();
 		_childPaths = new ArrayList<Path>( );
-//		_totalTimeElapsed = 0;
 	}
 
 	public String toString( ) {
@@ -76,7 +81,14 @@ public class Path {
 				result += "( " + metric.getKey().getActor() + " " + metric.getKey().getState() + " " + (cumulativeDecisionValue += metric.getValue()._value) + " ) ";
 		result += ", " + cumulativeDecisionValue;
 		
+		result += ",";
+		found = false;
+		for ( Entry<MetricKey, Metric> metric : _actorOutputs.entrySet() )
+			if ( found && ( metric.getKey().getTime() != time ) )
+				break;
+			else if ( found = ( metric.getKey().getTime() == time ) )
+				result += "( " + metric.getKey().getActor() + " " + metric.getValue()._valueString + " ) ";
+		
 		return result + "\n";
 	}
-	
 }

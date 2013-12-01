@@ -73,120 +73,86 @@ public class MetricListener2 extends ListenerAdapter {
 
 		//only act on these methods
 		if ( fullMethodName.contains( "setDecisionWorkload" ) )
-			storeDecisionWorkload( vm, ti, insnToExecute, mi );
+			storeDecisionWorkload( ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "setChannelConflict" ) )
-			storeChannelConflict( vm, ti, insnToExecute, mi );
+			storeChannelConflict( ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "setChannelLoad" ) )
-			storeChannelLoad( vm, ti, insnToExecute, mi);
+			storeChannelLoad( ti, insnToExecute, mi );
 		else if ( fullMethodName.contains( "endSimulation" ) )
 			compareAndPrintCumlativeWorkload( _currentPath );
 	}
 
-	private void storeDecisionWorkload( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
-		//get the desired parameters
-		int currentPC = ti.getPC( ).getPosition( );
-		
-		//get parameter information
-		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-		LocalVarInfo actorInfo = mi.getLocalVar( 2, currentPC );
-		LocalVarInfo stateInfo = mi.getLocalVar( 3, currentPC );
-		LocalVarInfo workloadInfo = mi.getLocalVar( 4, currentPC );
-		
+	private void storeDecisionWorkload( ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		//get parameter values
-		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-		Object actorValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorInfo.getName( ) );
-		Object stateValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( stateInfo.getName( ) );
-		Object availableTransitions = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( workloadInfo.getName( ) );
+		int time = getIntParameter( 1, ti, insnToExecute, mi );
+		String actorName = getStringParameter( 2, ti, insnToExecute, mi );
+		String stateName = getStringParameter( 3, ti, insnToExecute, mi );
+		int availableTransitions = getIntParameter( 4, ti, insnToExecute, mi );
 		
 		//don't measure mock (watered down) model objects
-		if( isMock( DEIToString( actorValue ) ) )
+		if( isMock( actorName ) )
 			return;
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actorValue ), DEIToString( stateValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, (int) availableTransitions );
+		MetricKey currentKey = new MetricKey( time, actorName, stateName );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setDecisionWorkload, availableTransitions );
 		
 		//store metric
 		Metric metric = _currentPath._cumulativeDecisionMetrics.get( currentKey );
 		if ( metric == null )
 			_currentPath._cumulativeDecisionMetrics.put( currentKey, currentMetric );
 		else
-			 metric.add( (int) availableTransitions );
-		_currentPath._cumulativeDecisionWorkload += (int) availableTransitions;
+			 metric.add( availableTransitions );
+		_currentPath._cumulativeDecisionWorkload += availableTransitions;
 	}
 	
-	private void storeChannelConflict( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
-		//get the desired parameters
-		int currentPC = ti.getPC( ).getPosition( );
-		
-		//get parameter information
-		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-		LocalVarInfo actor_targetInfo = mi.getLocalVar( 2, currentPC );
-		LocalVarInfo channel_typeInfo = mi.getLocalVar( 3, currentPC );
-		LocalVarInfo loadInfo = mi.getLocalVar( 4, currentPC );
-		
+	private void storeChannelConflict( ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		//get parameter values
-		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-		Object actor_targetValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actor_targetInfo.getName( ) );
-		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
-		Object channelConflicts = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+		int time = getIntParameter( 1, ti, insnToExecute, mi );
+		String targetActor = getStringParameter( 2, ti, insnToExecute, mi );
+		int channelConflicts = getIntParameter( 4, ti, insnToExecute, mi );
 		
 		//don't measure mock (watered down) model objects
-		if( isMock( DEIToString( actor_targetValue ) ) )
+		if( isMock( targetActor ) )
 			return;
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue, DEIToString( actor_targetValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, (int) channelConflicts );
+		MetricKey currentKey = new MetricKey( time, targetActor );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelConflict, channelConflicts );
 		
 		//store metric
 		Metric metric = _currentPath._cumulativeResourceMetrics.get( currentKey );
 		if ( metric == null )
 			_currentPath._cumulativeResourceMetrics.put( currentKey, currentMetric );
 		else
-			 metric.add( (int) channelConflicts );
-		_currentPath._cumulativeResourceWorkload += (int) channelConflicts;
+			 metric.add( channelConflicts );
+		_currentPath._cumulativeResourceWorkload += channelConflicts;
 	}
 
-	private void storeChannelLoad( VM vm, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
-		//get the desired parameters
-		int currentPC = ti.getPC( ).getPosition( );
-		
-		//get parameter information
-		LocalVarInfo timeInfo = mi.getLocalVar( 1, currentPC );
-		LocalVarInfo actorSource = mi.getLocalVar( 2, currentPC );
-		LocalVarInfo actorTarget = mi.getLocalVar(3, currentPC);
-		LocalVarInfo channel_typeInfo = mi.getLocalVar( 4, currentPC );
-		LocalVarInfo loadInfo = mi.getLocalVar( 5, currentPC );
-		
+	private void storeChannelLoad( ThreadInfo ti, Instruction insnToExecute, MethodInfo mi ) {
 		//get parameter values
-		Object timeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( timeInfo.getName( ) );
-		Object actorSourceValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( actorSource.getName( ) );
-		Object actorTargetValue = ti.getStackFrameExecuting( insnToExecute, 0).getLocalOrFieldValue( actorTarget.getName() );
-		Object channel_typeValue = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( channel_typeInfo.getName( ) );
-		Object channelLoad = ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( loadInfo.getName( ) );
+		int time = getIntParameter( 1, ti, insnToExecute, mi );
+		String targetActor = getStringParameter( 3, ti, insnToExecute, mi );
+		String outputName = getStringParameter( 5, ti, insnToExecute, mi );
+		int channelLoad = getIntParameter( 6, ti, insnToExecute, mi );
 		
 		//don't measure mock (watered down) model objects
-		if( isMock( DEIToString( actorTargetValue ) ) )
+		if( isMock( targetActor ) )
 			return;
 		
 		//form metrics and keys
-		MetricKey currentKey = new MetricKey( (int) timeValue + (int) channelLoad, DEIToString( actorTargetValue ) );
-		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, (int) channelLoad );
+		MetricKey currentKey = new MetricKey( time + channelLoad, targetActor );
+		Metric currentOutput = new Metric( Metric.TypeEnum.setActorOutputs, outputName );
+		Metric currentMetric = new Metric( Metric.TypeEnum.setChannelLoad, channelLoad );
 		
 		//store metric
 		Metric metric = _currentPath._cumulativeTemporalMetrics.get( currentKey );
 		if ( metric == null )
 			_currentPath._cumulativeTemporalMetrics.put( currentKey, currentMetric );
 		else
-			 metric.add( (int) channelLoad );
-		_currentPath._cumulativeTemporalWorkload += (int) channelLoad;
-	}
-	
-	private boolean isMock( String actor ) {
-		if (actor.contains("ater"))
-			return true;
-		return false;
+			 metric.add( channelLoad );
+		_currentPath._actorOutputs.put(currentKey, currentOutput);
+		_currentPath._cumulativeTemporalWorkload += channelLoad;
 	}
 	
 	private Path compareAndPrintCumlativeWorkload( Path path ) {
@@ -221,6 +187,20 @@ public class MetricListener2 extends ListenerAdapter {
 		}
 		
 		return path;
+	}
+	
+	private int getIntParameter( int i, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+		return (int) ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( mi.getLocalVar( i, ti.getPC( ).getPosition( ) ).getName() );
+	}
+
+	private String getStringParameter( int i, ThreadInfo ti, Instruction insnToExecute, MethodInfo mi) {
+		return DEIToString( ti.getStackFrameExecuting( insnToExecute, 0 ).getLocalOrFieldValue( mi.getLocalVar( i, ti.getPC( ).getPosition( ) ).getName() ) );
+	}
+	
+	private boolean isMock( String actor ) {
+		if (actor.contains("ater"))
+			return true;
+		return false;
 	}
 
 	private void write(String filename, String metrics) {

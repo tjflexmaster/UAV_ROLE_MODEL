@@ -264,7 +264,7 @@ public class DeltaClock implements IDeltaClock {
 				//Find out who the information is going too
 				ComChannel<?> o = outputs.get(e.getKey());
 				if ( o != null ) {
-					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), time);
+					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), o._name, time);
 				}
 			}
 		}

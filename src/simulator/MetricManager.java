@@ -46,7 +46,7 @@ public class MetricManager {
 		//Do nothing JPF will handle the data
 	}
 	
-	public void setChannelLoad(int time, String source, String target, String channel_type, int load)
+	public void setChannelLoad(int time, String source, String target, String channel_type, String output_name, int load)
 	{
 		//Do nothing JPF will handle the data
 	}
