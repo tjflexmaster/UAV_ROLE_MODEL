@@ -120,6 +120,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 	add(RX_PS);
 }
  public void initializeIDLE(ComChannelList inputs, ComChannelList outputs, State POKE_PS, State POKE_VGUI, State POKE_OP, State POKE_VO, State RX_PS, State OBSERVING_VGUI, State RX_VO, State IDLE, State RX_OP) {
+	 // (IDLE,[],[TERMINATE_SEARCH_VO=NEW],4,NEXT,1.0)X(POKE_VO,[A=MM_POKE_VO],[])
 	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_VO, Duration.NEXT.getRange(), 4,1.0){
 			@Override
 			public boolean isEnabled(){
@@ -130,6 +131,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 		});
+	 // (IDLE,[],[TERMINATE_SEARCH_OP=NEW],4,NEXT,1.0)X(POKE_OP,[A=MM_POKE_OP],[])
 	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_OP, Duration.NEXT.getRange(), 4,1.0){
 			@Override
 			public boolean isEnabled(){
@@ -140,6 +142,8 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 		});
+	 // (IDLE,[],[TARGET_SIGHTED_F=TRUE],0,NEXT,1.0)X(POKE_PS,[A=MM_POKE_OP],[])
+	 // (IDLE,[],[TARGET_SIGHTED_T=TRUE],0,NEXT,1.0)X(POKE_PS,[A=MM_POKE_OP],[])
 	 IDLE.add(new Transition(_internal_vars, inputs, outputs, POKE_PS,Duration.NEXT.getRange()){
 		@Override
 		public boolean isEnabled(){
@@ -337,6 +341,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
+	// (POKE_PS,[A=PS_POKE_MM],[],1,NEXT,1.0)X(RX_PS,[A=MM_ACK_PS],[])
 	POKE_PS.add(new Transition(_internal_vars, inputs, outputs, RX_PS, Duration.NEXT.getRange(),2,1.0){
 		@Override
 		public boolean isEnabled(){
@@ -421,6 +426,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
+	// (POKE_VO,[A=PS_POKE_MM],[],1,NEXT,1.0)X(RX_PS,[A=MM_ACK_PS],[])
 	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, RX_PS, Duration.NEXT.getRange(), 1, 1.0){
 		@Override
 		public boolean isEnabled(){
@@ -431,6 +437,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return false;
 		}
 	});
+	// (POKE_VO,[],[],0,MM_POKE_VO,1.0)X(IDLE,[],[])
 	POKE_VO.add(new Transition(_internal_vars, inputs, outputs, IDLE,Duration.MM_POKE_VO.getRange(),0,1.0));
 	add(POKE_VO);
 }
@@ -623,6 +630,7 @@ public MissionManager(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
+	// (TX_OP,[],[TERMINATE_SEARCH_OP
 	 TX_OP.add(new Transition(_internal_vars, inputs, outputs, END_OP, Duration.MM_TX_VO.getRange(), 1, 1.0) {
 			@Override
 			public boolean isEnabled() { 
