@@ -58,15 +58,16 @@ public class Scaffold {
 			if(file.getName().equals("scaffold"))
 				f = file;
 		}
-		for(File file : f.listFiles()){
-			if(file.getName().equals("comments"))
-				f = file;
-		}
+//		for(File file : f.listFiles()){
+//			if(file.getName().equals("comments"))
+//				f = file;
+//		}
 		//each actor
 		for(File file : f.listFiles()){
 			BufferedReader br;
 			try {
-				if(file.getName().endsWith(".java"))
+				if(!file.getName().equals("MissionManager.txt"))
+//					if(!file.getName().equals("Operator.txt") && !file.getName().equals("MissionManager.txt") && !file.getName().equals("ParentSearch.txt"))
 					continue;
 				br = new BufferedReader(new FileReader(file));
 				StringBuilder constructor = new StringBuilder();
@@ -100,6 +101,7 @@ public class Scaffold {
 					StringBuilder body = new StringBuilder();
 					for(String state : states)
 						constructor.insert(0, "\n\tState " + state + " = new State(\"" + state + "\");");
+					constructor.append("\n\tinitializeInternalVariables();");
 					for(Entry<String, String> transition : initializers.entrySet()){
 //						constructor.insert(0, "\n\tState " + transition.getKey() + " = new State(\"" + transition.getKey() + "\");");
 						String call_line = transition.getValue().split("\n")[0];
@@ -110,30 +112,32 @@ public class Scaffold {
 						body.append(transition.getValue()); 
 						body.append("\n\tadd(" + transition.getKey() + ");\n}");
 					}
+					constructor.insert(0, "\n\tsetName(\"" + name + "\");");
 					constructor.insert(0,"\npublic " + name + "(ComChannelList inputs, ComChannelList outputs) {");
+					constructor.append("\n\tstartState(IDLE);");
 					constructor.append("\n}");
 					StringBuilder enums = new StringBuilder();
 					for(Entry<String, String> enumeration : enumerations.entrySet()){
 						enums.append(enumeration.getValue() + "\n}");
 					}
-					File new_file = file.getParentFile().getParentFile().getParentFile();
+					File new_file = file.getParentFile().getParentFile();
 					for(File temp : new_file.listFiles()){
 						if(temp.getName().equals("actors")){
 							new_file = temp;
 							break;
 						}
 					}
-					for(File temp : new_file.listFiles()){
-						if(temp.getName().equals("complete")){
-							new_file = temp;
-							break;
-						}
-					}
+//					for(File temp : new_file.listFiles()){
+//						if(temp.getName().equals("complete")){
+//							new_file = temp;
+//							break;
+//						}
+//					}
 					new_file = new File(new_file.getPath() + "/" + name + ".java");
 					new_file.createNewFile();
 					System.out.println(new_file.toPath());
 					PrintWriter writer = new PrintWriter(new_file);
-					writer.print("package model.actors.complete;\n\nimport model.team.*;\nimport simulator.*;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
+					writer.print("package model.actors;\n\nimport model.team.*;\nimport simulator.*;\n\npublic class " + name + " extends Actor {" + enums.toString() + constructor.toString() + body.toString() + memory.toString() + "\n}");
 					writer.close();
 				}
 //				System.out.println(enums.toString() + constructor.toString() + body.toString() + memory.toString());
@@ -153,6 +157,7 @@ public class Scaffold {
 	 * @return the source code and the end state to be added into the file itself
 	 */
 	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations, ArrayList<String> states){
+		System.out.println(s);
 		StringBuilder transition = new StringBuilder();
 		//method call
 		int start = s.indexOf('(')+1;
@@ -355,9 +360,9 @@ public class Scaffold {
 				if(add_to_memory)
 					memory.append("false);");
 			} else if(division[1].equals("++")){
-				value = "(Integer)_internal_vars.getVariable(\"" + division[1] + "\") + 1";
+				value = "(Integer)_internal_vars.getVariable(\"" + division[0] + "\") + 1";
 			} else if(division[1].equals("--")){
-				value = "(Integer)_internal_vars.getVariable(\"" + division[1] + "\") - 1";
+				value = "(Integer)_internal_vars.getVariable(\"" + division[0] + "\") - 1";
 			} else {
 			
 				try{
@@ -402,11 +407,16 @@ public class Scaffold {
 		boolean add_to_memory = false;
 		if(!memory.toString().contains(division[0])){
 			memory.append("\n\t_internal_vars.addVariable(\"" + division[0] + "\", ");
+//			System.out.printf("%s\n%s\n",division[0],division[1]);
 			add_to_memory = true;
 		}
 		String value = "";
 		//if boolean, integer, or object set the string for value and finish the source for the initializeInternalVariables if necessary
-		if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
+		if (division[1].equals("++") || division[1].equals("--")){
+			value = "new Integer(" + division[0] + ")";
+			if(add_to_memory)
+				memory.append("0);");
+		}else if(division[1].equalsIgnoreCase("true") || division[1].equalsIgnoreCase("false")){
 			value = "new Boolean(" + division[1].toLowerCase() + ")";
 			//add the source for the initializeInternalVariables method
 			if(add_to_memory)
