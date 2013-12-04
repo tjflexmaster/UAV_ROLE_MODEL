@@ -228,7 +228,7 @@ public class Scaffold {
 			}else{
 				//if event
 				transition.append("\n\t\t\tif(_inputs.get(Channels." +
-						division[1] + ".name()).value() == null && !(Boolean)_inputs.get(Channels." +
+						division[1] + ".name()).value() == null || !(Boolean)_inputs.get(Channels." +
 						division[1] + ".name()).value()) {\n\t\t\t\treturn false;\n\t\t\t}");
 			}
 		}
@@ -442,19 +442,19 @@ public class Scaffold {
 			transition.append("!" + value + ".equals(");
 			break;
 		case "<":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= (Integer) ");
 			break;
 		case ">":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= (Integer) ");
 			break;
 		case "!=":
 			transition.append(value + ".equals(");
 			break;
 		case "<=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > (Integer) ");
 			break;
 		case ">=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < (Integer) ");
 			break;
 		}
 		if(transition.toString().endsWith("("))

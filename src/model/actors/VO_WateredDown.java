@@ -42,8 +42,8 @@ public class VO_WateredDown extends Actor {
 				if(UAV.DATA_UAV_VGUI.CRASHED.equals(_inputs.get(Channels.DATA_UAV_VGUI_COMM.name()).value())){
 					return false; 
 				}
-				if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())
-						|| VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
+				if(VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F_MM.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())
+						|| VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T_MM.equals(_outputs.get(Channels.AUDIO_VO_MM_COMM.name()).value())){
 					return true;
 				}
 				return false;
@@ -70,11 +70,11 @@ public class VO_WateredDown extends Actor {
 					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), null);
 				} else if(NEW_TARGET_SIGHTED_F == 1 && MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO.equals(AUDIO_MM_VO_COMM)){
 					this.setTempInternalVar("NEW_TARGET_SIGHTED_F", 2);//advance
-					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_TARGET_SIGHTED_F], [])
+					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F_MM);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_TARGET_SIGHTED_F], [])
 					return true;
 				} else if(NEW_TARGET_SIGHTED_T == 1 && MissionManager.AUDIO_MM_VO_COMM.MM_ACK_VO.equals(AUDIO_MM_VO_COMM)){
 					this.setTempInternalVar("NEW_TARGET_SIGHTED_T", 2);//advance
-					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_TARGET_SIGHTED_T], [])
+					this.setTempOutput(Channels.AUDIO_VO_MM_COMM.name(), VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T_MM);//(IDLE, [MM_ACK_VO], [])->(IDLE, [VO_TARGET_SIGHTED_T], [])
 					return true;
 				}
 					

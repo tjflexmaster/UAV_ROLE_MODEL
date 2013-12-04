@@ -10,8 +10,8 @@ public class VideoOperator extends Actor {
 		VO_POKE_MM,
 		VO_ACK_MM,
 		VO_END_MM,
-		VO_TARGET_SIGHTED_F,
-		VO_TARGET_SIGHTED_T
+		VO_TARGET_SIGHTED_F_MM,
+		VO_TARGET_SIGHTED_T_MM
 	}
 
 	public enum VISUAL_VO_VGUI_COMM {
@@ -30,7 +30,7 @@ public class VideoOperator extends Actor {
 		VO_POKE_OP,
 		VO_ACK_OP,
 		VO_END_OP,
-		VO_BAD_STREAM
+		VO_BAD_STREAM_OP
 	}
 
 	public VideoOperator(ComChannelList inputs, ComChannelList outputs) {
@@ -228,7 +228,7 @@ public class VideoOperator extends Actor {
 			public boolean isEnabled(){
 				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_T")){
 					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);
-					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T);
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_T_MM);
 					return true;
 				}
 				return false;
@@ -240,7 +240,7 @@ public class VideoOperator extends Actor {
 			public boolean isEnabled(){
 				if((Boolean)_internal_vars.getVariable("TARGET_SIGHTED_F")){
 					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_END_MM);
-					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F);
+					this.setTempOutput("AUDIO_VO_MM_COMM", VideoOperator.AUDIO_VO_MM_COMM.VO_TARGET_SIGHTED_F_MM);
 					return true;
 				}
 				return false;
@@ -296,7 +296,7 @@ public class VideoOperator extends Actor {
 			public boolean isEnabled(){
 				this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_END_OP);
 				if((Boolean)_internal_vars.getVariable("BAD_STREAM")){
-					this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_BAD_STREAM);
+					this.setTempOutput("AUDIO_VO_OP_COMM", VideoOperator.AUDIO_VO_OP_COMM.VO_BAD_STREAM_OP);
 				}
 				return true;
 			}
