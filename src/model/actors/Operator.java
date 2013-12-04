@@ -17,10 +17,10 @@ public enum DATA_OP_UAV_COMM{
 public enum DATA_OP_OP_COMM{
 	OP_START_LISTEN_TO_MM_OP,
 	OP_START_LAUNCH_OP,
-	OP_END_LAUNCH_OP,
-	OP_END_LISTEN_TO_MM_OP,
+	OP_STOP_LAUNCH_OP,
+	OP_STOP_LISTEN_TO_MM_OP,
 	OP_START_SET_AOI_OP,
-	OP_END_SET_AOI_OP,
+	OP_STOP_SET_AOI_OP,
 }
 public enum DATA_OP_OGUI_COMM{
 	OP_LAND_OGUI,
@@ -171,14 +171,14 @@ public Operator(ComChannelList inputs, ComChannelList outputs) {
 	add(OBSERVE_UAV);
 }
  public void initializeLAUNCH_UAV(ComChannelList inputs, ComChannelList outputs, State LAUNCH_UAV, State OBSERVE_GUI) {
-	// (LAUNCH_UAV,[V=OGUI_FLYING_NORMAL_OP],[],1,NEXT,1.0)x(OBSERVE_GUI,[D=OP_END_LAUNCH_OP],[])
+	// (LAUNCH_UAV,[V=OGUI_FLYING_NORMAL_OP],[],1,NEXT,1.0)x(OBSERVE_GUI,[D=OP_STOP_LAUNCH_OP],[])
 	LAUNCH_UAV.add(new Transition(_internal_vars, inputs, outputs, OBSERVE_GUI, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!OperatorGui.VIDEO_OGUI_OP_COMM.OGUI_FLYING_NORMAL_OP.equals(_inputs.get(Channels.VIDEO_OGUI_OP_COMM.name()).value())) {
 				return false;
 			}
-			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_END_LAUNCH_OP);
+			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_STOP_LAUNCH_OP);
 			return true;
 		}
 	});
@@ -233,40 +233,40 @@ public Operator(ComChannelList inputs, ComChannelList outputs) {
 	add(POKE_MM);
 }
  public void initializeRX_MM(ComChannelList inputs, ComChannelList outputs, State RX_MM, State IDLE) {
-	// (RX_MM,[A=MM_NEW_SEARCH_AOI_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_END_LISTEN_TO_MM_OP,D=OP_START_SET_AOI_OP],[NEW_SEARCH_AOI=++])
+	// (RX_MM,[A=MM_NEW_SEARCH_AOI_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_STOP_LISTEN_TO_MM_OP,D=OP_START_SET_AOI_OP],[NEW_SEARCH_AOI=++])
 	RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!MissionManager.AUDIO_MM_OP_COMM.MM_NEW_SEARCH_AOI_OP.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())) {
 				return false;
 			}
-			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_END_LISTEN_TO_MM_OP);
+			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_STOP_LISTEN_TO_MM_OP);
 			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_START_SET_AOI_OP);
 			setTempInternalVar("NEW_SEARCH_AOI", (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") + 1);
 			return true;
 		}
 	});
-	// (RX_MM,[A=MM_TERMINATE_SEARCH_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_END_LISTEN_TO_MM_OP],[TERMINATE_SEARCH=NEW,LAND_UAV=TRUE])
+	// (RX_MM,[A=MM_TERMINATE_SEARCH_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_STOP_LISTEN_TO_MM_OP],[TERMINATE_SEARCH=NEW,LAND_UAV=TRUE])
 	RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!MissionManager.AUDIO_MM_OP_COMM.MM_TERMINATE_SEARCH_OP.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())) {
 				return false;
 			}
-			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_END_LISTEN_TO_MM_OP);
+			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_STOP_LISTEN_TO_MM_OP);
 			setTempInternalVar("TERMINATE_SEARCH", "NEW");
 			setTempInternalVar("LAND_UAV", true);
 			return true;
 		}
 	});
-	// (RX_MM,[A=MM_END_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_END_LISTEN_TO_MM_OP],[])
+	// (RX_MM,[A=MM_END_OP],[],1,NEXT,1.0)x(IDLE,[D=OP_STOP_LISTEN_TO_MM_OP],[])
 	RX_MM.add(new Transition(_internal_vars, inputs, outputs, IDLE, Duration.NEXT.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
 			if(!MissionManager.AUDIO_MM_OP_COMM.MM_END_OP.equals(_inputs.get(Channels.AUDIO_MM_OP_COMM.name()).value())) {
 				return false;
 			}
-			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_END_LISTEN_TO_MM_OP);
+			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_STOP_LISTEN_TO_MM_OP);
 			return true;
 		}
 	});
@@ -366,7 +366,7 @@ public Operator(ComChannelList inputs, ComChannelList outputs) {
 			return true;
 		}
 	});
-	// (TX_OGUI,[],[NEW_SEARCH_AOI>0],1,OP_TX_OGUI,1.0)x(END_OGUI,[D=OP_NEW_SEARCH_AOI_OGUI,D=OP_END_SET_AOI_OP],[NEW_SEARCH_AOI=--])
+	// (TX_OGUI,[],[NEW_SEARCH_AOI>0],1,OP_TX_OGUI,1.0)x(END_OGUI,[D=OP_NEW_SEARCH_AOI_OGUI,D=OP_STOP_SET_AOI_OP],[NEW_SEARCH_AOI=--])
 	TX_OGUI.add(new Transition(_internal_vars, inputs, outputs, END_OGUI, Duration.OP_TX_OGUI.getRange(), 1, 1.0) {
 		@Override
 		public boolean isEnabled() { 
@@ -374,7 +374,7 @@ public Operator(ComChannelList inputs, ComChannelList outputs) {
 				return false;
 			}
 			setTempOutput(Channels.DATA_OP_OGUI_COMM.name(), Operator.DATA_OP_OGUI_COMM.OP_NEW_SEARCH_AOI_OGUI);
-			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_END_SET_AOI_OP);
+			setTempOutput(Channels.DATA_OP_OP_COMM.name(), Operator.DATA_OP_OP_COMM.OP_STOP_SET_AOI_OP);
 			setTempInternalVar("NEW_SEARCH_AOI", (Integer)_internal_vars.getVariable("NEW_SEARCH_AOI") - 1);
 			return true;
 		}
