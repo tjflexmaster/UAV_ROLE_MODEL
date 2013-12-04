@@ -66,8 +66,8 @@ public class Scaffold {
 		for(File file : f.listFiles()){
 			BufferedReader br;
 			try {
-				if(!file.getName().equals("MissionManager.txt"))
-//					if(!file.getName().equals("Operator.txt") && !file.getName().equals("MissionManager.txt") && !file.getName().equals("ParentSearch.txt"))
+//				if(!file.getName().equals("MissionManager.txt"))
+				if(!file.getName().equals("Operator.txt") && !file.getName().equals("MissionManager.txt") && !file.getName().equals("ParentSearch.txt"))
 					continue;
 				br = new BufferedReader(new FileReader(file));
 				StringBuilder constructor = new StringBuilder();
@@ -157,7 +157,7 @@ public class Scaffold {
 	 * @return the source code and the end state to be added into the file itself
 	 */
 	public String[] parseComment(String s, StringBuilder memory, String name, HashMap<String,String> enumerations, ArrayList<String> states){
-		System.out.println(s);
+//		System.out.println(s);
 		StringBuilder transition = new StringBuilder();
 		//method call
 		int start = s.indexOf('(')+1;
@@ -431,7 +431,7 @@ public class Scaffold {
 				value = "\"" + division[1] + "\"";
 				//add the source for the initializeInternalVariables method
 				if(add_to_memory)
-					memory.append("null);");
+					memory.append("\"\");");
 			}
 		}
 		
@@ -442,19 +442,19 @@ public class Scaffold {
 			transition.append("!" + value + ".equals(");
 			break;
 		case "<":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > (Integer) ");
 			break;
 		case ">":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " > (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " < (Integer) ");
 			break;
 		case "!=":
 			transition.append(value + ".equals(");
 			break;
 		case "<=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= (Integer) ");
 			break;
 		case ">=":
-			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " >= (Integer) ");
+			transition.append("_internal_vars.getVariable(\"" + division[0] + "\") instanceof Integer && " + value + " <= (Integer) ");
 			break;
 		}
 		if(transition.toString().endsWith("("))

@@ -53,6 +53,7 @@ public enum Duration {
 	NEXT(1),
 	POKE(10),
 	OP_OBSERVE_GUI(10),
+	OP_OBSERVE_UAV(10),
 	OP_POST_FLIGHT_COMPLETE(10),
 	RANDOM(50),
 	PS_TX_MM(10),
