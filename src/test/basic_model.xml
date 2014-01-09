@@ -14,6 +14,7 @@
       <inputchannels>
         <channel>AUDIO_MM_PS</channel>
         <channel>VISUAL_MM_PS</channel>
+        <channel>NEW_SEARCH_EVENT</channel>
       </inputchannels>
       <outputchannels>
         <channel>AUDIO_PS_MM</channel>
@@ -149,7 +150,7 @@
               <memory name="SEARCH_AREAS" predicate="gt">0</memory>
             </inputs>
             <outputs>
-            <outputs>
+            </outputs>
             <endState>WAITING</endState>
           </transition>
         </state>
@@ -172,7 +173,7 @@
             </inputs>
             <outputs>
               <channel name="AUDIO_MM_PS">POKE</channel>
-            <outputs>
+            </outputs>
             <endState>POKE_PS</endState>
           </transition>
         </state>
@@ -259,13 +260,6 @@
   <!-- System Events -->
   <events>
     <event name="NEW_SEARCH_EVENT" count="3">
-      <inputchannels>
-        <channel>AUDIO_PS_MM</channel>
-        <channel>VISUAL_PS_MM</channel>
-      </inputchannels>
-      <outputchannels>
-        <channel>NEW_SEARCH_EVENT</channel>
-      </outputchannels>
       <transition>
           <inputs>
             <channel name="AUDIO_PS_MM" predicate="eq"></channel>
@@ -277,7 +271,7 @@
       </transition>
     </event>
   </events>
-</team
+</team>
 
 
 

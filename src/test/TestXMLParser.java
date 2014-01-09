@@ -6,7 +6,7 @@ public class TestXMLParser {
 
 	public static void main(String[] args) {
 		
-		XmlModelParser xml = new XmlModelParser("example_model.xml");
+		XmlModelParser xml = new XmlModelParser("src/test/basic_model.xml");
 
 	}
 

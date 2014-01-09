@@ -1,6 +1,6 @@
 package simulator;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public interface ITransition {
 
@@ -15,11 +15,11 @@ public interface ITransition {
 	 * @return
 	 */
 	boolean isEnabled();
-	/**
-	 * If the transition is possible then this method will return true. It also clears out the temporary data from previous checks.
-	 * @return
-	 */
-	boolean updateTransition();
+//	/**
+//	 * If the transition is possible then this method will return true. It also clears out the temporary data from previous checks.
+//	 * @return
+//	 */
+//	boolean updateTransition();
 	
 	/**
 	 * return an int from the range of durations
@@ -36,8 +36,8 @@ public interface ITransition {
 	
 	ComChannelList getOutputChannels();
 	
-	HashMap<String, Object> getTempOutputChannels();
-	HashMap<String, Object> getTempInternalVars();
+	ArrayList<TempComChannel > getTempOutputChannels();
+	ArrayList<TempMemory > getTempOutputMemory();
 
 	void setIndex(int indexOf);
 	int getIndex();

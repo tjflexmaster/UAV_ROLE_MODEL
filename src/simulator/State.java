@@ -38,24 +38,9 @@ public class State implements IState {
 	
 	@Override
 	public ArrayList<ITransition> getEnabledTransitions() {
-		//TODO Send state to the metric manager
-//		Simulator.getSim()._metrics.currentKey.setState(this.getName());
-		
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
-		for (int i = 0; i < _transitions.size(); i++) {//ITransition t : _transitions) {
-			ITransition t = _transitions.get(i);
-			
-			//TODO send transition to the metric manager
-//			Simulator.getSim()._metrics.currentKey.setTransition(t.getIndex());
-			
-			
-			if ( t.updateTransition() ) {
-				//Copy the transition if it is enabled
-				enabled.add((ITransition) new Transition((Transition)t));
-				
-				//TODO send enabled metric
-//				Simulator.getSim().addMetric(MetricEnum.ENABLED, "TRANSITION");
-			}
+		for (ITransition t : _transitions) {
+			enabled.add(t);
 		}
 		return enabled;
 	}

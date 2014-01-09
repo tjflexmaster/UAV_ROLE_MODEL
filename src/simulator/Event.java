@@ -1,5 +1,6 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -8,9 +9,7 @@ public abstract class Event implements IEvent, IActor {
 	private int _count = 0;
 	protected String _name;
 	protected ITransition _transition;
-	protected ComChannelList _outputs;
-	
-	private ActorVariableWrapper _internal_vars = new ActorVariableWrapper();
+	protected State _currentState = new State("Event");
 	
 	/**
 	 * This method returns an enabled transition.  Events only have a single transition.
@@ -26,10 +25,13 @@ public abstract class Event implements IEvent, IActor {
 			_count = 0;
 	}
 	
-	public void deactivate(){
-		for(Entry<String, ComChannel<?>> c : _outputs.entrySet()){
-			c.getValue().set(null);
-		}
+	public void deactivate() 
+	{
+	  //Clear all outputs
+    for(Entry<String, ComChannel<?>> entry : _transition.getOutputChannels().entrySet()) 
+    {
+      entry.getValue().set(null);
+    }
 	}
 	
 	public int getEventCount()
@@ -68,14 +70,9 @@ public abstract class Event implements IEvent, IActor {
 		return result;
 	}
 	
-	protected ActorVariableWrapper getInternalVars()
-	{
-		return _internal_vars;
-	}
-	
 	protected State getState()
 	{
-		return (State) _internal_vars.getVariable("currentState");
+		return (State) _currentState;
 	}
 	
 	@Override
@@ -86,7 +83,7 @@ public abstract class Event implements IEvent, IActor {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Actor other = (Actor) obj;
+		IActor other = (IActor) obj;
 		if (_name == null) {
 			if (other.name() != null)
 				return false;

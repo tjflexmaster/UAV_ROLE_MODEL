@@ -73,11 +73,6 @@ public class DeltaClock implements IDeltaClock {
 			//Then add the transition
 			DeltaTime newTime = new DeltaTime(time, actor, transition);
 			
-			//Add active metric to this transition
-//			Simulator.getSim()._metrics.currentKey.setActor(actor.name());
-//			Simulator.getSim()._metrics.currentKey.setState(actor.getCurrentState().getName());
-//			Simulator.getSim()._metrics.currentKey.setTransition(transition.getIndex());
-//			Simulator.getSim()._metrics.addMetric(MetricEnum.ACTIVE, "ACTIVE_TRANSITION");
 			
 			//Loop through the linked list and insert this transition at the correct point.
 			int total_time = 0;
@@ -108,8 +103,8 @@ public class DeltaClock implements IDeltaClock {
 				_clock.addLast(newTime);
 			}
 			
-			//Save channel load metric
-			sendChannelLoad(actor, transition, time);
+//			//Save channel load metric
+//			sendChannelLoad(actor, transition, time);
 			
 		}
 	}
@@ -170,11 +165,11 @@ public class DeltaClock implements IDeltaClock {
 				_elapsedTime += dt.time;
 				dt.time = 0;
 				
-				//Send channel conflict data
-				sendChannelConflictData();
-				
-				//Send actor output data
-				sendActorOutput();
+//				//Send channel conflict data
+//				sendChannelConflictData();
+//				
+//				//Send actor output data
+//				sendActorOutput();
 				
 			}
 		}
@@ -203,103 +198,103 @@ public class DeltaClock implements IDeltaClock {
 	}
 
 	
-	public void sendChannelConflictData()
-	{
-		for(DeltaTime t : _clock) {
-			//First get a list of all outputs that the transition might change
-			HashMap<String, Object> result = t.transition.getTempOutputChannels();
-			ComChannelList outputs = t.transition.getOutputChannels();
-			
-			HashMap<String, HashMap<String, Integer> > conflicts = new HashMap<String, HashMap<String, Integer> >();
-			
-			//Second go through the list and mark which ones are not null
-			for(Entry<String, Object> e : result.entrySet() ) {
-				if ( e.getValue() != null ) {
-					//Find out who the information is going too
-					ComChannel<?> o = outputs.get(e.getKey());
-					if ( o != null ) {
-						String target = o.target();
-						if ( target != "None" ) {
-							//Save this information to be passed to JPF
-							if ( conflicts.containsKey(target) ) {
-								HashMap<String, Integer> channels = conflicts.get(target);
-								if ( channels.containsKey(o.type().name()) ) {
-									channels.put(o.type().name(), channels.get(o.type().name()) + 1);
-								} else {
-									channels.put(o.type().name(), 1);
-								}
-								
-							} else {
-								HashMap<String, Integer> channels = new HashMap<String, Integer>();
-								channels.put(o.type().name(), 1);
-								conflicts.put(target, channels);
-							}
-						}
-					}
-				}
-			}
-//			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), target, o.type().name());
+//	public void sendChannelConflictData()
+//	{
+//		for(DeltaTime t : _clock) {
+//			//First get a list of all outputs that the transition might change
+//			HashMap<String, Object> result = t.transition.getTempOutputChannels();
+//			ComChannelList outputs = t.transition.getOutputChannels();
 //			
-			
-			//Send all the data to JPF
-			for(Entry<String, HashMap<String, Integer> > e : conflicts.entrySet()) {
-				for(Entry<String, Integer> c : e.getValue().entrySet()) {
-					MetricManager.instance().setChannelConflict(_elapsedTime, e.getKey(), c.getKey(), c.getValue());
-				}
-			}
-			
-		}
-	}
-	
-	public void sendChannelLoad(IActor a, ITransition t, int time)
-	{
-		//First get a list of all outputs that the transition might change
-		HashMap<String, Object> result = t.getTempOutputChannels();
-		ComChannelList outputs = t.getOutputChannels();
-		
-		
-		//Second go through the list and mark which ones are not null
-		for(Entry<String, Object> e : result.entrySet() ) {
-			if ( e.getValue() != null ) {
-				//Find out who the information is going too
-				ComChannel<?> o = outputs.get(e.getKey());
-				if ( o != null ) {
-					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), time);
-				}
-			}
-		}
-	}
-	
-	public void sendActorOutput()
-	{
-		//IActor a, ITransition t, int time
-		for(DeltaTime t : _clock) {
-			//First get a list of all outputs that the transition might change
-			HashMap<String, Object> tempOutputs = t.transition.getTempOutputChannels();
-		
-			//Second loop through those outputs
-			int outputCount = 0;
-			for(Entry<String, Object> e : tempOutputs.entrySet() ) {
-				if ( e.getValue() != null ) {
-					outputCount++;
-				}
-			}
-		
-		
-			//First get a list of all outputs that the transition might change
-			HashMap<String, Object> tempMemory = t.transition.getTempInternalVars();
-			
-			//Second loop through those outputs
-			int memoryCount = 0;
-			for(Entry<String, Object> e : tempMemory.entrySet() ) {
-				if ( e.getValue() != null ) {
-					memoryCount++;
-				}
-			}
-		
-			MetricManager.instance().setActorOutput(_elapsedTime, t.actor.name(), memoryCount, outputCount);
-		}
-	}
+//			HashMap<String, HashMap<String, Integer> > conflicts = new HashMap<String, HashMap<String, Integer> >();
+//			
+//			//Second go through the list and mark which ones are not null
+//			for(Entry<String, Object> e : result.entrySet() ) {
+//				if ( e.getValue() != null ) {
+//					//Find out who the information is going too
+//					ComChannel<?> o = outputs.get(e.getKey());
+//					if ( o != null ) {
+//						String target = o.target();
+//						if ( target != "None" ) {
+//							//Save this information to be passed to JPF
+//							if ( conflicts.containsKey(target) ) {
+//								HashMap<String, Integer> channels = conflicts.get(target);
+//								if ( channels.containsKey(o.type().name()) ) {
+//									channels.put(o.type().name(), channels.get(o.type().name()) + 1);
+//								} else {
+//									channels.put(o.type().name(), 1);
+//								}
+//								
+//							} else {
+//								HashMap<String, Integer> channels = new HashMap<String, Integer>();
+//								channels.put(o.type().name(), 1);
+//								conflicts.put(target, channels);
+//							}
+//						}
+//					}
+//				}
+//			}
+////			MetricManager.instance().setChannelConflict(_elapsedTime, t.actor.name(), target, o.type().name());
+////			
+//			
+//			//Send all the data to JPF
+//			for(Entry<String, HashMap<String, Integer> > e : conflicts.entrySet()) {
+//				for(Entry<String, Integer> c : e.getValue().entrySet()) {
+//					MetricManager.instance().setChannelConflict(_elapsedTime, e.getKey(), c.getKey(), c.getValue());
+//				}
+//			}
+//			
+//		}
+//	}
+//	
+//	public void sendChannelLoad(IActor a, ITransition t, int time)
+//	{
+//		//First get a list of all outputs that the transition might change
+//		HashMap<String, Object> result = t.getTempOutputChannels();
+//		ComChannelList outputs = t.getOutputChannels();
+//		
+//		
+//		//Second go through the list and mark which ones are not null
+//		for(Entry<String, Object> e : result.entrySet() ) {
+//			if ( e.getValue() != null ) {
+//				//Find out who the information is going too
+//				ComChannel<?> o = outputs.get(e.getKey());
+//				if ( o != null ) {
+//					MetricManager.instance().setChannelLoad(_elapsedTime, a.name(), o.target(), o.type().name(), time);
+//				}
+//			}
+//		}
+//	}
+//	
+//	public void sendActorOutput()
+//	{
+//		//IActor a, ITransition t, int time
+//		for(DeltaTime t : _clock) {
+//			//First get a list of all outputs that the transition might change
+//			HashMap<String, Object> tempOutputs = t.transition.getTempOutputChannels();
+//		
+//			//Second loop through those outputs
+//			int outputCount = 0;
+//			for(Entry<String, Object> e : tempOutputs.entrySet() ) {
+//				if ( e.getValue() != null ) {
+//					outputCount++;
+//				}
+//			}
+//		
+//		
+//			//First get a list of all outputs that the transition might change
+//			HashMap<String, Object> tempMemory = t.transition.getTempInternalVars();
+//			
+//			//Second loop through those outputs
+//			int memoryCount = 0;
+//			for(Entry<String, Object> e : tempMemory.entrySet() ) {
+//				if ( e.getValue() != null ) {
+//					memoryCount++;
+//				}
+//			}
+//		
+//			MetricManager.instance().setActorOutput(_elapsedTime, t.actor.name(), memoryCount, outputCount);
+//		}
+//	}
 	
 //	/**
 //	 * this checks to see if the clock is full and advances the time
