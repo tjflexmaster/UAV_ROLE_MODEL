@@ -31,6 +31,11 @@ public class XMLTransition implements ITransition
   
   private XMLActor _actor;
   
+  /**
+   * Description of this transition
+   */
+  private String _description;
+  
   XMLTransition(XMLActor actor, State endState, Range range, int priority)
   {
     _inputs = new ComChannelList();
@@ -153,4 +158,19 @@ public class XMLTransition implements ITransition
     _memory_output.add(m);
   }
 
+  public void description(String desc)
+  {
+    _description = desc;
+  }
+  
+  public String description()
+  {
+    return _description;
+  }
+  
+  public String toString()
+  {
+    return _actor.name() + ": StartState: " + _actor.getCurrentState().getName() +
+        " EndState: " + _endState.getName() + " Description: " + description();
+  }
 }

@@ -45,4 +45,8 @@ public class XMLEvent extends Event
     _transition = t;
   }
 
+  public String toString()
+  {
+    return _name;
+  }
 }

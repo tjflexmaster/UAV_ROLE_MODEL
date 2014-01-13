@@ -40,7 +40,8 @@ public class State implements IState {
 	public ArrayList<ITransition> getEnabledTransitions() {
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
-			enabled.add(t);
+		  if ( t.isEnabled() )
+		    enabled.add(t);
 		}
 		return enabled;
 	}

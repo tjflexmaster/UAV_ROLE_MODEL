@@ -94,6 +94,13 @@ public class XMLPredicate<T>
     else
       return false;
     
+    //Handle null values
+    if ( obj == null ) {
+      return _value == null;
+    }
+    else if ( _value == null )
+      return false;
+    
     //We only test 3 types Integer Boolean and String
     if ( obj instanceof Integer )
     {

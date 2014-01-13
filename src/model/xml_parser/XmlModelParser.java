@@ -179,13 +179,23 @@ public class XmlModelParser {
       
       XMLEventTransition t = new XMLEventTransition();
       
+      //Parse the transition description
+      Elements description_e = transition_e.getChildElements("description");
+      if ( description_e.size() >= 1 )
+        t.description(description_e.get(0).getValue());
+      
       //Set the transition comchannel inputs
       Elements inputchannels = parseElementArray(transition_e, "inputs", "channel");
       for(int j=0; j < inputchannels.size(); j++) {
         Element channel_e = inputchannels.get(j);
         String name = channel_e.getAttributeValue("name");
         String predicate = channel_e.getAttributeValue("predicate");
-        String value = channel_e.getValue();
+        //check for a null value
+        Elements nullElements = channel_e.getChildElements("null");
+        String value = null;
+        if (nullElements.size() <= 0) {
+          value = channel_e.getValue();
+        }
         ComChannel<?> c = m_team.getComChannel(name);
         assert c != null : "Invalid transition input.  Team has no ComChannel named: " +
             name;
@@ -197,7 +207,12 @@ public class XmlModelParser {
       for(int j=0; j < outputchannels.size(); j++) {
         Element channel_e = outputchannels.get(j);
         String name = channel_e.getAttributeValue("name");
-        String value = channel_e.getValue();
+        //check for a null value
+        Elements nullElements = channel_e.getChildElements("null");
+        String value = null;
+        if (nullElements.size() <= 0) {
+          value = channel_e.getValue();
+        }
         ComChannel<?> c = m_team.getComChannel(name);
         assert c != null : "Invalid transition output.  Team has no ComChannel named: " +
             name;
@@ -294,8 +309,13 @@ public class XmlModelParser {
 	{
 	  String name = memory.getAttributeValue("name");
     String type = memory.getAttributeValue("dataType");
-    String value = memory.getValue();
-    Object obj = XMLDataTypes.getObject(type, value);
+    //Check for a null value
+    Elements nullElements = memory.getChildElements("null");
+    Object obj = null;
+    if (nullElements.size() <= 0) {
+      String value = memory.getValue();
+      obj = XMLDataTypes.getObject(type, value);
+    }
     
     Memory<?> m = null;
     switch(type) {
@@ -353,13 +373,23 @@ public class XmlModelParser {
 	  XMLTransition t = new XMLTransition(actor, (State) endState, 
 	      new Range(minDur, maxDur), priority);
 	  
+	  //Parse description
+	  Elements description_e = transition.getChildElements("description");
+	  if ( description_e.size() >= 1 )
+	    t.description(description_e.get(0).getValue());
+	  
 	  //Set the transition comchannel inputs
     Elements inputchannels = parseElementArray(transition, "inputs", "channel");
     for(int j=0; j < inputchannels.size(); j++) {
       Element channel_e = inputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
       String predicate = channel_e.getAttributeValue("predicate");
-      String value = channel_e.getValue();
+      //check for a null value
+      Elements nullElements = channel_e.getChildElements("null");
+      String value = null;
+      if (nullElements.size() <= 0) {
+        value = channel_e.getValue();
+      }
       ComChannel<?> c = actor.getInputComChannel(name);
       assert c != null : "Invalid transition input.  Actor has no input channel:" +
           name;
@@ -372,7 +402,12 @@ public class XmlModelParser {
       Element memory_e = memoryinputs.get(j);
       String name = memory_e.getAttributeValue("name");
       String predicate = memory_e.getAttributeValue("predicate");
-      String value = memory_e.getValue();
+      //check null
+      Elements nullElements = memory_e.getChildElements("null");
+      String value = null;
+      if (nullElements.size() <= 0) {
+        value = memory_e.getValue();
+      }
       Memory<?> m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;
@@ -384,7 +419,12 @@ public class XmlModelParser {
     for(int j=0; j < outputchannels.size(); j++) {
       Element channel_e = outputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
-      String value = channel_e.getValue();
+      //check for a null value
+      Elements nullElements = channel_e.getChildElements("null");
+      String value = null;
+      if (nullElements.size() <= 0) {
+        value = channel_e.getValue();
+      }
       ComChannel<?> c = actor.getOutputComChannel(name);
       assert c != null : "Invalid transition output.  Actor has no output channel:" +
           name;
@@ -397,7 +437,12 @@ public class XmlModelParser {
       Element memory_e = memoryoutputs.get(j);
       String name = memory_e.getAttributeValue("name");
       String action = memory_e.getAttributeValue("action");
-      String value = memory_e.getValue();
+      //check null
+      Elements nullElements = memory_e.getChildElements("null");
+      String value = null;
+      if (nullElements.size() <= 0) {
+        value = memory_e.getValue();
+      }
       Memory<?> m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;

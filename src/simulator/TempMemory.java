@@ -42,8 +42,10 @@ public class TempMemory
   
   public void fire()
   {
-    if ( _action == "+" ) {
+    if ( _action.equals("+") ) {
       _memory.set((Integer)_memory.value() + Integer.parseInt(_value));
+    } else if ( _action.equals("-") ) {
+      _memory.set((Integer)_memory.value() - Integer.parseInt(_value));
     } else
       _memory.set(_value);
   }

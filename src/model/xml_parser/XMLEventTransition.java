@@ -24,6 +24,8 @@ public class XMLEventTransition implements ITransition
   
   private int _transition_number;
   
+  private String _description;
+  
   private Vector<XMLPredicate<?>> _predicates = new Vector();
   
   XMLEventTransition()
@@ -144,5 +146,20 @@ public class XMLEventTransition implements ITransition
   public void addOutputMemory(TempMemory m)
   {
     _memory_output.add(m);
+  }
+  
+  public void description(String desc)
+  {
+    _description = desc;
+  }
+  
+  public String description()
+  {
+    return _description;
+  }
+  
+  public String toString()
+  {
+    return description();
   }
 }

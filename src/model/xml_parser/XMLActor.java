@@ -56,7 +56,7 @@ public class XMLActor extends Actor implements IActor {
 	
 	public ComChannel<?> getOutputComChannel(String name)
   {
-    return m_inputChannels.get(name);
+    return m_outputChannels.get(name);
   }
 	
 	public Memory<?> getMemory(String name)

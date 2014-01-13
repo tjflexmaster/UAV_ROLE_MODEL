@@ -29,6 +29,7 @@
         <state name="IDLE">
             <!-- Receive a poke from the MM -->
             <transition durationMin="1" durationMax="1" priority="10">
+              <description>Recieved "POKE" from the MM</description>
               <inputs>
                 <channel name="AUDIO_MM_PS" predicate="eq">POKE</channel>
               </inputs>
@@ -40,8 +41,9 @@
             
             <!-- Receive a new search event -->
             <transition durationMin="1" durationMax="1" priority="10">
+              <description>Received new search event</description>
               <inputs>
-                <channel name="NEW_SEARCH_EVENT" predicate=""></channel>
+                <channel name="NEW_SEARCH_EVENT" predicate="eq">NEW_SEARCH_EVENT</channel>
               </inputs>
               <outputs>
                 <channel name="AUDIO_PS_MM">POKE</channel>
@@ -53,11 +55,12 @@
         
         <state name="POKE_MM">
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Recieved "ACK" from the MM</description>
             <inputs>
               <channel name="AUDIO_MM_PS" predicate="eq">ACK</channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"></channel>
+              <channel name="AUDIO_PS_MM"><null/></channel>
             </outputs>
             <endState>TX_MM</endState>
           </transition>
@@ -66,12 +69,13 @@
         <state name="RX_MM">
           <!-- Receive search complete -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Recieved "SEARCH_COMPLETE" from the MM</description>
             <inputs>
               <channel name="AUDIO_MM_PS" predicate="eq">SEARCH_COMPLETE</channel>
-              <channel name="VISUAL_MM_PS" predicate="neq"></channel>
+              <channel name="VISUAL_MM_PS" predicate="eq">SEARCH_COMPLETE</channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"></channel>
+              <channel name="AUDIO_PS_MM"><null/></channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
@@ -80,6 +84,7 @@
         <state name="TX_MM">
           <!-- Transmit New search area -->
           <transition durationMin="30" durationMax="30" priority="1">
+            <description>Sending a Search Area to the MM</description>
             <inputs>
               <memory name="SEARCH_AREAS" predicate="gt">0</memory>
             </inputs>
@@ -93,11 +98,12 @@
           
           <!-- Default transition -->
           <transition durationMin="1" durationMax="1" priority="0">
+            <description>Auto ransition back to end state with Low Priority</description>
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"></channel>
-              <channel name="VISUAL_PS_MM"></channel>
+              <channel name="AUDIO_PS_MM"><null/></channel>
+              <channel name="VISUAL_PS_MM"><null/></channel>
             </outputs>
             <endState>END_MM</endState>
           </transition>
@@ -106,11 +112,12 @@
         <state name="END_MM">
           <!-- Clear all output channels -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Auto transition back to idle</description>
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"></channel>
-              <channel name="VISUAL_PS_MM"></channel>
+              <channel name="AUDIO_PS_MM"><null/></channel>
+              <channel name="VISUAL_PS_MM"><null/></channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
@@ -135,6 +142,7 @@
         <state name="IDLE">
           <!-- If idle then listen for a PS poke -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Recieved "POKE" from the PS</description>
             <inputs>
               <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
             </inputs>
@@ -146,6 +154,7 @@
           
           <!-- Go into a Waiting state -->
           <transition durationMin="1" durationMax="1" priority="0">
+            <description>If there are search areas the go to waiting state</description>
             <inputs>
               <memory name="SEARCH_AREAS" predicate="gt">0</memory>
             </inputs>
@@ -158,6 +167,7 @@
         <state name="WAITING">
           <!-- Listen for a PS poke -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Received "POKE" from the MM</description>
             <inputs>
               <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
             </inputs>
@@ -169,6 +179,7 @@
           
           <!-- After waiting a bit then send search complete -->
           <transition durationMin="100" durationMax="100" priority="0">
+            <description>Auto poke the PS after not receiving for a while</description>
             <inputs>
             </inputs>
             <outputs>
@@ -180,12 +191,14 @@
         
         <state name="RX_PS">
             <transition durationMin="1" durationMax="1" priority="1">
+              <description>Received New Search Area from the PS</description>
               <inputs>
                 <channel name="AUDIO_PS_MM" predicate="eq">NEW_SEARCH_AREA</channel>
-                <channel name="VISUAL_PS_MM" predicate="neq"></channel>
+                <channel name="VISUAL_PS_MM" predicate="eq">NEW_SEARCH_AREA</channel>
               </inputs>
               <outputs>
-                <channel name="AUDIO_MM_PS"></channel>
+                <channel name="AUDIO_MM_PS"><null/></channel>
+                <memory name="SEARCH_AREAS" action="+">1</memory>
               </outputs>
               <endState>IDLE</endState>
             </transition>
@@ -194,6 +207,7 @@
         <state name="POKE_PS">
           <!-- Listen for a PS poke -->
           <transition durationMin="1" durationMax="1" priority="2">
+            <description>Received a "POKE" while Poking PS</description>
             <inputs>
               <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
             </inputs>
@@ -205,11 +219,12 @@
           
           <!-- If ACK received then start transmitting -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Received "ACK" from the PS</description>
             <inputs>
               <channel name="AUDIO_PS_MM" predicate="eq">ACK</channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_MM_PS"></channel>
+              <channel name="AUDIO_MM_PS"><null/></channel>
             </outputs>
             <endState>TX_PS</endState>
           </transition>
@@ -218,6 +233,7 @@
         <state name="TX_PS">
           <!-- Transmit search complete -->
           <transition durationMin="50" durationMax="50" priority="1">
+            <description>Transmit Search Complete if there are Search Areas</description>
             <inputs>
               <memory name="SEARCH_AREAS" predicate="gt">0</memory>
             </inputs>
@@ -231,11 +247,12 @@
           
           <!-- Default transition -->
           <transition durationMin="1" durationMax="1" priority="0">
+            <description>Auto end tx to PS</description>
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_MM_PS"></channel>
-              <channel name="VISUAL_MM_PS"></channel>
+              <channel name="AUDIO_MM_PS"><null/></channel>
+              <channel name="VISUAL_MM_PS"><null/></channel>
             </outputs>
             <endState>END_PS</endState>
           </transition>
@@ -244,11 +261,12 @@
         <state name="END_PS">
           <!-- Clear all output channels -->
           <transition durationMin="1" durationMax="1" priority="1">
+            <description>Auto return to IDLE</description>
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_MM_PS"></channel>
-              <channel name="VISUAL_MM_PS"></channel>
+              <channel name="AUDIO_MM_PS"><null/></channel>
+              <channel name="VISUAL_MM_PS"><null/></channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
@@ -261,13 +279,15 @@
   <events>
     <event name="NEW_SEARCH_EVENT" count="3">
       <transition>
-          <inputs>
-            <channel name="AUDIO_PS_MM" predicate="eq"></channel>
-            <channel name="VISUAL_PS_MM" predicate="eq"></channel>
-          </inputs>
-          <outputs>
-            <channel name="NEW_SEARCH_EVENT">NEW_SEARCH_EVENT</channel>
-          </outputs>
+        <description>Start a new Search Event</description>
+        <inputs>
+          <channel name="AUDIO_PS_MM" predicate="eq"><null/></channel>
+          <channel name="VISUAL_PS_MM" predicate="eq"><null/></channel>
+          <channel name="NEW_SEARCH_EVENT" predicate="eq"><null/></channel>
+        </inputs>
+        <outputs>
+          <channel name="NEW_SEARCH_EVENT">NEW_SEARCH_EVENT</channel>
+        </outputs>
       </transition>
     </event>
   </events>
