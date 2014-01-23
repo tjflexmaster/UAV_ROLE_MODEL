@@ -1,0 +1,394 @@
+<team name="Basic UAS in NAS">
+  <channels>
+    <channel name="DATA_UAV_UAS" type="DATA" source="UAV" target="UAS" dataType="String"/>
+    <channel name="VISUAL_UAV_UAVOP" type="VISUAL" source="UAV" target="UAVOP" dataType="String"/>
+    <channel name="VISUAL_UAVGUI_UAVOP" type="VISUAL" source="UAVGUI" target="UAVOP" dataType="String"/>
+    <channel name="AUDIO_UAVGUI_UAVOP" type="AUDIO" source="UAVGUI" target="UAVOP" dataType="String"/>
+    <channel name="DATA_UAVGUI_UAS" type="DATA" source="UAVGUI" target="UAS" dataType="String"/>
+    <channel name="TACTILE_UAVOP_UAVGUI" type="TACTILE" source="UAVOP" target="UAVGUI" dataType="String"/>
+    <channel name="DATA_UAS_UAV" type="DATA" source="UAS" target="UAV" dataType="String"/>
+    <channel name="DATA_UAS_UAVGUI" type="DATA" source="UAS" target="UAVGUI" dataType="String"/>
+    <channel name="DATA_UAS_FFA" type="DATA" source="UAS" target="FAA" dataType="String"/>
+    <channel name="DATA_FAA_UAS" type="DATA" source="FAA" target="UAS" dataType="String"/>
+    <channel name="DATA_FAA_ATCGUI" type="DATA" source="FAA" target="ATCGUI" dataType="String"/>
+    <channel name="DATA_ATCGUI_FAA" type="DATA" source="ATCGUI" target="FAA" dataType="String"/>
+    <channel name="VISUAL_ATCGUI_ATC" type="VISUAL" source="ATCGUI" target="ATC" dataType="String"/>
+    <channel name="TACTILE_ATC_ATCGUI" type="TACTILE" source="ATC" target="ATCGUI" dataType="String"/>
+  </channels>
+  
+  <!-- Model Actors -->
+  <actors>
+    <actor name="UAV">
+      <inputchannels>
+        <channel>DATA_UAS_UAV</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>DATA_UAV_UAS</channel>
+        <channel>VISUAL_UAV_UAVOP</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="GROUNDED">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Move to takeoff from UAVGUI cmd</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">TAKEOFF</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAV_UAVOP">TAKING_OFF</channel>
+              <channel name="DATA_UAV_UAS">TAKING_OFF</channel>
+            </outputs>
+            <endState>TAKEOFF</endState>
+          </transition>
+        </state>
+        
+        <state name="TAKEOFF">
+          <!-- transitions -->
+          <transition durationMin="300" durationMax="600" priority="10">
+            <description>Transition to Flying</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAV_UAVOP">FLYING</channel>
+              <channel name="DATA_UAV_UAS">FLYING</channel>
+            </outputs>
+            <endState>FLYING</endState>
+          </transition>
+        </state>
+        
+        <state name="FLYING">
+          <!-- transitions -->
+          <transition durationMin="10000" durationMax="20000" priority="1">
+            <description>UAV performed flight</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAV_UAVOP">LANDING</channel>
+              <channel name="DATA_UAV_UAS">LANDING</channel>
+            </outputs>
+            <endState>LANDING</endState>
+          </transition>
+          
+          <transition durationMin="300" durationMax="600" priority="10">
+            <description>UAV gets a command to avoid a NOTAM</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">AVOID_NOTAM</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">LOITERING</channel>
+            </outputs>
+            <endState>LOITERING</endState>
+          </transition>
+          
+          <transition durationMin="300" durationMax="600" priority="10">
+            <description>UAV gets a command to avoid a collision</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">AVOID_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">FLYING_MANUAL</channel>
+            </outputs>
+            <endState>FLYING_MANUAL</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="UAVGUI">
+      <inputchannels>
+        <channel>TACTILE_UAVOP_UAVGUI</channel>
+        <channel>DATA_UAS_UAVGUI</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>VISUAL_UAVGUI_UAVOP</channel>
+        <channel>AUDIO_UAVGUI_UAVOP</channel>
+        <channel>DATA_UAVGUI_UAS</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="GROUNDED">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Move to takeoff</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">TAKEOFF</channel>
+            </inputs>
+            <outputs>
+              <channel name="">DATA_UAVGUI</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="UAVOP">
+      <inputchannels>
+        <channel>VISUAL_UAVGUI_UAVOP</channel>
+        <channel>AUDIO_UAVGUI_UAVOP</channel>
+        <channel>VISUAL_UAV_UAVOP</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>TACTILE_UAVOP_UAVGUI</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="UAS">
+      <inputchannels>
+        <channel>DATA_UAVGUI_UAS</channel>
+        <channel>DATA_FAA_UAS</channel>
+        <channel>DATA_UAV_UAS</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>DATA_UAS_UAVGUI</channel>
+        <channel>DATA_UAS_FAA</channel>
+        <channel>DATA_UAS_UAV</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="FAA">
+      <inputchannels>
+        <channel>DATA_UAS_FAA</channel>
+        <channel>DATA_ATCGUI_FAA</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>DATA_FAA_UAS</channel>
+        <channel>DATA_FAA_ATCGUI</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="ATCGUI">
+      <inputchannels>
+        <channel>DATA_FAA_ATCGUI</channel>
+        <channel>TACTILE_ATC_ATCGUI</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>DATA_ATCGUI_FAA</channel>
+        <channel>VISUAL_ATCGUI_ATC</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <actor name="ATC">
+      <inputchannels>
+        <channel>VISUAL_ATCGUI_ATC</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>TACTILE_ATC_ATCGUI</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <!-- none -->
+      
+      <!-- Start state -->
+      <startState>GROUNDED</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        
+        <state name="TEST">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+  </actors>
+</team>
+
