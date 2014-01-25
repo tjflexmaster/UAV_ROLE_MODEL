@@ -1,6 +1,8 @@
 package simulator;
 
-import simulator.ComChannel.Type;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class ComChannel<T> {
 	public enum Type
@@ -11,11 +13,12 @@ public class ComChannel<T> {
 		EVENT
 	}
 	
-	T _value;
-	String _name;
-	Type _type;
-	String _source;
-	String _target;
+//	private T _value;
+	private String _name;
+	private Type _type;
+	private String _source;
+	private String _target;
+	private HashMap<String, T> _layers = new HashMap<String, T>();
 	
 	public ComChannel(String name, Type type)
 	{
@@ -29,7 +32,8 @@ public class ComChannel<T> {
 	{
 		_name = name;
 		_type = type;
-		_value = value;
+//		_value = value;
+		value(value);
 		_source = "None";
 		_target = "None";
 	}
@@ -46,38 +50,41 @@ public class ComChannel<T> {
 	{
 		_name = name;
 		_type = type;
-		_value = value;
+		value(value);
 		_source = source;
 		_target = target;
 	}
 	
 	public void value(T value)
 	{
-	  _value = value;
+	  _layers.put(_name, value);
+	}
+	
+	public T value()
+	{
+	  return _layers.get(_name);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void set(Object value) 
 	{
-		_value = (T) value;
+		value((T) value);
 	}
 	
 	@SuppressWarnings("unchecked")
   public void set(String value)
 	{
-	  if ( _value instanceof Integer ) {
-	    _value = (T) (Object) Integer.parseInt(value);
+	  T temp_val = _layers.get(_name);
+	  if ( temp_val instanceof Integer ) {
+	    temp_val = (T) (Object) Integer.parseInt(value);
 	  }
-	  else if ( _value instanceof Boolean ) {
-	    _value = (T) (Object) Boolean.parseBoolean(value);
+	  else if ( temp_val instanceof Boolean ) {
+	    temp_val = (T) (Object) Boolean.parseBoolean(value);
 	  }
 	  else
-	    _value = (T) value;
-	}
-	
-	public T value()
-	{
-		return _value;
+	    temp_val = (T) value;
+	  
+	  _layers.put(_name, temp_val);
 	}
 	
 	public String name()
@@ -95,10 +102,57 @@ public class ComChannel<T> {
 		return _target;
 	}
 	
+	//Layers
+	public int layerCount()
+	{
+	  return _layers.size();
+	}
+	
+	public void addLayer(String name, T value)
+	{
+	  if ( name != null && name != "" )
+	    _layers.put(name, value);
+	  else
+	    value(value);
+	}
+	
+	@SuppressWarnings("unchecked")
+  public void addLayer(String name, String value)
+	{
+	  if ( name != null && name != "" ) {
+  	  T temp_val = _layers.get(_name);
+  	  if ( temp_val instanceof Integer ) {
+  	    temp_val = (T) (Object) Integer.parseInt(value);
+      }
+      else if ( temp_val instanceof Boolean ) {
+        temp_val = (T) (Object) Boolean.parseBoolean(value);
+      }
+      else
+        temp_val = (T) value;
+  	  
+  	  _layers.put(name, temp_val);
+	  } else {
+	    set(value);
+	  }
+	}
+	
+	public T getLayer(String name)
+	{
+	  return _layers.get(name);
+	}
+	
+	public boolean isLayerEqual(String name, T value)
+	{
+	  if ( !_layers.containsKey(name) )
+	    return false;
+	  
+	  return _layers.get(name).equals(value);
+	}
+	
 	
 	public boolean isEqual(T value)
 	{
-		return _value.equals(value);
+	  return isLayerEqual(_name, value);
 	}
 
 	@Override
@@ -128,10 +182,14 @@ public class ComChannel<T> {
 	
 	@Override
 	public String toString(){
-		if(_value == null){
+		if(layerCount() <= 0){
 			return "null";
 		}
-		return _value.toString();
+		String value = "";
+		for(Entry<String, T> e : _layers.entrySet()) {
+		  value += e.getKey().toString() + "=" + e.getValue().toString() + ",";
+		}
+		return value;
 	}
 
 	public Type type() {

@@ -384,6 +384,7 @@ public class XmlModelParser {
       Element channel_e = inputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
       String predicate = channel_e.getAttributeValue("predicate");
+      String layer = channel_e.getAttributeValue("layer");
       //check for a null value
       Elements nullElements = channel_e.getChildElements("null");
       String value = null;
@@ -393,7 +394,7 @@ public class XmlModelParser {
       ComChannel<?> c = actor.getInputComChannel(name);
       assert c != null : "Invalid transition input.  Actor has no input channel:" +
           name;
-      t.addInput(c, new XMLPredicate<ComChannel<?>>(predicate, c, value));
+      t.addInput(c, new XMLPredicate<ComChannel<?>>(predicate, c, value, layer));
     }
     
     //Set the transition memory inputs
@@ -419,6 +420,7 @@ public class XmlModelParser {
     for(int j=0; j < outputchannels.size(); j++) {
       Element channel_e = outputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
+      String layer = channel_e.getAttributeValue("layer");
       //check for a null value
       Elements nullElements = channel_e.getChildElements("null");
       String value = null;
@@ -428,7 +430,7 @@ public class XmlModelParser {
       ComChannel<?> c = actor.getOutputComChannel(name);
       assert c != null : "Invalid transition output.  Actor has no output channel:" +
           name;
-      t.addOutput(new TempComChannel(c, value));
+      t.addOutput(new TempComChannel(c, value, layer));
     }
     
     //Set the transition memory outputs

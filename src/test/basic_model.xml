@@ -31,10 +31,11 @@
             <transition durationMin="1" durationMax="1" priority="10">
               <description>Recieved "POKE" from the MM</description>
               <inputs>
-                <channel name="AUDIO_MM_PS" predicate="eq">POKE</channel>
+                <channel name="AUDIO_MM_PS" predicate="eq" >POKE</channel>
               </inputs>
               <outputs>
                 <channel name="AUDIO_PS_MM">ACK</channel>
+                <channel name="AUDIO_PS_MM" layer="test">ACK</channel>
               </outputs>
               <endState>RX_MM</endState>
             </transition>

@@ -18,6 +18,7 @@ public class XMLPredicate<T>
   private T _source;
   private String _value;
   private Type _type;
+  private String _layer;
   
   
   public XMLPredicate(String typeString, T source, String value)
@@ -26,6 +27,15 @@ public class XMLPredicate<T>
     value(value);
     type(typeString);
   }
+  
+  public XMLPredicate(String typeString, T source, String value, String layer)
+  {
+    source(source);
+    value(value);
+    type(typeString);
+    layer(layer);
+  }
+  
   
   public void type(String type)
   {
@@ -84,13 +94,29 @@ public class XMLPredicate<T>
     this._source = source;
   }
   
+  public String layer()
+  {
+    return _layer;
+  }
+  
+  public void layer(String layer)
+  {
+    if ( layer == "" )
+      _layer = null;
+    else
+      _layer = layer;
+  }
+  
   public boolean test()
   {
     Object obj;
     if ( _source instanceof Memory<?> )
       obj = ((Memory<?>) _source).value();
     else if ( _source instanceof ComChannel<?> )
-      obj = ((ComChannel<?>) _source).value();
+      if ( _layer != null)
+        obj = ((ComChannel<?>) _source).getLayer(_layer);
+      else
+        obj = ((ComChannel<?>) _source).value();
     else
       return false;
     
