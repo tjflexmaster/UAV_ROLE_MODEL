@@ -66,7 +66,7 @@
         <state name="FLYING">
           <!-- transitions -->
           <transition durationMin="10000" durationMax="20000" priority="1">
-            <description>UAV performed flight</description>
+            <description>UAV normal flight</description>
             <inputs>
             </inputs>
             <outputs>
@@ -76,26 +76,126 @@
             <endState>LANDING</endState>
           </transition>
           
-          <transition durationMin="300" durationMax="600" priority="10">
+          <transition durationMin="1" durationMax="1" priority="10">
             <description>UAV gets a command to avoid a NOTAM</description>
             <inputs>
               <channel name="DATA_UAS_UAV" predicate="eq">AVOID_NOTAM</channel>
             </inputs>
             <outputs>
-              <channel name="DATA_UAV_UAS">LOITERING</channel>
+              <channel name="DATA_UAV_UAS">AVOIDING_NOTAM</channel>
             </outputs>
-            <endState>LOITERING</endState>
+            <endState>AVOID_NOTAM</endState>
           </transition>
           
-          <transition durationMin="300" durationMax="600" priority="10">
+          <transition durationMin="1" durationMax="1" priority="10">
             <description>UAV gets a command to avoid a collision</description>
             <inputs>
               <channel name="DATA_UAS_UAV" predicate="eq">AVOID_COLLISION</channel>
             </inputs>
             <outputs>
+              <channel name="DATA_UAV_UAS">AVOIDING_COLLISION</channel>
+            </outputs>
+            <endState>AVOIDING_COLLISION</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>UAV gets a manual flight mode cmd</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
               <channel name="DATA_UAV_UAS">FLYING_MANUAL</channel>
             </outputs>
             <endState>FLYING_MANUAL</endState>
+          </transition>
+        </state>
+        
+        <state name="AVOID_NOTAM">
+          <!-- transitions -->
+          <transition durationMin="300" durationMax="600" priority="10">
+            <description>Avoid the NOTAM</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">LOITER</channel>
+            </outputs>
+            <endState>LOITER</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>UAV gets a command to avoid a collision</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">AVOID_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">AVOIDING_COLLISION</channel>
+            </outputs>
+            <endState>AVOID_COLLISION</endState>
+          </transition>
+        </state>
+        
+        <state name="AVOID_COLLISION">
+          <!-- transitions -->
+          <transition durationMin="300" durationMax="600" priority="10">
+            <description>Avoid the collision</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">FLYING</channel>
+            </outputs>
+            <endState>FLYING</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Begin flying in manual mode</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">FLYING_MANUAL</channel>
+            </outputs>
+            <endState>FLYING_MANUAL</endState>
+          </transition>
+        </state>
+        
+        <state name="LOITER">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Resume a normal flight</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV">RESUME_FLIGHT</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">FLYING</channel>
+            </outputs>
+            <endState>FLYING</endState>
+          </transition>
+        </state>
+        
+        <state name="FLYING_MANUAL">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Resume a normal flight</description>
+            <inputs>
+              <channel name="DATA_UAS_UAV" predicate="eq">RESUME_FLIGHT</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">FLYING</channel>
+            </outputs>
+            <endState>FLYING</endState>
+          </transition>
+        </state>
+        
+        <state name="LANDING">
+          <!-- transitions -->
+          <transition durationMin="600" durationMax="900" priority="10">
+            <description>Land the UAV</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAV_UAS">GROUNDED</channel>
+            </outputs>
+            <endState>GROUNDED</endState>
           </transition>
         </state>
       </states>
@@ -113,28 +213,79 @@
       </outputchannels>
       
       <!-- Define actor memory -->
-      <!-- none -->
+      <memory name="NOTAM_ON_FLIGHT_PLAN" dataType="Boolean">false</memory>
+      <memory name="AVOIDING_NOTAM" dataType="Boolean">false</memory>
+      <memory name="AVOIDING_COLLISION" dataType="Boolean">false</memory>
+      <memory name="POSSIBLE_COLLISION" dataType="Boolean">false</memory>
       
       <!-- Start state -->
       <startState>GROUNDED</startState>
       
       <!-- States -->
       <states>
-        <state name="GROUNDED">
+        <state name="NORMAL">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
-            <description>Move to takeoff</description>
+            <description>Change to Alert mode for NOTAM on the flight plan</description>
             <inputs>
-              <channel name="DATA_UAS_UAVGUI" predicate="eq">TAKEOFF</channel>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">NOTAM_ON_FLIGHT_PLAN</channel>
             </inputs>
             <outputs>
-              <channel name="">DATA_UAVGUI</channel>
+              <channel name="VISUAL_UAVGUI_UAVOP">NOTAM_ON_FLIGHT_PLAN</channel>
+              <memory name="NOTAM_ON_FLIGHT_PLAN">true</memory>
             </outputs>
-            <endState>TEST</endState>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode for avoiding a NOTAM</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_NOTAM</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_NOTAM</channel>
+              <memory name="AVOIDING_NOTAM">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_COLLISION</channel>
+              <memory name="AVOIDING_COLLISION">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">POSSIBLE_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">POSSIBLE_COLLISION</channel>
+              <memory name="POSSIBLE_COLLISION">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Manual Fly mode</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
+            </outputs>
+            <endState>MANUAL_FLIGHT</endState>
           </transition>
         </state>
         
-        <state name="TEST">
+        <state name="ALERT">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
@@ -145,6 +296,31 @@
               <channel name="">TEST</channel>
             </outputs>
             <endState>TEST</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Manual Fly mode</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
+            </outputs>
+            <endState>MANUAL_FLIGHT</endState>
+          </transition>
+        </state>
+        
+        <state name="MANUAL_FLIGHT">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Resume normal flight</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">RESUME_FLIGHT</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">RESUME_FLIGHT</channel>
+            </outputs>
+            <endState>NORMAL</endState>
           </transition>
         </state>
       </states>
