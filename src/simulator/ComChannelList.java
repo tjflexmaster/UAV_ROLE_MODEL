@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 
 @SuppressWarnings("serial")
-public class ComChannelList extends HashMap<String, ComChannel<?> > {
+public class ComChannelList extends HashMap<String, ComChannel > {
 
 //	private HashMap<String, ComChannel<?> > _list;
 //	
@@ -13,7 +13,7 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 //		_list = new HashMap<String, ComChannel<?> >();
 //	}
 
-	public ComChannelList add(ComChannel<?> item) {
+	public ComChannelList add(ComChannel item) {
 		this.put(item.name(), item);
 		return this;
 	}
@@ -25,7 +25,7 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public ComChannelList getChannels(ComChannel.Type type)
 	{
 		ComChannelList result = new ComChannelList();
-		for( ComChannel<?> channel : this.values() ) {
+		for( ComChannel channel : this.values() ) {
 			if ( channel.type() == type ) {
 				result.add(channel);
 			}
@@ -39,7 +39,7 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public int countChannels(ComChannel.Type type)
 	{
 		int count = 0;
-		for( ComChannel<?> channel : this.values() ) {
+		for( ComChannel channel : this.values() ) {
 			if ( channel.type() == type ) {
 				count++;
 			}
@@ -51,7 +51,7 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	/**
 	 * Get ComChannel by name
 	 */
-	public ComChannel<?> getChannel(String name)
+	public ComChannel getChannel(String name)
 	{
 		return this.get(name);
 	}
@@ -62,8 +62,8 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public ComChannelList getActiveChannels()
 	{
 		ComChannelList result = new ComChannelList();
-		for( ComChannel<?> channel : this.values() ) {
-			if ( channel.value() != null ) {
+		for( ComChannel channel : this.values() ) {
+			if ( channel.isActive() ) {
 				result.add(channel);
 			}
 		}
@@ -73,8 +73,8 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public ComChannelList getActiveChannels(ComChannel.Type type)
 	{
 		ComChannelList result = new ComChannelList();
-		for( ComChannel<?> channel : this.values() ) {
-			if ( channel.value() != null && channel.type() == type ) {
+		for( ComChannel channel : this.values() ) {
+			if ( channel.isActive() && channel.type() == type ) {
 				result.add(channel);
 			}
 		}
@@ -87,8 +87,8 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public int countActiveChannels()
 	{
 		int count = 0;
-		for( ComChannel<?> channel : this.values() ) {
-			if ( channel.value() != null ) {
+		for( ComChannel channel : this.values() ) {
+			if ( channel.isActive() ) {
 				count++;
 			}
 		}
@@ -98,8 +98,8 @@ public class ComChannelList extends HashMap<String, ComChannel<?> > {
 	public int countActiveChannels(ComChannel.Type type)
 	{
 		int count = 0;
-		for( ComChannel<?> channel : this.values() ) {
-			if ( channel.value() != null && channel.type() == type ) {
+		for( ComChannel channel : this.values() ) {
+			if ( channel.isActive() && channel.type() == type ) {
 				count++;
 			}
 		}

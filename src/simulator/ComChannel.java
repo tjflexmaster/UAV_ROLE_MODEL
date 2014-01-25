@@ -4,7 +4,7 @@ package simulator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public class ComChannel<T> {
+public class ComChannel {
 	public enum Type
 	{
 		VISUAL,
@@ -18,7 +18,7 @@ public class ComChannel<T> {
 	private Type _type;
 	private String _source;
 	private String _target;
-	private HashMap<String, T> _layers = new HashMap<String, T>();
+	private HashMap<String, IComLayer> _layers = new HashMap<String, IComLayer>();
 	
 	public ComChannel(String name, Type type)
 	{
@@ -28,12 +28,12 @@ public class ComChannel<T> {
 		_target = "None";
 	}
 	
-	public ComChannel(String name, T value, Type type)
+	public ComChannel(String name, IComLayer layer, Type type)
 	{
 		_name = name;
 		_type = type;
 //		_value = value;
-		value(value);
+		addLayer(layer);
 		_source = "None";
 		_target = "None";
 	}
@@ -46,45 +46,13 @@ public class ComChannel<T> {
 		_target = target;
 	}
 	
-	public ComChannel(String name, T value, Type type, String source, String target)
+	public ComChannel(String name, IComLayer layer, Type type, String source, String target)
 	{
 		_name = name;
 		_type = type;
-		value(value);
+		addLayer(layer);
 		_source = source;
 		_target = target;
-	}
-	
-	public void value(T value)
-	{
-	  _layers.put(_name, value);
-	}
-	
-	public T value()
-	{
-	  return _layers.get(_name);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void set(Object value) 
-	{
-		value((T) value);
-	}
-	
-	@SuppressWarnings("unchecked")
-  public void set(String value)
-	{
-	  T temp_val = _layers.get(_name);
-	  if ( temp_val instanceof Integer ) {
-	    temp_val = (T) (Object) Integer.parseInt(value);
-	  }
-	  else if ( temp_val instanceof Boolean ) {
-	    temp_val = (T) (Object) Boolean.parseBoolean(value);
-	  }
-	  else
-	    temp_val = (T) value;
-	  
-	  _layers.put(_name, temp_val);
 	}
 	
 	public String name()
@@ -108,53 +76,32 @@ public class ComChannel<T> {
 	  return _layers.size();
 	}
 	
-	public void addLayer(String name, T value)
+	public void addLayer(IComLayer layer)
 	{
-	  if ( name != null && name != "" )
-	    _layers.put(name, value);
-	  else
-	    value(value);
+    _layers.put(layer.name(), layer);
 	}
 	
-	@SuppressWarnings("unchecked")
-  public void addLayer(String name, String value)
-	{
-	  if ( name != null && name != "" ) {
-  	  T temp_val = _layers.get(_name);
-  	  if ( temp_val instanceof Integer ) {
-  	    temp_val = (T) (Object) Integer.parseInt(value);
-      }
-      else if ( temp_val instanceof Boolean ) {
-        temp_val = (T) (Object) Boolean.parseBoolean(value);
-      }
-      else
-        temp_val = (T) value;
-  	  
-  	  _layers.put(name, temp_val);
-	  } else {
-	    set(value);
-	  }
-	}
-	
-	public T getLayer(String name)
+	public IComLayer getLayer(String name)
 	{
 	  return _layers.get(name);
 	}
 	
-	public boolean isLayerEqual(String name, T value)
+	public HashMap<String, IComLayer> getLayers()
 	{
-	  if ( !_layers.containsKey(name) )
-	    return false;
-	  
-	  return _layers.get(name).equals(value);
+	  //Return a copy
+	  return new HashMap<String, IComLayer>(_layers);
 	}
 	
-	
-	public boolean isEqual(T value)
+	//If all layers are null then a channel is considered inactive
+	public boolean isActive()
 	{
-	  return isLayerEqual(_name, value);
+	  for( Entry<String, IComLayer> e : _layers.entrySet() ) {
+	    if ( e.getValue().value() != null )
+	      return true;
+	  }
+	  return false;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -162,7 +109,7 @@ public class ComChannel<T> {
 			return true;
 
 		if (obj instanceof ComChannel) {
-			if ( ((ComChannel<?>) obj).name().equals(this._name) )
+			if ( ((ComChannel) obj).name().equals(this._name) )
 				return true;
 		}
 		if (obj instanceof String) {
@@ -186,8 +133,8 @@ public class ComChannel<T> {
 			return "null";
 		}
 		String value = "";
-		for(Entry<String, T> e : _layers.entrySet()) {
-		  value += e.getKey().toString() + "=" + e.getValue().toString() + ",";
+		for(Entry<String, IComLayer> e : _layers.entrySet()) {
+		  value += e.getValue().toString() + ",";
 		}
 		return value;
 	}

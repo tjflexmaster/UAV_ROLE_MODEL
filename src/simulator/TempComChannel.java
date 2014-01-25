@@ -3,48 +3,26 @@ package simulator;
 
 public class TempComChannel
 {
-  ComChannel<?> _channel;
-  String _value;
-  String _layer;
+  ComChannel _channel;
+  IComLayer _layer;
     
-  public TempComChannel(ComChannel<?> channel, String temp_val)
+  public TempComChannel(ComChannel channel, IComLayer layer)
   {
     _channel = channel;
-    value(temp_val);
-    layer("");
-  }
-  
-  public TempComChannel(ComChannel<?> channel, String temp_val, String layer)
-  {
-    _channel = channel;
-    value(temp_val);
     layer(layer);
   }
   
-  public String value()
-  {
-    return _value;
-  }
-  
-  public void value(String value)
-  {
-    _value = value;
-  }
-  
-  public String layer()
+  public IComLayer layer()
   {
     return _layer;
   }
   
-  public void layer(String layer)
+  public void layer(IComLayer layer)
   {
-    if ( layer == "" )
-      _layer = null;
-    else
-      _layer = layer;
+    _layer = layer;
   }
   
-  public ComChannel<?> channel()
+  public ComChannel channel()
   {
     return _channel;
   }
@@ -52,7 +30,7 @@ public class TempComChannel
   public void fire()
   {
     //Set the designated layer of the channel to this value
-    _channel.addLayer( _layer, _value);
+    _channel.addLayer(_layer);
   }
 
 }
