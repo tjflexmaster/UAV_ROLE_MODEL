@@ -28,9 +28,9 @@ public abstract class Event implements IEvent, IActor {
 	public void deactivate() 
 	{
 	  //Clear all outputs
-    for(Entry<String, ComChannel<?>> entry : _transition.getOutputChannels().entrySet()) 
+    for(Entry<String, ComChannel> entry : _transition.getOutputChannels().entrySet()) 
     {
-      entry.getValue().set(null);
+      entry.getValue().clearLayers();
     }
 	}
 	

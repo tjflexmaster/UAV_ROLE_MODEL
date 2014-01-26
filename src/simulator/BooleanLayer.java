@@ -1,12 +1,13 @@
 package simulator;
 
+
 public class BooleanLayer implements IComLayer
 {
 
   private String _name;
   private Boolean _value;
+  private DataType _datatype = DataType.BOOLEAN;
   
-  @SuppressWarnings("null")
   public BooleanLayer(String name)
   {
     _name = name;
@@ -48,6 +49,21 @@ public class BooleanLayer implements IComLayer
   {
     return _value;
   }
+  
+  @Override
+  public void value(Object obj)
+  {
+    if ( obj != null )
+      value(getBoolean(obj));
+    else
+      _value = null;
+  }
+  
+  @Override
+  public DataType dataType()
+  {
+    return _datatype;
+  }
 
   @Override
   public boolean isEqual(Object obj)
@@ -58,7 +74,7 @@ public class BooleanLayer implements IComLayer
   @Override
   public boolean isNotEqual(Object obj)
   {
-    return _value != getBoolean(obj);
+    return !isEqual(obj);
   }
 
   @Override

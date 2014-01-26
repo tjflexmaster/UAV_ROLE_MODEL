@@ -196,10 +196,10 @@ public class XmlModelParser {
         if (nullElements.size() <= 0) {
           value = channel_e.getValue();
         }
-        ComChannel<?> c = m_team.getComChannel(name);
+        ComChannel c = m_team.getComChannel(name);
         assert c != null : "Invalid transition input.  Team has no ComChannel named: " +
             name;
-        t.addInput(c, new XMLPredicate<ComChannel<?>>(predicate, c, value));
+        t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, value));
       }
       
       //Parse outputchannels
@@ -213,7 +213,7 @@ public class XmlModelParser {
         if (nullElements.size() <= 0) {
           value = channel_e.getValue();
         }
-        ComChannel<?> c = m_team.getComChannel(name);
+        ComChannel c = m_team.getComChannel(name);
         assert c != null : "Invalid transition output.  Team has no ComChannel named: " +
             name;
         t.addOutput(new TempComChannel(c, value));
@@ -253,9 +253,9 @@ public class XmlModelParser {
 	 * @param comchannel
 	 * @return
 	 */
-	private ComChannel<?> parseComChannel(Element comchannel)
+	private ComChannel parseComChannel(Element comchannel)
 	{
-	  String dataType = comchannel.getAttributeValue("dataType");
+//	  String dataType = comchannel.getAttributeValue("dataType");
     String name = comchannel.getAttributeValue("name");
     String type = comchannel.getAttributeValue("type");
     String source = comchannel.getAttributeValue("source");
@@ -280,21 +280,7 @@ public class XmlModelParser {
         break;
     }
     
-    ComChannel<?> c = null;
-    switch(dataType) {
-      case "Integer":
-        c = new ComChannel<Integer>(name, t, source, target);
-        break;
-      case "Boolean":
-        c = new ComChannel<Boolean>(name, t, source, target);
-        break;
-      case "String":
-        c = new ComChannel<String>(name, t, source, target);
-        break;
-      default:
-        assert false:"Unrecognized channel type: " + dataType + ""
-            + " Use one of the following (String, Integer, Boolean)";
-    }//end switch
+    ComChannel c = new ComChannel(name, t, source, target);
     
     return c;
 	}
@@ -305,7 +291,7 @@ public class XmlModelParser {
 	 * @param memory
 	 * @return
 	 */
-	private Memory<?> parseMemory(Element memory)
+	private Memory parseMemory(Element memory)
 	{
 	  String name = memory.getAttributeValue("name");
     String type = memory.getAttributeValue("dataType");
@@ -317,22 +303,7 @@ public class XmlModelParser {
       obj = XMLDataTypes.getObject(type, value);
     }
     
-    Memory<?> m = null;
-    switch(type) {
-      case "Integer":
-        m = new Memory<Integer>(name, (Integer) obj);
-        break;
-      case "Boolean":
-        m = new Memory<Boolean>(name, (Boolean) obj);
-        break;
-      case "String":
-        m = new Memory<String>(name, (String) obj);
-        break;
-      default:
-        assert false:"Unrecognized memory type: " + type + ""
-            + " Use one of the following (String, Integer, Boolean)";
-    }//end switch
-    return m;
+    return new Memory(name, obj);
 	}
 	
 	/**
@@ -391,10 +362,10 @@ public class XmlModelParser {
       if (nullElements.size() <= 0) {
         value = channel_e.getValue();
       }
-      ComChannel<?> c = actor.getInputComChannel(name);
+      ComChannel c = actor.getInputComChannel(name);
       assert c != null : "Invalid transition input.  Actor has no input channel:" +
           name;
-      t.addInput(c, new XMLPredicate<ComChannel<?>>(predicate, c, value, layer));
+      t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, value, layer));
     }
     
     //Set the transition memory inputs
@@ -409,10 +380,10 @@ public class XmlModelParser {
       if (nullElements.size() <= 0) {
         value = memory_e.getValue();
       }
-      Memory<?> m = actor.getMemory(name);
+      Memory m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;
-      t.addInputMemory(m, new XMLPredicate<Memory<?>>(predicate, m, value));
+      t.addInputMemory(m, new XMLPredicate<Memory>(predicate, m, value));
     }
 	  
     //Set the transition outputs
@@ -427,7 +398,7 @@ public class XmlModelParser {
       if (nullElements.size() <= 0) {
         value = channel_e.getValue();
       }
-      ComChannel<?> c = actor.getOutputComChannel(name);
+      ComChannel c = actor.getOutputComChannel(name);
       assert c != null : "Invalid transition output.  Actor has no output channel:" +
           name;
       t.addOutput(new TempComChannel(c, value, layer));
@@ -445,7 +416,7 @@ public class XmlModelParser {
       if (nullElements.size() <= 0) {
         value = memory_e.getValue();
       }
-      Memory<?> m = actor.getMemory(name);
+      Memory m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;
       t.addOutputMemory(new TempMemory(m, value, action));

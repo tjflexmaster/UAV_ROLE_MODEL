@@ -1,9 +1,11 @@
 package simulator;
 
+
 public class IntegerLayer implements IComLayer
 {
   private String _name;
   private Integer _value;
+  private DataType _datatype = DataType.INTEGER;
   
   public IntegerLayer(String name)
   {
@@ -33,6 +35,16 @@ public class IntegerLayer implements IComLayer
     _value = Integer.getInteger(value);
   }
   
+  public void add(Object value)
+  {
+    _value += getInteger(value);
+  }
+  
+  public void subtract(Object value)
+  {
+    _value -= getInteger(value);
+  }
+  
   //////////////////////////////////////////////////////
 
   @Override
@@ -46,6 +58,21 @@ public class IntegerLayer implements IComLayer
   {
     return _value;
   }
+  
+  @Override
+  public void value(Object obj)
+  {
+    if ( obj != null )
+      value(getInteger(obj));
+    else
+      _value = null;
+  }
+  
+  @Override
+  public DataType dataType()
+  {
+    return _datatype;
+  }
 
   @Override
   public boolean isEqual(Object obj)
@@ -56,7 +83,7 @@ public class IntegerLayer implements IComLayer
   @Override
   public boolean isNotEqual(Object obj)
   {
-    return _value != getInteger(obj);
+    return !isEqual(obj);
   }
 
   @Override

@@ -136,7 +136,7 @@ public class XMLTransition implements ITransition
    * HELPER METHODS
    */
   
-  public void addInput(ComChannel<?> c, XMLPredicate<?> p)
+  public void addInput(ComChannel c, XMLPredicate<?> p)
   {
     _inputs.add(c);
     _predicates.add(p);
@@ -147,7 +147,7 @@ public class XMLTransition implements ITransition
     _outputs.add(c);
   }
   
-  public void addInputMemory(Memory<?> memory, XMLPredicate<?> p)
+  public void addInputMemory(Memory memory, XMLPredicate<?> p)
   {
     _memory_input.add(memory);
     _predicates.add(p);

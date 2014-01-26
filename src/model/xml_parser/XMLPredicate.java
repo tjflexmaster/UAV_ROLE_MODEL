@@ -1,6 +1,7 @@
 package model.xml_parser;
 
 import simulator.ComChannel;
+import simulator.IComLayer;
 import simulator.Memory;
 
 
@@ -26,6 +27,7 @@ public class XMLPredicate<T>
     source(source);
     value(value);
     type(typeString);
+    layer(null);
   }
   
   public XMLPredicate(String typeString, T source, String value, String layer)
@@ -109,86 +111,36 @@ public class XMLPredicate<T>
   
   public boolean test()
   {
-    Object obj;
-    if ( _source instanceof Memory<?> )
-      obj = ((Memory<?>) _source).value();
-    else if ( _source instanceof ComChannel<?> )
-      if ( _layer != null)
-        obj = ((ComChannel<?>) _source).getLayer(_layer);
-      else
-        obj = ((ComChannel<?>) _source).value();
+    IComLayer layer;
+    if ( _source instanceof Memory )
+      layer = ((Memory) _source).layer();
+    else if ( _source instanceof ComChannel )
+      layer = ((ComChannel) _source).getLayer(_layer);
     else
       return false;
     
     //Handle null values
-    if ( obj == null ) {
+    if ( layer == null || layer.value() == null )
       return _value == null;
-    }
     else if ( _value == null )
       return false;
     
-    //We only test 3 types Integer Boolean and String
-    if ( obj instanceof Integer )
-    {
-      Integer lhs = (Integer) obj;
-      Integer rhs = (Integer) XMLDataTypes.getObject(XMLDataTypes.INTEGER, _value);
-      switch(_type) {
-        case EQ:
-          return lhs.equals(rhs);
-        case GT:
-          return (lhs > rhs);
-        case LT:
-          return (lhs < rhs);
-        case NE:
-          return !lhs.equals(rhs);
-        case GTEQ:
-          return (lhs >= rhs);
-        case LTEQ:
-          return (lhs <= rhs);
-      }
-      return false;
+    //Test the ComLayer
+    switch(_type) {
+      case EQ:
+        return layer.isEqual(_value);
+      case GT:
+        return layer.isGt(_value);
+      case LT:
+        return layer.isLt(_value);
+      case NE:
+        return layer.isNotEqual(_value);
+      case GTEQ:
+        return layer.isGtOrEqual(_value);
+      case LTEQ:
+        return layer.isLtOrEqual(_value);
     }
-    else if ( obj instanceof Boolean )
-    {
-      Boolean lhs = (Boolean) obj;
-      Boolean rhs = (Boolean) XMLDataTypes.getObject(XMLDataTypes.BOOLEAN, _value);
-      switch(_type) {
-        case EQ:
-          return lhs.equals(rhs);
-        case GT:
-          return false;
-        case LT:
-          return false;
-        case NE:
-          return !lhs.equals(rhs);
-        case GTEQ:
-          return false;
-        case LTEQ:
-          return false;
-      }
-      return false;
-      
-    }
-    else
-    {
-      String lhs = (String) obj;
-      String rhs = _value;
-      switch(_type) {
-        case EQ:
-          return lhs.equals(rhs);
-        case GT:
-          return false;
-        case LT:
-          return false;
-        case NE:
-          return !lhs.equals(rhs);
-        case GTEQ:
-          return false;
-        case LTEQ:
-          return false;
-      }
-      return false;
-    }
+    return false;
   }
   
 }

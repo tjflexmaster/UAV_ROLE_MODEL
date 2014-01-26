@@ -5,6 +5,7 @@ public class StringLayer implements IComLayer
   
   private String _name;
   private String _value;
+  private IComLayer.DataType _datatype = DataType.STRING;
   
   public StringLayer(String name)
   {
@@ -26,6 +27,8 @@ public class StringLayer implements IComLayer
       _value = value;
   }
   
+  
+  
   //////////////////////////////////////////////////////
   
   @Override
@@ -39,6 +42,21 @@ public class StringLayer implements IComLayer
   {
     return _value;
   }
+  
+  @Override
+  public void value(Object obj)
+  {
+    if ( obj != null )
+      value(getString(obj));
+    else
+      _value = null;
+  }
+  
+  @Override
+  public DataType dataType()
+  {
+    return _datatype;
+  }
 
   @Override
   public boolean isEqual(Object obj)
@@ -50,8 +68,7 @@ public class StringLayer implements IComLayer
   @Override
   public boolean isNotEqual(Object obj)
   {
-    String temp = getString(obj);
-    return !_value.equals(temp);
+    return !isEqual(obj);
   }
 
   @Override

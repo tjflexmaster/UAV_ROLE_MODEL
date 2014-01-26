@@ -28,12 +28,11 @@ public class ComChannel {
 		_target = "None";
 	}
 	
-	public ComChannel(String name, IComLayer layer, Type type)
+	public ComChannel(String name, Object obj, Type type)
 	{
 		_name = name;
 		_type = type;
-//		_value = value;
-		addLayer(layer);
+		setLayer(obj);
 		_source = "None";
 		_target = "None";
 	}
@@ -46,11 +45,11 @@ public class ComChannel {
 		_target = target;
 	}
 	
-	public ComChannel(String name, IComLayer layer, Type type, String source, String target)
+	public ComChannel(String name, Object obj, Type type, String source, String target)
 	{
 		_name = name;
 		_type = type;
-		addLayer(layer);
+		setLayer(obj);
 		_source = source;
 		_target = target;
 	}
@@ -76,20 +75,40 @@ public class ComChannel {
 	  return _layers.size();
 	}
 	
-	public void addLayer(IComLayer layer)
+	public void setLayer(Object obj)
+	{
+	  _layers.put(_name, ComLayerFactory.createLayer(_name, obj));
+	}
+	
+	public void setLayer(IComLayer layer)
 	{
     _layers.put(layer.name(), layer);
 	}
 	
+	public IComLayer getLayer()
+	{
+	  return _layers.get(_name);
+	}
+	
 	public IComLayer getLayer(String name)
 	{
-	  return _layers.get(name);
+	  if ( name != null && !name.isEmpty() )
+	    return _layers.get(name);
+	  else
+	    return getLayer();
 	}
 	
 	public HashMap<String, IComLayer> getLayers()
 	{
 	  //Return a copy
 	  return new HashMap<String, IComLayer>(_layers);
+	}
+	
+	public void clearLayers()
+	{
+	  for(Entry<String, IComLayer> e : _layers.entrySet()) {
+	    e.getValue().value(null);
+	  }
 	}
 	
 	//If all layers are null then a channel is considered inactive

@@ -35,7 +35,7 @@ public class XMLEvent extends Event
   public void setTransition(XMLEventTransition t)
   {
     //Validate outputs
-    for(Entry<String, ComChannel<?>> entry : t.getOutputChannels().entrySet()) 
+    for(Entry<String, ComChannel> entry : t.getOutputChannels().entrySet()) 
     {
       if ( entry.getValue().type() != ComChannel.Type.EVENT ) {
         assert false : "Events are only allowed to affect ComChannels of type EVENT";

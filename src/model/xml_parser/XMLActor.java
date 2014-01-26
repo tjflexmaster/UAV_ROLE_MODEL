@@ -34,32 +34,32 @@ public class XMLActor extends Actor implements IActor {
 	  super.startState(state);
 	}
 	
-	public void addInputChannel(ComChannel<?> channel)
+	public void addInputChannel(ComChannel channel)
 	{
 	  m_inputChannels.add(channel);
 	}
 	
-	public void addOutputChannel(ComChannel<?> channel)
+	public void addOutputChannel(ComChannel channel)
 	{
 	  m_outputChannels.add(channel);
 	}
 	
-	public void addMemory(Memory<?> memory)
+	public void addMemory(Memory memory)
 	{
 	  m_memory.add(memory);
 	}
 	
-	public ComChannel<?> getInputComChannel(String name)
+	public ComChannel getInputComChannel(String name)
 	{
 	  return m_inputChannels.get(name);
 	}
 	
-	public ComChannel<?> getOutputComChannel(String name)
+	public ComChannel getOutputComChannel(String name)
   {
     return m_outputChannels.get(name);
   }
 	
-	public Memory<?> getMemory(String name)
+	public Memory getMemory(String name)
   {
     return m_memory.get(name);
   }

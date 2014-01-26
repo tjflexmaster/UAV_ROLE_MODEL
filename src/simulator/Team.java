@@ -47,13 +47,13 @@ public abstract class Team implements ITeam {
 		_events.add(event);
 	}
 	
-	public void addComChannel(ComChannel<?> c)
+	public void addComChannel(ComChannel c)
 	{
 		assert _com_channels.containsKey(c.name()):"Com channel already defined";
 		_com_channels.add(c);
 	}
 
-	public ComChannel<?> getComChannel(String name)
+	public ComChannel getComChannel(String name)
 	{
 		return _com_channels.get(name);
 	}

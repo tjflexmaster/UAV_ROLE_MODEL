@@ -1,22 +1,23 @@
 package simulator;
 
+
 public class TempMemory
 {
-  private Memory<?> _memory;
-  private String _value;
+  private Memory _memory;
+  private Object _value;
   private String _action;
   
-  public TempMemory(Memory<?> memory, String temp_val)
+  public TempMemory(Memory memory, Object value)
   {
     _memory = memory;
-    _value = temp_val;
+    _value = value;
     _action = "";
   }
   
-  public TempMemory(Memory<?> memory, String temp_val, String action)
+  public TempMemory(Memory memory, Object value, String action)
   {
     _memory = memory;
-    _value = temp_val;
+    _value = value;
     _action = action;
   }
   
@@ -30,23 +31,30 @@ public class TempMemory
     return _action;
   }
   
-  public String value()
+  public Object value()
   {
     return _value;
   }
   
-  public void value(String value)
+  public void value(Object value)
   {
     _value = value;
   }
   
   public void fire()
   {
-    if ( _action.equals("+") ) {
-      _memory.set((Integer)_memory.value() + Integer.parseInt(_value));
-    } else if ( _action.equals("-") ) {
-      _memory.set((Integer)_memory.value() - Integer.parseInt(_value));
+    IComLayer layer = _memory.layer();
+    
+    //Perform actions
+    if ( layer.dataType() == IComLayer.DataType.INTEGER) {
+      if ( _action.equals("+") ) {
+       ((IntegerLayer) layer).add(_value);
+      } else if ( _action.equals("-") ) {
+        ((IntegerLayer) layer).subtract(_value);
+      } else
+        _memory.layer(_value);
     } else
-      _memory.set(_value);
+      _memory.layer(_value);
   }
+  
 }
