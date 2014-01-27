@@ -21,6 +21,7 @@
         <channel>VISUAL_PS_MM</channel>
       </outputchannels>
       
+      <!-- Always instantiate with a default value -->
       <memory name="SEARCH_AREAS" dataType="Integer">0</memory>
       
       <startState>IDLE</startState>
@@ -29,13 +30,23 @@
         <state name="IDLE">
             <!-- Receive a poke from the MM -->
             <transition durationMin="1" durationMax="1" priority="10">
-              <description>Recieved "POKE" from the MM</description>
+              <description>Received "POKE" from the MM</description>
               <inputs>
-                <channel name="AUDIO_MM_PS" predicate="eq" >POKE</channel>
+                <channel name="AUDIO_MM_PS">
+                <!-- Layers have a name, predicate, and dataType.
+                  If no name is specified then the channel name is used.
+                  If no dataType is specified then String is used.
+                  -->
+                  <layer predicate="eq">POKE</layer>
+                </channel>
               </inputs>
               <outputs>
-                <channel name="AUDIO_PS_MM">ACK</channel>
-                <channel name="AUDIO_PS_MM" layer="test">ACK</channel>
+                <channel name="AUDIO_PS_MM">
+                  <layer>ACK</layer>
+                </channel>
+                <channel name="VISUAL_PS_MM">
+                  <layer>ACK</layer>
+                </channel>
               </outputs>
               <endState>RX_MM</endState>
             </transition>
@@ -44,10 +55,16 @@
             <transition durationMin="1" durationMax="1" priority="10">
               <description>Received new search event</description>
               <inputs>
-                <channel name="NEW_SEARCH_EVENT" predicate="eq">NEW_SEARCH_EVENT</channel>
+                <channel name="NEW_SEARCH_EVENT">
+                  <layer predicate="eq">NEW_SEARCH_EVENT</layer>
+                </channel>
               </inputs>
               <outputs>
-                <channel name="AUDIO_PS_MM">POKE</channel>
+                <channel name="AUDIO_PS_MM">
+                  <layer>POKE</layer>
+                  <layer name="TEST" dataType="Integer">5</layer>
+                  <layer name="TEST2" dataType="Boolean">false</layer>
+                </channel>
                 <memory name="SEARCH_AREAS" action="+">1</memory>
               </outputs>
               <endState>POKE_MM</endState>
@@ -58,10 +75,14 @@
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Recieved "ACK" from the MM</description>
             <inputs>
-              <channel name="AUDIO_MM_PS" predicate="eq">ACK</channel>
+              <channel name="AUDIO_MM_PS">
+                <layer predicate="eq">ACK</layer>
+              </channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"><null/></channel>
+              <channel name="AUDIO_PS_MM">
+                <layer><null/></layer>
+              </channel>
             </outputs>
             <endState>TX_MM</endState>
           </transition>
@@ -72,11 +93,17 @@
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Recieved "SEARCH_COMPLETE" from the MM</description>
             <inputs>
-              <channel name="AUDIO_MM_PS" predicate="eq">SEARCH_COMPLETE</channel>
-              <channel name="VISUAL_MM_PS" predicate="eq">SEARCH_COMPLETE</channel>
+              <channel name="AUDIO_MM_PS">
+                <layer predicate="eq">SEARCH_COMPLETE</layer>
+              </channel>
+              <channel name="VISUAL_MM_PS">
+                <layer predicate="eq">SEARCH_COMPLETE</layer>
+              </channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"><null/></channel>
+              <channel name="AUDIO_PS_MM">
+                <layer><null/></layer>
+              </channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
@@ -90,8 +117,12 @@
               <memory name="SEARCH_AREAS" predicate="gt">0</memory>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM">NEW_SEARCH_AREA</channel>
-              <channel name="VISUAL_PS_MM">NEW_SEARCH_AREA</channel>
+              <channel name="AUDIO_PS_MM">
+                <layer>NEW_SEARCH_AREA</layer>
+              </channel>
+              <channel name="VISUAL_PS_MM">
+                <layer>NEW_SEARCH_AREA</layer>
+              </channel>
               <memory name="SEARCH_AREAS" action="-">1</memory>
             </outputs>
             <endState>END_MM</endState>
@@ -99,12 +130,16 @@
           
           <!-- Default transition -->
           <transition durationMin="1" durationMax="1" priority="0">
-            <description>Auto ransition back to end state with Low Priority</description>
+            <description>Auto transition back to end state with Low Priority</description>
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"><null/></channel>
-              <channel name="VISUAL_PS_MM"><null/></channel>
+              <channel name="AUDIO_PS_MM">
+                <layer><null/></layer>
+              </channel>
+              <channel name="VISUAL_PS_MM">
+                <layer><null/></layer>
+              </channel>
             </outputs>
             <endState>END_MM</endState>
           </transition>
@@ -117,8 +152,12 @@
             <inputs>
             </inputs>
             <outputs>
-              <channel name="AUDIO_PS_MM"><null/></channel>
-              <channel name="VISUAL_PS_MM"><null/></channel>
+              <channel name="AUDIO_PS_MM">
+                <layer><null/></layer>
+              </channel>
+              <channel name="VISUAL_PS_MM">
+                <layer><null/></layer>
+              </channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
@@ -145,10 +184,16 @@
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Recieved "POKE" from the PS</description>
             <inputs>
-              <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
+              <channel name="AUDIO_PS_MM">
+                <layer predicate="eq">POKE</layer>
+                <!--<layer name="TEST" dataType="Integer" predicate="gt">2</layer>-->
+                <!--<layer name="TEST2" dataType="Boolean" predicate="ne">true</layer>-->
+              </channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_MM_PS">ACK</channel>
+              <channel name="AUDIO_MM_PS">
+                <layer>ACK</layer>
+              </channel>
             </outputs>
             <endState>RX_PS</endState>
           </transition>
@@ -170,10 +215,14 @@
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Received "POKE" from the MM</description>
             <inputs>
-              <channel name="AUDIO_PS_MM" predicate="eq">POKE</channel>
+              <channel name="AUDIO_PS_MM">
+                <layer predicate="eq">POKE</layer>
+              </channel>
             </inputs>
             <outputs>
-              <channel name="AUDIO_MM_PS">ACK</channel>
+              <channel name="AUDIO_MM_PS">
+                <layer>ACK</layer>
+              </channel>
             </outputs>
             <endState>RX_PS</endState>
           </transition>
