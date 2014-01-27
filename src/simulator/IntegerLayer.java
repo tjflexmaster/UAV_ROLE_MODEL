@@ -32,7 +32,7 @@ public class IntegerLayer implements IComLayer
   
   public void value(String value)
   {
-    _value = Integer.getInteger(value);
+    _value = Integer.parseInt(value);
   }
   
   public void add(Object value)
@@ -77,7 +77,10 @@ public class IntegerLayer implements IComLayer
   @Override
   public boolean isEqual(Object obj)
   {
-    return _value == getInteger(obj);
+    if ( _value != null )
+      return _value == getInteger(obj);
+    else
+      return getInteger(obj) == null;
   }
 
   @Override
@@ -89,25 +92,53 @@ public class IntegerLayer implements IComLayer
   @Override
   public boolean isGt(Object obj)
   {
-    return _value > getInteger(obj);
+    if ( _value != null )
+      return _value > getInteger(obj);
+    else {
+      if ( getInteger(obj) != null )
+        return true;
+      else
+        return false;
+    }
   }
 
   @Override
   public boolean isLt(Object obj)
   {
-    return _value < getInteger(obj);
+    if ( _value != null )
+      return _value < getInteger(obj);
+    else {
+      if ( getInteger(obj) != null )
+        return true;
+      else
+        return false;
+    }
   }
 
   @Override
   public boolean isGtOrEqual(Object obj)
   {
-    return _value >= getInteger(obj);
+    if ( _value != null )
+      return _value >= getInteger(obj);
+    else {
+      if ( getInteger(obj) != null )
+        return true;
+      else
+        return false;
+    }
   }
 
   @Override
   public boolean isLtOrEqual(Object obj)
   {
-    return _value <= getInteger(obj);
+    if ( _value != null )
+      return _value <= getInteger(obj);
+    else {
+      if ( getInteger(obj) != null )
+        return true;
+      else
+        return false;
+    }
   }
 
 ///////////////////////////////////////////////////
@@ -124,9 +155,9 @@ public class IntegerLayer implements IComLayer
   {
     if ( obj instanceof Integer )
       return (Integer) obj;
-    else if ( obj instanceof String )
-      return Integer.getInteger((String) obj);
-    else
+    else if ( obj instanceof String ) {
+      return Integer.parseInt((String) obj);
+    } else
       assert false : "Unrecognized object sent to IntegerLayer";
     
     return null;

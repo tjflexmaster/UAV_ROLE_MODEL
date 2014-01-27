@@ -17,12 +17,12 @@ public class XMLPredicate<T>
   }
   
   private T _source;
-  private String _value;
+  private Object _value;
   private Type _type;
   private String _layer;
   
   
-  public XMLPredicate(String typeString, T source, String value)
+  public XMLPredicate(String typeString, T source, Object value)
   {
     source(source);
     value(value);
@@ -30,7 +30,7 @@ public class XMLPredicate<T>
     layer(null);
   }
   
-  public XMLPredicate(String typeString, T source, String value, String layer)
+  public XMLPredicate(String typeString, T source, Object value, String layer)
   {
     source(source);
     value(value);
@@ -52,6 +52,7 @@ public class XMLPredicate<T>
         _type = Type.LT;
         break;
       case "ne":
+      case "neq":
         _type = Type.NE;
         break;
       case "gteq":
@@ -76,12 +77,12 @@ public class XMLPredicate<T>
     this._type = type;
   }
 
-  public String value()
+  public Object value()
   {
     return _value;
   }
 
-  public void value(String value)
+  public void value(Object value)
   {
     this._value = value;
   }

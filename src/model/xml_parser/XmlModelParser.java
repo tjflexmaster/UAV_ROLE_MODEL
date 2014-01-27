@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import simulator.ComChannel;
 import simulator.ComChannelList;
@@ -349,79 +350,198 @@ public class XmlModelParser {
 	  if ( description_e.size() >= 1 )
 	    t.description(description_e.get(0).getValue());
 	  
+	  //Parse inputs
+	  parseTransitionComChannelInputs(transition, actor, t);
+	  parseTransitionMemoryInputs(transition, actor, t);
+	  
+	  //Parse outputs
+	  parseTransitionComChannelOutputs(transition, actor, t);
+	  parseTransitionMemoryOutputs(transition, actor, t);
+    
+	  return t;
+	}
+	
+	private void parseTransitionComChannelInputs(Element transition, 
+                                               XMLActor actor,
+                                               XMLTransition t)
+	{
 	  //Set the transition comchannel inputs
     Elements inputchannels = parseElementArray(transition, "inputs", "channel");
     for(int j=0; j < inputchannels.size(); j++) {
       Element channel_e = inputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
       String predicate = channel_e.getAttributeValue("predicate");
-      String layer = channel_e.getAttributeValue("layer");
-      //check for a null value
-      Elements nullElements = channel_e.getChildElements("null");
-      String value = null;
-      if (nullElements.size() <= 0) {
-        value = channel_e.getValue();
-      }
+      String dataType = channel_e.getAttributeValue("dataType");
+      
+      //Get the real channel obj
       ComChannel c = actor.getInputComChannel(name);
       assert c != null : "Invalid transition input.  Actor has no input channel:" +
           name;
-      t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, value, layer));
-    }
-    
+      
+      //Parse layers if they exist
+      Elements layerElements = channel_e.getChildElements("layer");
+      //If no layer elements then assume value is meant for the default layer
+      if ( layerElements.size() <= 0 ) {
+        Elements nullElements = channel_e.getChildElements("null");
+        Object obj = null;
+        if (nullElements.size() <= 0) {
+          //Convert string to object of specified type
+          if ( dataType != null )
+            obj = XMLDataTypes.getObject(dataType, channel_e.getValue());
+          else
+            obj = channel_e.getValue();
+        }
+        
+        //Add to transition inputs
+        t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, obj));
+        
+      } else {
+        //The channel has layers, parse each layer
+        for(int k=0; k < layerElements.size(); k++) {
+          Element layer_e = layerElements.get(k);
+          String layer_name = layer_e.getAttributeValue("name");
+          String layer_predicate = layer_e.getAttributeValue("predicate");
+          String layer_dataType = layer_e.getAttributeValue("dataType");
+          Elements nullElements = channel_e.getChildElements("null");
+          Object obj = null;
+          if (nullElements.size() <= 0) {
+            //Convert string to object of specified type
+            if ( layer_dataType != null )
+              obj = XMLDataTypes.getObject(layer_dataType, layer_e.getValue());
+            else
+              obj = layer_e.getValue();
+          }
+          
+          //Check if this is the default layer
+          if ( layer_name == null || layer_name.equals("") ) {
+            layer_name = c.name();
+          }
+          
+          //Add the layer input to the transition
+          t.addInput(c, new XMLPredicate<ComChannel>(layer_predicate, c, obj, layer_name));
+        }//end for layer
+      }//end if
+    }//end for channel
+	}
+	
+	private void parseTransitionMemoryInputs(Element transition, 
+                                           XMLActor actor,
+                                           XMLTransition t)
+	{
     //Set the transition memory inputs
     Elements memoryinputs = parseElementArray(transition, "inputs", "memory");
     for(int j=0; j < memoryinputs.size(); j++) {
       Element memory_e = memoryinputs.get(j);
       String name = memory_e.getAttributeValue("name");
       String predicate = memory_e.getAttributeValue("predicate");
+      String dataType = memory_e.getAttributeValue("dataType");
       //check null
       Elements nullElements = memory_e.getChildElements("null");
-      String value = null;
+      Object obj = null;
       if (nullElements.size() <= 0) {
-        value = memory_e.getValue();
+        //Convert string to object of specified type
+        if ( dataType != null )
+          obj = XMLDataTypes.getObject(dataType, memory_e.getValue());
+        else
+          obj = memory_e.getValue();
       }
       Memory m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;
-      t.addInputMemory(m, new XMLPredicate<Memory>(predicate, m, value));
+      t.addInputMemory(m, new XMLPredicate<Memory>(predicate, m, obj));
     }
-	  
-    //Set the transition outputs
+    
+	}
+	
+	private void parseTransitionComChannelOutputs(Element transition,
+	                                              XMLActor actor,
+	                                              XMLTransition t)
+	{
+	  //Set the transition outputs
     Elements outputchannels = parseElementArray(transition, "outputs", "channel");
     for(int j=0; j < outputchannels.size(); j++) {
       Element channel_e = outputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
-      String layer = channel_e.getAttributeValue("layer");
-      //check for a null value
-      Elements nullElements = channel_e.getChildElements("null");
-      String value = null;
-      if (nullElements.size() <= 0) {
-        value = channel_e.getValue();
-      }
+      String dataType = channel_e.getAttributeValue("dataType");
+      
+      //Get the real channel obj
       ComChannel c = actor.getOutputComChannel(name);
-      assert c != null : "Invalid transition output.  Actor has no output channel:" +
+      assert c != null : "Invalid transition input.  Actor has no input channel:" +
           name;
-      t.addOutput(new TempComChannel(c, value, layer));
-    }
-    
-    //Set the transition memory outputs
+      
+      //Parse layers if they exist
+      Elements layerElements = channel_e.getChildElements("layer");
+      //If no layer elements then assume value is meant for the default layer
+      if ( layerElements.size() <= 0 ) {
+        Elements nullElements = channel_e.getChildElements("null");
+        Object obj = null;
+        if (nullElements.size() <= 0) {
+          //Convert string to object of specified type
+          if ( dataType != null )
+            obj = XMLDataTypes.getObject(dataType, channel_e.getValue());
+          else
+            obj = channel_e.getValue();
+        }
+        
+        //Add to transition inputs
+        t.addOutput(new TempComChannel(c, obj));
+        
+      } else {
+        //The channel has layers, parse each layer
+        for(int k=0; k < layerElements.size(); k++) {
+          Element layer_e = layerElements.get(k);
+          String layer_name = layer_e.getAttributeValue("name");
+          String layer_dataType = layer_e.getAttributeValue("dataType");
+          Elements nullElements = channel_e.getChildElements("null");
+          Object obj = null;
+          if (nullElements.size() <= 0) {
+            //Convert string to object of specified type
+            if ( layer_dataType != null )
+              obj = XMLDataTypes.getObject(layer_dataType, layer_e.getValue());
+            else
+              obj = layer_e.getValue();
+          }
+          
+          //Check if this is the default layer
+          if ( layer_name == null || layer_name.equals("") ) {
+            layer_name = c.name();
+          }
+          
+          //Add the layer input to the transition
+          t.addOutput(new TempComChannel(c, layer_name, obj));
+          
+        }//end for layer
+      }//end if
+    }//end for channel
+	}
+	
+	
+	private void parseTransitionMemoryOutputs(Element transition,
+                                            XMLActor actor,
+                                            XMLTransition t)
+	{
+	  //Set the transition memory outputs
     Elements memoryoutputs = parseElementArray(transition, "outputs", "memory");
     for(int j=0; j < memoryoutputs.size(); j++) {
       Element memory_e = memoryoutputs.get(j);
       String name = memory_e.getAttributeValue("name");
       String action = memory_e.getAttributeValue("action");
+      String dataType = memory_e.getAttributeValue("dataType");
       //check null
       Elements nullElements = memory_e.getChildElements("null");
-      String value = null;
+      Object obj = null;
       if (nullElements.size() <= 0) {
-        value = memory_e.getValue();
+        //Convert string to object of specified type
+        if ( dataType != null )
+          obj = XMLDataTypes.getObject(dataType, memory_e.getValue());
+        else
+          obj = memory_e.getValue();
       }
       Memory m = actor.getMemory(name);
       assert m != null : "Invalid transition input.  Actor has no memory:" +
           name;
-      t.addOutputMemory(new TempMemory(m, value, action));
+      t.addOutputMemory(new TempMemory(m, obj, action));
     }
-	  return t;
 	}
 	
 	/**

@@ -26,14 +26,14 @@ public class BooleanLayer implements IComLayer
     value(value);
   }
   
-  public void value(boolean value)
+  public void value(Boolean value)
   {
     _value = value;
   }
   
   public void value(String value)
   {
-    _value = Boolean.getBoolean(value);
+    _value = Boolean.parseBoolean(value);
   }
   
 ////////////////////////////////////////////////////////
@@ -68,7 +68,10 @@ public class BooleanLayer implements IComLayer
   @Override
   public boolean isEqual(Object obj)
   {
-    return _value == getBoolean(obj);
+    if ( _value != null )
+      return _value == getBoolean(obj);
+    else 
+      return getBoolean(obj) == null;
   }
 
   @Override
@@ -120,7 +123,7 @@ public class BooleanLayer implements IComLayer
     if ( obj instanceof Boolean )
       return (Boolean) obj;
     else if ( obj instanceof String )
-      return Boolean.getBoolean((String) obj);
+      return Boolean.parseBoolean((String) obj);
     else
       assert false : "Unrecognized object sent to BooleanLayer";
     

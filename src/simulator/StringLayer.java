@@ -61,8 +61,10 @@ public class StringLayer implements IComLayer
   @Override
   public boolean isEqual(Object obj)
   {
-    String temp = getString(obj);
-    return _value.equals(temp);
+    if ( _value != null )
+      return _value.equals(getString(obj));
+    else 
+      return getString(obj) == null;
   }
 
   @Override

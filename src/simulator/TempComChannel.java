@@ -40,7 +40,7 @@ public class TempComChannel
       _channel.setLayer(ComLayerFactory.createLayer(_layer, _value));
     else {
       layer.value(_value);
-      _channel.setLayer(_layer);
+      _channel.setLayer(layer);
     }
   }
 
