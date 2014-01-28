@@ -8,16 +8,350 @@
     <channel name="TACTILE_UAVOP_UAVGUI" type="TACTILE" source="UAVOP" target="UAVGUI" dataType="String"/>
     <channel name="DATA_UAS_UAV" type="DATA" source="UAS" target="UAV" dataType="String"/>
     <channel name="DATA_UAS_UAVGUI" type="DATA" source="UAS" target="UAVGUI" dataType="String"/>
-    <channel name="DATA_UAS_FFA" type="DATA" source="UAS" target="FAA" dataType="String"/>
+    <channel name="DATA_UAS_FAA" type="DATA" source="UAS" target="FAA" dataType="String"/>
     <channel name="DATA_FAA_UAS" type="DATA" source="FAA" target="UAS" dataType="String"/>
     <channel name="DATA_FAA_ATCGUI" type="DATA" source="FAA" target="ATCGUI" dataType="String"/>
     <channel name="DATA_ATCGUI_FAA" type="DATA" source="ATCGUI" target="FAA" dataType="String"/>
     <channel name="VISUAL_ATCGUI_ATC" type="VISUAL" source="ATCGUI" target="ATC" dataType="String"/>
     <channel name="TACTILE_ATC_ATCGUI" type="TACTILE" source="ATC" target="ATCGUI" dataType="String"/>
+  
+    <!-- Event Channels -->
+    <channel name="NEW_MISSION" type="EVENT" source="" target="UAVOP" dataType="String"/>
   </channels>
   
   <!-- Model Actors -->
   <actors>
+    <!-- ACTOR UAVOP   ////////////////////////////////////////////////////////////-->
+    <actor name="UAVOP">
+      <inputchannels>
+        <channel>VISUAL_UAVGUI_UAVOP</channel>
+        <channel>AUDIO_UAVGUI_UAVOP</channel>
+        <channel>VISUAL_UAV_UAVOP</channel>
+        <channel>NEW_MISSION</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>TACTILE_UAVOP_UAVGUI</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <memory name="FAA_APPROVED" dataType="Boolean">false</memory>
+      <memory name="FLIGHT_PLAN_READY" dataType="Boolean">false</memory>
+      
+      <!-- Start state -->
+      <startState>IDLE</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="IDLE">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Received new mission, begin building flight plan.</description>
+            <inputs>
+              <channel name="NEW_MISSION" predicate="eq">NEW_MISSION</channel>
+            </inputs>
+            <outputs>
+            </outputs>
+            <endState>BUILD_FP</endState>
+          </transition>
+        </state>
+        
+        <state name="BUILD_FP">
+          <!-- transitions -->
+          <transition durationMin="900" durationMax="1200" priority="10">
+            <description>Build a flight plan</description>
+            <inputs>
+              <memory name="FLIGHT_PLAN_READY" predicate="eq">false</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE" dataType="String">FLIGHT_PLAN</layer>
+                <layer name="KEYBOARD" dataType="String">FLIGHT_PLAN</layer>
+              </channel>
+              <memory name="FLIGHT_PLAN_READY" dataType="Boolean">true</memory>
+            </outputs>
+            <endState>BUILD_FP</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Click the Send flight plan button</description>
+            <inputs>
+              <memory name="FLIGHT_PLAN_READY" predicate="eq">true</memory>
+              <memory name="FAA_APPROVED" predicate="eq">false</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE" dataType="String">SEND_FLIGHT_PLAN</layer>
+              </channel>
+            </outputs>
+            <endState>WAITING_ON_FAA</endState>
+          </transition>
+        </state>
+        
+        <state name="WAITING_ON_FAA">
+          <transition durationMin="1" durationMax="1" priority="0">
+            <description>Clear mouse layer value on gui tactile channel</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" >
+                <layer name="MOUSE" predicate="ne"><null/></layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>WAITING_ON_FAA</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="0">
+            <description>Clear keyboard layer value on gui tactile channel</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" >
+                <layer name="KEYBOARD" predicate="ne"><null/></layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="KEYBOARD"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>WAITING_ON_FAA</endState>
+          </transition>
+          
+          <transition durationMin="30" durationMax="60" priority="1">
+            <description>FAA approved the flight</description>
+            <inputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">
+                <layer name="FAA_APPROVAL" dataType="Boolean" predicate="eq">true</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE">TAKEOFF</layer>
+              </channel>
+              <memory name="FAA_APPROVED" dataType="Boolean">true</memory>
+            </outputs>
+            <endState>MONITOR_TAKEOFF</endState>
+          </transition>
+          
+          <transition durationMin="30" durationMax="60" priority="1">
+            <description>FAA rejected flight</description>
+            <inputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">
+                <layer name="FAA_APPROVAL" dataType="Boolean" predicate="eq">false</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE">ACK_FAILURE</layer>
+              </channel>
+              <memory name="FLIGHT_PLAN_READY" dataType="Boolean">false</memory>
+            </outputs>
+            <endState>BUILD_FP</endState>
+          </transition>
+        </state>
+        
+        <state name="MONITOR_TAKEOFF">
+          <transitions>
+            <transition durationMin="1" durationMax="1" priority="1">
+              <description>UAV is airborne</description>
+              <inputs>
+                <channel name="VISUAL_UAV_UAVOP" predicate="eq">FLYING</channel>
+              </inputs>
+              <outputs>
+              </outputs>
+              <endState>MONITOR_UAVGUI</endState>
+            </transition>
+          </transitions>
+        </state>
+        
+        <state name="MONITOR_UAVGUI">
+          
+        </state>
+      </states>
+    </actor>
+    
+    <!-- ACTOR UAVGUI //////////////////////////////////////////////////////-->
+    <actor name="UAVGUI">
+      <inputchannels>
+        <channel>TACTILE_UAVOP_UAVGUI</channel>
+        <channel>DATA_UAS_UAVGUI</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>VISUAL_UAVGUI_UAVOP</channel>
+        <channel>AUDIO_UAVGUI_UAVOP</channel>
+        <channel>DATA_UAVGUI_UAS</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      <memory name="NOTAM_ON_FLIGHT_PLAN" dataType="Boolean">false</memory>
+      <memory name="AVOIDING_NOTAM" dataType="Boolean">false</memory>
+      <memory name="AVOIDING_COLLISION" dataType="Boolean">false</memory>
+      <memory name="POSSIBLE_COLLISION" dataType="Boolean">false</memory>
+      
+      <!-- Start state -->
+      <startState>NORMAL</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="NORMAL">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>Send flight plan to UAS if we haven't yet</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI">
+                <layer name="MOUSE" predicate="eq">SEND_FLIGHT_PLAN</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">SEND_FLIGHT_PLAN</channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+ 
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode for NOTAM on the flight plan</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">NOTAM_ON_FLIGHT_PLAN</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">NOTAM_ON_FLIGHT_PLAN</channel>
+              <memory name="NOTAM_ON_FLIGHT_PLAN">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode for avoiding a NOTAM</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_NOTAM</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_NOTAM</channel>
+              <memory name="AVOIDING_NOTAM">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_COLLISION</channel>
+              <memory name="AVOIDING_COLLISION">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Alert mode</description>
+            <inputs>
+              <channel name="DATA_UAS_UAVGUI" predicate="eq">POSSIBLE_COLLISION</channel>
+            </inputs>
+            <outputs>
+              <channel name="VISUAL_UAVGUI_UAVOP">POSSIBLE_COLLISION</channel>
+              <memory name="POSSIBLE_COLLISION">true</memory>
+            </outputs>
+            <endState>ALERT</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Manual Fly mode</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
+            </outputs>
+            <endState>MANUAL_FLIGHT</endState>
+          </transition>
+        </state>
+        
+        <state name="ALERT">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Change to Manual Fly mode</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
+            </outputs>
+            <endState>MANUAL_FLIGHT</endState>
+          </transition>
+        </state>
+        
+        <state name="MANUAL_FLIGHT">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Resume normal flight</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">RESUME_FLIGHT</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAVGUI_UAS">RESUME_FLIGHT</channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+        </state>
+      </states>
+    </actor>
+    
+    <!-- Actor UAS ///////////////////////////////////////////////////////////-->
+    <actor name="UAS">
+      <inputchannels>
+        <channel>DATA_UAVGUI_UAS</channel>
+        <channel>DATA_FAA_UAS</channel>
+        <channel>DATA_UAV_UAS</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>DATA_UAS_UAVGUI</channel>
+        <channel>DATA_UAS_FAA</channel>
+        <channel>DATA_UAS_UAV</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      
+      <!-- Start state -->
+      <startState>NORMAL</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="NORMAL">
+          <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>Send Flight Plan to FAA</description>
+            <inputs>
+              <channel name="DATA_UAVGUI_UAS" predicate="eq">SEND_FLIGHT_PLAN</channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAS_FAA">SEND_FLIGHT_PLAN</channel>
+              <channel name="DATA_UAVGUI_UAS"><null/></channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+        </state>
+        
+        <!--
+        <state name="TEST">
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>TEST</description>
+            <inputs>
+              <channel name="" predicate="eq">TEST</channel>
+            </inputs>
+            <outputs>
+              <channel name="">TEST</channel>
+            </outputs>
+            <endState>TEST</endState>
+          </transition>
+        </state>
+        -->     
+      </states>
+    </actor>
+    
+    <!-- Actor UAV //////////////////////////////////////////////////////-->
     <actor name="UAV">
       <inputchannels>
         <channel>DATA_UAS_UAV</channel>
@@ -95,7 +429,7 @@
             <outputs>
               <channel name="DATA_UAV_UAS">AVOIDING_COLLISION</channel>
             </outputs>
-            <endState>AVOIDING_COLLISION</endState>
+            <endState>AVOID_COLLISION</endState>
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="10">
@@ -163,7 +497,7 @@
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Resume a normal flight</description>
             <inputs>
-              <channel name="DATA_UAS_UAV">RESUME_FLIGHT</channel>
+              <channel name="DATA_UAS_UAV" predicate="eq">RESUME_FLIGHT</channel>
             </inputs>
             <outputs>
               <channel name="DATA_UAV_UAS">FLYING</channel>
@@ -201,229 +535,7 @@
       </states>
     </actor>
     
-    <actor name="UAVGUI">
-      <inputchannels>
-        <channel>TACTILE_UAVOP_UAVGUI</channel>
-        <channel>DATA_UAS_UAVGUI</channel>
-      </inputchannels>
-      <outputchannels>
-        <channel>VISUAL_UAVGUI_UAVOP</channel>
-        <channel>AUDIO_UAVGUI_UAVOP</channel>
-        <channel>DATA_UAVGUI_UAS</channel>
-      </outputchannels>
-      
-      <!-- Define actor memory -->
-      <memory name="NOTAM_ON_FLIGHT_PLAN" dataType="Boolean">false</memory>
-      <memory name="AVOIDING_NOTAM" dataType="Boolean">false</memory>
-      <memory name="AVOIDING_COLLISION" dataType="Boolean">false</memory>
-      <memory name="POSSIBLE_COLLISION" dataType="Boolean">false</memory>
-      
-      <!-- Start state -->
-      <startState>GROUNDED</startState>
-      
-      <!-- States -->
-      <states>
-        <state name="NORMAL">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Alert mode for NOTAM on the flight plan</description>
-            <inputs>
-              <channel name="DATA_UAS_UAVGUI" predicate="eq">NOTAM_ON_FLIGHT_PLAN</channel>
-            </inputs>
-            <outputs>
-              <channel name="VISUAL_UAVGUI_UAVOP">NOTAM_ON_FLIGHT_PLAN</channel>
-              <memory name="NOTAM_ON_FLIGHT_PLAN">true</memory>
-            </outputs>
-            <endState>ALERT</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Alert mode for avoiding a NOTAM</description>
-            <inputs>
-              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_NOTAM</channel>
-            </inputs>
-            <outputs>
-              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_NOTAM</channel>
-              <memory name="AVOIDING_NOTAM">true</memory>
-            </outputs>
-            <endState>ALERT</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Alert mode</description>
-            <inputs>
-              <channel name="DATA_UAS_UAVGUI" predicate="eq">AVOIDING_COLLISION</channel>
-            </inputs>
-            <outputs>
-              <channel name="VISUAL_UAVGUI_UAVOP">AVOIDING_COLLISION</channel>
-              <memory name="AVOIDING_COLLISION">true</memory>
-            </outputs>
-            <endState>ALERT</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Alert mode</description>
-            <inputs>
-              <channel name="DATA_UAS_UAVGUI" predicate="eq">POSSIBLE_COLLISION</channel>
-            </inputs>
-            <outputs>
-              <channel name="VISUAL_UAVGUI_UAVOP">POSSIBLE_COLLISION</channel>
-              <memory name="POSSIBLE_COLLISION">true</memory>
-            </outputs>
-            <endState>ALERT</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Manual Fly mode</description>
-            <inputs>
-              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
-            </inputs>
-            <outputs>
-              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
-            </outputs>
-            <endState>MANUAL_FLIGHT</endState>
-          </transition>
-        </state>
-        
-        <state name="ALERT">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Change to Manual Fly mode</description>
-            <inputs>
-              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">FLY_MANUAL</channel>
-            </inputs>
-            <outputs>
-              <channel name="DATA_UAVGUI_UAS">FLY_MANUAL</channel>
-            </outputs>
-            <endState>MANUAL_FLIGHT</endState>
-          </transition>
-        </state>
-        
-        <state name="MANUAL_FLIGHT">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>Resume normal flight</description>
-            <inputs>
-              <channel name="TACTILE_UAVOP_UAVGUI" predicate="eq">RESUME_FLIGHT</channel>
-            </inputs>
-            <outputs>
-              <channel name="DATA_UAVGUI_UAS">RESUME_FLIGHT</channel>
-            </outputs>
-            <endState>NORMAL</endState>
-          </transition>
-        </state>
-      </states>
-    </actor>
-    
-    <actor name="UAVOP">
-      <inputchannels>
-        <channel>VISUAL_UAVGUI_UAVOP</channel>
-        <channel>AUDIO_UAVGUI_UAVOP</channel>
-        <channel>VISUAL_UAV_UAVOP</channel>
-      </inputchannels>
-      <outputchannels>
-        <channel>TACTILE_UAVOP_UAVGUI</channel>
-      </outputchannels>
-      
-      <!-- Define actor memory -->
-      <!-- none -->
-      
-      <!-- Start state -->
-      <startState>GROUNDED</startState>
-      
-      <!-- States -->
-      <states>
-        <state name="TEST">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-        </state>
-        
-        <state name="TEST">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-        </state>
-      </states>
-    </actor>
-    
-    <actor name="UAS">
-      <inputchannels>
-        <channel>DATA_UAVGUI_UAS</channel>
-        <channel>DATA_FAA_UAS</channel>
-        <channel>DATA_UAV_UAS</channel>
-      </inputchannels>
-      <outputchannels>
-        <channel>DATA_UAS_UAVGUI</channel>
-        <channel>DATA_UAS_FAA</channel>
-        <channel>DATA_UAS_UAV</channel>
-      </outputchannels>
-      
-      <!-- Define actor memory -->
-      <!-- none -->
-      
-      <!-- Start state -->
-      <startState>GROUNDED</startState>
-      
-      <!-- States -->
-      <states>
-        <state name="TEST">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-        </state>
-        
-        <state name="TEST">
-          <!-- transitions -->
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-        </state>
-      </states>
-    </actor>
-    
+    <!-- Actor FAA ///////////////////////////////////////////////////////////-->
     <actor name="FAA">
       <inputchannels>
         <channel>DATA_UAS_FAA</channel>
@@ -438,12 +550,13 @@
       <!-- none -->
       
       <!-- Start state -->
-      <startState>GROUNDED</startState>
+      <startState>TEST</startState>
       
       <!-- States -->
       <states>
         <state name="TEST">
           <!-- transitions -->
+          <!--
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -454,10 +567,11 @@
             </outputs>
             <endState>TEST</endState>
           </transition>
+          -->       
         </state>
         
+        <!--
         <state name="TEST">
-          <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -469,9 +583,11 @@
             <endState>TEST</endState>
           </transition>
         </state>
+        -->     
       </states>
     </actor>
     
+    <!-- Actor ATCGUI ////////////////////////////////////////////////////-->
     <actor name="ATCGUI">
       <inputchannels>
         <channel>DATA_FAA_ATCGUI</channel>
@@ -486,12 +602,13 @@
       <!-- none -->
       
       <!-- Start state -->
-      <startState>GROUNDED</startState>
+      <startState>TEST</startState>
       
       <!-- States -->
       <states>
         <state name="TEST">
           <!-- transitions -->
+          <!--
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -502,10 +619,11 @@
             </outputs>
             <endState>TEST</endState>
           </transition>
+          -->       
         </state>
         
+        <!--
         <state name="TEST">
-          <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -517,6 +635,7 @@
             <endState>TEST</endState>
           </transition>
         </state>
+        -->     
       </states>
     </actor>
     
@@ -532,12 +651,13 @@
       <!-- none -->
       
       <!-- Start state -->
-      <startState>GROUNDED</startState>
+      <startState>TEST</startState>
       
       <!-- States -->
       <states>
         <state name="TEST">
           <!-- transitions -->
+          <!--
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -548,10 +668,11 @@
             </outputs>
             <endState>TEST</endState>
           </transition>
+          -->
         </state>
         
+        <!--
         <state name="TEST">
-          <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>TEST</description>
             <inputs>
@@ -563,8 +684,23 @@
             <endState>TEST</endState>
           </transition>
         </state>
+        -->
       </states>
     </actor>
   </actors>
+  
+  <!-- System Events -->
+  <events>
+    <event name="NEW_MISSION" count="1">
+      <transition>
+        <description> Start a new UAV mission</description>
+        <inputs>
+        </inputs>
+        <outputs>
+          <channel name="NEW_MISSION">NEW_MISSION</channel>
+        </outputs>
+      </transition>
+    </event>
+  </events>
 </team>
 
