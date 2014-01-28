@@ -130,12 +130,12 @@ public class XmlModelParser {
       State state = new State(name);
       stateMap.put(name, state);
       
-      //If this is the start state then add it
-      if ( name.equals(startState_e.getValue()) )
-        actor.setStartState(state);
-      
       //Add to actor states
       actor.addState(state);
+      
+    //If this is the start state then set it
+      if ( name.equals(startState_e.getValue()) )
+        actor.setStartState(state);
       
     }//end for
     
@@ -273,6 +273,9 @@ public class XmlModelParser {
       case "DATA":
         t = ComChannel.Type.DATA;
         break;
+      case "TACTILE":
+        t = ComChannel.Type.TACTILE;
+        break;
       case "EVENT":
         t = ComChannel.Type.EVENT;
         break;
@@ -338,8 +341,8 @@ public class XmlModelParser {
 	    if ( s.getName().equals(endStateName) )
 	      endState = s;
 	  }
-	  assert endState!=null:"Invalid transition end state. Actor has no state:" + 
-	      endState_e.getValue();
+	  assert endState!=null:"Invalid transition end state. Actor("+actor.name()+
+	      ") has no state:" + endState_e.getValue();
 	  
     //Create the transition
 	  XMLTransition t = new XMLTransition(actor, (State) endState, 
@@ -375,8 +378,12 @@ public class XmlModelParser {
       
       //Get the real channel obj
       ComChannel c = actor.getInputComChannel(name);
-      assert c != null : "Invalid transition input.  Actor has no input channel:" +
-          name;
+      if ( c == null ) {
+        //Allow actors to check their own output channels for input (clear channel)
+        c = actor.getOutputComChannel(name);
+      }
+      assert c != null : "Invalid transition input.  Actor("+ actor.name()+
+          ") has no input channel:" + name;
       
       //Parse layers if they exist
       Elements layerElements = channel_e.getChildElements("layer");
@@ -446,8 +453,8 @@ public class XmlModelParser {
           obj = memory_e.getValue();
       }
       Memory m = actor.getMemory(name);
-      assert m != null : "Invalid transition input.  Actor has no memory:" +
-          name;
+      assert m != null : "Invalid transition input.  Actor("+actor.name()+
+          ") has no memory:" + name;
       t.addInputMemory(m, new XMLPredicate<Memory>(predicate, m, obj));
     }
     
@@ -466,8 +473,18 @@ public class XmlModelParser {
       
       //Get the real channel obj
       ComChannel c = actor.getOutputComChannel(name);
-      assert c != null : "Invalid transition input.  Actor has no input channel:" +
-          name;
+      
+      //If the channel doesn't exist then look for an incoming channel of type data
+      boolean isInputChannel = false;
+      if ( c == null ) {
+        c = actor.getInputComChannel(name);
+        if ( c.type() == ComChannel.Type.DATA )
+          isInputChannel = true;
+        else
+          assert c != null : "Invalid transition output.  Actor("+ actor.name() +
+            ") has no output channel:" + name;
+      }
+      
       
       //Parse layers if they exist
       Elements layerElements = channel_e.getChildElements("layer");
@@ -476,6 +493,10 @@ public class XmlModelParser {
         Elements nullElements = channel_e.getChildElements("null");
         Object obj = null;
         if (nullElements.size() <= 0) {
+          //Make sure that input data channels can only be set to null
+          assert !isInputChannel : "Invalid output value for channel: "+c.name()+
+            ".  Actor(" + actor.name() + ") can only set input data channels to null";
+          
           //Convert string to object of specified type
           if ( dataType != null )
             obj = XMLDataTypes.getObject(dataType, channel_e.getValue());

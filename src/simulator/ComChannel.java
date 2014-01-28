@@ -9,6 +9,7 @@ public class ComChannel {
 	{
 		VISUAL,
 		AUDIO,
+		TACTILE,
 		DATA,
 		EVENT
 	}

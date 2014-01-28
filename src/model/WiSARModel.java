@@ -13,7 +13,7 @@ public class WiSARModel {
 	public static void main(String[] args) {
 		Simulator sim = Simulator.getSim();
 		
-		XmlModelParser xml = new XmlModelParser("src/test/basic_model.xml");
+		XmlModelParser xml = new XmlModelParser("src/test/UAS_in_NAS.xml");
 		
 		sim.setup(xml.getTeam(), DebugMode.DEBUG, DurationMode.MIN);
 		

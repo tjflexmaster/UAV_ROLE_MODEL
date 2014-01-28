@@ -93,7 +93,8 @@ public abstract class Actor implements IActor {
 	}
 	protected void startState(IState state)
 	{
-		assert _states.contains(state):"Start state not available.";
+		assert _states.contains(state):"Start state not available. Actor:" + 
+		    this.name() + " State:" + state.getName();
 		_currentState = (State) state;
 	}
 	
