@@ -53,14 +53,16 @@ public class XMLTransition implements ITransition
   @Override
   public void fire()
   {
+    //Set the memory outputs
+    //TRICKY: Do this before firing the channels, this allows us to modify
+    // memory and then send that memory value across a channel.
+    for(TempMemory m : _memory_output) {
+      m.fire();
+    }
+    
     //Set the channel outputs
     for(TempComChannel c : _outputs) {
       c.fire();
-    }
-    
-    //Set the memory outputs
-    for(TempMemory m : _memory_output) {
-      m.fire();
     }
     
     //Set the Actor state to the end state

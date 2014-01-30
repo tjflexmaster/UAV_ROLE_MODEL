@@ -90,13 +90,19 @@ public class XmlModelParser {
 			Elements inputchannels = parseElementArray(actor_e, "inputchannels", "channel");
 			for(int j=0; j < inputchannels.size(); j++) {
 			  Element channel_e = inputchannels.get(j);
-			  actor.addInputChannel(m_team.getComChannel(channel_e.getValue()));
+			  ComChannel c = m_team.getComChannel(channel_e.getValue());
+			  assert c != null : "Input Channel("+channel_e.getValue()+") for Actor("+
+			      actor.name()+") not defined";
+			  actor.addInputChannel(c);
 			}
 			//Parse outputchannels
 			Elements outputchannels = parseElementArray(actor_e, "outputchannels", "channel");
       for(int j=0; j < outputchannels.size(); j++) {
         Element channel_e = outputchannels.get(j);
-        actor.addOutputChannel(m_team.getComChannel(channel_e.getValue()));
+        ComChannel c = m_team.getComChannel(channel_e.getValue());
+        assert c != null : "Output Channel("+channel_e.getValue()+") for Actor("+
+            actor.name()+") not defined";
+        actor.addOutputChannel(c);
       }
       
       //Parse Memory
@@ -299,6 +305,7 @@ public class XmlModelParser {
 	{
 	  String name = memory.getAttributeValue("name");
     String type = memory.getAttributeValue("dataType");
+    assert type != null : "Memory: " + name + " does not declare a dataType";
     //Check for a null value
     Elements nullElements = memory.getChildElements("null");
     Object obj = null;
@@ -334,7 +341,10 @@ public class XmlModelParser {
 	  int priority = Integer.parseInt(transition.getAttributeValue("priority"));
 	  
 	  //Get end State
-	  Element endState_e = transition.getChildElements("endState").get(0);
+	  Elements endStateElements = transition.getChildElements("endState");
+	  assert endStateElements.size() > 0 : "Missing transition endState node." +
+	      "  Actor("+actor.name()+")";
+	  Element endState_e = endStateElements.get(0);
 	  IState endState = null;
 	  String endStateName = endState_e.getValue();
 	  for(IState s : actor.getStates()) {
@@ -492,20 +502,31 @@ public class XmlModelParser {
       if ( layerElements.size() <= 0 ) {
         Elements nullElements = channel_e.getChildElements("null");
         Object obj = null;
+        Memory mem = null;
+        //Check that it is not being set to null
         if (nullElements.size() <= 0) {
           //Make sure that input data channels can only be set to null
           assert !isInputChannel : "Invalid output value for channel: "+c.name()+
             ".  Actor(" + actor.name() + ") can only set input data channels to null";
           
-          //Convert string to object of specified type
-          if ( dataType != null )
-            obj = XMLDataTypes.getObject(dataType, channel_e.getValue());
-          else
-            obj = channel_e.getValue();
+          //Check to see if we are outputing a memory value
+          Elements memoryElements = channel_e.getChildElements("memory");
+          if ( memoryElements.size() > 0 )
+            mem = actor.getMemory(memoryElements.get(0).getAttributeValue("name"));
+          else {
+            //Convert string to object of specified type
+            if ( dataType != null )
+              obj = XMLDataTypes.getObject(dataType, channel_e.getValue());
+            else
+              obj = channel_e.getValue();
+          }
         }
         
         //Add to transition inputs
-        t.addOutput(new TempComChannel(c, obj));
+        if ( mem != null )
+          t.addOutput(new TempComChannel(c, mem));
+        else
+          t.addOutput(new TempComChannel(c, obj));
         
       } else {
         //The channel has layers, parse each layer
@@ -513,14 +534,21 @@ public class XmlModelParser {
           Element layer_e = layerElements.get(k);
           String layer_name = layer_e.getAttributeValue("name");
           String layer_dataType = layer_e.getAttributeValue("dataType");
-          Elements nullElements = channel_e.getChildElements("null");
+          Elements nullElements = layer_e.getChildElements("null");
           Object obj = null;
+          Memory mem = null;
           if (nullElements.size() <= 0) {
-            //Convert string to object of specified type
-            if ( layer_dataType != null )
-              obj = XMLDataTypes.getObject(layer_dataType, layer_e.getValue());
-            else
-              obj = layer_e.getValue();
+            //Check to see if we are outputing a memory value
+            Elements memoryElements = layer_e.getChildElements("memory");
+            if ( memoryElements.size() > 0 )
+              mem = actor.getMemory(memoryElements.get(0).getAttributeValue("name"));
+            else {
+              //Convert string to object of specified type
+              if ( layer_dataType != null )
+                obj = XMLDataTypes.getObject(layer_dataType, layer_e.getValue());
+              else
+                obj = layer_e.getValue();
+            }
           }
           
           //Check if this is the default layer
@@ -528,8 +556,11 @@ public class XmlModelParser {
             layer_name = c.name();
           }
           
-          //Add the layer input to the transition
-          t.addOutput(new TempComChannel(c, layer_name, obj));
+        //Add to transition inputs
+          if ( mem != null )
+            t.addOutput(new TempComChannel(c, layer_name, mem));
+          else
+            t.addOutput(new TempComChannel(c, layer_name, obj));
           
         }//end for layer
       }//end if
@@ -559,8 +590,8 @@ public class XmlModelParser {
           obj = memory_e.getValue();
       }
       Memory m = actor.getMemory(name);
-      assert m != null : "Invalid transition input.  Actor has no memory:" +
-          name;
+      assert m != null : "Invalid transition input.  Actor("+actor.name()+
+          ") has no memory:" + name;
       t.addOutputMemory(new TempMemory(m, obj, action));
     }
 	}

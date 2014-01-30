@@ -91,7 +91,6 @@ public class Simulator {
 			_ready_transitions.clear();
 			_ready_transitions.putAll(_clock.getReadyTransitions());
 			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
-//				IActor a = (IActor) e.getKey();
 				ITransition t = (ITransition) e.getValue();
 				System.out.println(t.toString());
 				t.fire();

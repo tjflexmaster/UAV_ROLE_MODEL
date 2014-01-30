@@ -36,6 +36,7 @@ public class XMLActor extends Actor implements IActor {
 	
 	public void addInputChannel(ComChannel channel)
 	{
+	  assert channel != null : "Cannot add a NULL channel to Actor("+ this.name() + ")";
 	  m_inputChannels.add(channel);
 	}
 	
