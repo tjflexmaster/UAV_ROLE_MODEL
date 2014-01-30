@@ -491,11 +491,12 @@ public class XmlModelParser {
       ComChannel c = actor.getOutputComChannel(name);
       
       //If the channel doesn't exist then look for an incoming channel of type data
-      boolean isInputChannel = false;
+      boolean canSetValueToNull = false;
       if ( c == null ) {
         c = actor.getInputComChannel(name);
-        if ( c.type() == ComChannel.Type.DATA )
-          isInputChannel = true;
+        if ( c.type() == ComChannel.Type.DATA ||
+             c.type() == ComChannel.Type.EVENT)
+          canSetValueToNull = true;
         else
           assert c != null : "Invalid transition output.  Actor("+ actor.name() +
             ") has no output channel:" + name;
@@ -512,7 +513,7 @@ public class XmlModelParser {
         //Check that it is not being set to null
         if (nullElements.size() <= 0) {
           //Make sure that input data channels can only be set to null
-          assert !isInputChannel : "Invalid output value for channel: "+c.name()+
+          assert !canSetValueToNull : "Invalid output value for channel: "+c.name()+
             ".  Actor(" + actor.name() + ") can only set input data channels to null";
           
           //Check to see if we are outputing a memory value
