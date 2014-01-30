@@ -13,9 +13,11 @@ import simulator.IState;
 import simulator.ITransition;
 import simulator.Memory;
 import simulator.Range;
+import simulator.Simulator;
 import simulator.State;
 import simulator.TempComChannel;
 import simulator.TempMemory;
+import simulator.Simulator.DebugMode;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -150,6 +152,10 @@ public class XmlModelParser {
       Element state_e = states_e.get(j);
       State s = stateMap.get(state_e.getAttributeValue("name"));
       Elements transitions_e = state_e.getChildElements("transition");
+      //Let the user know that there are states with no transitions
+      if ( transitions_e.size() <= 0 ) 
+        System.out.println("No transitions in State("+s.getName()+
+            ") for Actor("+actor.name()+")");
       for(int k=0; k < transitions_e.size(); k++) {
         Element transition_e = transitions_e.get(k);
         s.add((ITransition) parseTransition(transition_e, actor) );
