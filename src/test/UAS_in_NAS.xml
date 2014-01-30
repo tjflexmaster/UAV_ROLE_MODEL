@@ -44,9 +44,9 @@
             <description>Received new mission, begin building flight plan.</description>
             <inputs>
               <channel name="NEW_MISSION" predicate="eq">NEW_MISSION</channel>
-              <memory name="FLIGHT_PLAN_READY" predicate="eq">false</memory>
             </inputs>
             <outputs>
+              <channel name="NEW_MISSION"><null/></channel>
             </outputs>
             <endState>BUILD_FP</endState>
           </transition>
