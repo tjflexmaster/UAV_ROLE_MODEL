@@ -162,14 +162,17 @@
         
         <state name="MONITOR_LANDING">
           <transition durationMin="30" durationMax="60" priority="10">
-            <description>Operator sees that the UAV has landed</description>
+            <description>Operator sees that the UAV has landed and sets the mission to complete.</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="UAV" predicate="eq">GROUNDED</layer>
               </channel>
             </inputs>
             <outputs>
-              
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD">MISSION_COMPLETE</layer>
+                <layer name="MOUSE">MISSION_COMPLETE</layer>
+              </channel>
             </outputs>
             <endState>IDLE</endState>
           </transition>
