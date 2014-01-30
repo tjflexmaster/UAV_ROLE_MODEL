@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.*;
 
+import simulator.Simulator.DebugMode;
+
 /**
  * this abstract class is extended by the actors of the simulation
  * it contains the variables and methods that compose an actor
@@ -35,7 +37,15 @@ public abstract class Actor implements IActor {
 	public HashMap<IActor, ITransition> getTransitions(){
 		
 		State state = this.getCurrentState();
+		
+		if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG_VERBOSE) >= 0) {
+      System.out.println("\t\tActor("+this.name()+") in State("+state.getName()+
+          ") transition summary:");
+    }
+		
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
+		
+		
 		
 		//Log this with JPF
 //		MetricManager.instance().setDecisionWorkload(Simulator.getSim().getClockTime(), this.name(), this.getCurrentState().getName(), enabledTransitions.size());

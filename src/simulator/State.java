@@ -2,6 +2,8 @@ package simulator;
 
 import java.util.ArrayList;
 
+import simulator.Simulator.DebugMode;
+
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
@@ -40,8 +42,14 @@ public class State implements IState {
 	public ArrayList<ITransition> getEnabledTransitions() {
 		ArrayList<ITransition> enabled = new ArrayList<ITransition>();
 		for (ITransition t : _transitions) {
-		  if ( t.isEnabled() )
+		  boolean enabledTransition = false;
+		  if ( t.isEnabled() ) {
 		    enabled.add(t);
+		    enabledTransition = true;
+		  }
+	    if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG_VERBOSE) >= 0) {
+	      System.out.println("\t\t\tEnabled: "+enabledTransition+"  Desc:"+t.toString());
+	    }
 		}
 		return enabled;
 	}

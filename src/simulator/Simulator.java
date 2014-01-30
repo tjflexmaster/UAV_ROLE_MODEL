@@ -12,8 +12,9 @@ import java.util.Random;
 public class Simulator {
 	
 	public enum DebugMode {
-		DEBUG,
-		PROD
+	  PROD,
+	  DEBUG,
+	  DEBUG_VERBOSE
 	}
 	
 	public enum DurationMode {
@@ -85,14 +86,15 @@ public class Simulator {
 			//Advance Time
 			_clock.advanceTime();
 			//debug mode
-			System.out.printf("Time: %d\n",_clock.getElapsedTime());
+			if ( mode().compareTo(DebugMode.DEBUG) >= 0)
+			  System.out.printf("Time: %d\n",_clock.getElapsedTime());
 			
 			//Process Ready Transitions
 			_ready_transitions.clear();
 			_ready_transitions.putAll(_clock.getReadyTransitions());
 			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
 				ITransition t = (ITransition) e.getValue();
-				System.out.println(t.toString());
+				System.out.println("\t"+t.toString());
 				t.fire();
 			}
 		} while (!_ready_transitions.isEmpty());
@@ -133,7 +135,12 @@ public class Simulator {
 			}
 		}
 	}
-	
+
+	/** Returns the simulation mode */
+	public DebugMode mode()
+  {
+    return _mode;
+  }
 	
 	/**
 	 * HELPER METHODS
