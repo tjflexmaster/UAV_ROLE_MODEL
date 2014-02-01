@@ -103,7 +103,7 @@ public class XmlModelParser {
         Element channel_e = outputchannels.get(j);
         ComChannel c = m_team.getComChannel(channel_e.getValue());
         assert c != null : "Output Channel("+channel_e.getValue()+") for Actor("+
-            actor.name()+") not defined";
+            actor.name()+") not defined in team DiTG";
         actor.addOutputChannel(c);
       }
       
@@ -342,9 +342,25 @@ public class XmlModelParser {
 	 */
 	private XMLTransition parseTransition(Element transition, XMLActor actor)
 	{
-	  int minDur = Integer.parseInt(transition.getAttributeValue("durationMin"));
-	  int maxDur = Integer.parseInt(transition.getAttributeValue("durationMax"));
-	  int priority = Integer.parseInt(transition.getAttributeValue("priority"));
+	  String durMin = transition.getAttributeValue("durationMin");
+	  String durMax = transition.getAttributeValue("durationMax");
+	  String transPriority = transition.getAttributeValue("priority");
+	  assert durMin != null : "Missing durationMin in transition. Actor("+
+	      actor.name()+")";
+	  assert durMax != null : "Missing durationMax in transition. Actor("+
+        actor.name()+")";
+	  assert transPriority != null : "Missing priority in transition. Actor("+
+        actor.name()+")";
+	  int minDur=0;
+	  int maxDur=0;
+	  int priority=0;
+	  try {
+	    minDur = Integer.parseInt(durMin);
+  	  maxDur = Integer.parseInt(durMax);
+  	  priority = Integer.parseInt(transPriority);
+	  } catch(Exception e) {
+	    assert false : "Invalid transition values. Actor("+actor.name()+")" + e.getMessage();
+	  }
 	  
 	  //Get end State
 	  Elements endStateElements = transition.getChildElements("endState");
@@ -424,6 +440,8 @@ public class XmlModelParser {
           Element layer_e = layerElements.get(k);
           String layer_name = layer_e.getAttributeValue("name");
           String layer_predicate = layer_e.getAttributeValue("predicate");
+          assert layer_predicate != null : "Missing input predicate. Actor("+
+              actor.name() +") Layer("+layer_name+")";
           String layer_dataType = layer_e.getAttributeValue("dataType");
           Elements nullElements = channel_e.getChildElements("null");
           Object obj = null;
@@ -494,12 +512,13 @@ public class XmlModelParser {
       boolean canSetValueToNull = false;
       if ( c == null ) {
         c = actor.getInputComChannel(name);
-        if ( c.type() == ComChannel.Type.DATA ||
-             c.type() == ComChannel.Type.EVENT)
+        if ( c != null && 
+            (c.type() == ComChannel.Type.DATA ||
+             c.type() == ComChannel.Type.EVENT))
           canSetValueToNull = true;
-        else
-          assert c != null : "Invalid transition output.  Actor("+ actor.name() +
-            ") has no output channel:" + name;
+          
+        assert c != null : "Invalid transition output.  Actor("+ actor.name() +
+            ") has no output or input named channel:" + name;
       }
       
       

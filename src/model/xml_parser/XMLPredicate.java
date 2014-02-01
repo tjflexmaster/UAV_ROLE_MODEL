@@ -62,7 +62,7 @@ public class XMLPredicate<T>
         _type = Type.LTEQ;
         break;
       default:
-        assert false: "Invalid predicate type";
+        assert false: "Invalid predicate type(" + type +")";
         break;
     }
   }
