@@ -203,6 +203,8 @@ public class XmlModelParser {
         Element channel_e = inputchannels.get(j);
         String name = channel_e.getAttributeValue("name");
         String predicate = channel_e.getAttributeValue("predicate");
+        assert predicate != null : "Missing input predicate. Actor("+
+            event.name() +") Channel("+name+")";
         //check for a null value
         Elements nullElements = channel_e.getChildElements("null");
         String value = null;
@@ -406,6 +408,7 @@ public class XmlModelParser {
       Element channel_e = inputchannels.get(j);
       String name = channel_e.getAttributeValue("name");
       String predicate = channel_e.getAttributeValue("predicate");
+      
       String dataType = channel_e.getAttributeValue("dataType");
       
       //Get the real channel obj
@@ -430,6 +433,9 @@ public class XmlModelParser {
           else
             obj = channel_e.getValue();
         }
+        //check predicate
+        assert predicate != null : "Missing input predicate. Actor("+
+            actor.name() +") Channel("+name+")";
         
         //Add to transition inputs
         t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, obj));
@@ -475,6 +481,8 @@ public class XmlModelParser {
       Element memory_e = memoryinputs.get(j);
       String name = memory_e.getAttributeValue("name");
       String predicate = memory_e.getAttributeValue("predicate");
+      assert predicate != null : "Missing input predicate. Actor("+
+          actor.name() +") Memory("+name+")";
       String dataType = memory_e.getAttributeValue("dataType");
       //check null
       Elements nullElements = memory_e.getChildElements("null");
