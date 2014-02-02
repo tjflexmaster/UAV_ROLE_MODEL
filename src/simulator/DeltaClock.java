@@ -3,6 +3,8 @@ package simulator;
 import java.util.*;
 import java.util.Map.Entry;
 
+import simulator.Simulator.DebugMode;
+
 /**
  *
  */
@@ -105,6 +107,10 @@ public class DeltaClock implements IDeltaClock {
 				newTime.time = newTime.time - total_time;
 				_clock.addLast(newTime);
 			}
+			
+			if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG) >= 0 )
+        System.out.println("Load Transition("+time+
+            "):\t"+transition.toString());
 			
 //			//Save channel load metric
 //			sendChannelLoad(actor, transition, time);

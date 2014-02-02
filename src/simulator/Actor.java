@@ -43,6 +43,10 @@ public abstract class Actor implements IActor {
           ") transition summary:");
     }
 		
+		//For debugging
+//		if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG_VERBOSE) >= 0 &&
+//		    name().equals("UAS") )
+//		  System.out.println("Debuging Actor("+name()+")");
 		ArrayList<ITransition> enabledTransitions = state.getEnabledTransitions();
 		
 		

@@ -94,9 +94,12 @@ public class Simulator {
 			_ready_transitions.putAll(_clock.getReadyTransitions());
 			for(Entry<IActor, ITransition> e : _ready_transitions.entrySet()){
 				ITransition t = (ITransition) e.getValue();
-				System.out.println("\t"+t.toString());
+				if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG) >= 0 )
+				  System.out.println("Fired Transition:\t"+t.toString());
 				t.fire();
 			}
+			if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG) >= 0 )
+			  System.out.println("-----------------------------------------------");
 		} while (!_ready_transitions.isEmpty());
 		
 		MetricManager.instance().endSimulation();
@@ -127,13 +130,6 @@ public class Simulator {
 			_clock.addTransition(entry.getKey(), t, duration(t.getDurationRange()));
 		}
 		
-		//deactivate outputs from events after one cycle
-		for(IEvent e : _team.getEvents() ) {
-			ITransition t = e.getEnabledTransition();
-			if(t == null){
-				e.deactivate();
-			}
-		}
 	}
 
 	/** Returns the simulation mode */
