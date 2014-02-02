@@ -3,6 +3,7 @@ package model.xml_parser;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import simulator.Actor;
 import simulator.ComChannel;
 import simulator.ComChannelList;
 import simulator.ITransition;
@@ -174,5 +175,24 @@ public class XMLTransition implements ITransition
   {
     return _actor.name() + ": StartState: " + _actor.getCurrentState().getName() +
         " EndState: " + _endState.getName() + " Description: " + description();
+  }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    XMLTransition other = (XMLTransition) obj;
+    return toString().equals(other.toString());
+  }
+  
+
+  @Override
+  public int hashCode()
+  {
+    return toString().hashCode();
   }
 }
