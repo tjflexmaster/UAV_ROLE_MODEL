@@ -121,9 +121,14 @@ public class XMLPredicate<T>
       return false;
     
     //Handle null values
-    if ( layer == null || layer.value() == null )
-      return _value == null;
-    else if ( _value == null )
+    if ( layer == null || layer.value() == null ) {
+      switch(_type) {
+        case NE: 
+          return !(_value == null);
+        default:
+          return _value == null;
+      }
+    } else if ( _value == null )
       return false;
     
     //Test the ComLayer
