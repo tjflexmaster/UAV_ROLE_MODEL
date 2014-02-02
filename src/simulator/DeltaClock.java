@@ -88,6 +88,9 @@ public class DeltaClock implements IDeltaClock {
 					//distance apart.
 					dt.time = dt.time - time_diff;
 					
+					//Update our new time to be the difference
+					newTime.time = time_diff;
+					
 					//Insert the newTime at this point
 					_clock.add(i, newTime);
 					added = true;
