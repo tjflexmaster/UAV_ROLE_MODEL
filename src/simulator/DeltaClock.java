@@ -153,7 +153,7 @@ public class DeltaClock implements IDeltaClock {
 		DeltaTime fake = new DeltaTime(0, actor, null);
 		
 		int i = _clock.indexOf(fake);
-		if ( i < 0 )
+		if ( i <= 0 )
 			return null;
 		else
 			return _clock.get(i).transition;
