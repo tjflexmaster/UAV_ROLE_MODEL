@@ -16,6 +16,7 @@
     <channel name="RADAR_COLLISION" type="EVENT" source="" target="UAVOP" dataType="String"/>   
     <channel name="FAA_COLLISION" type="EVENT" source="" target="FAA" dataType="String"/>
     <channel name="NEW_NOTAM" type="EVENT" source="" target="ATC" dataType="String"/>   
+    <channel name="END_UAV_COLLISION" type="EVENT" source="" target="FAA" dataType="String"/>
   </channels>
   
   <!-- Model Actors -->
@@ -201,7 +202,7 @@
             <endState>AVOID_NOTAM</endState>
           </transition>
         </state>
-        
+                                                           
         <state name="MONITOR_LANDING">
           <transition durationMin="30" durationMax="60" priority="10">
             <description>Operator sees that the UAV has landed and sets the mission to complete.</description>
@@ -268,6 +269,7 @@
                 <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>
                 <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>
               </channel>
+              <memory name="CHANGED_FLIGHT_PLAN">true</memory>
             </outputs>
             <endState>AVOID_NOTAM</endState>
           </transition>
@@ -290,7 +292,7 @@
           </transition>
           
         </state>
-          
+                                   
         <state name="END_AVOID_NOTAM">
           <transition durationMin="1" durationMax="1" priority="10">
             <description>NOTAM has been avoided, return to watching the UAVGUI</description>
@@ -569,10 +571,6 @@
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
                 <!-- Send all state data to the UAVOP through this channel -->
               </channel>
-              <channel name="DATA_UAS_FAA">
-                <layer name="EMERGENCY_NOTAM">END_EMERGENCY_NOTAM</layer>
-              </channel>
-              
             </outputs>
             <endState>NORMAL</endState>
           </transition>
@@ -765,6 +763,7 @@
         <channel>DATA_UAS_FAA</channel>
         <channel>TACTILE_ATC_FAA</channel>
         <channel>FAA_COLLISION</channel>
+        <channel>END_UAV_COLLISION</channel>
       </inputchannels>
       <outputchannels>
         <channel>DATA_FAA_UAS</channel>
@@ -845,11 +844,9 @@
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="20">
-            <description>ATC forced FAA flight to change.</description>
+            <description>Radar collision has ended.</description>
             <inputs>
-              <channel name="TACTILE_ATC_FAA">
-                <layer name="MOUSE" predicate="eq">END_RADAR_COLLISION</layer>
-              </channel>
+              <channel name="END_UAV_COLLISION" predicate="eq">END_UAV_COLLISION</channel>
               <memory name="RADAR" predicate="eq">COLLISION</memory>
             </inputs>
             <outputs>
@@ -860,9 +857,6 @@
                 <layer name="RADAR"><memory name="RADAR"/></layer>
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
                 <layer name="NOTAM_ON_FLIGHT_PATH"><memory name="NOTAM_ON_FLIGHT_PATH"/></layer>
-              </channel>
-              <channel name="DATA_FAA_UAS">
-                <layer name="EMERGENCY_NOTAM">END_EMERGENCY_NOTAM</layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -952,12 +946,13 @@
         
         <state name="AVOID_UAV_COLLISION">
           <transition durationMin="500" durationMax="600" priority="0">
-            <description>Wait a short time for UAV Emergency NOTAM to work, otherwise change FAA flight.</description>
+            <description>ATC is waiting for collision to stop.</description>
             <inputs>
-              <memory name="UAV_RESPONSE_TIMEOUT" predicate="eq">false</memory>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="RADAR" predicate="eq">COLLISION</layer>
+              </channel>
             </inputs>
             <outputs>
-              <memory name="UAV_RESPONSE_TIMEOUT">true</memory>
               <channel name="TACTILE_ATC_FAA">
                 <layer name="MOUSE">MONITOR_RADAR</layer>
               </channel>
@@ -974,27 +969,14 @@
             </inputs>
             <outputs>
               <channel name="TACTILE_ATC_FAA">
-                <layer name="MOUSE"><null/></layer>
+                <layer name="KEYBOARD"><null/></layer>
                 <layer name="MOUSE"><null/></layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
           
-          <transition durationMin="500" durationMax="600" priority="1">
-            <description>Force FAA flight to avoid UAV, then go back to normal</description>
-            <inputs>
-              <memory name="UAV_RESPONSE_TIMEOUT" predicate="eq">true</memory>
-            </inputs>
-            <outputs>
-              <memory name="UAV_RESPONSE_TIMEOUT">false</memory>
-              <channel name="TACTILE_ATC_FAA">
-                <layer name="KEYBOARD">END_RADAR_COLLISION</layer>
-                <layer name="MOUSE">END_RADAR_COLLISION</layer>
-              </channel>
-            </outputs>
-            <endState>NORMAL</endState>
-          </transition>
+          
         </state>
         
         <!--
@@ -1051,6 +1033,22 @@
         </inputs>
         <outputs>
           <channel name="FAA_COLLISION">COLLISION</channel>
+        </outputs>
+      </transition>
+    </event>
+    
+    <!--Match this count to the FAA_COLLISION count-->
+    <event name="END_UAV_COLLISION" count="1" >
+      <transition>
+        <description>End the FAA potential collision with a UAV</description>
+        <inputs>
+          <channel name="VISUAL_FAA_ATC">
+            <layer name="RADAR" predicate="eq">COLLISION</layer>
+          </channel>
+          <channel name="DATA_UAV_UAS" predicate="eq">LOITER</channel>
+        </inputs>
+        <outputs>
+          <channel name="END_UAV_COLLISION">END_UAV_COLLISION</channel>
         </outputs>
       </transition>
     </event>
