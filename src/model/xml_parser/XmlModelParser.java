@@ -203,18 +203,62 @@ public class XmlModelParser {
         Element channel_e = inputchannels.get(j);
         String name = channel_e.getAttributeValue("name");
         String predicate = channel_e.getAttributeValue("predicate");
-        assert predicate != null : "Missing input predicate. Actor("+
-            event.name() +") Channel("+name+")";
-        //check for a null value
-        Elements nullElements = channel_e.getChildElements("null");
-        String value = null;
-        if (nullElements.size() <= 0) {
-          value = channel_e.getValue();
-        }
+        
+        String dataType = channel_e.getAttributeValue("dataType");
+        
+        //Get the real channel obj
         ComChannel c = m_team.getComChannel(name);
-        assert c != null : "Invalid transition input.  Team has no ComChannel named: " +
-            name;
-        t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, value));
+        assert c != null : "Invalid transition input.  Event("+ event.name()+
+            ") has no input channel:" + name;
+        
+        //Parse layers if they exist
+        Elements layerElements = channel_e.getChildElements("layer");
+        //If no layer elements then assume value is meant for the default layer
+        if ( layerElements.size() <= 0 ) {
+          Elements nullElements = channel_e.getChildElements("null");
+          Object obj = null;
+          if (nullElements.size() <= 0) {
+            //Convert string to object of specified type
+            if ( dataType != null )
+              obj = XMLDataTypes.getObject(dataType, channel_e.getValue());
+            else
+              obj = channel_e.getValue();
+          }
+          //check predicate
+          assert predicate != null : "Missing input predicate. Event("+
+              event.name() +") Channel("+name+")";
+          
+          //Add to transition inputs
+          t.addInput(c, new XMLPredicate<ComChannel>(predicate, c, obj));
+          
+        } else {
+          //The channel has layers, parse each layer
+          for(int k=0; k < layerElements.size(); k++) {
+            Element layer_e = layerElements.get(k);
+            String layer_name = layer_e.getAttributeValue("name");
+            String layer_predicate = layer_e.getAttributeValue("predicate");
+            assert layer_predicate != null : "Missing layer input predicate. Event("+
+                event.name() +") Layer("+layer_name+")";
+            String layer_dataType = layer_e.getAttributeValue("dataType");
+            Elements nullElements = channel_e.getChildElements("null");
+            Object obj = null;
+            if (nullElements.size() <= 0) {
+              //Convert string to object of specified type
+              if ( layer_dataType != null )
+                obj = XMLDataTypes.getObject(layer_dataType, layer_e.getValue());
+              else
+                obj = layer_e.getValue();
+            }
+            
+            //Check if this is the default layer
+            if ( layer_name == null || layer_name.equals("") ) {
+              layer_name = c.name();
+            }
+            
+            //Add the layer input to the transition
+            t.addInput(c, new XMLPredicate<ComChannel>(layer_predicate, c, obj, layer_name));
+          }//end for layer
+        }//end if
       }
       
       //Parse outputchannels
