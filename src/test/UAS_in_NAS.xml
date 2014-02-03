@@ -10,6 +10,8 @@
     <channel name="DATA_FAA_UAS" type="DATA" source="FAA" target="UAS"/>
     <channel name="VISUAL_FAA_ATC" type="VISUAL" source="FAA" target="ATC"/>
     <channel name="TACTILE_ATC_FAA" type="TACTILE" source="ATC" target="FAA"/>
+    
+    <channel name="DATA_ATC_STATE" type="DATA" source="ATC" target="ATC"/>   
   
     <!-- Event Channels -->
     <channel name="NEW_MISSION" type="EVENT" source="" target="UAVOP" dataType="String"/>
@@ -36,7 +38,7 @@
       <!-- Define actor memory -->
       <memory name="FAA_APPROVED" dataType="Boolean">false</memory>
       <memory name="FLIGHT_PLAN_READY" dataType="Boolean">false</memory>
-      <memory name="CHANGED_FLIGHT_PLAN" dataType="Boolean">false</memory>
+      <memory name="CHANGED_FLIGHT_PLAN" dataType="Boolean">true</memory>
       
       <!-- Start state -->
       <startState>IDLE</startState>
@@ -188,13 +190,28 @@
             <endState>AVOID_COLLISION</endState>
           </transition>
           
-          <transition durationMin="1" durationMax="1" priority="10">
+          <transition durationMin="1" durationMax="1" priority="19">
             <description>Operator sees that the UAV is beginning the landing approach</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>
                 <layer name="UAV" predicate="eq">AVOID_NOTAM</layer>
               </channel>
+              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">true</memory>
+            </inputs>
+            <outputs>
+              <memory name="CHANGED_FLIGHT_PLAN">false</memory>
+            </outputs>
+            <endState>AVOID_NOTAM</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>Operator notices new NOTAM(s) on the flight plan, begin changing the flight plan.</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="NEW_NOTAM_ON_FLIGHT_PATH" predicate="eq">NEW_NOTAM_ON_FLIGHT_PATH</layer>
+              </channel>
+              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">true</memory>
             </inputs>
             <outputs>
               <memory name="CHANGED_FLIGHT_PLAN">false</memory>
@@ -274,6 +291,21 @@
             <endState>AVOID_NOTAM</endState>
           </transition>
           
+          <transition durationMin="300" durationMax="1200" priority="10">
+            <description>Operator is changing the flight plan for a normal NOTAM</description>
+            <inputs>
+              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">false</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>
+                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>
+              </channel>
+              <memory name="CHANGED_FLIGHT_PLAN">true</memory>
+            </outputs>
+            <endState>END_AVOID_NOTAM</endState>
+          </transition>
+          
           <transition durationMin="1" durationMax="1" priority="100">
             <description>Operator sees that the UAV is loitering, have it resume flight now.</description>
             <inputs>
@@ -333,6 +365,7 @@
       <memory name="UAV" dataType="String">NONE</memory>
       <memory name="RADAR" dataType="String">NONE</memory>
       <memory name="EMERGENCY_NOTAM" dataType="String">NONE</memory>
+      <memory name="NEW_NOTAM_ON_FLIGHT_PATH" dataType="String">NONE</memory>
       
       <!-- Start state -->
       <startState>NORMAL</startState>
@@ -356,10 +389,6 @@
               </channel>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
-                <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -390,9 +419,22 @@
             </outputs>
             <endState>NORMAL</endState>
           </transition>
-          <!-- END UAVOP input TRANSITIONS -->
           
-          <!-- START FAA input TRANSITIONS -->
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>UAVOP sent resume flight</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="MOUSE" predicate="eq">CHANGE_FLIGHT_PLAN</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <memory name="NEW_NOTAM_ON_FLIGHT_PATH"><null/></memory>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+<!-- END UAVOP input TRANSITIONS -->
+          
+<!-- START FAA input TRANSITIONS -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Received flight plan approved from FAA</description>
             <inputs>
@@ -407,10 +449,6 @@
               <memory name="FLIGHT_PLAN">FLIGHT_PLAN_APPROVED</memory>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
-                <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -427,33 +465,30 @@
             <outputs>
               <memory name="EMERGENCY_NOTAM">EMERGENCY_NOTAM</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
-                <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
               <channel name="DATA_UAS_UAV">AVOID_NOTAM</channel>
+              <channel name="DATA_FAA_UAS">
+                <layer name="EMERGENCY_NOTAM"><null/></layer>
+              </channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="10">
-            <description>Stop Emergency Notam on the UAV</description>
+            <description>Receive new NOTAM from FAA which appears on the Flight Plan</description>
             <inputs>
               <channel name="DATA_FAA_UAS">
-                <layer name="EMERGENCY_NOTAM" predicate="eq">END_EMERGENCY_NOTAM</layer>
+                <layer name="NEW_NOTAM" predicate="eq">NEW_NOTAM</layer>
               </channel>
-              <memory name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</memory>
             </inputs>
             <outputs>
-              <memory name="EMERGENCY_NOTAM"><null/></memory>
+              <memory name="NEW_NOTAM_ON_FLIGHT_PATH">NEW_NOTAM_ON_FLIGHT_PATH</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
-                <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
+                <layer name="NEW_NOTAM_ON_FLIGHT_PATH"><memory name="NEW_NOTAM_ON_FLIGHT_PATH"/></layer>
+              </channel>
+              <channel name="DATA_FAA_UAS">
+                <layer name="NEW_NOTAM"><null/></layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -470,11 +505,7 @@
             <outputs>
               <memory name="UAV">TAKEOFF</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -489,11 +520,7 @@
             <outputs>
               <memory name="UAV">FLYING</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -508,11 +535,7 @@
             <outputs>
               <memory name="UAV">LANDING</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -527,11 +550,7 @@
             <outputs>
               <memory name="UAV">GROUNDED</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -546,11 +565,7 @@
             <outputs>
               <memory name="UAV">AVOID_NOTAM</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -565,11 +580,7 @@
             <outputs>
               <memory name="UAV">LOITER</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -586,11 +597,7 @@
             <outputs>
               <memory name="RADAR">COLLISION</memory>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -607,11 +614,7 @@
               <memory name="RADAR">NONE</memory>
               <channel name="RADAR_COLLISION"><null/></channel>
               <channel name="VISUAL_UAS_UAVOP">
-                <layer name="FLIGHT_PLAN"><memory name="FLIGHT_PLAN"/></layer>
                 <layer name="UAV"><memory name="UAV"/></layer>
-                <layer name="RADAR"><memory name="RADAR"/></layer>
-                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <!-- Send all state data to the UAVOP through this channel -->
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -774,7 +777,7 @@
       <memory name="FLIGHT_PLAN_APPROVALS" dataType="Integer">0</memory>
       <memory name="RADAR" dataType="String">NONE</memory>
       <memory name="EMERGENCY_NOTAM" dataType="String">NONE</memory>
-      <memory name="NOTAM_ON_FLIGHT_PATH" dataType="String">NONE</memory>
+      <memory name="NEW_NOTAM" dataType="String">NONE</memory>
       
       <!-- Start state -->
       <startState>NORMAL</startState>
@@ -813,7 +816,7 @@
                 <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
                 <layer name="RADAR"><memory name="RADAR"/></layer>
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <layer name="NOTAM_ON_FLIGHT_PATH"><memory name="NOTAM_ON_FLIGHT_PATH"/></layer>
+                <layer name="NEW_NOTAM"><memory name="NEW_NOTAM"/></layer>
               </channel>
               <channel name="FAA_COLLISION"><null/></channel>
             </outputs>
@@ -834,7 +837,7 @@
                 <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
                 <layer name="RADAR"><memory name="RADAR"/></layer>
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <layer name="NOTAM_ON_FLIGHT_PATH"><memory name="NOTAM_ON_FLIGHT_PATH"/></layer>
+                <layer name="NEW_NOTAM"><memory name="NEW_NOTAM"/></layer>
               </channel>
               <channel name="DATA_FAA_UAS">
                 <layer name="EMERGENCY_NOTAM">EMERGENCY_NOTAM</layer>
@@ -856,27 +859,54 @@
                 <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
                 <layer name="RADAR"><memory name="RADAR"/></layer>
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
-                <layer name="NOTAM_ON_FLIGHT_PATH"><memory name="NOTAM_ON_FLIGHT_PATH"/></layer>
+                <layer name="NEW_NOTAM"><memory name="NEW_NOTAM"/></layer>
+              </channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+          
+          <!-- NEW_NOTAM transitions -->
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>FAA received new NOTAM on UAV FP from ATC, send to UAS</description>
+            <inputs>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="MOUSE" predicate="eq">NEW_NOTAM</layer>
+              </channel>
+              <memory name="NEW_NOTAM" predicate="ne">NEW_NOTAM</memory>
+            </inputs>
+            <outputs>
+              <memory name="NEW_NOTAM">NEW_NOTAM</memory>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
+                <layer name="RADAR"><memory name="RADAR"/></layer>
+                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
+                <layer name="NEW_NOTAM"><memory name="NEW_NOTAM"/></layer>
+              </channel>
+              <channel name="DATA_FAA_UAS">
+                <layer name="NEW_NOTAM">NEW_NOTAM</layer>
+              </channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>Clear New NOTAM memory</description>
+            <inputs>
+              <memory name="NEW_NOTAM" predicate="eq">NEW_NOTAM</memory>
+            </inputs>
+            <outputs>
+              <memory name="NEW_NOTAM"><null/></memory>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
+                <layer name="RADAR"><memory name="RADAR"/></layer>
+                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
+                <layer name="NEW_NOTAM"><memory name="NEW_NOTAM"/></layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
         </state>
         
-        <!--
-        <state name="TEST">
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
-            <inputs>
-              <channel name="" predicate="eq">TEST</channel>
-            </inputs>
-            <outputs>
-              <channel name="">TEST</channel>
-            </outputs>
-            <endState>TEST</endState>
-          </transition>
-        </state>
-        -->     
       </states>
     </actor>
     
@@ -888,11 +918,12 @@
       </inputchannels>
       <outputchannels>
         <channel>TACTILE_ATC_FAA</channel>
+        <channel>DATA_ATC_STATE</channel>
       </outputchannels>
       
       <!-- Define actor memory -->
       <memory name="RADAR" dataType="String">NONE</memory>
-      <memory name="UAV_RESPONSE_TIMEOUT" dataType="Boolean">false</memory>
+      <memory name="NEW_NOTAM" dataType="Boolean">false</memory>
       
       <!-- Start state -->
       <startState>NORMAL</startState>
@@ -911,21 +942,22 @@
             </inputs>
             <outputs>
               <memory name="RADAR">COLLISION</memory>
+              <channel name="DATA_ATC_STATE">CREATE_EMERGENCY_NOTAM</channel>
             </outputs>
             <endState>CREATE_EMERGENCY_NOTAM</endState>
           </transition>
-          <!--
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
+          
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>ATC needs to create a new NOTAM</description>
             <inputs>
-              <channel name="" predicate="eq">TEST</channel>
+              <channel name="NEW_NOTAM" predicate="eq">NEW_NOTAM</channel>
+              <memory name="NEW_NOTAM" predicate="eq">false</memory>
             </inputs>
             <outputs>
-              <channel name="">TEST</channel>
+              <memory name="NEW_NOTAM">true</memory>
             </outputs>
-            <endState>TEST</endState>
+            <endState>CREATE_NOTAM</endState>
           </transition>
-          -->
         </state>
         
         <state name="CREATE_EMERGENCY_NOTAM">
@@ -939,6 +971,7 @@
                 <layer name="KEYBOARD">EMERGENCY_NOTAM</layer>
                 <layer name="MOUSE">EMERGENCY_NOTAM</layer>
               </channel>
+              <channel name="DATA_ATC_STATE">AVOID_UAV_COLLISION</channel>
             </outputs>
             <endState>AVOID_UAV_COLLISION</endState>
           </transition>
@@ -972,27 +1005,62 @@
                 <layer name="KEYBOARD"><null/></layer>
                 <layer name="MOUSE"><null/></layer>
               </channel>
+              <channel name="DATA_ATC_STATE">NORMAL</channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
-          
-          
         </state>
         
-        <!--
-        <state name="TEST">
-          <transition durationMin="1" durationMax="1" priority="10">
-            <description>TEST</description>
+        <state name="CREATE_NOTAM">
+          <transition durationMin="60" durationMax="120" priority="10">
+            <description>ATC is creating a new NOTAM</description>
             <inputs>
-              <channel name="" predicate="eq">TEST</channel>
+              <memory name="NEW_NOTAM" predicate="eq">true</memory>
             </inputs>
             <outputs>
-              <channel name="">TEST</channel>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD">NEW_NOTAM</layer>
+                <layer name="MOUSE">NEW_NOTAM</layer>
+              </channel>
+              <channel name="DATA_ATC_STATE">END_CREATE_NOTAM</channel>
             </outputs>
-            <endState>TEST</endState>
+            <endState>END_CREATE_NOTAM</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="100">
+            <description>ATC sees the alert about a UAV collision and tries to avoid it</description>
+            <inputs>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="RADAR" predicate="eq">COLLISION</layer>
+              </channel>
+              <memory name="RADAR" predicate="ne">COLLISION</memory>
+            </inputs>
+            <outputs>
+              <memory name="RADAR">COLLISION</memory>
+              <memory name="NEW_NOTAM">false</memory> <!-- This way the ATC will know to return to this state -->
+              <channel name="DATA_ATC_STATE">CREATE_EMERGENCY_NOTAM</channel>
+            </outputs>
+            <endState>CREATE_EMERGENCY_NOTAM</endState>
           </transition>
         </state>
-        -->
+        
+        <state name="END_CREATE_NOTAM">
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>ATC finished creating NOTAM return to normal</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <memory name="NEW_NOTAM">false</memory>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+              <channel name="DATA_ATC_STATE">NORMAL</channel>
+              <channel name="NEW_NOTAM"><null/></channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+        </state>
       </states>
     </actor>
   </actors>
@@ -1049,6 +1117,20 @@
         </inputs>
         <outputs>
           <channel name="END_UAV_COLLISION">END_UAV_COLLISION</channel>
+        </outputs>
+      </transition>
+    </event>
+    
+    <event name="NEW_NOTAM" count="1">
+      <transition>
+        <description>Request that ATC create a new NOTAM on UAV FP</description>
+        <inputs>
+          <channel name="DATA_ATC_STATE" predicate="eq">NORMAL</channel>
+          <channel name="NEW_NOTAM" predicate="eq"><null/></channel>
+          <channel name="DATA_UAV_UAS" predicate="eq">FLYING</channel>
+        </inputs>
+        <outputs>
+          <channel name="NEW_NOTAM">NEW_NOTAM</channel>
         </outputs>
       </transition>
     </event>
