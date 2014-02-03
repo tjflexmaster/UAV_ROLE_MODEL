@@ -786,7 +786,7 @@
       <states>
         <state name="NORMAL">
           <!-- transitions -->
-          <transition durationMin="5" durationMax="10" priority="10">
+          <transition durationMin="1" durationMax="1" priority="10">
             <description>Received Flight plan from UAS</description>
             <inputs>
               <channel name="DATA_UAS_FAA">
@@ -797,12 +797,39 @@
               <channel name="DATA_UAS_FAA">
                 <layer name="FLIGHT_PLAN"><null/></layer>
               </channel>
+              <!--
               <channel name="DATA_FAA_UAS">
                 <layer name="FLIGHT_PLAN_RESPONSE">FLIGHT_PLAN_APPROVED</layer>
+              </channel>
+              -->
+              <memory name="FLIGHT_PLAN_APPROVALS" action="+">1</memory>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>FAA received approved flight plan from ATC, send to UAS</description>
+            <inputs>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="MOUSE" predicate="eq">FLIGHT_PLAN_APPROVED</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_FAA_UAS">
+                <layer name="FLIGHT_PLAN_RESPONSE">FLIGHT_PLAN_APPROVED</layer>
+              </channel>
+              <memory name="FLIGHT_PLAN_APPROVALS" action="-">1</memory>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="FLIGHT_PLAN_APPROVALS"><memory name="FLIGHT_PLAN_APPROVALS"/></layer>
+              </channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+          
+          <!-- TODO: handle flight plan denial -->
           
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Potential collision on FAA Radar, show the user</description>
@@ -932,6 +959,19 @@
       <states>
         <state name="NORMAL">
           <!-- transitions -->
+          <transition durationMin="1" durationMax="1" priority="5">
+            <description>ATC is ready to approve flight plans.</description>
+            <inputs>
+              <channel name="VISUAL_FAA_ATC">
+                <layer name="FLIGHT_PLAN_APPROVALS" predicate="gt">0</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_ATC_STATE">APPROVING_FLIGHT_PLAN</channel>
+            </outputs>
+            <endState>APPROVING_FLIGHT_PLAN</endState>
+          </transition>
+ 
           <transition durationMin="1" durationMax="1" priority="10">
             <description>ATC sees the alert about a UAV collision and tries to avoid it</description>
             <inputs>
@@ -957,6 +997,38 @@
               <memory name="NEW_NOTAM">true</memory>
             </outputs>
             <endState>CREATE_NOTAM</endState>
+          </transition>
+        </state>
+        
+        <state name="APPROVING_FLIGHT_PLAN">
+          <transition durationMin="200" durationMax="400" priority="10">
+            <description>ATC is approving flight plans.</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD">FLIGHT_PLAN_APPROVED</layer>
+                <layer name="MOUSE">FLIGHT_PLAN_APPROVED</layer>
+              </channel>
+              <channel name="DATA_ATC_STATE">END_APPROVING_FLIGHT_PLAN</channel>
+            </outputs>
+            <endState>END_APPROVING_FLIGHT_PLAN</endState>
+          </transition>
+        </state>
+        
+        <state name="END_APPROVING_FLIGHT_PLAN">
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>ATC finished approving the flight plan.</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+              <channel name="DATA_ATC_STATE">NORMAL</channel>
+            </outputs>
+            <endState>NORMAL</endState>
           </transition>
         </state>
         
