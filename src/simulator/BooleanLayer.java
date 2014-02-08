@@ -1,5 +1,7 @@
 package simulator;
 
+import simulator.metrics.MetricContainer;
+
 
 public class BooleanLayer implements IComLayer
 {
@@ -29,11 +31,15 @@ public class BooleanLayer implements IComLayer
   public void value(Boolean value)
   {
     _value = value;
+    
+    //Set metric vars
+    _lastChangeTime = Simulator.getSim().getClockTime();
+    _totalChanges++;
   }
   
   public void value(String value)
   {
-    _value = Boolean.parseBoolean(value);
+    value(Boolean.parseBoolean(value));
   }
   
 ////////////////////////////////////////////////////////
@@ -56,7 +62,7 @@ public class BooleanLayer implements IComLayer
     if ( obj != null )
       value(getBoolean(obj));
     else
-      _value = null;
+      value((Boolean) obj);
   }
   
   @Override
@@ -128,5 +134,40 @@ public class BooleanLayer implements IComLayer
       assert false : "Unrecognized object sent to BooleanLayer";
     
     return null;
+  }
+
+  //////////////ILayerMetrics///////////////////////
+  public int _lastChangeTime = 0;
+  public int _totalChanges = 0;
+  
+//  @Override
+//  public double averageChangeRate()
+//  {
+//    return (double) (_totalChanges / Simulator.getSim().getClockTime());
+//  }
+//
+//  @Override
+//  public int lastTimeBetweenChange()
+//  {
+//    return Simulator.getSim().getClockTime() - _lastChangeTime;
+//  }
+//
+//  @Override
+//  public int numOfChanges()
+//  {
+//    return _totalChanges;
+//  }
+//
+//  @Override
+//  public boolean active()
+//  {
+//    return _value != null;
+//  }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    // TODO Auto-generated method stub
+    
   }
 }

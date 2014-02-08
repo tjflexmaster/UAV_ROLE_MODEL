@@ -1,6 +1,8 @@
 package simulator;
 
-public interface IComLayer
+import simulator.metrics.IMetrics;
+
+public interface IComLayer extends IMetrics
 {
   //Those data types which are allowed by the simlation framework
   public enum DataType

@@ -1,6 +1,9 @@
 package simulator;
 
-public class Memory
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricContainer;
+
+public class Memory implements IMetrics
 {
   IComLayer _layer;
   String _name;
@@ -32,23 +35,12 @@ public class Memory
   {
     return _name;
   }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    
+    
+  }
   
-//  @SuppressWarnings("unchecked")
-//  public void set(Object value) 
-//  {
-//    _value = (T) value;
-//  }
-//  
-//  @SuppressWarnings("unchecked")
-//  public void set(String value)
-//  {
-//    if ( _value instanceof Integer ) {
-//      _value = (T) (Object) Integer.parseInt(value);
-//    }
-//    else if ( _value instanceof Boolean ) {
-//      _value = (T) (Object) Boolean.parseBoolean(value);
-//    }
-//    else
-//      _value = (T) value;
-//  }
 }

@@ -1,5 +1,7 @@
 package simulator;
 
+import simulator.metrics.MetricContainer;
+
 public class StringLayer implements IComLayer
 {
   
@@ -21,10 +23,14 @@ public class StringLayer implements IComLayer
   
   public void value(String value)
   {
-    if ( value.equals("") )
+    if ( value != null && value.equals("") )
       _value = null;
     else
       _value = value;
+    
+    //Set metric vars
+    _lastChangeTime = Simulator.getSim().getClockTime();
+    _totalChanges++;
   }
   
   
@@ -49,7 +55,7 @@ public class StringLayer implements IComLayer
     if ( obj != null )
       value(getString(obj));
     else
-      _value = null;
+      value((String) obj);
   }
   
   @Override
@@ -125,4 +131,39 @@ public class StringLayer implements IComLayer
     return null;
   }
 
+  //////////////ILayerMetrics///////////////////////
+  public int _lastChangeTime = 0;
+  public int _totalChanges = 0;
+  
+//  @Override
+//  public double averageChangeRate()
+//  {
+//    return (double) (_totalChanges / Simulator.getSim().getClockTime());
+//  }
+//  
+//  @Override
+//  public int lastTimeBetweenChange()
+//  {
+//    return Simulator.getSim().getClockTime() - _lastChangeTime;
+//  }
+//  
+//  @Override
+//  public int numOfChanges()
+//  {
+//    return _totalChanges;
+//  }
+//  
+//  @Override
+//  public boolean active()
+//  {
+//    return _value != null;
+//  }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+  
 }

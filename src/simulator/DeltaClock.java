@@ -109,7 +109,7 @@ public class DeltaClock implements IDeltaClock {
 			}
 			
 			if (Simulator.getSim().mode().compareTo(DebugMode.DEBUG) >= 0 )
-        System.out.println("Load Transition("+time+
+			  Simulator.getSim().logMsg("Load Transition("+time+
             "):\t"+transition.toString());
 			
 //			//Save channel load metric
@@ -153,7 +153,7 @@ public class DeltaClock implements IDeltaClock {
 		DeltaTime fake = new DeltaTime(0, actor, null);
 		
 		int i = _clock.indexOf(fake);
-		if ( i <= 0 )
+		if ( i < 0 )
 			return null;
 		else
 			return _clock.get(i).transition;

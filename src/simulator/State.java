@@ -1,15 +1,20 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import simulator.Simulator.DebugMode;
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricContainer;
+import simulator.metrics.StateMetrics;
 
 /**
  * this class represents a the state of an actor (state machine)
  * @author tjr team
  * 
  */
-public class State implements IState {
+public class State implements IState, IMetrics {
 	
 	/**
 	 * this is the name of the state
@@ -95,9 +100,48 @@ public class State implements IState {
 		return _name;
 	}
 
-//	public int getWorkload() {
-//		int temp_workload = _workload + ((Transition)_transitions.get(0)).getWorkload();
-//		return temp_workload;
-//	}
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    c.currentState = getName();
+    c.numOfTransitions = _transitions.size();
+    
+    //Fill State Metrics
+    StateMetrics m = new StateMetrics();
+    c.currentStateMetrics = m;
+
+    //Get all inputs
+    ComChannelList inputChannels = new ComChannelList();
+    HashMap<String, IComLayer> inputLayers = new HashMap<String, IComLayer>();
+    for(ITransition t : _transitions) {
+      inputChannels.putAll(t.getInputChannels());
+      inputLayers.putAll( t.getInputLayers());
+    }//end for
+    
+    //Work with unique input list
+    ComChannelList uniqueChannels = inputChannels.getUniqueChannels();
+    m.channelsRead = uniqueChannels.size();
+    m.activeChannelsRead = uniqueChannels.countActiveChannels();
+    m.audioChannelInputs = uniqueChannels.countActiveChannels(ComChannel.Type.AUDIO);
+    m.visualChannelInputs = uniqueChannels.countActiveChannels(ComChannel.Type.VISUAL);
+    if ( uniqueChannels.countChannels(ComChannel.Type.AUDIO) > 0)
+      m.channelTypes++;
+    if ( uniqueChannels.countChannels(ComChannel.Type.VISUAL) > 0 )
+      m.channelTypes++;
+    
+    //Work with layers
+    ArrayList<String> counted_layers = new ArrayList<String>();
+    for(Entry<String, IComLayer> e : inputLayers.entrySet() ) {
+        String hash = e.getValue() != null ? 
+            e.getKey() + "_" + e.getValue().name() :
+            e.getKey() + "_null";
+        if(!counted_layers.contains(hash)) {
+          counted_layers.add(hash);
+          m.layersRead++;
+        }
+    }
+    
+  }
+
 
 }

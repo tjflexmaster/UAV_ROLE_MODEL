@@ -2,11 +2,19 @@ package model.xml_parser;
 
 
 import java.util.Map.Entry;
+import java.util.Vector;
+
+import org.jfree.chart.JFreeChart;
+
+import com.objectplanet.chart.Chart;
+import com.objectplanet.chart.ChartData;
 
 import simulator.ComChannel;
 import simulator.Event;
 import simulator.IState;
 import simulator.ITransition;
+import simulator.metrics.MetricContainer;
+import simulator.metrics.MetricDisplayPanel;
 
 public class XMLEvent extends Event
 {
@@ -48,5 +56,24 @@ public class XMLEvent extends Event
   public String toString()
   {
     return _name;
+  }
+  
+  @Override
+  public Vector<JFreeChart> getCharts()
+  {
+    return new Vector<JFreeChart>();
+  }
+
+  @Override
+  public Vector<MetricDisplayPanel> getPanels()
+  {
+    return new Vector<MetricDisplayPanel>();
+  }
+  
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    // TODO Auto-generated method stub
+    
   }
 }

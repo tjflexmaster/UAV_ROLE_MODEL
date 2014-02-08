@@ -1,11 +1,14 @@
 package model.xml_parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import simulator.Actor;
 import simulator.ComChannel;
 import simulator.ComChannelList;
+import simulator.IComLayer;
 import simulator.ITransition;
 import simulator.Memory;
 import simulator.MemoryList;
@@ -13,6 +16,8 @@ import simulator.Range;
 import simulator.State;
 import simulator.TempComChannel;
 import simulator.TempMemory;
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricContainer;
 
 public class XMLTransition implements ITransition
 {
@@ -67,7 +72,7 @@ public class XMLTransition implements ITransition
     }
     
     //Set the Actor state to the end state
-    _actor.setStartState(_endState);
+    _actor.setState(_endState);
   }
 
   @Override
@@ -97,6 +102,20 @@ public class XMLTransition implements ITransition
   public ComChannelList getInputChannels()
   {
     return _inputs;
+  }
+  
+  @Override
+  public HashMap<String, IComLayer> getInputLayers()
+  {
+    HashMap<String, IComLayer> result = new HashMap<String, IComLayer>();
+    for(XMLPredicate<?> p : _predicates) {
+      if ( p.source() instanceof ComChannel ) {
+        IComLayer l = ((ComChannel) p.source()).getLayer(p.layer());
+        result.put(((ComChannel) p.source()).name(), l);
+      }
+    }
+    
+    return result;
   }
 
   @Override
@@ -194,5 +213,42 @@ public class XMLTransition implements ITransition
   public int hashCode()
   {
     return toString().hashCode();
+  }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    for(Entry<String, ComChannel> e : _inputs.entrySet()) {
+      e.getValue().setMetrics(c);
+    }
+    
+    for(XMLPredicate<?> p : _predicates) {
+      if ( p.source() instanceof ComChannel ) {
+        ComChannel channel = (ComChannel) p.source();
+        if ( channel.isActive() ) {
+          switch(channel.type()) {
+            case AUDIO:
+              c.numOfAudioLayers++;
+              break;
+            case VISUAL:
+              c.numOfVisualLayers++;
+              break;
+          }//end switch
+        }
+      }
+    }//end for
+    
+    Vector<String> tempNames = new Vector<String>();
+    for(TempComChannel t : _outputs) {
+      if ( !tempNames.contains(t.channel().name()) ) {
+        c.numOfChannelOutputs++;
+        tempNames.add(t.channel().name());
+      }
+    }
+    c.numOfLayerOutputs += _outputs.size();
+    c.numOfMemoryOutputs += _memory_output.size();
+    
+    if ( isEnabled() )
+      c.numOfEnabledTransitions++;
   }
 }

@@ -105,4 +105,27 @@ public class ComChannelList extends HashMap<String, ComChannel > {
 		}
 		return count;
 	}
+	
+	public ComChannelList getUniqueChannels()
+	{
+	  ComChannelList result = new ComChannelList();
+    for( ComChannel channel : this.values() ) {
+      if ( !result.containsKey(channel.name()) ) {
+        result.add(channel);
+      }
+    }
+    return result;
+	}
+	
+	public ComChannelList getUniqueChannels(ComChannel.Type type)
+  {
+    ComChannelList result = new ComChannelList();
+    for( ComChannel channel : this.values() ) {
+      if ( !result.containsKey(channel.name())  &&
+          channel.type() == type) {
+        result.add(channel);
+      }
+    }
+    return result;
+  }
 }

@@ -2,8 +2,16 @@ package simulator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Vector;
 
-public interface ITeam {
+import org.jfree.chart.JFreeChart;
+
+import com.objectplanet.chart.Chart;
+
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricDisplayPanel;
+
+public interface ITeam extends IMetrics {
 	
 	/**
 	 * Return a list of current actor transitions
@@ -30,4 +38,8 @@ public interface ITeam {
 	 */
 	String getStateName(String actor);
 
+	
+	Vector<JFreeChart> getCharts();
+	
+	Vector<MetricDisplayPanel> getPanels();
 }

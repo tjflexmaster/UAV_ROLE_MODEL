@@ -1,8 +1,12 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Vector;
 
-public interface ITransition {
+import simulator.metrics.IMetrics;
+
+public interface ITransition extends IMetrics {
 
 	/**
 	 * Fire the transition causing all of its output and state changes to occur immediately.
@@ -33,7 +37,7 @@ public interface ITransition {
 	int priority();
 	
 	ComChannelList getInputChannels();
-	
+	HashMap<String, IComLayer> getInputLayers();
 	ComChannelList getOutputChannels();
 	
 	ArrayList<TempComChannel > getTempOutputChannels();

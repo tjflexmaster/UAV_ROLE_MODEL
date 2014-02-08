@@ -15,13 +15,13 @@ public abstract class Actor implements IActor {
 	 * this variable represents the name we give to the actor
 	 */
 	private String _name;
-	private State _currentState;
+	protected State _currentState;
 	/**
    * this represents all of the subactors that this actor holds
    */
   private ArrayList<Actor> _subactors = null;
 	
-	private ArrayList<IState> _states = new ArrayList<IState>();
+	protected ArrayList<IState> _states = new ArrayList<IState>();
 	
 //	/**
 //	 * this represents the current state of the actor (state machine)

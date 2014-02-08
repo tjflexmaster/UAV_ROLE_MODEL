@@ -4,7 +4,10 @@ package simulator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public class ComChannel {
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricContainer;
+
+public class ComChannel implements IMetrics {
 	public enum Type
 	{
 		VISUAL,
@@ -122,6 +125,16 @@ public class ComChannel {
 	  return false;
 	}
 	
+	public int activeLayers()
+	{
+	  int count = 0;
+	  for( Entry<String, IComLayer> e : _layers.entrySet() ) {
+      if ( e.getValue().value() != null )
+        count++;
+    }
+	  return count;
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -162,4 +175,20 @@ public class ComChannel {
 	public Type type() {
 		return _type;
 	}
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    if ( isActive() ) {
+      switch(type()) {
+        case AUDIO:
+          c.numOfAudioChannels++;
+          break;
+        case VISUAL:
+          c.numOfVisualChannels++;
+          break;
+      }
+    }
+    
+  }
 }

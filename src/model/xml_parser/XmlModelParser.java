@@ -34,30 +34,40 @@ public class XmlModelParser {
 	 */
 	public XmlModelParser(String xml_path)
 	{
-		
-		try {
-		  Builder parser = new Builder();
-		  Document doc = parser.build(new File(xml_path));
-//		  System.out.println(doc.toXML());
-		  //This should print out the xml.
-		  
-		  //Get the Team
-		  Element team_element = doc.getRootElement();
-		  m_team = new XMLTeam(team_element.getAttribute("name").getValue());
-		  
-		  parseTeamChannels(team_element);
-		  
-		  parseActors(team_element);
-		  
-		  parseEvents(team_element);
-		  
-		}
-		catch (ParsingException ex) {
-		  System.err.println("Error parsing the model!");
-		}
-		catch (IOException ex) {
-		  System.err.println("Cannot open xml string.");
-		}
+    File f = new File(xml_path);
+    init(f);
+	}
+	
+	public XmlModelParser(File file)
+	{
+		init(file);
+	}
+	
+	private void init(File file)
+	{
+	  try {
+      Builder parser = new Builder();
+      Document doc = parser.build(file);
+//      System.out.println(doc.toXML());
+      //This should print out the xml.
+      
+      //Get the Team
+      Element team_element = doc.getRootElement();
+      m_team = new XMLTeam(team_element.getAttribute("name").getValue());
+      
+      parseTeamChannels(team_element);
+      
+      parseActors(team_element);
+      
+      parseEvents(team_element);
+      
+    }
+    catch (ParsingException ex) {
+      System.err.println("Error parsing the model!");
+    }
+    catch (IOException ex) {
+      System.err.println("Cannot open xml string.");
+    }
 	}
 	
 	public XMLTeam getTeam()
@@ -143,7 +153,7 @@ public class XmlModelParser {
       
     //If this is the start state then set it
       if ( name.equals(startState_e.getValue()) )
-        actor.setStartState(state);
+        actor.setState(state);
       
     }//end for
     

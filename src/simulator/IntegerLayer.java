@@ -1,5 +1,7 @@
 package simulator;
 
+import simulator.metrics.MetricContainer;
+
 
 public class IntegerLayer implements IComLayer
 {
@@ -28,21 +30,31 @@ public class IntegerLayer implements IComLayer
   public void value(Integer value)
   {
     _value = value;
+    
+    //Set metric vars
+    _lastChangeTime = Simulator.getSim().getClockTime();
+    _totalChanges++;
   }
   
   public void value(String value)
   {
-    _value = Integer.parseInt(value);
+    value(Integer.parseInt(value));
   }
   
   public void add(Object value)
   {
     _value += getInteger(value);
+    //Set metric vars
+    _lastChangeTime = Simulator.getSim().getClockTime();
+    _totalChanges++;
   }
   
   public void subtract(Object value)
   {
     _value -= getInteger(value);
+    //Set metric vars
+    _lastChangeTime = Simulator.getSim().getClockTime();
+    _totalChanges++;
   }
   
   //////////////////////////////////////////////////////
@@ -65,7 +77,7 @@ public class IntegerLayer implements IComLayer
     if ( obj != null )
       value(getInteger(obj));
     else
-      _value = null;
+      value((Integer) obj);
   }
   
   @Override
@@ -161,5 +173,40 @@ public class IntegerLayer implements IComLayer
       assert false : "Unrecognized object sent to IntegerLayer";
     
     return null;
+  }
+  
+  //////////////ILayerMetrics///////////////////////
+  public int _lastChangeTime = 0;
+  public int _totalChanges = 0;
+  
+//  @Override
+//  public double averageChangeRate()
+//  {
+//    return (double) (_totalChanges / Simulator.getSim().getClockTime());
+//  }
+//  
+//  @Override
+//  public int lastTimeBetweenChange()
+//  {
+//    return Simulator.getSim().getClockTime() - _lastChangeTime;
+//  }
+//  
+//  @Override
+//  public int numOfChanges()
+//  {
+//    return _totalChanges;
+//  }
+//  
+//  @Override
+//  public boolean active()
+//  {
+//    return _value != null;
+//  }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    // TODO Auto-generated method stub
+    
   }
 }

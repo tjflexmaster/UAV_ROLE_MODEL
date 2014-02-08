@@ -1,8 +1,17 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Vector;
 
-public interface IActor {
+import org.jfree.chart.JFreeChart;
+
+import com.objectplanet.chart.Chart;
+
+import simulator.metrics.IMetrics;
+import simulator.metrics.MetricDisplayPanel;
+
+public interface IActor extends IMetrics {
 
 	/**
 	 * Returns the Actor transition and the transitions of any sub-actors.
@@ -24,6 +33,8 @@ public interface IActor {
 	 */
 	IState getCurrentState();
 	
-//	int getWorkload();
+	Vector<JFreeChart> getCharts();
+	
+	Vector<MetricDisplayPanel> getPanels();
 	
 }

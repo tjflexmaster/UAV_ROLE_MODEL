@@ -1,10 +1,12 @@
 package model.xml_parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import simulator.ComChannel;
 import simulator.ComChannelList;
+import simulator.IComLayer;
 import simulator.ITransition;
 import simulator.Memory;
 import simulator.MemoryList;
@@ -12,6 +14,7 @@ import simulator.Range;
 import simulator.State;
 import simulator.TempComChannel;
 import simulator.TempMemory;
+import simulator.metrics.MetricContainer;
 
 public class XMLEventTransition implements ITransition
 {
@@ -161,5 +164,19 @@ public class XMLEventTransition implements ITransition
   public String toString()
   {
     return description();
+  }
+
+  @Override
+  public void setMetrics(MetricContainer c)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public HashMap<String, IComLayer> getInputLayers()
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
