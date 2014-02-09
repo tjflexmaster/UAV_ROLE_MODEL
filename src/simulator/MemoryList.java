@@ -19,4 +19,14 @@ public class MemoryList extends HashMap<String, Memory>
     return this.get(name);
   }
 
+  public MemoryList getUniqueMemory()
+  {
+    MemoryList result = new MemoryList();
+    for( Memory mem : this.values() ) {
+      if ( !result.containsKey(mem.name()) ) {
+        result.add(mem);
+      }
+    }
+    return result;
+  }
 }

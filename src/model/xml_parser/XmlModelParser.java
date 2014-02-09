@@ -143,9 +143,19 @@ public class XmlModelParser {
     HashMap<String, State> stateMap = new HashMap<String, State>();
     for(int j=0; j < states_e.size(); j++) {
       Element state_e = states_e.get(j);
-      
       String name = state_e.getAttributeValue("name");
-      State state = new State(name);
+      assert (name!=null) && !name.equals("") : "Missing state name in Actor("+
+          actor.name()+")";
+      String loadStr = state_e.getAttributeValue("load");
+      int load = 0;
+      try {
+        load = Integer.parseInt(loadStr);
+      } catch (NumberFormatException e) {
+        load = -1;
+      }
+      assert load >= 0 && load <= 4 : "Invalid load for State("+name+
+          ") in Actor("+actor.name()+")";
+      State state = new State(name, load);
       stateMap.put(name, state);
       
       //Add to actor states

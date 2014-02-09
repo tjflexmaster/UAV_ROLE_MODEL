@@ -1,5 +1,6 @@
 package simulator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -104,6 +105,58 @@ public class ComChannelList extends HashMap<String, ComChannel > {
 			}
 		}
 		return count;
+	}
+	
+	public int countSources()
+  {
+    int count = 0;
+    ArrayList<String> holder = new ArrayList<String>();
+    for( ComChannel channel : this.values() ) {
+      if ( !holder.contains(channel.source()) ) {
+        count++;
+        holder.add(channel.source());
+      }
+    }
+    return count;
+  }
+	
+	public int countSources(ComChannel.Type type)
+  {
+	  int count = 0;
+    ArrayList<String> holder = new ArrayList<String>();
+    for( ComChannel channel : this.values() ) {
+      if ( channel.type() == type && !holder.contains(channel.source()) ) {
+        count++;
+        holder.add(channel.source());
+      }
+    }
+    return count;
+  }
+	
+	public int countTargets()
+  {
+	  int count = 0;
+    ArrayList<String> holder = new ArrayList<String>();
+    for( ComChannel channel : this.values() ) {
+      if ( !holder.contains(channel.target()) ) {
+        count++;
+        holder.add(channel.source());
+      }
+    }
+    return count;
+  }
+	
+	public int countTargets(ComChannel.Type type)
+	{
+	  int count = 0;
+    ArrayList<String> holder = new ArrayList<String>();
+    for( ComChannel channel : this.values() ) {
+      if ( channel.type() == type && !holder.contains(channel.target()) ) {
+        count++;
+        holder.add(channel.source());
+      }
+    }
+    return count;
 	}
 	
 	public ComChannelList getUniqueChannels()

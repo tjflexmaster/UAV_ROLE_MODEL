@@ -45,7 +45,7 @@
       
       <!-- States -->
       <states>
-        <state name="IDLE">
+        <state name="IDLE" load="0">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Received new mission, begin building flight plan.</description>
@@ -59,7 +59,7 @@
           </transition>
         </state>
         
-        <state name="BUILD_FP">
+        <state name="BUILD_FP" load="2">
           <!-- transitions -->
           <transition durationMin="900" durationMax="1200" priority="10">
             <description>Build a flight plan</description>
@@ -91,7 +91,7 @@
           </transition>
         </state>
         
-        <state name="END_BUILD_FP">
+        <state name="END_BUILD_FP" load="0">
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Clear mouse and keyboard output layers</description>
             <inputs>
@@ -106,7 +106,7 @@
           </transition>
         </state>
         
-        <state name="WAITING_ON_FAA">
+        <state name="WAITING_ON_FAA" load="1">
           
           <transition durationMin="30" durationMax="60" priority="10">
             <description>FAA approved the flight</description>
@@ -126,7 +126,7 @@
           
         </state>
         
-        <state name="END_WAITING_ON_FAA">
+        <state name="END_WAITING_ON_FAA" load="0">
           <transition durationMin="1" durationMax="1" priority="1">
             <description>Clear user output</description>
             <inputs>
@@ -140,7 +140,7 @@
           </transition>
         </state>
         
-        <state name="MONITOR_TAKEOFF">
+        <state name="MONITOR_TAKEOFF" load="1">
           <transition durationMin="1" durationMax="1" priority="1">
             <description>UAV is airborne, move to monitor GUI</description>
             <inputs>
@@ -152,7 +152,7 @@
           </transition>
         </state>
         
-        <state name="MONITOR_UAVGUI">
+        <state name="MONITOR_UAVGUI" load="1">
           <!--
           <transition durationMin="10000" durationMax="10000" priority="0">
             <description>Default transition when monitoring the UAVGUI</description>
@@ -220,7 +220,7 @@
           </transition>
         </state>
                                                            
-        <state name="MONITOR_LANDING">
+        <state name="MONITOR_LANDING" load="1">
           <transition durationMin="30" durationMax="60" priority="10">
             <description>Operator sees that the UAV has landed and sets the mission to complete.</description>
             <inputs>
@@ -238,7 +238,7 @@
           </transition>
         </state>
         
-        <state name="AVOID_COLLISION">
+        <state name="AVOID_COLLISION" load="2">
           <transition durationMin="300" durationMax="600" priority="100">
             <description>Operator is in the act of deconflicing the UAV</description>
             <inputs>
@@ -272,7 +272,7 @@
           </transition>
         </state>
         
-        <state name="AVOID_NOTAM">
+        <state name="AVOID_NOTAM" load="2">
           <transition durationMin="300" durationMax="1200" priority="100">
             <description>Operator is changing the flight plan</description>
             <inputs>
@@ -325,7 +325,7 @@
           
         </state>
                                    
-        <state name="END_AVOID_NOTAM">
+        <state name="END_AVOID_NOTAM" load="0">
           <transition durationMin="1" durationMax="1" priority="10">
             <description>NOTAM has been avoided, return to watching the UAVGUI</description>
             <inputs>
@@ -372,7 +372,7 @@
       
       <!-- States -->
       <states>
-        <state name="NORMAL">
+        <state name="NORMAL" load="0">
           <!-- transitions -->
           <!-- START UAVOp Input transitions -->
           <transition durationMin="1" durationMax="1" priority="1">
@@ -624,10 +624,6 @@
 
         </state>
         
-        <state name="ALERT">
-          <!-- transitions -->
-          
-        </state>
       </states>
     </actor>
     
@@ -648,7 +644,7 @@
       
       <!-- States -->
       <states>
-        <state name="GROUNDED">
+        <state name="GROUNDED" load="0">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Move to takeoff from UAVGUI cmd</description>
@@ -664,7 +660,7 @@
           </transition>
         </state>
         
-        <state name="TAKEOFF">
+        <state name="TAKEOFF" load="0">
           <!-- transitions -->
           <transition durationMin="300" durationMax="600" priority="10">
             <description>Automatic Transition to Flying</description>
@@ -678,7 +674,7 @@
           </transition>
         </state>
         
-        <state name="FLYING">
+        <state name="FLYING" load="0">
           <!-- transitions -->
           <transition durationMin="10000" durationMax="20000" priority="1">
             <description>UAV normal flight</description>
@@ -706,7 +702,7 @@
           
         </state>
         
-        <state name="AVOID_NOTAM">
+        <state name="AVOID_NOTAM" load="0">
           <!-- transitions -->
           <transition durationMin="300" durationMax="600" priority="10">
             <description>Avoid the Emergency NOTAM</description>
@@ -719,7 +715,7 @@
           </transition>
         </state>
         
-        <state name="LOITER">
+        <state name="LOITER" load="0">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Resume a normal flight</description>
@@ -744,7 +740,7 @@
           </transition>
         </state>
         
-        <state name="LANDING">
+        <state name="LANDING" load="0">
           <!-- transitions -->
           <transition durationMin="600" durationMax="900" priority="10">
             <description>Land the UAV</description>
@@ -784,7 +780,7 @@
       
       <!-- States -->
       <states>
-        <state name="NORMAL">
+        <state name="NORMAL" load="0">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Received Flight plan from UAS</description>
@@ -957,7 +953,7 @@
       
       <!-- States -->
       <states>
-        <state name="NORMAL">
+        <state name="NORMAL" load="1">
           <!-- transitions -->
           <transition durationMin="1" durationMax="1" priority="5">
             <description>ATC is ready to approve flight plans.</description>
@@ -1000,7 +996,7 @@
           </transition>
         </state>
         
-        <state name="APPROVING_FLIGHT_PLAN">
+        <state name="APPROVING_FLIGHT_PLAN" load="1">
           <transition durationMin="200" durationMax="400" priority="10">
             <description>ATC is approving flight plans.</description>
             <inputs>
@@ -1016,7 +1012,7 @@
           </transition>
         </state>
         
-        <state name="END_APPROVING_FLIGHT_PLAN">
+        <state name="END_APPROVING_FLIGHT_PLAN" load="0">
           <transition durationMin="1" durationMax="1" priority="1">
             <description>ATC finished approving the flight plan.</description>
             <inputs>
@@ -1032,7 +1028,7 @@
           </transition>
         </state>
         
-        <state name="CREATE_EMERGENCY_NOTAM">
+        <state name="CREATE_EMERGENCY_NOTAM" load="2">
           <transition durationMin="60" durationMax="120" priority="100">
             <description>ATC is creating an Emergency Notam around the collision</description>
             <inputs>
@@ -1049,7 +1045,7 @@
           </transition>
         </state>
         
-        <state name="AVOID_UAV_COLLISION">
+        <state name="AVOID_UAV_COLLISION" load="2">
           <transition durationMin="500" durationMax="600" priority="0">
             <description>ATC is waiting for collision to stop.</description>
             <inputs>
@@ -1083,7 +1079,7 @@
           </transition>
         </state>
         
-        <state name="CREATE_NOTAM">
+        <state name="CREATE_NOTAM" load="1">
           <transition durationMin="60" durationMax="120" priority="10">
             <description>ATC is creating a new NOTAM</description>
             <inputs>
@@ -1116,7 +1112,7 @@
           </transition>
         </state>
         
-        <state name="END_CREATE_NOTAM">
+        <state name="END_CREATE_NOTAM" load="0">
           <transition durationMin="1" durationMax="1" priority="1">
             <description>ATC finished creating NOTAM return to normal</description>
             <inputs>

@@ -41,6 +41,11 @@ public class TempMemory
     _value = value;
   }
   
+  public Memory memory()
+  {
+    return _memory;
+  }
+  
   public void fire()
   {
     IComLayer layer = _memory.layer();

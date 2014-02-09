@@ -117,6 +117,12 @@ public class XMLTransition implements ITransition
     
     return result;
   }
+  
+  @Override
+  public MemoryList getInputMemory()
+  {
+    return _memory_input;
+  }
 
   @Override
   public ComChannelList getOutputChannels()
@@ -251,4 +257,5 @@ public class XMLTransition implements ITransition
     if ( isEnabled() )
       c.numOfEnabledTransitions++;
   }
+
 }

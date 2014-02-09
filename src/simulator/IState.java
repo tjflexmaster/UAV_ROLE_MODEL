@@ -11,4 +11,6 @@ public interface IState {
 	ArrayList<ITransition> getEnabledTransitions();
 	
 	String getName();
+	
+	int getLoad();
 }

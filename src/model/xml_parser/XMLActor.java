@@ -34,6 +34,7 @@ import simulator.MemoryList;
 import simulator.Simulator;
 import simulator.State;
 import simulator.TempComChannel;
+import simulator.TempMemory;
 import simulator.metrics.IMetrics;
 import simulator.metrics.MetricContainer;
 import simulator.metrics.MetricDisplayPanel;
@@ -53,16 +54,17 @@ public class XMLActor extends Actor implements IActor {
   
   //Create JFreeChart
 //  private XYSeries _series1 = new XYSeries("Test");
-  DefaultCategoryDataset _cog_dataset;
-  DefaultCategoryDataset _cog_output_dataset;
-  DefaultCategoryDataset _alg_dataset;
-  DefaultCategoryDataset _temp_dataset;
-  DefaultCategoryDataset _work_dataset;
+  DefaultCategoryDataset _resource_in_dataset;
+  DefaultCategoryDataset _resource_out_dataset;
+  DefaultCategoryDataset _decision_dataset;
+  DefaultCategoryDataset _temporal_dataset;
+  DefaultCategoryDataset _workload_dataset;
   
-  MetricDisplayPanel _cog_panel;
-  MetricDisplayPanel _cog_output_panel;
-  MetricDisplayPanel _alg_panel;
-  MetricDisplayPanel _temp_panel;
+  MetricDisplayPanel _resource_in_panel;
+  MetricDisplayPanel _resource_out_panel;
+  MetricDisplayPanel _decision_panel;
+  MetricDisplayPanel _temporal_panel;
+  MetricDisplayPanel _workload_panel;
   
   private String lastState;
   private String lastCategory;
@@ -78,19 +80,19 @@ public class XMLActor extends Actor implements IActor {
 		m_outputChannels = new ComChannelList();
 		
 		//Setup dataset
-		_cog_dataset = new DefaultCategoryDataset();
-		_cog_output_dataset = new DefaultCategoryDataset();
-		_alg_dataset = new DefaultCategoryDataset();
-		_temp_dataset = new DefaultCategoryDataset();
-		_work_dataset = new DefaultCategoryDataset();
+		_resource_in_dataset = new DefaultCategoryDataset();
+		_resource_out_dataset = new DefaultCategoryDataset();
+		_decision_dataset = new DefaultCategoryDataset();
+		_temporal_dataset = new DefaultCategoryDataset();
+		_workload_dataset = new DefaultCategoryDataset();
 		
 		//Setup DisplayPanels
-		_cog_panel = new MetricDisplayPanel(name()+" Cognitive Input", _cog_dataset);
-		_cog_panel.setMinimumRangeSize(6);
-		_cog_output_panel = new MetricDisplayPanel(name()+" Cognitive Output", _cog_output_dataset);
-    _alg_panel = new MetricDisplayPanel(name()+" Algorithmic", _alg_dataset);
-    _temp_panel = new MetricDisplayPanel(name()+" Temporal", _temp_dataset);
-    _temp_panel.setMinimumRangeSize(1);
+		_resource_in_panel = new MetricDisplayPanel(name()+" Resource Input Workload", _resource_in_dataset);
+		_resource_out_panel = new MetricDisplayPanel(name()+" Resource Output Workload", _resource_out_dataset);
+		_decision_panel = new MetricDisplayPanel(name()+" Decision Workload", _decision_dataset);
+		_temporal_panel = new MetricDisplayPanel(name()+" Temporal Workload", _temporal_dataset);
+		_temporal_panel.setMinimumRangeSize(1);
+    _workload_panel = new MetricDisplayPanel(name()+" Overall Workload", _workload_dataset);
 	}
 	
 
@@ -154,11 +156,11 @@ public class XMLActor extends Actor implements IActor {
   public Vector<MetricDisplayPanel> getPanels()
   {
     Vector<MetricDisplayPanel> result = new Vector<MetricDisplayPanel>();
-    result.add(_cog_panel);
-    result.add(_cog_output_panel);
-    result.add(_alg_panel);
-    result.add(_temp_panel);
-//    result.add(new MetricDisplayPanel(name()+" Workload", _work_dataset));
+    result.add(_resource_in_panel);
+    result.add(_resource_out_panel);
+    result.add(_decision_panel);
+//    result.add(_temporal_panel);
+    result.add(_workload_panel);
     return result;
   }
 	
@@ -219,44 +221,38 @@ public class XMLActor extends Actor implements IActor {
 	  }
 	  //Update the tooltips
     for(MetricDisplayPanel p : getPanels()) {
-      _cog_panel.setCategoryTooltip(category, category);
+      p.setCategoryTooltip(category, category);
     }
 	  
 	  StateMetrics m = c.currentStateMetrics;
 	  ITransition t = Simulator.getSim().getActorTransition(this);
 	  
-	  ////////////Cognitive Datasets/////////////////////////////
+	  
 	  double channel_conflicts = Math.max(m.audioChannelInputs-1, 0) + 
         Math.max(m.visualChannelInputs-1,0);
-	  double channel_count = m.activeChannelsRead;
-	  double input_load = m.layersRead * m.channelTypes;
+	  double input_load = m.activeChannelsRead > 0 ? 
+	      (Math.pow((double)(1 - (m.activeChannelsRead / m.layersRead)),2.0) * 
+	          m.activeChannelsRead) : 0;
 	  
-    _cog_dataset.addValue(channel_conflicts, 
-        "Channel Conflicts", category);
-    _cog_dataset.addValue(channel_count, 
-        "Channel Reads", category);
-    _cog_dataset.addValue(input_load, 
-        "Input Load", category);
-    _cog_dataset.addValue(channel_conflicts + channel_count + input_load, 
-        "Total", category);
-    
-	  
-	  ////////////////////////////////////////////////////////////
-    
-    ////////////Cognitive Output Datasets///////////////////////
-    
     ComChannelList activeOutputChannels = new ComChannelList();
+    MemoryList activeOutputMemory = new MemoryList();
     double output_layers = 0;
+    double output_memory = 0;
     if ( t != null ) {
       ArrayList<TempComChannel> tcList = t.getTempOutputChannels();
-//      if ( tcList != null ) {
-        for( TempComChannel tc : tcList) {
-          if ( tc.value() != null ) {
-            activeOutputChannels.add(tc.channel());
-            output_layers++;
-          }
+      for( TempComChannel tc : tcList) {
+        if ( tc.value() != null ) {
+          activeOutputChannels.add(tc.channel());
+          output_layers++;
         }
-//      }
+      }
+        
+      for(TempMemory tm : t.getTempOutputMemory()) {
+        if ( tm.value() != null ) {
+          activeOutputMemory.add(tm.memory());
+          output_memory++;
+        }
+      }
     }
     ComChannelList uniqueOutputChannels = activeOutputChannels.getUniqueChannels();
     double output_channels = uniqueOutputChannels.size();
@@ -277,61 +273,116 @@ public class XMLActor extends Actor implements IActor {
       output_types++;
       output_conflicts += output_tactile - 1;
     }
-    double output_load = output_layers * output_types;
-    
-    _cog_output_dataset.addValue(output_conflicts, 
+    double output_load = output_channels > 0 ?
+        ((1 - (output_channels / output_layers)) * output_channels) :0;    
+	      
+    ////////////Resource in Datasets/////////////////////////////
+    _resource_in_dataset.addValue(channel_conflicts, 
         "Channel Conflicts", category);
-    _cog_output_dataset.addValue(output_channels, 
-        "Channel Outputs", category);
-    _cog_output_dataset.addValue(output_load, 
+//    _resource_in_dataset.addValue(m.activeChannelsRead, 
+//        "Input Channels", category);
+//    _resource_in_dataset.addValue(m.memoryInputs, 
+//        "Input Memory", category);
+    _resource_in_dataset.addValue(input_load + m.channelTypes, 
+        "Resource Load", category);
+    _resource_in_dataset.addValue(m.load,
+        "State Load", category);
+    
+    double resource_in_total = channel_conflicts + m.channelTypes + 
+        input_load + m.load;
+    _resource_in_dataset.addValue(resource_in_total, 
+        "Total", category);
+    
+	  
+	  ////////////////////////////////////////////////////////////
+    
+    ////////////Resource Output Datasets///////////////////////
+    _resource_out_dataset.addValue(output_conflicts, 
+        "Channel Conflicts", category);
+    //This is the same as output complexity
+//    _resource_out_dataset.addValue(output_channels, 
+//        "Output Channels", category);
+//    _resource_out_dataset.addValue(output_memory, 
+//        "Output Memory", category);
+    _resource_out_dataset.addValue(output_load + output_types, 
         "Output Load", category);
-    _cog_output_dataset.addValue(output_conflicts + output_channels + output_load, 
+    
+    double resource_out_total = output_conflicts + 
+        output_load + output_types;
+    _resource_out_dataset.addValue(resource_out_total, 
         "Total", category);
     
     ////////////////////////////////////////////////////////////
 	  
 	  ////////////Algorithmic Datasets////////////////////////////
-	  double dec_complexity = 0;
-	  double output_complexity = 0;
 	  double dur_complexity = 0;
-	  
     if ( t != null ) {
-      output_complexity = t.getTempOutputChannels().size();
-      
       //Control the size of the dur complexity
       int dur = Simulator.getSim().duration(t.getDurationRange());
       double offsetDur = Math.max(dur/60, 1);
       dur_complexity = Math.log(offsetDur);
     }
     
-    dec_complexity = this.getCurrentState().getEnabledTransitions().size();
+    double dec_complexity = this.getCurrentState().getEnabledTransitions().size();
 	  
-	  _alg_dataset.addValue(dec_complexity, 
+	  _decision_dataset.addValue(dec_complexity, 
 	      "Decision Complexity", category);
-	  _alg_dataset.addValue(output_complexity, 
+	  _decision_dataset.addValue(m.activeChannelsRead + m.memoryInputs, 
+        "Input Complexity", category);
+	  _decision_dataset.addValue(output_channels + output_memory, 
         "Output Complexity", category);
-	  _alg_dataset.addValue(dur_complexity, 
+	  _decision_dataset.addValue(dur_complexity, 
         "Duration Complexity", category);
 	  
-	  _alg_dataset.addValue(dec_complexity + output_complexity + dur_complexity, 
+	  double decision_total = dec_complexity + output_channels + output_memory + 
+	      m.activeChannelsRead + m.memoryInputs + dur_complexity;
+	  _decision_dataset.addValue(decision_total, 
         "Total", category);
 	  ////////////////////////////////////////////////////////////
 	  
 	  
 	  //////////////////TEMPORAL Metrics/////////////////////////
-	  double transition_rate = 1 - (time - lastTransitionTime / (time+1));
-	  double active_rate = m.channelsRead > 0 ? m.activeChannelsRead / m.channelsRead : 0;
-    _temp_dataset.addValue(transition_rate, 
-        "Transition Ratio", category);
-    //Output complexity
-    _temp_dataset.addValue(active_rate, 
-        "Active Input Ratio", category);
+//	  double transition_rate = 1 - (time - lastTransitionTime / (time+1));
+//	  double active_rate = m.channelsRead > 0 ? m.activeChannelsRead / m.channelsRead : 0;
+//    _temporal_dataset.addValue(transition_rate, 
+//        "Transition Ratio", category);
+//    //Output complexity
+//    _temporal_dataset.addValue(active_rate, 
+//        "Active Input Ratio", category);
 
     /////////////////Workload///////////////////////////
-    double cognitive = 0;
-    double algorithmic = 0;
-    double temporal = 0;
+    double wickens = 0;
     
+    //wickens
+    //outputs
+    double output_targets = 0;
+    double audioOutputs = 0;
+    double visualOutputs = 0;
+    double tactileOutputs = 0;
+    if ( t != null ) {
+      ComChannelList t_outputs = t.getOutputChannels().getUniqueChannels();
+      output_targets = t_outputs.countTargets();
+      audioOutputs = t_outputs.countChannels(ComChannel.Type.AUDIO);
+      visualOutputs = t_outputs.countChannels(ComChannel.Type.VISUAL);
+      tactileOutputs = t_outputs.countChannels(ComChannel.Type.TACTILE);
+    }
+    
+    //MRT task conflicts, we consider there to be a conflict between tasks if
+    //their are multiple channels coming in or going out
+    double stage_dimen = m.activeInputs.countSources() >= 2 || output_targets >= 2 ? 1:0;
+    double modality_dimen = m.audioChannelInputs >= 2 || 
+                            audioOutputs >= 2 ||
+                            m.visualChannelInputs >= 2 ? 1:0;
+    double focus_dimen = tactileOutputs >= 2 ? 1:0;
+    double code_dimen = (m.audioChannelInputs + audioOutputs) > 0 && 
+        (m.visualChannelInputs + visualOutputs + tactileOutputs) > 0 ? 1:0;
+    
+    wickens = m.load + stage_dimen + modality_dimen + focus_dimen + code_dimen;
+    
+    _workload_dataset.addValue(wickens, 
+        "Wickens Model", category);
+    _workload_dataset.addValue(resource_in_total + resource_out_total + decision_total, 
+        "My Model", category);
 	}
 	
 }

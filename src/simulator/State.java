@@ -20,13 +20,15 @@ public class State implements IState, IMetrics {
 	 * this is the name of the state
 	 */
 	private String _name;
+	private int _load;
 	private ArrayList<ITransition> _transitions;
 	/**
 	 * this constructor is used for creating new states
 	 * @param name
 	 */
-	public State(String name) {
+	public State(String name, int load) {
 		_name = name;
+		_load = Math.max(0, Math.min(4, load)); //Between 0 and 2
 		_transitions = new ArrayList<ITransition>();
 	}
 	
@@ -91,6 +93,12 @@ public class State implements IState, IMetrics {
 	{
 		return _name;
 	}
+	
+	@Override
+	public int getLoad()
+	{
+	  return _load;
+	}
 
 	/**
 	 * this method works like a normal toString method
@@ -109,21 +117,27 @@ public class State implements IState, IMetrics {
     //Fill State Metrics
     StateMetrics m = new StateMetrics();
     c.currentStateMetrics = m;
+    
+    m.load = _load;
 
     //Get all inputs
     ComChannelList inputChannels = new ComChannelList();
     HashMap<String, IComLayer> inputLayers = new HashMap<String, IComLayer>();
+    MemoryList inputMemory = new MemoryList();
     for(ITransition t : _transitions) {
       inputChannels.putAll(t.getInputChannels());
       inputLayers.putAll( t.getInputLayers());
+      inputMemory.putAll( t.getInputMemory());
     }//end for
     
     //Work with unique input list
     ComChannelList uniqueChannels = inputChannels.getUniqueChannels();
+    m.activeInputs = uniqueChannels.getActiveChannels();
     m.channelsRead = uniqueChannels.size();
     m.activeChannelsRead = uniqueChannels.countActiveChannels();
     m.audioChannelInputs = uniqueChannels.countActiveChannels(ComChannel.Type.AUDIO);
     m.visualChannelInputs = uniqueChannels.countActiveChannels(ComChannel.Type.VISUAL);
+    m.memoryInputs = inputMemory.getUniqueMemory().size();
     if ( uniqueChannels.countChannels(ComChannel.Type.AUDIO) > 0)
       m.channelTypes++;
     if ( uniqueChannels.countChannels(ComChannel.Type.VISUAL) > 0 )

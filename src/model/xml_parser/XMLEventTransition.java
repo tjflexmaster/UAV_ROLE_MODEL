@@ -179,4 +179,11 @@ public class XMLEventTransition implements ITransition
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public MemoryList getInputMemory()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

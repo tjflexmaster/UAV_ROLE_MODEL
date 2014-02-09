@@ -9,7 +9,7 @@ public abstract class Event implements IEvent, IActor {
 	private int _count = 0;
 	protected String _name;
 	protected ITransition _transition;
-	protected State _currentState = new State("Event");
+	protected State _currentState = new State("Event", 0);
 	
 	/**
 	 * This method returns an enabled transition.  Events only have a single transition.

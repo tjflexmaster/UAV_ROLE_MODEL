@@ -38,6 +38,7 @@ public interface ITransition extends IMetrics {
 	
 	ComChannelList getInputChannels();
 	HashMap<String, IComLayer> getInputLayers();
+	MemoryList getInputMemory();
 	ComChannelList getOutputChannels();
 	
 	ArrayList<TempComChannel > getTempOutputChannels();
