@@ -66,6 +66,8 @@ public class XMLActor extends Actor implements IActor {
   MetricDisplayPanel _temporal_panel;
   MetricDisplayPanel _workload_panel;
   
+  private boolean _showMetrics;
+  
   private String lastState;
   private String lastCategory;
   
@@ -93,6 +95,8 @@ public class XMLActor extends Actor implements IActor {
 		_temporal_panel = new MetricDisplayPanel(name()+" Temporal Workload", _temporal_dataset);
 		_temporal_panel.setMinimumRangeSize(1);
     _workload_panel = new MetricDisplayPanel(name()+" Overall Workload", _workload_dataset);
+    
+    showMetrics(false);
 	}
 	
 
@@ -143,6 +147,16 @@ public class XMLActor extends Actor implements IActor {
     return m_memory.get(name);
   }
 	
+	public void showMetrics(boolean show)
+	{
+	  _showMetrics = show;
+	}
+	
+	public boolean showMetrics()
+	{
+	  return _showMetrics;
+	}
+	
 	/////////////////////////Metrics//////////
 	
   @Override
@@ -156,17 +170,22 @@ public class XMLActor extends Actor implements IActor {
   public Vector<MetricDisplayPanel> getPanels()
   {
     Vector<MetricDisplayPanel> result = new Vector<MetricDisplayPanel>();
-    result.add(_resource_in_panel);
-    result.add(_resource_out_panel);
-    result.add(_decision_panel);
-//    result.add(_temporal_panel);
-    result.add(_workload_panel);
+    if ( showMetrics() ) {
+      result.add(_resource_in_panel);
+      result.add(_resource_out_panel);
+      result.add(_decision_panel);
+  //    result.add(_temporal_panel);
+      result.add(_workload_panel);
+    }
     return result;
   }
 	
 	@Override
 	public void setMetrics(MetricContainer c)
 	{
+	  if ( !showMetrics() )
+	    return;
+	  
 	  c.actorName = name();
 	  c.actorInputChannels = m_inputChannels.size();
 	  c.actorOutputChannels = m_outputChannels.size();

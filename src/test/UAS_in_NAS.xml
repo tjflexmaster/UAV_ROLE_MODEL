@@ -24,7 +24,7 @@
   <!-- Model Actors -->
   <actors>
     <!-- ACTOR UAVOP   ////////////////////////////////////////////////////////////-->
-    <actor name="UAVOP">
+    <actor name="UAVOP" showMetrics="true">
       <inputchannels>
         <channel>VISUAL_UAS_UAVOP</channel>
         <channel>AUDIO_UAS_UAVOP</channel>
@@ -38,7 +38,9 @@
       <!-- Define actor memory -->
       <memory name="FAA_APPROVED" dataType="Boolean">false</memory>
       <memory name="FLIGHT_PLAN_READY" dataType="Boolean">false</memory>
-      <memory name="CHANGED_FLIGHT_PLAN" dataType="Boolean">true</memory>
+<!--      <memory name="CHANGED_FLIGHT_PLAN" dataType="Boolean">true</memory-->
+      <memory name="FLIGHT_STATE" dataType="String">NONE</memory>
+      
       
       <!-- Start state -->
       <startState>IDLE</startState>
@@ -147,16 +149,22 @@
               <channel name="VISUAL_UAV_UAVOP" predicate="eq">FLYING</channel>
             </inputs>
             <outputs>
+              <memory name="FLIGHT_STATE">NORMAL</memory>
             </outputs>
             <endState>MONITOR_UAVGUI</endState>
           </transition>
         </state>
         
         <state name="MONITOR_UAVGUI" load="1">
-          <!--
-          <transition durationMin="10000" durationMax="10000" priority="0">
-            <description>Default transition when monitoring the UAVGUI</description>
+          <transition durationMin="900" durationMax="900" priority="0">
+            <description>Monitoring the UAVGUI</description>
             <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="UAV" predicate="eq">FLYING</layer>
+                <layer name="RADAR" predicate="ne">COLLISION</layer>
+                <layer name="EMERGENCY_NOTAM" predicate="ne">EMERGENCY_NOTAM</layer>
+                <layer name="NEW_NOTAM_ON_FLIGHT_PATH" predicate="ne">NEW_NOTAM_ON_FLIGHT_PATH</layer>
+              </channel>
             </inputs>
             <outputs>
               <channel name="TACTILE_UAVOP_UAS">
@@ -165,7 +173,7 @@
             </outputs>
             <endState>MONITOR_UAVGUI</endState>
           </transition>
-          -->       
+          
           <transition durationMin="1" durationMax="1" priority="10">
             <description>Operator sees that the UAV is beginning the landing approach</description>
             <inputs>
@@ -191,30 +199,41 @@
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="19">
-            <description>Operator sees that the UAV is beginning the landing approach</description>
+            <description>Operator notices an emergency notam on the UAV and attempts to assist</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>
-                <layer name="UAV" predicate="eq">AVOID_NOTAM</layer>
               </channel>
-              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">true</memory>
             </inputs>
             <outputs>
-              <memory name="CHANGED_FLIGHT_PLAN">false</memory>
+              <memory name="FLIGHT_STATE">EMERGENCY_NOTAM</memory>
             </outputs>
-            <endState>AVOID_NOTAM</endState>
+            <endState>AVOID_EMERGENCY_NOTAM</endState>
           </transition>
           
-          <transition durationMin="1" durationMax="1" priority="1">
+          <transition durationMin="1" durationMax="1" priority="18">
+            <description>Operator notices that the UAV is avoiding a NOTAM and attempts to assist</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="UAV" predicate="eq">AVOID_NOTAM</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <memory name="FLIGHT_STATE">EMERGENCY_NOTAM</memory>           
+            </outputs>
+            <endState>AVOID_EMERGENCY_NOTAM</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="15">
             <description>Operator notices new NOTAM(s) on the flight plan, begin changing the flight plan.</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="NEW_NOTAM_ON_FLIGHT_PATH" predicate="eq">NEW_NOTAM_ON_FLIGHT_PATH</layer>
               </channel>
-              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">true</memory>
+              <memory name="FLIGHT_STATE" predicate="eq">NORMAL</memory>
             </inputs>
             <outputs>
-              <memory name="CHANGED_FLIGHT_PLAN">false</memory>
+              <memory name="FLIGHT_STATE">NEW_NOTAMS</memory>
             </outputs>
             <endState>AVOID_NOTAM</endState>
           </transition>
@@ -272,63 +291,50 @@
           </transition>
         </state>
         
-        <state name="AVOID_NOTAM" load="2">
-          <transition durationMin="300" durationMax="1200" priority="100">
-            <description>Operator is changing the flight plan</description>
+        <state name="AVOID_EMERGENCY_NOTAM" load="1">
+          <transition durationMin="300" durationMax="300" priority="1">
+            <description>Operator is waiting for the UAV to auto remove itself from the Emergency Notam</description>
             <inputs>
-              <channel name="VISUAL_UAS_UAVOP">
-                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>
-              </channel>
-              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">false</memory>
+<!--              <channel name="VISUAL_UAS_UAVOP">-->
+<!--                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>-->
+<!--                <layer name="UAV" predicate="ne">LOITER</layer>-->
+<!--              </channel>-->
+<!--              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>-->
             </inputs>
             <outputs>
-              <channel name="TACTILE_UAVOP_UAS">
-                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>
-                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>
-              </channel>
-              <memory name="CHANGED_FLIGHT_PLAN">true</memory>
+              <!-- DO Nothing the UAV will fix itself, then we will continue -->
+<!--              <channel name="TACTILE_UAVOP_UAS">-->
+<!--                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>-->
+<!--                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>-->
+<!--              </channel>-->
+<!--              <memory name="CHANGED_FLIGHT_PLAN">true</memory>-->
             </outputs>
-            <endState>AVOID_NOTAM</endState>
+            <endState>AVOID_EMERGENCY_NOTAM</endState>
           </transition>
           
-          <transition durationMin="300" durationMax="1200" priority="10">
-            <description>Operator is changing the flight plan for a normal NOTAM</description>
-            <inputs>
-              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">false</memory>
-            </inputs>
-            <outputs>
-              <channel name="TACTILE_UAVOP_UAS">
-                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>
-                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>
-              </channel>
-              <memory name="CHANGED_FLIGHT_PLAN">true</memory>
-            </outputs>
-            <endState>END_AVOID_NOTAM</endState>
-          </transition>
-          
-          <transition durationMin="1" durationMax="1" priority="100">
+          <transition durationMin="5" durationMax="5" priority="100">
             <description>Operator sees that the UAV is loitering, have it resume flight now.</description>
             <inputs>
-              <memory name="CHANGED_FLIGHT_PLAN" predicate="eq">true</memory>
               <channel name="VISUAL_UAS_UAVOP">
+                <layer name="EMERGENCY_NOTAM" predicate="ne">EMERGENCY_NOTAM</layer>
                 <layer name="UAV" predicate="eq">LOITER</layer>
               </channel>
+              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>
             </inputs>
             <outputs>
               <channel name="TACTILE_UAVOP_UAS">
                 <layer name="KEYBOARD">RESUME_FLIGHT</layer>
                 <layer name="MOUSE">RESUME_FLIGHT</layer>
               </channel>
+              <memory name="FLIGHT_STATE">NORMAL</memory>
             </outputs>
-            <endState>END_AVOID_NOTAM</endState>
+            <endState>AVOID_EMERGENCY_NOTAM</endState>
           </transition>
           
-        </state>
-                                   
-        <state name="END_AVOID_NOTAM" load="0">
           <transition durationMin="1" durationMax="1" priority="10">
             <description>NOTAM has been avoided, return to watching the UAVGUI</description>
             <inputs>
+              <memory name="FLIGHT_STATE" predicate="eq">NORMAL</memory>
             </inputs>
             <outputs>
               <channel name="TACTILE_UAVOP_UAS">
@@ -339,8 +345,42 @@
             <endState>MONITOR_UAVGUI</endState>
           </transition>
         </state>
-          
         
+        <state name="AVOID_NOTAM" load="1">
+          <transition durationMin="600" durationMax="1200" priority="10">
+            <description>Operator is changing the flight plan for a normal NOTAM</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="NEW_NOTAM_ON_FLIGHT_PATH" predicate="eq">NEW_NOTAM_ON_FLIGHT_PATH</layer>
+              </channel>
+              <memory name="FLIGHT_STATE" predicate="eq">NEW_NOTAMS</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>
+                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>
+              </channel>
+              <memory name="FLIGHT_STATE">NORMAL</memory>
+            </outputs>
+            <endState>AVOID_NOTAM</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>NOTAM has been avoided, return to watching the UAVGUI</description>
+            <inputs>
+              <memory name="FLIGHT_STATE" predicate="eq">NORMAL</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>MONITOR_UAVGUI</endState>
+          </transition>
+          
+        </state>
+                                   
       </states>
     </actor>
     
@@ -421,7 +461,7 @@
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="10">
-            <description>UAVOP sent resume flight</description>
+            <description>UAVOP sent a new flight</description>
             <inputs>
               <channel name="TACTILE_UAVOP_UAS">
                 <layer name="MOUSE" predicate="eq">CHANGE_FLIGHT_PLAN</layer>
@@ -429,6 +469,9 @@
             </inputs>
             <outputs>
               <memory name="NEW_NOTAM_ON_FLIGHT_PATH"><null/></memory>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="NEW_NOTAM_ON_FLIGHT_PATH"><memory name="NEW_NOTAM_ON_FLIGHT_PATH"/></layer>
+              </channel>
             </outputs>
             <endState>NORMAL</endState>
           </transition>
@@ -542,7 +585,7 @@
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="10">
-            <description>UAV has started to land, show this to the UAVOp</description>
+            <description>UAV is GROUNDED, show this to the UAVOp</description>
             <inputs>
               <memory name="UAV" predicate="ne">GROUNDED</memory>
               <channel name="DATA_UAV_UAS" predicate="eq">GROUNDED</channel>
@@ -579,8 +622,10 @@
             </inputs>
             <outputs>
               <memory name="UAV">LOITER</memory>
+              <memory name="EMERGENCY_NOTAM">NONE</memory>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="UAV"><memory name="UAV"/></layer>
+                <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
               </channel>
             </outputs>
             <endState>NORMAL</endState>
@@ -934,7 +979,7 @@
     </actor>
     
     <!-- ACTOR /////////////////////////////////////////////////////////////////////-->
-    <actor name="ATC">
+    <actor name="ATC" showMetrics="true">
       <inputchannels>
         <channel>VISUAL_FAA_ATC</channel>
         <channel>NEW_NOTAM</channel>
@@ -1039,6 +1084,22 @@
                 <layer name="KEYBOARD">EMERGENCY_NOTAM</layer>
                 <layer name="MOUSE">EMERGENCY_NOTAM</layer>
               </channel>
+              <channel name="DATA_ATC_STATE">END_CREATE_EMERGENCY_NOTAM</channel>
+            </outputs>
+            <endState>END_CREATE_EMERGENCY_NOTAM</endState>
+          </transition>
+        </state>
+        
+        <state name="END_CREATE_EMERGENCY_NOTAM" load="0">
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>ATC is creating an Emergency Notam around the collision</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
               <channel name="DATA_ATC_STATE">AVOID_UAV_COLLISION</channel>
             </outputs>
             <endState>AVOID_UAV_COLLISION</endState>
@@ -1106,6 +1167,10 @@
             <outputs>
               <memory name="RADAR">COLLISION</memory>
               <memory name="NEW_NOTAM">false</memory> <!-- This way the ATC will know to return to this state -->
+              <channel name="TACTILE_ATC_FAA">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>             
               <channel name="DATA_ATC_STATE">CREATE_EMERGENCY_NOTAM</channel>
             </outputs>
             <endState>CREATE_EMERGENCY_NOTAM</endState>

@@ -124,7 +124,7 @@ public class Simulator {
 			
 			//Get some metrics
 			try {
-        Thread.sleep(500);
+        Thread.sleep(1);
         MetricContainer c = new MetricContainer();
         _team.setMetrics(c);
         for(MetricDisplayPanel p : _panels) {
@@ -154,7 +154,7 @@ public class Simulator {
 			
 			//Get some metrics
       try {
-        Thread.sleep(100);
+        Thread.sleep(1);
         MetricContainer c = new MetricContainer();
         _team.setMetrics(c);
         for(MetricDisplayPanel p : _panels) {

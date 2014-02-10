@@ -95,6 +95,10 @@ public class XmlModelParser {
 		for(int i=0; i < actors.size(); i++) {
 			Element actor_e = actors.get(i);
 			XMLActor actor = new XMLActor(actor_e.getAttributeValue("name"));
+			
+			Boolean showMetrics = Boolean.parseBoolean(actor_e.getAttributeValue("showMetrics"));
+			if ( showMetrics != null )
+			  actor.showMetrics(showMetrics);
 //			System.out.println(actor_e.toXML());
 			
 			//Parse out an Actors available channels and make sure they are

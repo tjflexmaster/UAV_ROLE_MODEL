@@ -80,8 +80,12 @@ public class XMLTransition implements ITransition
   {
     //Loop through each predicate and see if they are all true
     for(XMLPredicate<?> p : _predicates) {
+      
       if ( !p.test() )
         return false;
+      
+      if ( this.description().equals("UAVOP sent a new flight") )
+        Math.abs(3);
     }
     return true;
   }
