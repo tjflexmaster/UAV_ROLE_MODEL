@@ -12,15 +12,21 @@
     <channel name="TACTILE_ATC_FAA" type="TACTILE" source="ATC" target="FAA"/>
     
     <channel name="DATA_ATC_STATE" type="DATA" source="ATC" target="ATC"/>   
-  
+    <channel name="DATA_UAVOP_STATE" type="DATA" source="UAVOP" target="UAVOP"/>
+    
+    <channel name="AUDIO_PERSON_UAVOP" type="AUDIO" source="PERSON" target="UAVOP"/>
+    <channel name="VISUAL_PERSON_UAVOP" type="VISUAL" source="PERSON" target="UAVOP"/>
+    <channel name="AUDIO_UAVOP_PERSON" type="AUDIO" source="UAVOP" target="PERSON"/>
+    <channel name="VISUAL_UAVOP_PERSON" type="VISUAL" source="UAVOP" target="PERSON"/>
+    
     <!-- Event Channels -->
     <channel name="NEW_MISSION" type="EVENT" source="" target="UAVOP" dataType="String"/>
     <channel name="RADAR_COLLISION" type="EVENT" source="" target="UAVOP" dataType="String"/>   
     <channel name="FAA_COLLISION" type="EVENT" source="" target="FAA" dataType="String"/>
     <channel name="NEW_NOTAM" type="EVENT" source="" target="ATC" dataType="String"/>   
     <channel name="END_UAV_COLLISION" type="EVENT" source="" target="FAA" dataType="String"/>
+    <channel name="INTERUPTING_PERSON" type="EVENT" source="" target="FAA" dataType="String"/>
   </channels>
-  
   <!-- Model Actors -->
   <actors>
     <!-- ACTOR UAVOP   ////////////////////////////////////////////////////////////-->
@@ -30,9 +36,14 @@
         <channel>AUDIO_UAS_UAVOP</channel>
         <channel>VISUAL_UAV_UAVOP</channel>
         <channel>NEW_MISSION</channel>
+        <channel>AUDIO_PERSON_UAVOP</channel>
+        <channel>VISUAL_PERSON_UAVOP</channel>
       </inputchannels>
       <outputchannels>
         <channel>TACTILE_UAVOP_UAS</channel>
+        <channel>AUDIO_UAVOP_PERSON</channel>
+        <channel>VISUAL_UAVOP_PERSON</channel>
+        <channel>DATA_UAVOP_STATE</channel>
       </outputchannels>
       
       <!-- Define actor memory -->
@@ -196,7 +207,9 @@
                 <layer name="RADAR" predicate="eq">COLLISION</layer>
               </channel>
             </inputs>
-            <outputs></outputs>
+            <outputs>
+              <channel name="DATA_UAVOP_STATE">AVOID_COLLISION</channel>
+            </outputs>
             <endState>AVOID_COLLISION</endState>
           </transition>
           
@@ -260,7 +273,7 @@
         </state>
         
         <state name="AVOID_COLLISION" load="2">
-          <transition durationMin="300" durationMax="600" priority="100">
+          <transition durationMin="300" durationMax="600" priority="50">
             <description>Operator is in the act of deconflicing the UAV</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
@@ -274,6 +287,30 @@
               </channel>
             </outputs>
             <endState>AVOID_COLLISION</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="100">
+            <description>Interrupted by another person</description>
+            <inputs>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person" predicate="eq">TEST</layer>
+                <layer name="map" predicate="eq">TEST</layer>
+              </channel>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal" predicate="eq">TEST</layer>
+                <layer name="radio" predicate="eq">TEST</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_UAVOP_PERSON">
+                <layer name="verbal">ACK</layer>
+              </channel>
+              <channel name="VISUAL_UAVOP_PERSON">
+                <layer name="person">ACK</layer>
+                <layer name="map">ACK</layer>
+              </channel>
+            </outputs>
+            <endState>AVOID_COLLISION_INTERRUPTED</endState>
           </transition>
           
           <transition durationMin="1" durationMax="1" priority="10">
@@ -293,35 +330,115 @@
           </transition>
         </state>
         
-        <state name="AVOID_EMERGENCY_NOTAM" load="1">
-          <transition durationMin="300" durationMax="300" priority="1">
-            <description>Operator is waiting for the UAV to auto remove itself from the Emergency Notam</description>
+        <state name="AVOID_COLLISION_INTERRUPTED" load="3">
+          <transition durationMin="1000" durationMax="1000" priority="100">
+            <description>UAVOP is being interrupted by another person</description>
             <inputs>
-<!--              <channel name="VISUAL_UAS_UAVOP">-->
-<!--                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>-->
-<!--                <layer name="UAV" predicate="ne">LOITER</layer>-->
-<!--              </channel>-->
-<!--              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>-->
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="RADAR" predicate="eq">COLLISION</layer>
+              </channel>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person" predicate="eq">TEST</layer>
+                <layer name="map" predicate="eq">TEST</layer>
+              </channel>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal" predicate="eq">TEST</layer>
+                <layer name="radio" predicate="eq">TEST</layer>
+              </channel>
             </inputs>
             <outputs>
-              <!-- DO Nothing the UAV will fix itself, then we will continue -->
-<!--              <channel name="TACTILE_UAVOP_UAS">-->
-<!--                <layer name="KEYBOARD">CHANGE_FLIGHT_PLAN</layer>-->
-<!--                <layer name="MOUSE">CHANGE_FLIGHT_PLAN</layer>-->
-<!--              </channel>-->
-<!--              <memory name="CHANGED_FLIGHT_PLAN">true</memory>-->
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD">AVOID_COLLISION</layer>
+                <layer name="MOUSE">AVOID_COLLISION</layer>
+              </channel>
+              <channel name="AUDIO_UAVOP_PERSON">
+                <layer name="verbal">TEST</layer>
+              </channel>
+              <channel name="VISUAL_UAVOP_PERSON">
+                <layer name="person">TEST</layer>
+                <layer name="map">TEST</layer>
+              </channel>
+            </outputs>
+            <endState>AVOID_COLLISION_INTERRUPTED</endState>
+          </transition>
+          
+          <transition durationMin="1" durationMax="1" priority="100">
+            <description>Interruption is over, resume fixing collision</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="RADAR" predicate="eq">COLLISION</layer>
+              </channel>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person" predicate="ne">TEST</layer>
+                <layer name="map" predicate="ne">TEST</layer>
+              </channel>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal" predicate="ne">TEST</layer>
+                <layer name="radio" predicate="ne">TEST</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+              <channel name="AUDIO_UAVOP_PERSON">
+                <layer name="verbal"><null/></layer>
+              </channel>
+              <channel name="VISUAL_UAVOP_PERSON">
+                <layer name="person"><null/></layer>
+                <layer name="map"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>AVOID_COLLISION</endState>
+          </transition>
+        </state>
+        
+        <state name="AVOID_EMERGENCY_NOTAM" load="2">
+          <transition durationMin="300" durationMax="600" priority="100">
+            <description>Operator is manually adjusting the UAV flight plan to avoid the emergency notam.</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>
+                <layer name="UAV" predicate="ne">CRASHED</layer>
+              </channel>
+              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD">LEAVE_NOTAM</layer>
+                <layer name="MOUSE">LEAVE_NOTAM</layer>
+              </channel>
+              <memory name="FLIGHT_STATE">LEAVE_NOTAM</memory>
             </outputs>
             <endState>AVOID_EMERGENCY_NOTAM</endState>
           </transition>
           
-          <transition durationMin="5" durationMax="5" priority="100">
+          <transition durationMin="300" durationMax="300" priority="1">
+            <description>Operator is waiting for the UAV to clear the Emergency Notam.</description>
+            <inputs>
+              <channel name="VISUAL_UAS_UAVOP">
+                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>
+              </channel>
+              <memory name="FLIGHT_STATE" predicate="eq">LEAVE_NOTAM</memory>
+            </inputs>
+            <outputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="KEYBOARD"><null/></layer>
+                <layer name="MOUSE"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>AVOID_EMERGENCY_NOTAM</endState>
+          </transition>
+          
+          <transition durationMin="5" durationMax="5" priority="10">
             <description>Operator sees that the UAV is loitering, have it resume flight now.</description>
             <inputs>
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="EMERGENCY_NOTAM" predicate="ne">EMERGENCY_NOTAM</layer>
                 <layer name="UAV" predicate="eq">LOITER</layer>
               </channel>
-              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>
+              <memory name="FLIGHT_STATE" predicate="eq">LEAVE_NOTAM</memory>
             </inputs>
             <outputs>
               <channel name="TACTILE_UAVOP_UAS">
@@ -477,6 +594,20 @@
             </outputs>
             <endState>NORMAL</endState>
           </transition>
+          
+          
+          <transition durationMin="1" durationMax="1" priority="10">
+            <description>UAVOP sent command to leave the NOTAM</description>
+            <inputs>
+              <channel name="TACTILE_UAVOP_UAS">
+                <layer name="MOUSE" predicate="eq">LEAVE_NOTAM</layer>
+              </channel>
+            </inputs>
+            <outputs>
+              <channel name="DATA_UAS_UAV">AVOID_NOTAM</channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
 <!-- END UAVOP input TRANSITIONS -->
           
 <!-- START FAA input TRANSITIONS -->
@@ -512,7 +643,6 @@
               <channel name="VISUAL_UAS_UAVOP">
                 <layer name="EMERGENCY_NOTAM"><memory name="EMERGENCY_NOTAM"/></layer>
               </channel>
-              <channel name="DATA_UAS_UAV">AVOID_NOTAM</channel>
               <channel name="DATA_FAA_UAS">
                 <layer name="EMERGENCY_NOTAM"><null/></layer>
               </channel>
@@ -1198,7 +1328,88 @@
         </state>
       </states>
     </actor>
+    
+    <actor name="PERSON">
+      <inputchannels>
+        <channel>INTERUPTING_PERSON</channel>
+        <channel>AUDIO_UAVOP_PERSON</channel>
+        <channel>VISUAL_UAVOP_PERSON</channel>
+      </inputchannels>
+      <outputchannels>
+        <channel>AUDIO_PERSON_UAVOP</channel>
+        <channel>VISUAL_PERSON_UAVOP</channel>
+      </outputchannels>
+      
+      <!-- Define actor memory -->
+      
+      <!-- Start state -->
+      <startState>NORMAL</startState>
+      
+      <!-- States -->
+      <states>
+        <state name="NORMAL" load="0">
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>Beginning Interruption</description>
+            <inputs>
+              <channel name="INTERUPTING_PERSON" predicate="eq">INTERUPTING_PERSON</channel>
+            </inputs>
+            <outputs>
+              <channel name="INTERUPTING_PERSON"><null/></channel>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal">TEST</layer>
+                <layer name="radio">TEST</layer>
+              </channel>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person">TEST</layer>
+                <layer name="map">TEST</layer>
+              </channel>
+            </outputs>
+            <endState>INTERUPTING</endState>
+          </transition>
+        </state>
+        
+        <state name="INTERUPTING" load="0">
+          <transition durationMin="400" durationMax="400" priority="1">
+            <description>Interupting UAVOP</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal">TEST</layer>
+                <layer name="radio">TEST</layer>
+              </channel>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person">TEST</layer>
+                <layer name="map">TEST</layer>
+              </channel>
+            </outputs>
+            <endState>END_INTERUPTION</endState>
+          </transition>
+        </state>
+        
+        <state name="END_INTERUPTION" load="0">
+          <transition durationMin="1" durationMax="1" priority="1">
+            <description>Finished interrupting</description>
+            <inputs>
+            </inputs>
+            <outputs>
+              <channel name="AUDIO_PERSON_UAVOP">
+                <layer name="verbal"><null/></layer>
+                <layer name="radio"><null/></layer>
+              </channel>
+              <channel name="VISUAL_PERSON_UAVOP">
+                <layer name="person"><null/></layer>
+                <layer name="map"><null/></layer>
+              </channel>
+            </outputs>
+            <endState>NORMAL</endState>
+          </transition>
+        </state>
+        
+      </states>
+    </actor>
   </actors>
+  
   
   <!-- System Events -->
   <events>
@@ -1266,6 +1477,18 @@
         </inputs>
         <outputs>
           <channel name="NEW_NOTAM">NEW_NOTAM</channel>
+        </outputs>
+      </transition>
+    </event>
+    
+    <event name="INTERUPTING_PERSON" count="1">
+      <transition>
+        <description>Another person interrupts the UAVOP</description>
+        <inputs>
+          <channel name="DATA_UAVOP_STATE" predicate="eq">AVOID_COLLISION</channel>
+        </inputs>
+        <outputs>
+          <channel name="INTERUPTING_PERSON">INTERUPTING_PERSON</channel>
         </outputs>
       </transition>
     </event>

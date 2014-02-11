@@ -297,10 +297,10 @@
           <transition durationMin="300" durationMax="300" priority="1">
             <description>Operator is waiting for the UAV to auto remove itself from the Emergency Notam</description>
             <inputs>
-<!--              <channel name="VISUAL_UAS_UAVOP">-->
+              <channel name="VISUAL_UAS_UAVOP">
 <!--                <layer name="EMERGENCY_NOTAM" predicate="eq">EMERGENCY_NOTAM</layer>-->
-<!--                <layer name="UAV" predicate="ne">LOITER</layer>-->
-<!--              </channel>-->
+                <layer name="UAV" predicate="eq">AVOID_NOTAM</layer>
+              </channel>
 <!--              <memory name="FLIGHT_STATE" predicate="eq">EMERGENCY_NOTAM</memory>-->
             </inputs>
             <outputs>
@@ -1202,6 +1202,7 @@
   
   <!-- System Events -->
   <events>
+    <!-- Need at least one event to start things -->
     <event name="NEW_MISSION" count="1">
       <transition>
         <description> Start a new UAV mission</description>
@@ -1213,7 +1214,7 @@
       </transition>
     </event>
     
-    <event name="RADAR_COLLISION" count="1">
+    <event name="RADAR_COLLISION" count="0">
       <transition>
         <description>Potential collision on UAS radar</description>
         <inputs>
@@ -1226,7 +1227,7 @@
       </transition>
     </event>
     
-    <event name="FAA_COLLISION" count="1">
+    <event name="FAA_COLLISION" count="0">
       <transition>
         <description>FAA radar shows a potential collision with a UAV</description>
         <inputs>
@@ -1241,7 +1242,7 @@
     </event>
     
     <!--Match this count to the FAA_COLLISION count-->
-    <event name="END_UAV_COLLISION" count="1" >
+    <event name="END_UAV_COLLISION" count="0" >
       <transition>
         <description>End the FAA potential collision with a UAV</description>
         <inputs>
@@ -1256,7 +1257,7 @@
       </transition>
     </event>
     
-    <event name="NEW_NOTAM" count="1">
+    <event name="NEW_NOTAM" count="0">
       <transition>
         <description>Request that ATC create a new NOTAM on UAV FP</description>
         <inputs>
