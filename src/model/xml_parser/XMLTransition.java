@@ -21,34 +21,33 @@ import simulator.metrics.MetricContainer;
 
 public class XMLTransition implements ITransition
 {
-  
+
   protected ComChannelList _inputs = new ComChannelList();
-  protected ArrayList<TempComChannel > _outputs = new ArrayList<TempComChannel>();
+  protected ArrayList<TempComChannel> _outputs = new ArrayList<TempComChannel>();
   protected MemoryList _memory_input = new MemoryList();
-  protected ArrayList<TempMemory > _memory_output = new ArrayList<TempMemory>();
+  protected ArrayList<TempMemory> _memory_output = new ArrayList<TempMemory>();
   private Range _range;
   private State _endState;
   private int _priority;
   private double _probability;
-  
+
   private int _transition_number;
-  
+
   private Vector<XMLPredicate<?>> _predicates = new Vector();
-  
+
   private XMLActor _actor;
-  
+
   /**
    * Description of this transition
    */
   private String _description;
-  
-  XMLTransition(XMLActor actor, State endState, Range range, int priority)
-  {
+
+  XMLTransition(XMLActor actor, State endState, Range range, int priority) {
     _inputs = new ComChannelList();
-    _outputs = new ArrayList<TempComChannel >();
+    _outputs = new ArrayList<TempComChannel>();
     _memory_input = new MemoryList();
-    _memory_output = new ArrayList<TempMemory >();
-    
+    _memory_output = new ArrayList<TempMemory>();
+
     _actor = actor;
     _endState = endState;
     _range = range;
@@ -59,33 +58,35 @@ public class XMLTransition implements ITransition
   @Override
   public void fire()
   {
-    //Set the memory outputs
-    //TRICKY: Do this before firing the channels, this allows us to modify
+    // Set the memory outputs
+    // TRICKY: Do this before firing the channels, this allows us to modify
     // memory and then send that memory value across a channel.
-    for(TempMemory m : _memory_output) {
+    for (TempMemory m : _memory_output) {
       m.fire();
     }
-    
-    //Set the channel outputs
-    for(TempComChannel c : _outputs) {
+
+    // Set the channel outputs
+    for (TempComChannel c : _outputs) {
       c.fire();
     }
-    
-    //Set the Actor state to the end state
+
+    // Set the Actor state to the end state
     _actor.setState(_endState);
   }
 
   @Override
   public boolean isEnabled()
   {
-    //Loop through each predicate and see if they are all true
-    for(XMLPredicate<?> p : _predicates) {
-      
-      if ( !p.test() )
-        return false;
-      
-      if ( this.description().equals("UAVOP sent a new flight") )
+    // Loop through each predicate and see if they are all true
+    for (XMLPredicate<?> p : _predicates) {
+
+//      if (this.description().equals(
+//          "Interruption is over, resume fixing collision"))
         Math.abs(3);
+
+      if (!p.test())
+        return false;
+
     }
     return true;
   }
@@ -107,21 +108,21 @@ public class XMLTransition implements ITransition
   {
     return _inputs;
   }
-  
+
   @Override
   public HashMap<String, IComLayer> getInputLayers()
   {
     HashMap<String, IComLayer> result = new HashMap<String, IComLayer>();
-    for(XMLPredicate<?> p : _predicates) {
-      if ( p.source() instanceof ComChannel ) {
+    for (XMLPredicate<?> p : _predicates) {
+      if (p.source() instanceof ComChannel) {
         IComLayer l = ((ComChannel) p.source()).getLayer(p.layer());
         result.put(((ComChannel) p.source()).name(), l);
       }
     }
-    
+
     return result;
   }
-  
+
   @Override
   public MemoryList getInputMemory()
   {
@@ -132,20 +133,20 @@ public class XMLTransition implements ITransition
   public ComChannelList getOutputChannels()
   {
     ComChannelList result = new ComChannelList();
-    for(TempComChannel t : _outputs) {
+    for (TempComChannel t : _outputs) {
       result.add(t.channel());
     }
     return result;
   }
 
   @Override
-  public ArrayList<TempComChannel > getTempOutputChannels()
+  public ArrayList<TempComChannel> getTempOutputChannels()
   {
     return _outputs;
   }
 
   @Override
-  public ArrayList<TempMemory > getTempOutputMemory()
+  public ArrayList<TempMemory> getTempOutputMemory()
   {
     return _memory_output;
   }
@@ -163,28 +164,27 @@ public class XMLTransition implements ITransition
     return _transition_number;
   }
 
-  
   /**
    * HELPER METHODS
    */
-  
+
   public void addInput(ComChannel c, XMLPredicate<?> p)
   {
     _inputs.add(c);
     _predicates.add(p);
   }
-  
+
   public void addOutput(TempComChannel c)
   {
     _outputs.add(c);
   }
-  
+
   public void addInputMemory(Memory memory, XMLPredicate<?> p)
   {
     _memory_input.add(memory);
     _predicates.add(p);
   }
-  
+
   public void addOutputMemory(TempMemory m)
   {
     _memory_output.add(m);
@@ -194,20 +194,22 @@ public class XMLTransition implements ITransition
   {
     _description = desc;
   }
-  
+
   public String description()
   {
     return _description;
   }
-  
+
   public String toString()
   {
-    return _actor.name() + ": StartState: " + _actor.getCurrentState().getName() +
-        " EndState: " + _endState.getName() + " Description: " + description();
+    return _actor.name() + ": StartState: "
+        + _actor.getCurrentState().getName() + " EndState: "
+        + _endState.getName() + " Description: " + description();
   }
-  
+
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(Object obj)
+  {
     if (this == obj)
       return true;
     if (obj == null)
@@ -217,7 +219,6 @@ public class XMLTransition implements ITransition
     XMLTransition other = (XMLTransition) obj;
     return toString().equals(other.toString());
   }
-  
 
   @Override
   public int hashCode()
@@ -228,37 +229,37 @@ public class XMLTransition implements ITransition
   @Override
   public void setMetrics(MetricContainer c)
   {
-    for(Entry<String, ComChannel> e : _inputs.entrySet()) {
+    for (Entry<String, ComChannel> e : _inputs.entrySet()) {
       e.getValue().setMetrics(c);
     }
-    
-    for(XMLPredicate<?> p : _predicates) {
-      if ( p.source() instanceof ComChannel ) {
+
+    for (XMLPredicate<?> p : _predicates) {
+      if (p.source() instanceof ComChannel) {
         ComChannel channel = (ComChannel) p.source();
-        if ( channel.isActive() ) {
-          switch(channel.type()) {
+        if (channel.isActive()) {
+          switch (channel.type()) {
             case AUDIO:
               c.numOfAudioLayers++;
               break;
             case VISUAL:
               c.numOfVisualLayers++;
               break;
-          }//end switch
+          }// end switch
         }
       }
-    }//end for
-    
+    }// end for
+
     Vector<String> tempNames = new Vector<String>();
-    for(TempComChannel t : _outputs) {
-      if ( !tempNames.contains(t.channel().name()) ) {
+    for (TempComChannel t : _outputs) {
+      if (!tempNames.contains(t.channel().name())) {
         c.numOfChannelOutputs++;
         tempNames.add(t.channel().name());
       }
     }
     c.numOfLayerOutputs += _outputs.size();
     c.numOfMemoryOutputs += _memory_output.size();
-    
-    if ( isEnabled() )
+
+    if (isEnabled())
       c.numOfEnabledTransitions++;
   }
 

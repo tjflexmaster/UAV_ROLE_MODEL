@@ -130,6 +130,9 @@ public class State implements IState, IMetrics {
       inputMemory.putAll( t.getInputMemory());
     }//end for
     
+//    if ( c.actorName.equals("UAVOP") && this.getName().equals("AVOID_COLLISION_INTERRUPTED") )
+//      Math.abs(0);
+    
     //Work with unique input list
     ComChannelList uniqueChannels = inputChannels.getUniqueChannels();
     m.activeInputs = uniqueChannels.getActiveChannels();
