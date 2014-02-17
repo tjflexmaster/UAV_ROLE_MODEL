@@ -249,9 +249,7 @@ public class XMLActor extends Actor implements IActor {
 	  
 	  double channel_conflicts = Math.max(m.audioChannelInputs-1, 0) + 
         Math.max(m.visualChannelInputs-1,0);
-	  double input_load = m.activeChannelsRead > 0 ? 
-	      (Math.pow((double)(1 - (m.activeChannelsRead / m.layersRead)),2.0) * 
-	          m.activeChannelsRead) : 0;
+	  double input_load = m.activeChannelsRead + m.layersRead + m.memoryInputs;
 	  
     ComChannelList activeOutputChannels = new ComChannelList();
     MemoryList activeOutputMemory = new MemoryList();
