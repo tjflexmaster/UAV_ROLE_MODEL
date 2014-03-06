@@ -6,8 +6,6 @@ import java.util.Vector;
 
 import org.jfree.chart.JFreeChart;
 
-import com.objectplanet.chart.Chart;
-
 import simulator.metrics.IMetrics;
 import simulator.metrics.MetricDisplayPanel;
 

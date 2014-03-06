@@ -20,9 +20,6 @@ import org.jfree.data.category.SlidingCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.objectplanet.chart.Chart;
-import com.objectplanet.chart.LineChart;
-
 import simulator.Actor;
 import simulator.ComChannel;
 import simulator.ComChannelList;

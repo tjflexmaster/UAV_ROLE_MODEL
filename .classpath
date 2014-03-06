@@ -4,5 +4,8 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="xom-1.2.10.jar"/>
 	<classpathentry kind="src" path="/jpf-core"/>
+	<classpathentry kind="lib" path="C:/Users/TJ-ASUS/Downloads/jfreechart-1.0.17/jfreechart-1.0.17/lib/jfreechart-1.0.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/TJ-ASUS/Downloads/jfreechart-1.0.17/jfreechart-1.0.17/lib/jfreechart-1.0.17-swt.jar"/>
+	<classpathentry kind="lib" path="C:/Users/TJ-ASUS/Downloads/jfreechart-1.0.17/jfreechart-1.0.17/lib/jcommon-1.0.21.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

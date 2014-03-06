@@ -6,9 +6,6 @@ import java.util.Vector;
 
 import org.jfree.chart.JFreeChart;
 
-import com.objectplanet.chart.Chart;
-import com.objectplanet.chart.ChartData;
-
 import simulator.ComChannel;
 import simulator.Event;
 import simulator.IState;

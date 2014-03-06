@@ -45,7 +45,6 @@ public class Simulator {
 	private DebugMode _mode;
 	private DurationMode _duration;
 	private Random _random;
-	public MetricManager _metrics;
 	
 	private Vector<MetricDisplayPanel> _panels = new Vector<MetricDisplayPanel>();	
 	JTextArea _txtArea;
